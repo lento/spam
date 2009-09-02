@@ -1,0 +1,111 @@
+/*
+common colors from the tango palette:
+#73d216; / * Chameleon 2 * /
+#4e9a06; / * Chameleon 3 * /
+#f6f6f4; / * Aluminium 0 * /
+#eeeeec; / * Aluminium 1 * /
+#3465a4; / * Sky Blue 2 * /
+#204a87; / * Sky Blue 3 * /
+#ef2929; / * Scarlet Red 1 * /
+
+*/
+
+a {
+    text-decoration: none;
+}
+
+html {
+}
+
+body {
+	margin: 15px 20px;
+	padding: 0;
+	font-family:"Lucida Grande","Lucida Sans Unicode",geneva,verdana,sans-serif;
+}
+
+/****************************************
+ * Header
+ ****************************************/
+#header {
+	height: 70px;
+	padding: 5px 20px;
+	background: #73d216; /* Chameleon 2 */
+	-moz-border-radius: 10px;
+	color: #f6f6f4; /* Aluminium 0 */
+}
+
+#header .logo {
+    display: block;
+    float: left;
+    height: 70px;
+    width: 100px;
+    margin-right: 10px;
+    /*border: 1px solid black;*/
+    background-image: url(../images/logo.png);
+}
+
+#header .login, #header .logout {
+    float: right;
+    padding: 0 5px;
+    background: #3465a4; /* Sky Blue 2 */
+	-moz-border-radius: 5px;
+    color: #f6f6f4; /* Aluminium 0 */
+}
+
+#header .username {
+    clear:right;
+    float: right;
+}
+
+#header .title {
+	height: 50px;
+	font-size: 2.5em;
+	overflow: hidden;
+}
+
+#header .path {
+    height: 20px;
+	overflow: hidden;
+}
+
+
+/****************************************
+ * Content
+ ****************************************/
+#content {
+    margin: 20px 0 20px 200px;
+    padding: 10px;
+    min-height: 400px;
+    background: #eeeeec; /* Aluminium 1 */
+	-moz-border-radius: 10px;
+	border: 2px solid #73d216; /* Chameleon 2 */
+}
+
+
+/****************************************
+ * Footer
+ ****************************************/
+#footer {
+	height: 40px;
+	padding: 5px 20px;
+	background: #73d216; /* Chameleon 2 */
+	-moz-border-radius: 10px;
+	color: #f6f6f4; /* Aluminium 0 */
+}
+
+#footer .flogo {
+    display: block;
+    float: left;
+    height: 40px;
+    width: 150px;
+    margin-right: 10px;
+    /*border: 1px solid black;*/
+    background-image: url(../images/under_the_hood_blue.png);
+}
+
+#footer .foottext {
+    float: right;
+    margin-top: 10px;
+}
+
+

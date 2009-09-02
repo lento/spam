@@ -1,0 +1,25 @@
+<html xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      py:strip="">
+<py:def function="header">
+    <div id="header">
+        <a class="logo" href=""></a>
+  	    
+        <py:choose test="request.identity is None">
+            <py:when test="True">
+                <a class="login button" href="${tg.url('/login')}">login</a>
+            </py:when>
+            <py:otherwise>
+                <a class="logout button" href="${tg.url('/logout_handler')}">logout</a>
+                <div class="username" py:content="c.user.user_name">username</div>
+            </py:otherwise>
+        </py:choose>
+        
+  	    <div class="title">
+  	    	Nome del Progetto
+	    </div>
+  	    <div class="path" py:if="defined('page')" py:content="page">path/to/page</div>
+        
+    </div>
+</py:def>
+</html>

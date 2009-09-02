@@ -1,0 +1,4 @@
+recursive-include spam/public *
+include spam/public/favicon.ico
+recursive-include spam/i18n *
+recursive-include spam/templates *
