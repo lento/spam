@@ -12,6 +12,18 @@
     <title py:replace="''">Your title goes here</title>
     <meta py:replace="select('*')"/>
     <link rel="stylesheet" type="text/css" media="screen" href="${tg.url('/themes/%s/css/style.css' % c.theme)}" />
+
+    ${c.startupjs()}
+    <script type="text/javascript">
+    $(function() {
+        $("#flash div").hide();
+        $("#flash div").slideDown(function() {
+            setTimeout(function() {
+                $("#flash div").slideUp();
+            }, 4000);
+        });
+    });
+    </script>
 </head>
 
 <body py:match="body" py:attrs="select('@*')">
