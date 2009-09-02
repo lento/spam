@@ -1,0 +1,9 @@
+syntax: glob
+*.orig
+*.rej
+*~
+*.pyc
+
+syntax: regexp
+.*\#.*\#$
+^data/sessions/.*
