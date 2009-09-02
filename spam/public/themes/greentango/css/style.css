@@ -1,9 +1,13 @@
 /*
 common colors from the tango palette:
+#fce94f; / * Butter 1 * /
+#edd400; / * Butter 2 * /
 #73d216; / * Chameleon 2 * /
 #4e9a06; / * Chameleon 3 * /
 #f6f6f4; / * Aluminium 0 * /
 #eeeeec; / * Aluminium 1 * /
+#babdb6; / * Aluminium 3 * /
+#729fcf; / * Sky Blue 1 * /
 #3465a4; / * Sky Blue 2 * /
 #204a87; / * Sky Blue 3 * /
 #ef2929; / * Scarlet Red 1 * /
@@ -68,6 +72,43 @@ body {
 	overflow: hidden;
 }
 
+/****************************************
+ * Flash
+ ****************************************/
+#flash, .notice {
+    position: relative;
+    /*font-size: 1.2em;*/
+    color: #f6f6f4; /* Aluminium 0 */
+}
+
+#flash div, .notice {
+    position: absolute;
+    margin-left: 10px;
+    padding:10px 60px 10px 45px;
+    z-index: 4;
+    opacity: .8;
+}
+
+#flash .ok {
+    background: #729fcf url(../images/ok.png) no-repeat scroll 10px center; /* Sky Blue 1 */
+	-moz-border-radius: 0 0 10px 10px;
+}
+
+#flash .warning {
+    background: #edd400 url(../images/warning.png) no-repeat scroll 10px center; /* Butter 1 */
+	-moz-border-radius: 0 0 10px 10px;
+}
+
+#flash .error {
+    background:#ef2929 url(../images/error.png) no-repeat scroll 10px center; /* Scarlet Red 1 */
+	-moz-border-radius: 0 0 10px 10px;
+}
+
+#flash .alert, #flash .info, .notice {
+    background:#babdb6 url(../images/info.png) no-repeat scroll 10px center; /* Aluminium 3 */
+	-moz-border-radius: 0 0 10px 10px;
+}
+
 
 /****************************************
  * Content
@@ -108,4 +149,24 @@ body {
     margin-top: 10px;
 }
 
+
+/****************************************
+ * Login form
+ ****************************************/
+#loginform {
+}
+
+#loginform .loginfields input {
+    display: block;
+}
+
+#loginform .loginfields label {
+    clear: left;
+    float: left;
+    /*margin-top: 5px;*/
+    /*margin-left: 10px;*/
+    width: 100px;
+    /*line-height: 31px;*/
+    /*vertical-align: middle;*/
+}
 
