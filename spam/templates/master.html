@@ -41,6 +41,13 @@
         </span>
     </ul>
     -->
+    
+    <div id="side" py:if="request.identity">
+        ${sidebar_user()}
+        ${sidebar_admin()}
+        ${sidebar_projects()}
+    </div>
+    
     <py:with vars="flash=tg.flash_obj.render('flash', use_js=False)">
         <div py:if="flash" py:replace="XML(flash)" />
     </py:with>

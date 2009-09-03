@@ -16,6 +16,13 @@ common colors from the tango palette:
 
 a {
     text-decoration: none;
+    color: inherit;
+}
+
+ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
 }
 
 html {
@@ -26,6 +33,7 @@ body {
 	padding: 0;
 	font-family:"Lucida Grande","Lucida Sans Unicode",geneva,verdana,sans-serif;
 }
+
 
 /****************************************
  * Header
@@ -72,6 +80,7 @@ body {
 	overflow: hidden;
 }
 
+
 /****************************************
  * Flash
  ****************************************/
@@ -111,10 +120,44 @@ body {
 
 
 /****************************************
+ * Side
+ ****************************************/
+#side {
+    float: left;
+    margin: 15px 0;
+    /*padding: 10px 0;*/
+    width: 180px;
+    background: #eeeeec; /* Aluminium 1 */
+	-moz-border-radius: 10px;
+	border: 2px solid #73d216; /* Chameleon 2 */
+}    
+
+#side .sidebar {
+    margin: 20px 0;
+}
+
+#side .title {
+    padding-left: 5px;
+    background: #3465a4; /* Sky Blue 2 */
+    color: #eeeeec; /* Aluminium 1 */
+}
+
+#side ul {
+    padding-left: 5px;
+    color: #4e9a06; /* Chameleon 3 */
+    font-size: 0.9em;
+}
+
+#side li:hover {
+    color: #3465a4; /* Sky Blue 2 */
+}
+
+
+/****************************************
  * Content
  ****************************************/
 #content {
-    margin: 20px 0 20px 200px;
+    margin: 15px 0 15px 200px;
     padding: 10px;
     min-height: 400px;
     background: #eeeeec; /* Aluminium 1 */

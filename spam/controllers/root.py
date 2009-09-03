@@ -10,7 +10,7 @@ from spam.lib.base import SPAMBaseController
 from spam.model import DBSession, metadata
 from spam.controllers.error import ErrorController
 from spam import model
-from spam.controllers.secure import SecureController
+from spam.controllers.user import UserController
 
 __all__ = ['RootController']
 
@@ -29,38 +29,17 @@ class RootController(SPAMBaseController):
     must be wrapped around with :class:`tg.controllers.WSGIAppController`.
     
     """
-    secc = SecureController()
-    
     admin = Catwalk(model, DBSession)
-    
     error = ErrorController()
-
+    user = UserController()
+    
     @expose('spam.templates.index')
     def index(self):
-        """Handle the front-page."""
-        return dict(page='index')
-
-    @expose('spam.templates.about')
-    def about(self):
-        """Handle the 'about' page."""
-        return dict(page='about')
-
-    @expose('spam.templates.authentication')
-    def auth(self):
-        """Display some information about auth* on this application."""
-        return dict(page='auth')
-
-    @expose('spam.templates.index')
-    @require(predicates.has_permission('manage', msg=l_('Only for managers')))
-    def manage_permission_only(self, **kw):
-        """Illustrate how a page for managers only works."""
-        return dict(page='managers stuff')
-
-    @expose('spam.templates.index')
-    @require(predicates.is_user('editor', msg=l_('Only for the editor')))
-    def editor_user_only(self, **kw):
-        """Illustrate how a page exclusive for the editor works."""
-        return dict(page='editor stuff')
+        """Redirect to the user home.
+        
+        If no user is logged in it will fire up the login form.
+        """
+        redirect('user/home')
 
     @expose('spam.templates.login')
     def login(self, came_from=url('/')):
@@ -92,5 +71,5 @@ class RootController(SPAMBaseController):
         goodbye as well.
         
         """
-        flash(_('We hope to see you soon!'))
+        flash(_('See you soon!'))
         redirect(came_from)
