@@ -6,13 +6,13 @@ from tg import expose, flash, require, url, request, redirect, override_template
 from tg import response, config, app_globals
 from tg.exceptions import HTTPNotFound
 from pylons.i18n import ugettext as _, lazy_ugettext as l_
-from catwalk.tg2 import Catwalk
 from repoze.what import predicates
 
 from spam.lib.base import SPAMBaseController
 from spam.model import DBSession, metadata
 from spam.controllers.error import ErrorController
 from spam.controllers.user import UserController
+from spam.controllers.securedcatwalk import SecuredCatwalk
 from spam import model
 
 __all__ = ['RootController']
@@ -32,7 +32,7 @@ class RootController(SPAMBaseController):
     must be wrapped around with :class:`tg.controllers.WSGIAppController`.
     
     """
-    admin = Catwalk(model, DBSession)
+    admin = SecuredCatwalk(model, DBSession)
     error = ErrorController()
     user = UserController()
     

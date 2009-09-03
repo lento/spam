@@ -2,7 +2,7 @@ from datetime import datetime
 from sqlalchemy import *
 from migrate import *
 #from sqlalchemy.types import Unicode, Integer, DateTime
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, relation
 from sqlalchemy.ext.declarative import declarative_base
 
 DeclarativeBase = declarative_base(bind=migrate_engine)
@@ -31,6 +31,7 @@ class Group(DeclarativeBase):
     group_name = Column(Unicode(16), unique=True, nullable=False)
     display_name = Column(Unicode(255))
     created = Column(DateTime, default=datetime.now)
+    users = relation('User', secondary=user_group_table, backref='groups')
 
 
 class User(DeclarativeBase):
@@ -50,6 +51,8 @@ class Permission(DeclarativeBase):
     permission_id = Column(Integer, autoincrement=True, primary_key=True)
     permission_name = Column(Unicode(16), unique=True, nullable=False)
     description = Column(Unicode(255))
+    groups = relation(Group, secondary=group_permission_table,
+                      backref='permissions')
     
 
 
