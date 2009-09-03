@@ -9,6 +9,11 @@
 <head>
     <meta content="text/html; charset=UTF-8" http-equiv="content-type" py:replace="''"/>
     <title py:content="'SPAM - %s home' % (c.user and c.user.user_name)">SPAM - user home</title>
+    <script type="text/javascript">
+    $(function() {
+        spam.setActiveSidebar("user", "home");
+    });
+    </script>
 </head>
 
 <body>

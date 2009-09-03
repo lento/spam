@@ -1,0 +1,33 @@
+<html xmlns:py="http://genshi.edgewall.org/" py:strip="">
+<script type="text/javascript" py:strip="">
+
+spam = new(Object);
+
+/****************************************
+ * Sidebar
+ ****************************************/
+spam.setActiveSidebar = function(sidebar, item) {
+    sbid = "#sb_"+sidebar;
+    itemclass = "."+item;
+    
+    $(sbid).addClass("active");
+    $(itemclass, $(sbid)).addClass("active");
+}
+
+
+/****************************************
+ * Startup function
+ ****************************************/
+$(function() {
+
+    /* make #flash slide in and out */
+    $("#flash div").hide().slideDown(function() {
+        setTimeout(function() {
+            $("#flash div").slideUp();
+        }, 4000);
+    });
+
+});
+
+</script>
+</html>

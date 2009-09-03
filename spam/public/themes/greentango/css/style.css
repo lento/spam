@@ -134,6 +134,12 @@ body {
 
 #side .sidebar {
     margin: 20px 0;
+    color: #4e9a06; /* Chameleon 3 */
+}
+
+#side .sidebar.active {
+	background: #73d216; /* Chameleon 2 */
+	color: #eeeeec; /* Aluminium 1 */
 }
 
 #side .title {
@@ -144,12 +150,15 @@ body {
 
 #side ul {
     padding-left: 5px;
-    color: #4e9a06; /* Chameleon 3 */
     font-size: 0.9em;
 }
 
 #side li:hover {
     color: #3465a4; /* Sky Blue 2 */
+}
+
+#side li.active {
+    color: #ef2929; /* Scarlet Red 1 */
 }
 
 

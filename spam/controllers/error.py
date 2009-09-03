@@ -26,5 +26,5 @@ class ErrorController(object):
                            " this request.</p>")
         values = dict(prefix=request.environ.get('SCRIPT_NAME', ''),
                       code=request.params.get('code', resp.status_int),
-                      message=request.params.get('message', default_message))
+                      message=request.params.get('message', resp.body))
         return values

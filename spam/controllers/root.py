@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 """Main Controller"""
+import os.path
 
-from tg import expose, flash, require, url, request, redirect
+from tg import expose, flash, require, url, request, redirect, override_template
+from tg import response, config, app_globals
+from tg.exceptions import HTTPNotFound
 from pylons.i18n import ugettext as _, lazy_ugettext as l_
 from catwalk.tg2 import Catwalk
 from repoze.what import predicates
@@ -9,8 +12,8 @@ from repoze.what import predicates
 from spam.lib.base import SPAMBaseController
 from spam.model import DBSession, metadata
 from spam.controllers.error import ErrorController
-from spam import model
 from spam.controllers.user import UserController
+from spam import model
 
 __all__ = ['RootController']
 
@@ -73,3 +76,20 @@ class RootController(SPAMBaseController):
         """
         flash(_('See you soon!'))
         redirect(came_from)
+    
+    @expose(content_type='text/javascript')
+    def parsedjs(self, script):
+        scriptname = os.path.splitext(script)[0]
+        templatename = 'spam.templates.parsedjs.%s' % scriptname
+        
+        if config.get('use_dotted_templatenames', False):
+            template = app_globals.dotted_filename_finder.get_dotted_filename(
+                                    templatename, template_extension='.html')
+            if not os.path.exists(template):
+                raise HTTPNotFound
+        
+        override_template(self.parsedjs, 'genshi:%s' % templatename)
+
+        return dict()
+
+
