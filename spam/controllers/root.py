@@ -42,7 +42,7 @@ class RootController(SPAMBaseController):
         
         If no user is logged in it will fire up the login form.
         """
-        redirect('user/home')
+        redirect('/user/home')
 
     @expose('spam.templates.login')
     def login(self, came_from=url('/')):

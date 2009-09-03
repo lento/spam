@@ -4,12 +4,21 @@
       xmlns:py="http://genshi.edgewall.org/"
       xmlns:xi="http://www.w3.org/2001/XInclude">
 
+<xi:include py:if="code==403" href="master.html" />
+
 <head>
     <meta content="text/html; charset=UTF-8" http-equiv="content-type" py:replace="''"/>
     <title>A ${code} Error has Occurred </title>
 </head>
 
 <body>
-    <div>${XML(message)}</div>
+    <py:choose test="code">
+        <py:when test="403">
+            <div>${_('Access was denied to this resource.')}</div>
+        </py:when>
+        <py:otherwise test="">
+            <div>${XML(message)}</div>
+        </py:otherwise>
+    </py:choose>
 </body>
 </html>
