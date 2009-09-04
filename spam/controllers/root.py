@@ -10,9 +10,10 @@ from repoze.what import predicates
 
 from spam.lib.base import SPAMBaseController
 from spam.model import DBSession, metadata
+from spam.model import User, Group, Permission
 from spam.controllers.error import ErrorController
 from spam.controllers.user import UserController
-from spam.controllers.securedcatwalk import SecuredCatwalk
+from spam.controllers.spamadmin import SPAMAdminController, SPAMAdminConfig
 from spam import model
 
 __all__ = ['RootController']
@@ -32,7 +33,8 @@ class RootController(SPAMBaseController):
     must be wrapped around with :class:`tg.controllers.WSGIAppController`.
     
     """
-    admin = SecuredCatwalk(model, DBSession)
+    admin = SPAMAdminController([User, Group, Permission], DBSession,
+                                                    config_type=SPAMAdminConfig)
     error = ErrorController()
     user = UserController()
     

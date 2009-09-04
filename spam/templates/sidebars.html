@@ -4,7 +4,7 @@
 
 <py:def function="sidebar_user">
   <div id="sb_user" class="sidebar">
-      <div class="title">user</div>
+      <div class="title">${_('user')}</div>
       <ul class="links">
         <!--
         <li py:choose="">
@@ -15,14 +15,14 @@
         <span py:otherwise=""><a href="${tg.url('/')}">Home</a> Back to your Quickstart Home page </span>
         </li>
         -->           
-        <li class="home"><a href="${tg.url('/user/home')}">home</a></li>
+        <li class="home"><a href="${tg.url('/user/home')}">${_('home')}</a></li>
       </ul>
   </div>
 </py:def>    
 
 <py:def function="sidebar_admin">
-  <div id="sb_admin" class="sidebar">
-      <div class="title">admin</div>
+  <div py:if="tg.predicates.in_group('administrators')" id="sb_admin" class="sidebar">
+      <div class="title">${_('admin')}</div>
       <ul class="links">
         <!--
         <li py:choose="">
@@ -33,16 +33,17 @@
         <span py:otherwise=""><a href="${tg.url('/')}">Home</a> Back to your Quickstart Home page </span>
         </li>
         -->           
-        <li><a href="">users</a></li>
-        <li><a href="">permissions</a></li>
-        <li><a href="">projects</a></li>
+        <li><a href="${tg.url('/admin/users')}">${_('users')}</a></li>
+        <li><a href="${tg.url('/admin/groups')}">${_('groups')}</a></li>
+        <li><a href="${tg.url('/admin/permissions')}">${_('permissions')}</a></li>
+        <li><a href="${tg.url('/admin/projects')}">${_('projects')}</a></li>
       </ul>
   </div>
 </py:def>    
 
 <py:def function="sidebar_projects">
   <div id="sb_projects" class="sidebar">
-      <div class="title">projects</div>
+      <div class="title">${_('projects')}</div>
       <ul class="links">
         <!--
         <li py:choose="">
