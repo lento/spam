@@ -42,7 +42,6 @@ class SPAMBaseController(TGController):
     This base controller initialize and expose some items to templates.
 
     """
-
     def __call__(self, environ, start_response):
         """Invoke the Controller"""
         # TGController.__call__ dispatches to the Controller method
