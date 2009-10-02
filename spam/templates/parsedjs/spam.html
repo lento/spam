@@ -1,7 +1,26 @@
 <html xmlns:py="http://genshi.edgewall.org/" py:strip="">
 <script type="text/javascript" py:strip="">
+//<![CDATA[
 
 spam = new(Object);
+
+/**********************************************************************
+ * Toggles
+ **********************************************************************/
+spam.activate_toggles = function () {
+    $('.toggle_arrow').click(function(event){
+        toggle = $(this).parents(".toggle:first");
+        if (toggle.hasClass('expanded')) {
+            $('> .toggleable', toggle).hide('fast');
+        } else {
+            $('> .toggleable', toggle).show('fast');
+        }
+        toggle.toggleClass('expanded');
+        return false;
+    });
+
+}
+
 
 /****************************************
  * Sidebar
@@ -19,7 +38,8 @@ spam.setActiveSidebar = function(sidebar, item) {
  * Startup function
  ****************************************/
 $(function() {
-
+    spam.activate_toggles();
+    
     /* make #flash slide in and out */
     $("#flash div").hide().slideDown(function() {
         setTimeout(function() {
@@ -29,5 +49,6 @@ $(function() {
 
 });
 
+//]]>
 </script>
 </html>

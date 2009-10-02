@@ -35,13 +35,60 @@ body {
 }
 
 
+/* Toggle */
+/*
+.toggle > .toggle_header {
+    background-image: url(../images/collapsed.png);
+    background-position: left center;
+    background-repeat: no-repeat;
+    padding-left: 14px;
+    cursor: pointer;
+}
+
+.toggle.expanded > .toggle_header {
+    background-image: url(../images/expanded.png);
+    background-position: left center;
+    background-repeat: no-repeat;
+    padding-left: 14px;
+}
+*/
+
+.toggle > .toggle_header {
+    /*display: inline-block;*/
+}
+
+.toggle > .toggle_header > .toggle_arrow {
+    background: url(../images/collapsed.png) left center no-repeat;
+    min-width: 15px;
+    min-height: 20px;
+    padding-left: 15px;
+    cursor: pointer;
+    display: inline;
+}
+
+.toggle.expanded > .toggle_header > .toggle_arrow {
+    background: url(../images/expanded.png) left center no-repeat;
+    min-width: 15px;
+    min-height: 20px;
+    padding-left: 15px;
+}
+
+.toggle > .toggle_header > .toggle_title {
+    display: inline-block;
+    padding-left: 0;
+}
+
+.toggle:not(.expanded) > .toggleable {
+    display: none;
+}
+
 /****************************************
  * Header
  ****************************************/
 #header {
 	height: 70px;
 	padding: 5px 20px;
-	background: #73d216; /* Chameleon 2 */
+	background-color: #73d216; /* Chameleon 2 */
 	-moz-border-radius: 10px;
 	color: #f6f6f4; /* Aluminium 0 */
 }
@@ -59,7 +106,7 @@ body {
 #header .login, #header .logout {
     float: right;
     padding: 0 5px;
-    background: #3465a4; /* Sky Blue 2 */
+    background-color: #3465a4; /* Sky Blue 2 */
 	-moz-border-radius: 5px;
     color: #f6f6f4; /* Aluminium 0 */
 }
@@ -127,7 +174,7 @@ body {
     margin: 15px 0;
     /*padding: 10px 0;*/
     width: 180px;
-    background: #eeeeec; /* Aluminium 1 */
+    background-color: #eeeeec; /* Aluminium 1 */
 	-moz-border-radius: 10px;
 	border: 2px solid #73d216; /* Chameleon 2 */
 }    
@@ -138,13 +185,13 @@ body {
 }
 
 #side .sidebar.active {
-	background: #73d216; /* Chameleon 2 */
+	background-color: #73d216; /* Chameleon 2 */
 	color: #eeeeec; /* Aluminium 1 */
 }
 
 #side .title {
     padding-left: 5px;
-    background: #3465a4; /* Sky Blue 2 */
+    background-color: #3465a4; /* Sky Blue 2 */
     color: #eeeeec; /* Aluminium 1 */
 }
 
@@ -169,7 +216,7 @@ body {
     margin: 15px 0 15px 200px;
     padding: 10px;
     min-height: 400px;
-    background: #eeeeec; /* Aluminium 1 */
+    background-color: #eeeeec; /* Aluminium 1 */
 	-moz-border-radius: 10px;
 	border: 2px solid #73d216; /* Chameleon 2 */
 }
@@ -181,7 +228,7 @@ body {
 #footer {
 	height: 40px;
 	padding: 5px 20px;
-	background: #73d216; /* Chameleon 2 */
+	background-color: #73d216; /* Chameleon 2 */
 	-moz-border-radius: 10px;
 	color: #f6f6f4; /* Aluminium 0 */
 }
