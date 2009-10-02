@@ -60,3 +60,4 @@ def init_model(engine):
 
 # Import your model modules here.
 from spam.model.auth import User, Group, Permission
+from spam.model.shared import Project

@@ -83,26 +83,12 @@ def upgrade():
     session.add(administrators)
     
     # default permissions
-    perm_user_create = Permission()
-    perm_user_create.permission_name = u'create user'
-    perm_user_create.description = u'This permission allows to create a new user'
-    perm_user_create.groups.append(administrators)
+    #perm_user_edit = Permission()
+    #perm_user_edit.permission_name = u'edit user'
+    #perm_user_edit.description = u'This permission allows to edit a user'
+    #perm_user_edit.groups.append(administrators)
     
-    session.add(perm_user_create)
-    
-    perm_user_edit = Permission()
-    perm_user_edit.permission_name = u'edit user'
-    perm_user_edit.description = u'This permission allows to edit a user'
-    perm_user_edit.groups.append(administrators)
-    
-    session.add(perm_user_edit)
-    
-    perm_user_delete = Permission()
-    perm_user_delete.permission_name = u'delete user'
-    perm_user_delete.description = u'This permission allows to delete a user'
-    perm_user_delete.groups.append(administrators)
-    
-    session.add(perm_user_delete)
+    #session.add(perm_user_edit)
     
     session.commit()
     session.close()
