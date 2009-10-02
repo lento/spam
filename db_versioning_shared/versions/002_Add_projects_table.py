@@ -47,6 +47,15 @@ class Project(DeclarativeBase):
     description = Column(Unicode)
     created = Column(DateTime, default=datetime.now)
 
+    users = relation('User', secondary=project_user_table, backref='projects')
+    admins = relation('User', secondary=project_admin_table,
+                                                    backref='admin_projects')
+
+    def __init__(self, nick, name=None, description=None):
+        self.nick = nick
+        self.name = name
+        self.description = description
+
 
 def upgrade():
     # Upgrade operations go here. Don't create your own engine; use the engine
@@ -54,6 +63,13 @@ def upgrade():
     project_user_table.create()
     project_admin_table.create()
     Project.__table__.create()
+    
+    dummy = Project(u'dummy', name=u'Dummy', description=u'A test project')
+    session.add(dummy)
+    
+    admin = session.query(User).filter_by(user_name='admin').one()
+    dummy.users.append(admin)
+    dummy.admins.append(admin)
 
 def downgrade():
     # Operations to reverse the above upgrade go here.
