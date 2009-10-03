@@ -1,0 +1,61 @@
+/*
+common colors from the tango palette:
+#fce94f; / * Butter 1 * /
+#edd400; / * Butter 2 * /
+#73d216; / * Chameleon 2 * /
+#4e9a06; / * Chameleon 3 * /
+#f6f6f4; / * Aluminium 0 * /
+#eeeeec; / * Aluminium 1 * /
+#babdb6; / * Aluminium 3 * /
+#729fcf; / * Sky Blue 1 * /
+#3465a4; / * Sky Blue 2 * /
+#204a87; / * Sky Blue 3 * /
+#ef2929; / * Scarlet Red 1 * /
+
+*/
+
+body {
+    font-family: "Lucida Grande", "Lucida Sans Unicode", geneva, verdana, sans-serif;
+    font-size: small;
+    color: #204a87; /* Sky Blue 3 */
+}
+
+h1 {
+    font-size: large;
+    border-bottom: 1px solid #204a87; /* Sky Blue 3 */
+}
+
+.result {
+    float: left;
+    width: 50px;
+    height: 50px;
+}
+
+.success {
+    background: url(../../images/ok.png) left center no-repeat;
+}
+
+.failed {
+    background: url(../../images/error.png) left center no-repeat;
+}
+
+.msg {
+    padding-top: 15px;
+    font-size: large;
+}
+
+label.required {
+    font-weight: bold;
+}
+
+.fielderror {
+    color: red;
+}
+
+ul {
+    list-style: none;
+}
+
+.disabled {
+    color: gray;
+}

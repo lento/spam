@@ -47,8 +47,8 @@ class Project(DeclarativeBase):
     
     #{ Columns
     id = Column(Integer, autoincrement=True, primary_key=True)
-    nick = Column(Unicode(16), unique=True, nullable=False)
-    name = Column(Unicode(255))
+    nick = Column(Unicode(15), unique=True, nullable=False)
+    name = Column(Unicode(40))
     description = Column(Unicode)
     created = Column(DateTime, default=datetime.now)
     

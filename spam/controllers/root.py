@@ -12,8 +12,10 @@ from spam.lib.base import SPAMBaseController
 from spam.model import DBSession, metadata
 from spam.model import User, Group, Permission
 from spam.controllers.error import ErrorController
+#from spam.controllers.spamadmin import SPAMAdminController, SPAMAdminConfig
+from spam.controllers.admin import AdminController
 from spam.controllers.user import UserController
-from spam.controllers.spamadmin import SPAMAdminController, SPAMAdminConfig
+from spam.controllers.form import FormController
 from spam import model
 
 __all__ = ['RootController']
@@ -33,10 +35,12 @@ class RootController(SPAMBaseController):
     must be wrapped around with :class:`tg.controllers.WSGIAppController`.
     
     """
-    admin = SPAMAdminController([User, Group, Permission], DBSession,
-                                                    config_type=SPAMAdminConfig)
+    #admin = SPAMAdminController([User, Group, Permission], DBSession,
+    #                                                config_type=SPAMAdminConfig)
+    admin = AdminController()
     error = ErrorController()
     user = UserController()
+    form = FormController()
     
     @expose('spam.templates.index')
     def index(self):

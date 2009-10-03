@@ -11,13 +11,21 @@
     <title py:content="'SPAM - %s home' % (c.user and c.user.user_name)">SPAM - user home</title>
     <script type="text/javascript">
     $(function() {
-        spam.setActiveSidebar("user", "home");
+        spam.setActiveSidebar("admin", "projects");
+        $(".overlay").overlay(function() { 
+            trigger = this.getTrigger();
+            target = trigger.attr("href");
+            iframe = $("#overlay iframe")[0];
+            iframe.src = target
+        });
     });
     </script>
 </head>
 
 <body>
-    <div>home dell'utente <span py:content="c.user and c.user.user_name">user_name</span></div>
+    <div>
+        <a href="${tg.url('/form/new_project')}" rel="#overlay" class="overlay">new project</a>
+    </div>
 </body>
 </html>
 
