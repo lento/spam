@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Main Controller"""
 
-from tg import expose, flash, require, url, request, redirect
+from tg import expose, flash, require, url, request, redirect, tmpl_context
 from pylons.i18n import ugettext as _, lazy_ugettext as l_
 from repoze.what import predicates
 
@@ -22,6 +22,6 @@ class UserController(SPAMBaseController):
     @expose('spam.templates.user.home')
     def home(self):
         """Handle the 'home' page."""
-        return dict(page='home')
+        return dict(page="%s's home" % tmpl_context.user.user_name)
 
 

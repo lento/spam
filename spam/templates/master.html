@@ -9,7 +9,7 @@
     <xi:include href="footer.html" />
 <head py:match="head" py:attrs="select('@*')">
     <meta content="text/html; charset=UTF-8" http-equiv="content-type" py:replace="''"/>
-    <title py:replace="''">Your title goes here</title>
+    <title py:if="defined('page')" py:content="'SPAM - %s' % page">SPAM - title</title>
     <meta py:replace="select('*')"/>
     <link rel="stylesheet" type="text/css" media="screen" href="${tg.url('/themes/%s/css/style.css' % c.theme)}" />
 
