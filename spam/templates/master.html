@@ -15,6 +15,12 @@
 
     ${c.startupjs()}
 
+    <script type="text/javascript">
+    $(function() {
+        spam.setActiveSidebar("${defined('sidebar') and sidebar[0] or ''}",
+                              "${defined('sidebar') and sidebar[1] or ''}");
+    });
+    </script>
 </head>
 
 <body py:match="body" py:attrs="select('@*')">

@@ -44,11 +44,13 @@ spam.activate_toggles = function () {
  * Sidebar
  ****************************************/
 spam.setActiveSidebar = function(sidebar, item) {
-    sbid = "#sb_"+sidebar;
-    itemclass = "."+item;
-    
-    $(sbid).addClass("active");
-    $(itemclass, $(sbid)).addClass("active");
+    if (sidebar && item) {
+        sbid = "#sb_"+sidebar;
+        itemclass = "."+item;
+        
+        $(sbid).addClass("active");
+        $(itemclass, $(sbid)).addClass("active");
+    }
 }
 
 
