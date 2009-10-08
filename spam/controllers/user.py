@@ -22,6 +22,7 @@ class UserController(SPAMBaseController):
     @expose('spam.templates.user.home')
     def home(self):
         """Handle the 'home' page."""
-        return dict(page="%s's home" % tmpl_context.user.user_name)
+        return dict(page="%s's home" % tmpl_context.user.user_name,
+                                                    sidebar=('user', 'home'))
 
 
