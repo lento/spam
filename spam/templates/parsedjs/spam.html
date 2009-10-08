@@ -27,11 +27,11 @@ spam.activate_toggles = function () {
         if (toggle.hasClass('expanded')) {
             $('> .toggleable', toggle).hide('fast');
             if (id)
-                $.cookie(id, "collapsed");
+                $.cookie(id, "collapsed", {path: "${tg.url('/')}"});
         } else {
             $('> .toggleable', toggle).show('fast');
             if (id)
-                $.cookie(id, "expanded");
+                $.cookie(id, "expanded", {path: "${tg.url('/')}"});
         }
         toggle.toggleClass('expanded');
         return false;
