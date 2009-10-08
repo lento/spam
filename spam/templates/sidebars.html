@@ -22,7 +22,7 @@
 
 <py:def function="sidebar_admin">
 <div py:if="tg.predicates.in_group('administrators')" id="sb_admin" class="sidebar">
-    <div class="toggle">
+    <div id="sb_admin_toggle" class="toggle">
         <div class="toggle_header title">
             <span class="toggle_arrow"/>
             <span class="toggle_title">${_('admin')}</span>
