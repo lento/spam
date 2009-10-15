@@ -25,8 +25,8 @@ base_config.renderers = []
 base_config.package = spam
 
 #Set the default renderer
-base_config.default_renderer = 'genshi'
-base_config.renderers.append('genshi')
+base_config.default_renderer = 'mako'
+base_config.renderers.append('mako')
 # if you want raw speed and have installed chameleon.genshi
 # you should try to use this renderer instead.
 # warning: for the moment chameleon does not handle i18n translations
