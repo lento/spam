@@ -1,7 +1,3 @@
-<html xmlns:py="http://genshi.edgewall.org/" py:strip="">
-<script type="text/javascript" py:strip="">
-//<![CDATA[
-
 spam = new(Object);
 
 /**********************************************************************
@@ -69,6 +65,3 @@ $(function() {
 
 });
 
-//]]>
-</script>
-</html>

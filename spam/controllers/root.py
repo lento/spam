@@ -90,11 +90,11 @@ class RootController(SPAMBaseController):
         
         if config.get('use_dotted_templatenames', False):
             template = app_globals.dotted_filename_finder.get_dotted_filename(
-                                    templatename, template_extension='.html')
+                                    templatename, template_extension='.mak')
             if not os.path.exists(template):
                 raise HTTPNotFound
         
-        override_template(self.parsedjs, 'genshi:%s' % templatename)
+        override_template(self.parsedjs, 'mako:%s' % templatename)
 
         return dict()
 

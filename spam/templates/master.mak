@@ -10,7 +10,7 @@
     <title>${self.title()}</title>
     <link rel="stylesheet" type="text/css" media="screen" href="${tg.url('/themes/%s/css/style.css' % c.theme)}" />
 
-    ##${c.startupjs()}
+    ${c.startupjs()}
 </head>
 <body>
     ${self.header()}
