@@ -1,9 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
                       "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:py="http://genshi.edgewall.org/"
-      xmlns:xi="http://www.w3.org/2001/XInclude">
 
+<html xmlns="http://www.w3.org/1999/xhtml">
 
 <head>
     <meta content="text/html; charset=UTF-8" http-equiv="content-type"/>
@@ -11,11 +9,8 @@
 </head>
 
 <body>
-    <div py:choose="result">
-        <div py:when="'success'" class="result success"/>
-        <div py:when="'failed'" class="result failed"/>
-    </div>
-    <div class="msg" py:content="msg">result message</div>
+    <div class="result ${result}"></div>
+    <div class="msg">${msg}</div>
 </body>
 
 </html>

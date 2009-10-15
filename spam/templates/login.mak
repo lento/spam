@@ -1,7 +1,5 @@
 <%inherit file="spam.templates.master"/>
 
-<%def name="title()">Login Form</%def>
-
 <div id="loginform">
 <form action="${tg.url('/login_handler', came_from = came_from.encode('utf-8'), __logins = login_counter.encode('utf-8'))}" method="POST" class="loginfields">
     <h2><span>Login</span></h2>

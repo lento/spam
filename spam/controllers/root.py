@@ -42,7 +42,7 @@ class RootController(SPAMBaseController):
     user = UserController()
     form = FormController()
     
-    @expose('spam.templates.index')
+    @expose()
     def index(self):
         """Redirect to the user home.
         
