@@ -32,11 +32,11 @@ h1 {
 }
 
 .success {
-    background: url(../../images/ok.png) left center no-repeat;
+    background: url(../images/ok.png) left center no-repeat;
 }
 
 .failed {
-    background: url(../../images/error.png) left center no-repeat;
+    background: url(../images/error.png) left center no-repeat;
 }
 
 .msg {

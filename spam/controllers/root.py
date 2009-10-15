@@ -13,7 +13,7 @@ from spam.model import DBSession, metadata
 from spam.model import User, Group, Permission
 from spam.controllers.error import ErrorController
 #from spam.controllers.spamadmin import SPAMAdminController, SPAMAdminConfig
-from spam.controllers.admin import AdminController
+from spam.controllers.admin.admin import AdminController
 from spam.controllers.user import UserController
 from spam.controllers.form import FormController
 from spam import model

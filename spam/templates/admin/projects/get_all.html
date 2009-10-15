@@ -8,7 +8,6 @@
 
 <head>
     <meta content="text/html; charset=UTF-8" http-equiv="content-type" py:replace="''"/>
-    <title py:content="'SPAM - %s home' % (c.user and c.user.user_name)">SPAM - user home</title>
     <script type="text/javascript">
     $(function() {
         spam.setActiveSidebar("admin", "projects");
@@ -23,9 +22,11 @@
 </head>
 
 <body>
-    <div>
-        <a href="${tg.url('/form/new_project')}" rel="#overlay" class="overlay">new project</a>
-    </div>
+    <a href="${tg.url('./new')}" rel="#overlay" class="overlay">new project</a>
+    <br/>
+    <br/>
+    <ul>
+        <li py:for="project in projects" py:content="project.name">project name</li>
+    </ul>
 </body>
 </html>
-
