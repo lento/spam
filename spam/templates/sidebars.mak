@@ -37,7 +37,7 @@
             <ul class="links">
                 % for p in c.user.projects:
                     <li>
-                        <div class="hidden nick">${p.nick}</div>
+                        <div class="hidden id">${p.id}</div>
                         <a class="project link">${p.name}</a>
                     </li>
                 % endfor

@@ -26,19 +26,19 @@ class ProjectsController(RestController):
     @expose('spam.templates.forms.result')
     @expose('json')
     @validate(f_new_project, error_handler=new)
-    def post(self, nick, name=None, description=None, **kwargs):
+    def post(self, id, name=None, description=None, **kwargs):
         """Create a new project"""
         # add project to shared db
-        #project = Project(nick, name=name, description=description)
+        #project = Project(id, name=name, description=description)
         #DBSession.add(project)
         
         # init project db
         #if core_session.bind.url.drivername=='mysql':
-        #    create_proj_db(project.nick)
-        #init_proj_db(project.nick)
+        #    create_proj_db(project.id)
+        #init_proj_db(project.id)
         
         # create directories and init hg repo
-        #repo.create_proj_dirs(project.nick)
-        return dict(msg='created project "%s"' % nick, result='success')
+        #repo.create_proj_dirs(project.id)
+        return dict(msg='created project "%s"' % id, result='success')
         
 

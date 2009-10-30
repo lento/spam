@@ -25,14 +25,14 @@ class User(DeclarativeBase):
 
 # New classes and tables
 project_user_table = Table('__project_user', metadata,
-    Column('project_id', Integer, ForeignKey('projects.id',
+    Column('project_id', Unicode(10), ForeignKey('projects.id',
         onupdate="CASCADE", ondelete="CASCADE")),
     Column('user_id', Integer, ForeignKey('auth_users.user_id',
         onupdate="CASCADE", ondelete="CASCADE"))
 )
 
 project_admin_table = Table('__project_admin', metadata,
-    Column('project_id', Integer, ForeignKey('projects.id',
+    Column('project_id', Unicode(10), ForeignKey('projects.id',
         onupdate="CASCADE", ondelete="CASCADE")),
     Column('user_id', Integer, ForeignKey('auth_users.user_id',
         onupdate="CASCADE", ondelete="CASCADE"))
@@ -41,8 +41,7 @@ project_admin_table = Table('__project_admin', metadata,
 class Project(DeclarativeBase):
     __tablename__ = 'projects'
     
-    id = Column(Integer, autoincrement=True, primary_key=True)
-    nick = Column(Unicode(15), unique=True, nullable=False)
+    id = Column(Unicode(10), primary_key=True)
     name = Column(Unicode(40))
     description = Column(Unicode)
     created = Column(DateTime, default=datetime.now)
@@ -51,8 +50,8 @@ class Project(DeclarativeBase):
     admins = relation('User', secondary=project_admin_table,
                                                     backref='admin_projects')
 
-    def __init__(self, nick, name=None, description=None):
-        self.nick = nick
+    def __init__(self, id, name=None, description=None):
+        self.id = id
         self.name = name
         self.description = description
 
@@ -67,7 +66,7 @@ def upgrade():
     dummy = Project(u'dummy', name=u'Dummy', description=u'A test project')
     session.add(dummy)
     
-    admin = session.query(User).filter_by(user_name='admin').one()
+    admin = session.query(User).filter_by(user_name=u'admin').one()
     dummy.users.append(admin)
     dummy.admins.append(admin)
 

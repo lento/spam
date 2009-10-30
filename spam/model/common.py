@@ -1,7 +1,7 @@
 """
-Shared data model.
+Common data model.
 
-This is where the models for data shared between all projects are defined.
+This is where the model for projects is defined.
 """
 from datetime import datetime
 
@@ -19,7 +19,7 @@ __all__ = ['Project']
 
 # Association table for the many-to-many relationship projects-users.
 project_user_table = Table('__project_user', metadata,
-    Column('project_id', Integer, ForeignKey('projects.id',
+    Column('project_id', Unicode(10), ForeignKey('projects.id',
         onupdate="CASCADE", ondelete="CASCADE")),
     Column('user_id', Integer, ForeignKey('auth_users.user_id',
         onupdate="CASCADE", ondelete="CASCADE"))
@@ -27,14 +27,14 @@ project_user_table = Table('__project_user', metadata,
 
 # Association table for the many-to-many relationship projects-admins.
 project_admin_table = Table('__project_admin', metadata,
-    Column('project_id', Integer, ForeignKey('projects.id',
+    Column('project_id', Unicode(10), ForeignKey('projects.id',
         onupdate="CASCADE", ondelete="CASCADE")),
     Column('user_id', Integer, ForeignKey('auth_users.user_id',
         onupdate="CASCADE", ondelete="CASCADE"))
 )
 
 
-#{ The shared model itself
+#{ The Common model itself
 
 
 class Project(DeclarativeBase):
@@ -46,8 +46,7 @@ class Project(DeclarativeBase):
     __tablename__ = 'projects'
     
     #{ Columns
-    id = Column(Integer, autoincrement=True, primary_key=True)
-    nick = Column(Unicode(15), unique=True, nullable=False)
+    id = Column(Unicode(10), primary_key=True)
     name = Column(Unicode(40))
     description = Column(Unicode)
     created = Column(DateTime, default=datetime.now)
@@ -58,13 +57,13 @@ class Project(DeclarativeBase):
                                                     backref='admin_projects')
     
     #{ Special methods
-    def __init__(self, nick, name=None, description=None):
-        self.nick = nick
+    def __init__(self, id, name=None, description=None):
+        self.id = id
         self.name = name
         self.description = description
 
     def __repr__(self):
-        return '<Project: %s (%s)>' % (self.nick, self.name)
+        return '<Project: %s "%s">' % (self.id, self.name)
     
     #}
 

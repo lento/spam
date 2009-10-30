@@ -31,7 +31,7 @@ DBSession = scoped_session(maker)
 # Model modules
 ############################################################
 from spam.model.auth import User, Group, Permission
-from spam.model.shared import Project
+from spam.model.common import Project
 
 
 ######################################################################
@@ -48,7 +48,7 @@ def shard_chooser(mapper, instance, clause=None):
     """Looks at the given instance and returns a shard id."""
     print('shard_chooser 0:', mapper, instance, clause)
     if isinstance(instance, Project):
-        return 'shared'
+        return 'common'
     else:
         return instance.proj_id
 
@@ -59,7 +59,7 @@ def id_chooser(query, ident):
     if len(ident)>1:
         ids = [ident[0]]
     else:
-        ids = ['shared']
+        ids = ['common']
     
     print('id_chooser 1:', ids)
     return ids
@@ -89,7 +89,7 @@ def query_chooser(query):
                         for bind in binary.right.clauses:
                             ids.append(bind.value)
                 elif binary.left.table is Project.__table__:
-                    ids.append('shared')
+                    ids.append('common')
             elif isinstance(binary.right, Column):
                 if binary.right.name=='proj_id':
                     if (binary.operator == operators.eq and
@@ -102,7 +102,7 @@ def query_chooser(query):
     if query._criterion:
         FindProject().traverse(query._criterion)
     elif query.statement.locate_all_froms() <= set([Project.__table__]):
-        ids =['shared']
+        ids =['common']
     
     if len(ids) == 0:
         ids = shards.keys()
@@ -117,7 +117,7 @@ def query_chooser(query):
 def init_model(engine):
     """Call me before using any of the tables or classes in the model."""
 
-    shards['shared'] = engine
+    shards['common'] = engine
     echo = True
     
     DBSession.configure(shards=shards)
