@@ -1,7 +1,7 @@
 """
-Common data model.
+Project data model.
 
-This is where the model for projects is defined.
+This is where the model for project data is defined.
 """
 from datetime import datetime
 
