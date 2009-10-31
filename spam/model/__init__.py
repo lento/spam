@@ -5,7 +5,7 @@ from zope.sqlalchemy import ZopeTransactionExtension
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.orm.shard import ShardedSession
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, Column
 from sqlalchemy.sql import ClauseVisitor, operators
 
 # Base class for all of our model classes (SQLAlchemy's declarative extension)
@@ -31,7 +31,7 @@ DBSession = scoped_session(maker)
 # Model modules
 ############################################################
 from spam.model.auth import User, Group, Permission
-from spam.model.project import Project
+from spam.model.project import Project, Scene, Shot
 
 
 ######################################################################
@@ -43,6 +43,7 @@ from spam.model.project import Project
 ######################################################################
 
 shards = {}
+queries = {'query': [], 'id': []}
 
 def shard_chooser(mapper, instance, clause=None):
     """Looks at the given instance and returns a shard id."""
@@ -56,10 +57,10 @@ def id_chooser(query, ident):
     """Given a primary key, returns a list of shards to search."""
     ids = []
     print('id_chooser 0:', query, ident)
-    if len(ident)>1:
-        ids = [ident[0]]
+    if query.statement.locate_all_froms() == set([Project.__table__]):
+        ids =['common']
     else:
-        ids = ['common']
+        ids = shards.keys()
     
     print('id_chooser 1:', ids)
     return ids
@@ -72,6 +73,7 @@ def query_chooser(query):
     to try to narrow down the list of shards to query.
     """
     print('query_chooser 0:', query)
+    queries['query'].append(query)
     ids = []
     
     class FindProject(ClauseVisitor):
@@ -127,7 +129,7 @@ def init_model(engine):
     sess = DBSession()
     for p in sess.query(Project):
         #print('add shard: ', p.id)
-        db = create_engine('sqlite:///db_%s.sqlite' % p.id, echo=echo)
+        db = create_engine('sqlite:///spam_%s.sqlite' % p.id, echo=echo)
         sess.bind_shard(p.id, db)
         shards[p.id] = db
 
