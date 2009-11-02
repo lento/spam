@@ -44,6 +44,8 @@ from spam.model.project import Project, Scene, Shot, LibraryGroup
 
 shards = {}
 queries = {'query': [], 'id': []}
+common_tables = set([Project.__table__, User.__table__, Group.__table__,
+                     Permission.__table__,])
 
 def shard_chooser(mapper, instance, clause=None):
     """Looks at the given instance and returns a shard id."""
@@ -57,7 +59,7 @@ def id_chooser(query, ident):
     """Given a primary key, returns a list of shards to search."""
     ids = []
     print('id_chooser 0:', query, ident)
-    if query.statement.locate_all_froms() == set([Project.__table__]):
+    if query.statement.locate_all_froms() <= common_tables:
         ids =['common']
     else:
         ids = shards.keys()
@@ -90,7 +92,7 @@ def query_chooser(query):
                     elif binary.operator == operators.in_op:
                         for bind in binary.right.clauses:
                             ids.append(bind.value)
-                elif binary.left.table is Project.__table__:
+                elif binary.left.table in common_tables:
                     ids.append('common')
             elif isinstance(binary.right, Column):
                 if binary.right.name=='proj_id':
@@ -103,7 +105,7 @@ def query_chooser(query):
             
     if query._criterion:
         FindProject().traverse(query._criterion)
-    elif query.statement.locate_all_froms() <= set([Project.__table__]):
+    elif query.statement.locate_all_froms() <= common_tables:
         ids =['common']
     
     if len(ids) == 0:
