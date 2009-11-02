@@ -112,7 +112,7 @@ class Scene(DeclarativeBase):
                 backref=backref('scenes',
                     primaryjoin='Project.id==Scene.proj_id',
                     foreign_keys=[Project.id], viewonly=True, uselist=True,
-                    order_by=name)
+                    lazy=False, order_by=name)
                 )
     
     def __init__(self, proj, name, description=None):
@@ -164,7 +164,8 @@ class Shot(AssetContainer):
     handle_out = Column(Integer)
     #assoc_id = Column(None, ForeignKey('notes_associations.assoc_id'))
     
-    parent = relation(Scene, backref=backref('shots', order_by=name))
+    parent = relation(Scene,
+                        backref=backref('shots', order_by=name, lazy=False))
     
     def __init__(self, proj_id, name, group=None, description=None,
                             location=None, frames=0, handle_in=0, handle_out=0,
@@ -210,17 +211,28 @@ class LibraryGroup(AssetContainer):
     description = Column(UnicodeText)
     #note_id = Column(None, ForeignKey('notes_associations.assoc_id'))
     
+    project = relation('Project',
+                primaryjoin='AssetContainer.proj_id==Project.id',
+                foreign_keys=[AssetContainer.proj_id],
+                viewonly=True,
+                backref=backref('libgroups',
+                    primaryjoin='and_(Project.id==LibraryGroup.proj_id, '
+                                'LibraryGroup.parent_id==None)',
+                    foreign_keys=[Project.id], viewonly=True, uselist=True,
+                    lazy=False, order_by=name)
+              )
+    
     subgroups = relation('LibraryGroup',
-            primaryjoin=and_(parent_id==id, proj_id==proj_id),
-                                            foreign_keys=[parent_id, proj_id],
+            primaryjoin=and_(parent_id==id, AssetContainer.proj_id==proj_id),
+                foreign_keys=[parent_id, proj_id], lazy=False, join_depth=5,
             backref=backref('parent', remote_side=[id, proj_id], uselist=False))
     
     #supervisors = relation('ProjectUser', secondary=supervisors_libgroup_table,
     #                        order_by='ProjectUser.user_name',
     #                        backref=backref('supervised_libgroups'))
     
-    def __init__(self, proj_id, name, parent=None, description=None):
-        self.proj_id = proj_id
+    def __init__(self, proj, name, parent=None, description=None):
+        self.proj_id = proj
         self.name = name
         self.parent = parent
         self.description = description
@@ -230,11 +242,11 @@ class LibraryGroup(AssetContainer):
 
     def __json__(self):
         return {'id': self.id,
-                'path': self.path,
-                'repopath': self.repopath,
+                #'path': self.path,
+                #'repopath': self.repopath,
                 'name': self.name,
-                'progress': self.progress,
-                'subgroups_progress': self.subgroups_progress,
+                #'progress': self.progress,
+                #'subgroups_progress': self.subgroups_progress,
                 }
 
 

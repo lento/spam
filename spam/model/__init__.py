@@ -3,7 +3,7 @@
 
 from zope.sqlalchemy import ZopeTransactionExtension
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import scoped_session, sessionmaker
+from sqlalchemy.orm import scoped_session, sessionmaker, lazyload
 from sqlalchemy.orm.shard import ShardedSession
 from sqlalchemy import create_engine, Column
 from sqlalchemy.sql import ClauseVisitor, operators
@@ -129,7 +129,8 @@ def init_model(engine):
                                                     query_chooser=query_chooser)
     
     sess = DBSession()
-    for p in sess.query(Project):
+    pq = sess.query(Project).options(lazyload('scenes'), lazyload('libgroups'))
+    for p in pq:
         #print('add shard: ', p.id)
         db = create_engine('sqlite:///spam_%s.sqlite' % p.id, echo=echo)
         sess.bind_shard(p.id, db)
