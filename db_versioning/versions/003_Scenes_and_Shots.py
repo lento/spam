@@ -61,9 +61,9 @@ class Shot(AssetContainer):
     __tablename__ = "shots"
     __table_args__ = (UniqueConstraint('proj_id', 'parent_id', 'name'),
                       ForeignKeyConstraint(['id', 'proj_id'],
-                        ['asset_containers.id', 'asset_containers.proj_id']),
+                          ['asset_containers.id', 'asset_containers.proj_id']),
                       ForeignKeyConstraint(['parent_id', 'proj_id'],
-                        ['scenes.id', 'scenes.proj_id']),
+                          ['scenes.id', 'scenes.proj_id']),
                       {})
     __mapper_args__ = {'polymorphic_identity': 'shot'}
     

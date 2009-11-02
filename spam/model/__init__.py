@@ -31,7 +31,7 @@ DBSession = scoped_session(maker)
 # Model modules
 ############################################################
 from spam.model.auth import User, Group, Permission
-from spam.model.project import Project, Scene, Shot
+from spam.model.project import Project, Scene, Shot, LibraryGroup
 
 
 ######################################################################

@@ -6,7 +6,7 @@ This is where the model for project data is defined.
 from datetime import datetime
 
 from sqlalchemy import Table, ForeignKey, Column, UniqueConstraint
-from sqlalchemy import ForeignKeyConstraint
+from sqlalchemy import ForeignKeyConstraint, and_
 from sqlalchemy.types import Unicode, UnicodeText, Integer, DateTime
 from sqlalchemy.orm import relation, synonym, backref
 
@@ -141,9 +141,9 @@ class Shot(AssetContainer):
     __tablename__ = "shots"
     __table_args__ = (UniqueConstraint('proj_id', 'parent_id', 'name'),
                       ForeignKeyConstraint(['id', 'proj_id'],
-                        ['asset_containers.id', 'asset_containers.proj_id']),
+                          ['asset_containers.id', 'asset_containers.proj_id']),
                       ForeignKeyConstraint(['parent_id', 'proj_id'],
-                        ['scenes.id', 'scenes.proj_id']),
+                          ['scenes.id', 'scenes.proj_id']),
                       {})
     __mapper_args__ = {'polymorphic_identity': 'shot'}
     
@@ -189,6 +189,52 @@ class Shot(AssetContainer):
                 'name': self.name,
                 'description': self.description,
                 #'progress': self.progress,
+                }
+
+
+class LibraryGroup(AssetContainer):
+    """Library group"""
+    __tablename__ = "library_groups"
+    __table_args__ = (UniqueConstraint('proj_id', 'parent_id', 'name'),
+                      ForeignKeyConstraint(['id', 'proj_id'],
+                          ['asset_containers.id', 'asset_containers.proj_id']),
+                      ForeignKeyConstraint(['parent_id'],
+                          ['library_groups.id']),
+                      {})
+    __mapper_args__ = {'polymorphic_identity': 'library_group'}
+    
+    id = Column(Integer, primary_key=True)
+    proj_id = Column(Unicode(10))
+    parent_id = Column(Integer)
+    name = Column(Unicode(40))
+    description = Column(UnicodeText)
+    #note_id = Column(None, ForeignKey('notes_associations.assoc_id'))
+    
+    subgroups = relation('LibraryGroup',
+            primaryjoin=and_(parent_id==id, proj_id==proj_id),
+                                            foreign_keys=[parent_id, proj_id],
+            backref=backref('parent', remote_side=[id, proj_id], uselist=False))
+    
+    #supervisors = relation('ProjectUser', secondary=supervisors_libgroup_table,
+    #                        order_by='ProjectUser.user_name',
+    #                        backref=backref('supervised_libgroups'))
+    
+    def __init__(self, proj_id, name, parent=None, description=None):
+        self.proj_id = proj_id
+        self.name = name
+        self.parent = parent
+        self.description = description
+
+    def __repr__(self):
+        return '<LibraryGroup: (%s) "%s">' % (self.proj_id, self.name)
+
+    def __json__(self):
+        return {'id': self.id,
+                'path': self.path,
+                'repopath': self.repopath,
+                'name': self.name,
+                'progress': self.progress,
+                'subgroups_progress': self.subgroups_progress,
                 }
 
 
