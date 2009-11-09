@@ -36,9 +36,9 @@
             <div class="title">${_('projects')}</div>
             <ul class="links">
                 % for p in c.user.projects:
-                    <li>
+                    <li class="${p.id}">
                         <div class="hidden id">${p.id}</div>
-                        <a class="project link">${p.name}</a>
+                        <a href="${tg.url('/project/%s' % p.id)}">${p.name}</a>
                     </li>
                 % endfor
             </ul>

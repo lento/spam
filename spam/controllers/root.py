@@ -10,13 +10,13 @@ from repoze.what import predicates
 
 from spam.lib.base import SPAMBaseController
 from spam.model import DBSession, metadata
-from spam.model import User, Group, Permission
+from spam.model import User, Group, Permission, Project
 from spam.controllers.error import ErrorController
 #from spam.controllers.spamadmin import SPAMAdminController, SPAMAdminConfig
 from spam.controllers.admin.admin import AdminController
 from spam.controllers.user import UserController
 from spam.controllers.form import FormController
-from spam import model
+
 
 __all__ = ['RootController']
 
@@ -97,5 +97,12 @@ class RootController(SPAMBaseController):
         override_template(self.parsedjs, 'mako:%s' % templatename)
 
         return dict()
+
+    @expose('spam.templates.view.project')
+    def project(self, proj):
+        project = DBSession.query(Project).get(proj)
+        
+        return dict(page='project view', project=project,
+                                            sidebar=('projects', project.id))
 
 
