@@ -18,7 +18,7 @@ except ImportError:
 
 from sqlalchemy import Table, ForeignKey, Column
 from sqlalchemy.types import Unicode, Integer, DateTime
-from sqlalchemy.orm import relation, synonym
+from sqlalchemy.orm import relation, synonym, backref
 
 from spam.model import DeclarativeBase, metadata, DBSession
 
@@ -61,27 +61,21 @@ class Group(DeclarativeBase):
     __tablename__ = 'auth_groups'
     
     #{ Columns
-    
     group_id = Column(Integer, autoincrement=True, primary_key=True)
-    
     group_name = Column(Unicode(16), unique=True, nullable=False)
-    
     display_name = Column(Unicode(255))
-    
     created = Column(DateTime, default=datetime.now)
     
     #{ Relations
-    
-    users = relation('User', secondary=user_group_table, backref='groups')
+    users = relation('User', secondary=user_group_table,
+                                        backref=backref('groups', lazy=False))
     
     #{ Special methods
-    
     def __repr__(self):
         return '<Group: name=%s>' % self.group_name
     
     def __unicode__(self):
         return self.group_name
-    
     #}
 
 
@@ -94,28 +88,20 @@ class User(DeclarativeBase):
     
     This is the user definition used by :mod:`repoze.who`, which requires at
     least the ``user_name`` column.
-    
     """
     __tablename__ = 'auth_users'
     
     #{ Columns
-
     user_id = Column(Integer, autoincrement=True, primary_key=True)
-    
     user_name = Column(Unicode(16), unique=True, nullable=False)
-    
     email_address = Column(Unicode(255), unique=True, nullable=False,
                            info={'rum': {'field':'Email'}})
-    
     display_name = Column(Unicode(255))
-    
     _password = Column(Unicode(80),
                        info={'rum': {'field':'Password'}})
-    
     created = Column(DateTime, default=datetime.now)
     
     #{ Special methods
-
     def __repr__(self):
         return '<User: email="%s", display name="%s">' % (
                 self.email_address, self.display_name)
@@ -124,7 +110,6 @@ class User(DeclarativeBase):
         return self.display_name or self.user_name
     
     #{ Getters and setters
-
     @property
     def permissions(self):
         """Return a set of strings for the permissions granted."""
@@ -172,7 +157,6 @@ class User(DeclarativeBase):
 
     password = synonym('_password', descriptor=property(_get_password,
                                                         _set_password))
-    
     #}
     
     def validate_password(self, password):
@@ -197,32 +181,25 @@ class Permission(DeclarativeBase):
     Permission definition for :mod:`repoze.what`.
     
     Only the ``permission_name`` column is required by :mod:`repoze.what`.
-    
     """
     
     __tablename__ = 'auth_permissions'
     
     #{ Columns
-
     permission_id = Column(Integer, autoincrement=True, primary_key=True)
-    
     permission_name = Column(Unicode(16), unique=True, nullable=False)
-    
     description = Column(Unicode(255))
     
     #{ Relations
-    
     groups = relation(Group, secondary=group_permission_table,
-                      backref='permissions')
+                                    backref=backref('permissions', lazy=False))
     
     #{ Special methods
-    
     def __repr__(self):
         return '<Permission: name=%s>' % self.permission_name
 
     def __unicode__(self):
         return self.permission_name
-    
     #}
 
 

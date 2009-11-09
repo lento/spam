@@ -112,7 +112,7 @@ class Scene(DeclarativeBase):
                 backref=backref('scenes',
                     primaryjoin='Project.id==Scene.proj_id',
                     foreign_keys=[Project.id], viewonly=True, uselist=True,
-                    lazy=False, order_by=name)
+                    lazy=True, order_by=name)
                 )
     
     def __init__(self, proj, name, description=None):
@@ -219,7 +219,7 @@ class LibraryGroup(AssetContainer):
                     primaryjoin='and_(Project.id==LibraryGroup.proj_id, '
                                 'LibraryGroup.parent_id==None)',
                     foreign_keys=[Project.id], viewonly=True, uselist=True,
-                    lazy=False, order_by=name)
+                    lazy=True, order_by=name)
               )
     
     subgroups = relation('LibraryGroup',

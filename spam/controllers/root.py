@@ -7,6 +7,7 @@ from tg import response, config, app_globals
 from tg.exceptions import HTTPNotFound
 from pylons.i18n import ugettext as _, lazy_ugettext as l_
 from repoze.what import predicates
+from sqlalchemy.orm import eagerload
 
 from spam.lib.base import SPAMBaseController
 from spam.model import DBSession, metadata
@@ -100,7 +101,9 @@ class RootController(SPAMBaseController):
 
     @expose('spam.templates.view.project')
     def project(self, proj):
-        project = DBSession.query(Project).get(proj)
+        query = DBSession.query(Project)
+        query = query.options(eagerload('scenes'), eagerload('libgroups'))
+        project = query.get(proj)
         
         return dict(page='project view', project=project,
                                             sidebar=('projects', project.id))

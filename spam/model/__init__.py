@@ -111,7 +111,7 @@ def query_chooser(query):
     if len(ids) == 0:
         ids = shards.keys()
 
-    print('query_chooser 1:', ids)
+    #print('query_chooser 1:', ids)
     return ids
 
 
