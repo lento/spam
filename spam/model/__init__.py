@@ -3,6 +3,7 @@
 
 from pylons import cache
 from zope.sqlalchemy import ZopeTransactionExtension
+from tg import config
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import scoped_session, sessionmaker, lazyload, eagerload
 from sqlalchemy.orm.shard import ShardedSession
@@ -152,7 +153,8 @@ def init_model(engine):
     pq = sess.query(Project).options(lazyload('scenes'), lazyload('libgroups'))
     for p in pq:
         #print('add shard: ', p.id)
-        db = create_engine('sqlite:///spam_%s.sqlite' % p.id, echo=echo)
+        db_url_tmpl = config.get('db_url_tmpl', 'sqlite:///db/spam_%s.sqlite')
+        db = create_engine(db_url_tmpl % p.id, echo=echo)
         sess.bind_shard(p.id, db)
         shards[p.id] = db
 
