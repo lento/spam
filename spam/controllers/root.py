@@ -111,3 +111,22 @@ class RootController(SPAMBaseController):
                                             sidebar=('projects', project.id))
 
 
+    @expose('spam.templates.view.scene')
+    def scene(self, proj, sc):
+        project = get_project(proj)
+        scene = [s for s in project.scenes if s.name==sc][0]
+        
+        return dict(page='scene view', project=project, scene=scene,
+                                            sidebar=('projects', project.id))
+
+
+    @expose('spam.templates.view.shot')
+    def shot(self, proj, sc, sh):
+        project = get_project(proj)
+        scene = [s for s in project.scenes if s.name==sc][0]
+        shot = [h for h in scene.shots if h.name==sh][0]
+        
+        return dict(page='shot view', project=project, scene=scene, shot=shot,
+                                            sidebar=('projects', project.id))
+
+

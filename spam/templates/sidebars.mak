@@ -83,7 +83,7 @@
                             <ul>
                                 % for shot in scene.shots:
                                 <li>
-                                    <a href="${tg.url('/shot/%s/%s' % (project.id, shot.name))}">
+                                    <a href="${tg.url('/shot/%s/%s/%s' % (project.id, scene.name, shot.name))}">
                                         ${shot.name}
                                     </a>
                                 </li>
