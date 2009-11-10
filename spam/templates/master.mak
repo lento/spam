@@ -28,13 +28,20 @@
     ${self.header()}
     ${self.flash_wrapper()}
 
-    % if request.identity:
     <div id="side">
-        ${sidebars.admin()}
-        ${sidebars.user()}
-        ${sidebars.projects()}
-    </div>
+    % if request.identity:
+        <div id="side_fixed" class="side">
+            ${sidebars.sb_admin()}
+            ${sidebars.sb_user()}
+            ${sidebars.sb_projects()}
+        </div>
+        % if project:
+            <div id="side_overflow" class="side">
+                ${sidebars.sb_project()}
+            </div>
+        % endif
     % endif
+    </div>
 
     ${self.content_wrapper()}
     ${self.footer()}

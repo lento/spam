@@ -10,7 +10,7 @@ from repoze.what import predicates
 from sqlalchemy.orm import eagerload
 
 from spam.lib.base import SPAMBaseController
-from spam.model import DBSession, metadata
+from spam.model import DBSession, metadata, cache
 from spam.model import User, Group, Permission, Project
 from spam.controllers.error import ErrorController
 #from spam.controllers.spamadmin import SPAMAdminController, SPAMAdminConfig
@@ -104,6 +104,7 @@ class RootController(SPAMBaseController):
         query = DBSession.query(Project)
         query = query.options(eagerload('scenes'), eagerload('libgroups'))
         project = query.get(proj)
+        #project = cache.projects[proj]
         
         return dict(page='project view', project=project,
                                             sidebar=('projects', project.id))

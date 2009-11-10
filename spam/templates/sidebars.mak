@@ -1,4 +1,4 @@
-<%def name="user()">
+<%def name="sb_user()">
     % if tg.predicates.not_anonymous():
         <div id="sb_user" class="sidebar">
             <div class="title">${_('user')}</div>
@@ -9,7 +9,7 @@
     % endif
 </%def>    
 
-<%def name="admin()">
+<%def name="sb_admin()">
     % if tg.predicates.in_group('administrators'):
         <div id="sb_admin" class="sidebar">
             <div id="sb_admin_toggle" class="toggle">
@@ -30,20 +30,157 @@
     % endif
 </%def>    
 
-<%def name="projects()">
+<%def name="sb_projects()">
     % if tg.predicates.not_anonymous():
         <div id="sb_projects" class="sidebar">
             <div class="title">${_('projects')}</div>
             <ul class="links">
                 % for p in c.user.projects:
-                    <li class="${p.id}">
-                        <div class="hidden id">${p.id}</div>
-                        <a href="${tg.url('/project/%s' % p.id)}">${p.name}</a>
-                    </li>
+                <li class="${p.id}">
+                    <div class="hidden id">${p.id}</div>
+                    <a href="${tg.url('/project/%s' % p.id)}">${p.name}</a>
+                </li>
                 % endfor
             </ul>
         </div>
     % endif
 </%def>    
+
+<%def name="insert_libgroup(libgroup)">
+    <li>
+        <a href="${tg.url('/libgroup/%s/%s' % (project.id, libgroup.name))}">${libgroup.name}</a>
+        % if libgroup.subgroups:
+            <ul>
+                % for subgroup in libgroup.subgroups:
+                    ${insert_libgroup(subgroup)}
+                % endfor
+            </ul>
+        % endif
+    </li>
+</%def>    
+
+<%def name="sb_project()">
+    % if tg.predicates.not_anonymous() and project:
+        <script type="text/javascript">
+        $(function() {
+            $("#sb_project_tree").treeview({
+                persist: "cookie"
+            });
+        });
+        </script>
+        
+        <div id="sb_project" class="sidebar">
+            <div class="title">${project.name}</div>
+            <ul id="sb_project_tree">
+                <li>
+                    <span>scenes</span>
+                    <ul id="sb_project_scenes">
+                        % for scene in project.scenes:
+                        <li>
+                            <a href="${tg.url('/scene/%s/%s' % (project.id, scene.name))}">
+                                ${scene.name}
+                            </a>
+                            <ul>
+                                % for shot in scene.shots:
+                                <li>
+                                    <a href="${tg.url('/shot/%s/%s' % (project.id, shot.name))}">
+                                        ${shot.name}
+                                    </a>
+                                </li>
+                                % endfor
+                            </ul>
+                        </li>
+                        % endfor
+                    </ul>
+                </li>
+                <li>
+                    <span>library</span>
+                    <ul id="sb_project_libgroups">
+                        % for libgroup in project.libgroups:
+                            ${insert_libgroup(libgroup)}
+                        % endfor
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    % endif
+</%def>    
+
+<%doc> ## prerendered version of the project treeview... doesn't look faster
+<%def name="insert_libgroup(libgroup, last=False)">
+    <%
+        subgroups = libgroup.subgroups
+        lenght = len(subgroups)
+        expandable = lenght > 0
+        if expandable and last:
+            cssclass = 'expandable lastExpandable'
+        elif expandable:
+            cssclass = 'expandable'
+        elif last:
+            cssclass = 'last'
+        else:
+            cssclass = ''
+    %>
+    <li class="${cssclass}">
+        % if expandable:
+            <div class="hitarea expandable-hitarea ${last and 'lastExpandable-hitarea' or ''}"/></div>
+        % endif
+        <a href="${tg.url('/libgroup/%s/%s' % (project.id, libgroup.name))}">${libgroup.name}</a>
+        % if subgroups:
+            <ul>
+                % for i in range(lenght):
+                    ${insert_libgroup(subgroups[i], last=(lenght-i == 1))}
+                % endfor
+            </ul>
+        % endif
+    </li>
+</%def>    
+
+<%def name="sb_project()">
+    % if tg.predicates.not_anonymous() and project:
+        <script type="text/javascript">
+        $(function() {
+            $("#sb_project_tree").treeview({
+                persist: "cookie",
+                prerendered: true
+            });
+        });
+        </script>
+        
+        <div id="sb_project" class="sidebar">
+            <div class="title">${project.name}</div>
+            <ul id="sb_project_tree">
+                <li class="expandable"><div class="hitarea expandable-hitarea"/></div>
+                    <span>scenes</span>
+                    <ul id="sb_project_scenes">
+                        % for scene in project.scenes:
+                        <li class="expandable"><div class="hitarea expandable-hitarea"/></div>
+                            <a href="${tg.url('/scene/%s/%s' % (project.id, scene.name))}">${scene.name}</a>
+                            <ul>
+                                % for shot in scene.shots:
+                                <li>
+                                    <a href="${tg.url('/shot/%s/%s' % (project.id, shot.name))}">${shot.name}</a>
+                                </li>
+                                % endfor
+                            </ul>
+                        </li>
+                        % endfor
+                    </ul>
+                </li>
+                <li class="expandable lastExpandable">
+                    <div class="hitarea expandable-hitarea lastExpandable-hitarea"/></div>
+                    <span>library</span>
+                    <ul id="sb_project_libgroups">
+                        <% lenght = len(project.libgroups) %>
+                        % for i in range(lenght):
+                            ${insert_libgroup(project.libgroups[i], last=(lenght-i == 1))}
+                        % endfor
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    % endif
+</%def>    
+</%doc>
 
 

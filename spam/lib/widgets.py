@@ -10,10 +10,12 @@ spam_js = JSLink(link=tg.url('/parsedjs/spam.js'))
 jquery_js = JSLink(link=tg.url('/js/jquery.js'))
 overlay_js = JSLink(link=tg.url('/js/tools.overlay.js'))
 jquery_cookie_js = JSLink(link=tg.url('/js/jquery.cookie.js'))
+jquery_treeview_js = JSLink(link=tg.url('/js/jquery.treeview.js'))
 
 
 class StartupJS(Widget):
-    javascript = [jquery_js, spam_js, overlay_js, jquery_cookie_js]
+    javascript = [jquery_js, spam_js, overlay_js, jquery_cookie_js,
+                  jquery_treeview_js]
 
 
 # Form widgets

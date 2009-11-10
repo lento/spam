@@ -3,7 +3,7 @@
 
 from zope.sqlalchemy import ZopeTransactionExtension
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import scoped_session, sessionmaker, lazyload
+from sqlalchemy.orm import scoped_session, sessionmaker, lazyload, eagerload
 from sqlalchemy.orm.shard import ShardedSession
 from sqlalchemy import create_engine, Column
 from sqlalchemy.sql import ClauseVisitor, operators
@@ -32,6 +32,48 @@ DBSession = scoped_session(maker)
 ############################################################
 from spam.model.auth import User, Group, Permission
 from spam.model.project import Project, Scene, Shot, LibraryGroup
+
+
+############################################################
+# Caching
+############################################################
+class CachedItem(object):
+    def __init__(self, value):
+        self.value = value
+        self.changed = False
+
+class CachedDict(dict):
+    def __init__(self, class_):
+        self._class = class_
+    
+    def __getitem__(self, key):
+        try:
+            item = super(CachedDict, self).__getitem__(key)
+            found = True
+        except KeyError:
+            found = False
+        
+        if found and not item.changed:
+            print('found', key, item.value, item.changed)
+            DBSession.add(item.value)
+            return item.value
+        else:
+            print('not found')
+            query = DBSession.query(self._class)
+            query = query.options(eagerload('scenes'), eagerload('libgroups'))
+            value = query.get(key)
+            item = CachedItem(value)
+            super(CachedDict, self).__setitem__(key, item)
+            return value
+    def invalidate(self, key):
+        item = super(CachedDict, self).__getitem__(key)
+        item.changed = True
+    
+class Cache(object):
+    pass
+    
+cache = Cache()
+cache.projects = CachedDict(Project)
 
 
 ######################################################################
