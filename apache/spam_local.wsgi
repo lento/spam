@@ -13,9 +13,9 @@ site.addsitedir('/home/lorenzo/dev/virtualenv/tg2env/lib/python2.6/site-packages
 
 #import os, sys
 
-sys.path.append('/home/lorenzo/dev/mrApps/spam')
+sys.path.append('/home/lorenzo/dev/spam')
 os.environ['PYTHON_EGG_CACHE'] = '/var/www/wsgi/python-eggs'
 
 from paste.deploy import loadapp
 
-application = loadapp('config:/home/lorenzo/dev/mrApps/spam/apache.ini')
+application = loadapp('config:/home/lorenzo/dev/spam/ini/apache.ini')
