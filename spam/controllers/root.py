@@ -5,12 +5,13 @@ import os.path
 from tg import expose, flash, require, url, request, redirect, override_template
 from tg import response, config, app_globals
 from tg.exceptions import HTTPNotFound
+from pylons import cache
 from pylons.i18n import ugettext as _, lazy_ugettext as l_
 from repoze.what import predicates
 from sqlalchemy.orm import eagerload
 
 from spam.lib.base import SPAMBaseController
-from spam.model import DBSession, metadata, cache
+from spam.model import DBSession, metadata, get_project
 from spam.model import User, Group, Permission, Project
 from spam.controllers.error import ErrorController
 #from spam.controllers.spamadmin import SPAMAdminController, SPAMAdminConfig
@@ -101,10 +102,10 @@ class RootController(SPAMBaseController):
 
     @expose('spam.templates.view.project')
     def project(self, proj):
-        query = DBSession.query(Project)
-        query = query.options(eagerload('scenes'), eagerload('libgroups'))
-        project = query.get(proj)
-        #project = cache.projects[proj]
+        #query = DBSession.query(Project)
+        #query = query.options(eagerload('scenes'), eagerload('libgroups'))
+        #project = query.get(proj)
+        project = get_project(proj)
         
         return dict(page='project view', project=project,
                                             sidebar=('projects', project.id))

@@ -1,3 +1,4 @@
+from pylons import cache
 from tg import expose, url, tmpl_context, redirect, validate
 from tg.controllers import RestController
 from spam.model import DBSession, Project
@@ -40,5 +41,10 @@ class ProjectsController(RestController):
         # create directories and init hg repo
         #repo.create_proj_dirs(project.id)
         return dict(msg='created project "%s"' % id, result='success')
-        
+    
+    @expose()
+    def invalidate_cache(self, proj):
+        projcache = cache.get_cache('projects')
+        projcache.remove_value(proj)
+        return 'removed'
 

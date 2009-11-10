@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """The application's model objects"""
 
+from pylons import cache
 from zope.sqlalchemy import ZopeTransactionExtension
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import scoped_session, sessionmaker, lazyload, eagerload
@@ -37,44 +38,21 @@ from spam.model.project import Project, Scene, Shot, LibraryGroup
 ############################################################
 # Caching
 ############################################################
-class CachedItem(object):
-    def __init__(self, value):
-        self.value = value
-        self.changed = False
+def eagerload_project(proj):
+    query = DBSession.query(Project)
+    query = query.options(eagerload('scenes'), eagerload('libgroups'))
+    return query.get(proj)
 
-class CachedDict(dict):
-    def __init__(self, class_):
-        self._class = class_
+def get_project(proj):
+    projcache = cache.get_cache('projects')
+    project = projcache.get_value(key=proj,
+                                  createfunc=lambda: eagerload_project(proj),
+                                  type='memory',
+                                  expiretime=120)
+    if project not in DBSession:
+        DBSession.add(project)
     
-    def __getitem__(self, key):
-        try:
-            item = super(CachedDict, self).__getitem__(key)
-            found = True
-        except KeyError:
-            found = False
-        
-        if found and not item.changed:
-            print('found', key, item.value, item.changed)
-            DBSession.add(item.value)
-            return item.value
-        else:
-            print('not found')
-            query = DBSession.query(self._class)
-            query = query.options(eagerload('scenes'), eagerload('libgroups'))
-            value = query.get(key)
-            item = CachedItem(value)
-            super(CachedDict, self).__setitem__(key, item)
-            return value
-    def invalidate(self, key):
-        item = super(CachedDict, self).__getitem__(key)
-        item.changed = True
-    
-class Cache(object):
-    pass
-    
-cache = Cache()
-cache.projects = CachedDict(Project)
-
+    return project
 
 ######################################################################
 # Sharding
