@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """The application's model objects"""
 
+import datetime
 from pylons import cache
 from zope.sqlalchemy import ZopeTransactionExtension
 from tg import config
@@ -39,17 +40,46 @@ from spam.model.project import Project, Scene, Shot, LibraryGroup
 ############################################################
 # Caching
 ############################################################
-def eagerload_project(proj):
-    query = DBSession.query(Project)
-    query = query.options(eagerload('scenes'), eagerload('libgroups'))
-    return query.get(proj)
+def eagerload_maker(proj):
+    """Factory for project eagerloaders.
+    
+    Return a argument-less function suitable for the "createfunc" parameter of
+    "Cache.get_value"
+    """
+    def eagerload_project():
+        query = DBSession.query(Project)
+        #query = query.options(eagerload('scenes'), eagerload('libgroups'))
+        project = query.get(proj)
+        project.scenes, project.libgroups
+        return (project, datetime.datetime.now())
+    return eagerload_project
 
 def get_project(proj):
+    """Return a project eagerloaded with its scenes and libgroups
+    
+    "get_project" keeps a (thread-local) cache of loaded projects, reloading
+    instances from the db if the "modified" field is newer then the cache
+    """
+    # get a lazyload instance of the project, save the modified time and discard
+    curproject = DBSession.query(Project).get(proj)
+    modified = curproject.modified
+    DBSession.expunge(curproject)
+    
+    # get the project from cache
     projcache = cache.get_cache('projects')
-    project = projcache.get_value(key=proj,
-                                  createfunc=lambda: eagerload_project(proj),
-                                  type='memory',
-                                  expiretime=120)
+    project, cached = projcache.get_value(key=proj,
+                                  createfunc=eagerload_maker(proj),
+                                  expiretime=360)
+
+    # check if its older then the db
+    if cached < modified:
+        # remove the invalidated value from the cache and reload from db
+        projcache.remove_value(proj)
+        project, cached = projcache.get_value(key=proj,
+                                  createfunc=eagerload_maker(proj),
+                                  expiretime=360)
+    
+    # put the instance back into the session
     if project not in DBSession:
         DBSession.add(project)
     
@@ -71,7 +101,7 @@ common_tables = set([Project.__table__, User.__table__, Group.__table__,
 def shard_chooser(mapper, instance, clause=None):
     """Looks at the given instance and returns a shard id."""
     print('shard_chooser 0:', mapper, instance, clause)
-    if isinstance(instance, Project):
+    if isinstance(instance, Project) or (instance is None):
         return 'common'
     else:
         return instance.proj_id

@@ -51,6 +51,7 @@ class Project(DeclarativeBase):
     name = Column(Unicode(40))
     description = Column(Unicode)
     created = Column(DateTime, default=datetime.now)
+    modified = Column(DateTime, default=datetime.now)
     
     #{ Relations
     users = relation('User', secondary=project_user_table, backref='projects')

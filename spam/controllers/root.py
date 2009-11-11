@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 """Main Controller"""
-import os.path
+import os.path, datetime
 
 from tg import expose, flash, require, url, request, redirect, override_template
 from tg import response, config, app_globals
 from tg.exceptions import HTTPNotFound
-from pylons import cache
+#from pylons import cache
+from beaker.cache import CacheManager
 from pylons.i18n import ugettext as _, lazy_ugettext as l_
 from repoze.what import predicates
 from sqlalchemy.orm import eagerload
@@ -129,4 +130,15 @@ class RootController(SPAMBaseController):
         return dict(page='shot view', project=project, scene=scene, shot=shot,
                                             sidebar=('projects', project.id))
 
+    @expose()
+    def getcache(self, key):
+        #cm = CacheManager()
+        #tmpcache = cm.get_cache('tmpcache')
+        #value = tmpcache.get_value(key=key,
+        #                           createfunc=datetime.datetime.now,
+        #                           expiretime=60)
+        #return 'key: %s, value: %s' % (key, value)
+        project = get_project(key)
+        return str(project.modified)
+        
 
