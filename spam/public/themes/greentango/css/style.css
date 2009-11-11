@@ -200,8 +200,8 @@ body {
 .side {
     clear: left;
     float: left;
-    margin: 15px 0;
-    /*padding: 10px 0;*/
+    margin-top: 15px;
+    padding: 10px 0;
     width: 180px;
     background-color: #eeeeec; /* Aluminium 1 */
 	-moz-border-radius: 10px;
@@ -209,7 +209,7 @@ body {
 }    
 
 .side .sidebar {
-    margin: 20px 0;
+    margin: 2px 0;
     color: #4e9a06; /* Chameleon 3 */
 }
 
@@ -236,6 +236,35 @@ body {
 .side li.active {
     color: #ef2929; /* Scarlet Red 1 */
 }
+
+#side_overflow_container {
+    clear: left;
+    float: left;
+    position: relative;
+}
+
+#side_overflow_activearea {
+    position: absolute;
+    padding-right: 0;
+    z-index: 3;
+}
+
+.side.overflow {
+    overflow: hidden;
+    max-height: 350px;
+    opacity: 0.9;
+}
+
+#side_overflow_activearea:hover {
+    padding-right: 30px;
+}
+
+#side_overflow_activearea:hover .side.overflow {
+    overflow: auto;
+    width: auto;
+    min-width: 180px;
+}
+
 
 
 /****************************************

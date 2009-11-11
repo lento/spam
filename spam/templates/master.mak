@@ -36,8 +36,12 @@
             ${sidebars.sb_projects()}
         </div>
         % if project:
-            <div id="side_overflow" class="side">
-                ${sidebars.sb_project()}
+            <div id="side_overflow_container">
+                <div id="side_overflow_activearea">
+                    <div id="side_overflow" class="side overflow">
+                        ${sidebars.sb_project()}
+                    </div>
+                </div>
             </div>
         % endif
     % endif
@@ -70,11 +74,15 @@
             <a class="login button" href="${tg.url('/login')}">login</a>
         % else:
             <a class="logout button" href="${tg.url('/logout_handler')}">logout</a>
-            <div class="username" py:content="c.user.user_name">username</div>
+            <div class="username" py:content="c.user.user_name">${c.user.user_name}</div>
         % endif
         
   	    <div class="title">
-  	    	Nome del Progetto
+  	    	% if project:
+  	    	    ${project.name}
+    	    % else:
+    	        SPAM
+	        % endif
 	    </div>
         % if page:
             <div class="path">${page}</div>

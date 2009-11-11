@@ -1,10 +1,17 @@
 <%def name="sb_user()">
     % if tg.predicates.not_anonymous():
         <div id="sb_user" class="sidebar">
-            <div class="title">${_('user')}</div>
-            <ul class="links">
-                <li class="home"><a href="${tg.url('/user/home')}">${_('home')}</a></li>
-            </ul>
+            <div id="sb_projects_toggle" class="toggle">
+                <div class="toggle_header title">
+                    <span class="toggle_arrow"/>
+                    <span class="toggle_title">${_('user')}</span>
+                </div>
+                <div class="toggleable">
+                    <ul class="links">
+                        <li class="home"><a href="${tg.url('/user/home')}">${_('home')}</a></li>
+                    </ul>
+                </div>
+            </div>
         </div>
     % endif
 </%def>    
@@ -33,15 +40,22 @@
 <%def name="sb_projects()">
     % if tg.predicates.not_anonymous():
         <div id="sb_projects" class="sidebar">
-            <div class="title">${_('projects')}</div>
-            <ul class="links">
-                % for p in c.user.projects:
-                <li class="${p.id}">
-                    <div class="hidden id">${p.id}</div>
-                    <a href="${tg.url('/project/%s' % p.id)}">${p.name}</a>
-                </li>
-                % endfor
-            </ul>
+            <div id="sb_projects_toggle" class="toggle">
+                <div class="toggle_header title">
+                    <span class="toggle_arrow"/>
+                    <span class="toggle_title">${_('projects')}</span>
+                </div>
+                <div class="toggleable">
+                    <ul class="links">
+                        % for p in c.user.projects:
+                        <li class="${p.id}">
+                            <div class="hidden id">${p.id}</div>
+                            <a href="${tg.url('/project/%s' % p.id)}">${p.name}</a>
+                        </li>
+                        % endfor
+                    </ul>
+                </div>
+            </div>
         </div>
     % endif
 </%def>    
