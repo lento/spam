@@ -11,6 +11,10 @@ common colors from the tango palette:
 #f6f6f4; / * Aluminium 0 * /
 #eeeeec; / * Aluminium 1 * /
 #babdb6; / * Aluminium 3 * /
+#888a85; / * Aluminium 4 * /
+#555753; / * Aluminium 5 * /
+#2e3436; / * Aluminium 6 * /
+#dfe6ed; / * Sky Blue 0 * /
 #729fcf; / * Sky Blue 1 * /
 #3465a4; / * Sky Blue 2 * /
 #204a87; / * Sky Blue 3 * /
@@ -49,6 +53,28 @@ body {
 
 .hidden {display: none;}
 
+/* Buttons */
+.button {
+    padding: 0 5px;
+    background-color: #3465a4; /* Sky Blue 2 */
+    color: #f6f6f4; /* Aluminium 0 */
+	-moz-border-radius: 5px;
+}
+
+td.icon {
+    width: 18px;
+}
+
+.iconbutton {
+    height: 16px;
+    width: 16px;
+    cursor: pointer;
+}
+
+.iconbutton.edit {background: url(../images/icons/edit.png) left center no-repeat;}
+.iconbutton.archive {background: url(../images/icons/undo.png) left center no-repeat;}
+.iconbutton.activate {background: url(../images/icons/redo.png) left center no-repeat;}
+
 /* Toggle */
 .toggle > .toggle_header {
     /*display: inline-block;*/
@@ -77,6 +103,23 @@ body {
 
 .toggle:not(.expanded) > .toggleable {
     display: none;
+}
+
+/* Table */
+table {
+    /*border: 1px solid black;*/
+    width: 100%;
+}
+
+table tr {
+}
+
+table td {
+    background-color: #f6f6f4; /* Aluminium 0 */
+}
+
+table tr.even td {
+    background-color: #dfe6ed; /* Sky Blue 0 */
 }
 
 /**********************************************************************
@@ -134,10 +177,6 @@ body {
 
 #header .login, #header .logout {
     float: right;
-    padding: 0 5px;
-    background-color: #3465a4; /* Sky Blue 2 */
-	-moz-border-radius: 5px;
-    color: #f6f6f4; /* Aluminium 0 */
 }
 
 #header .username {
@@ -281,10 +320,15 @@ body {
     padding: 10px;
     min-height: 400px;
     background-color: #eeeeec; /* Aluminium 1 */
-	-moz-border-radius: 10px;
 	border: 2px solid #73d216; /* Chameleon 2 */
+    color: #2e3436; /* Aluminium 6 */
+	-moz-border-radius: 10px;
 }
 
+#content h1 {
+    margin: 20px 0 5px 0;
+    font-weight: normal;
+}
 
 /****************************************
  * Footer
