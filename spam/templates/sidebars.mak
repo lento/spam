@@ -78,7 +78,8 @@
         <script type="text/javascript">
         $(function() {
             $("#sb_project_tree").treeview({
-                persist: "cookie"
+                persist: "cookie",
+                collapsed: true
             });
         });
         </script>
