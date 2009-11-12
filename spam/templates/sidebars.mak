@@ -1,7 +1,7 @@
 <%def name="sb_user()">
     % if tg.predicates.not_anonymous():
         <div id="sb_user" class="sidebar">
-            <div id="sb_projects_toggle" class="toggle">
+            <div id="sb_user_toggle" class="toggle">
                 <div class="toggle_header title">
                     <span class="toggle_arrow"/>
                     <span class="toggle_title">${_('user')}</span>
