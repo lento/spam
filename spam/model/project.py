@@ -67,6 +67,13 @@ class Project(DeclarativeBase):
     def __repr__(self):
         return '<Project: %s "%s">' % (self.id, self.name)
     
+    def __json__(self):
+        return dict(id=self.id,
+                    name=self.name,
+                    description=self.description,
+                    created=self.created.strftime('%Y/%m/%d %H:%M'),
+                    modified=self.modified.strftime('%Y/%m/%d %H:%M'),
+                   )
     #}
 
 
@@ -82,11 +89,6 @@ class AssetContainer(DeclarativeBase):
 
     def __repr__(self):
         return '<AssetContainer: (%s) %d>' % (self.proj_id, self.id)
-
-    def __json__(self):
-        return {'id': self.id,
-                'proj_id': self.proj_id
-               }
 
 
 class Scene(DeclarativeBase):
@@ -125,12 +127,12 @@ class Scene(DeclarativeBase):
         return '<Scene: (%s) "%s">' % (self.proj_id, self.name)
 
     def __json__(self):
-        return {'id': self.id,
-                'proj_id': self.proj_id,
-                #'path': self.path,
-                'name': self.name,
-                'description': self.description,
-                }
+        return dict(id=self.id,
+                    proj_id=self.proj_id,
+                    name=self.name,
+                    description=self.description,
+                    created=self.created.strftime('%Y/%m/%d %H:%M'),
+                   )
 
 
 class Shot(AssetContainer):
@@ -186,13 +188,19 @@ class Shot(AssetContainer):
         return '<Shot: (%s) "%s">' % (self.proj_id, self.name)
 
     def __json__(self):
-        return {'id': self.id,
-                #'path': self.path,
-                'name': self.name,
-                'description': self.description,
-                #'progress': self.progress,
-                }
-
+        return dict(id=self.id,
+                    proj_id=self.proj_id,
+                    parent_id=self.parent_id,
+                    name=self.name,
+                    description=self.description,
+                    created=self.created.strftime('%Y/%m/%d %H:%M'),
+                    location=self.location,
+                    action=self.action,
+                    frames=self.frames,
+                    handle_in=self.handle_in,
+                    handle_out=self.handel_out,
+                   )
+                    
 
 class LibraryGroup(AssetContainer):
     """Library group"""
@@ -242,12 +250,12 @@ class LibraryGroup(AssetContainer):
         return '<LibraryGroup: (%s) "%s">' % (self.proj_id, self.name)
 
     def __json__(self):
-        return {'id': self.id,
-                #'path': self.path,
-                #'repopath': self.repopath,
-                'name': self.name,
-                #'progress': self.progress,
-                #'subgroups_progress': self.subgroups_progress,
-                }
+        return dict(id=self.id,
+                    proj_id=self.proj_id,
+                    parent_id=self.parent_id,
+                    name=self.name,
+                    description=self.description,
+                    #created=self.created.strftime('%Y/%m/%d %H:%M'),
+                   )
 
 
