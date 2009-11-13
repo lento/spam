@@ -3,6 +3,7 @@ from tw.api import Widget, WidgetsList, JSLink
 from tw.forms import TableForm, TextField, TextArea
 from tw.forms.validators import All, Regex, MaxLength
 from spam.lib.repo import pattern_nick
+from spam.lib.twlib.livetable import LiveTable, IconButton
 
 spam_js = JSLink(link=tg.url('/parsedjs/spam.js'))
 
@@ -18,18 +19,15 @@ class StartupJS(Widget):
                   jquery_treeview_js]
 
 
-class GenericList(Widget):
-    """A real-time widget displaying a list"""
-    name = "list"
-    params = ['id', 'fields', 'items']
-    template = 'mako:spam.templates.widgets.list'
-    #list_js = JSLink(link=tg.url('/js/widgets/list.js'))
-    #javascript=[list_js, use_stomp_js]
-    #include_dynamic_js_calls = True
-    #
-    #def update_params(self, d):
-    #    super(UserList, self).update_params(d)
-    #    d.encoded_fields = jsonify.encode(d.fields)
+# Live tables
+class ActiveProjects(LiveTable):
+    class buttons(WidgetsList):
+        edit = IconButton(icon_class='edit')
+        archive = IconButton(icon_class='archive')
+
+class ArchivedProjects(LiveTable):
+    class buttons(WidgetsList):
+        reactivate = IconButton(icon_class='activate')
 
 
 # Form widgets

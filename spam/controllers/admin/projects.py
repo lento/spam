@@ -2,18 +2,21 @@ from pylons import cache
 from tg import expose, url, tmpl_context, redirect, validate
 from tg.controllers import RestController
 from spam.model import DBSession, Project
-from spam.lib.widgets import FormNewProject, GenericList
+from spam.lib.widgets import FormNewProject
+from spam.lib.widgets import ActiveProjects, ArchivedProjects
 
 __all__ = ['ProjectsController']
 
 f_new_project = FormNewProject(action=url('/admin/projects/'))
-w_list = GenericList()
+w_active_projects = ActiveProjects()
+w_archived_projects = ArchivedProjects()
 
 class ProjectsController(RestController):
 
     @expose('spam.templates.admin.projects.get_all')
     def get_all(self):
-        tmpl_context.list = w_list
+        tmpl_context.active_projects = w_active_projects
+        tmpl_context.archived_projects = w_archived_projects
         active = DBSession.query(Project).all()
         archived = [active[0]]*5
         return dict(page='admin/projects', sidebar=('admin', 'projects'),
