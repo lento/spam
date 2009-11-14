@@ -4,13 +4,13 @@
 
 <script type="text/javascript">
     $(function() {
-        rendered_buttons = ${jsonify([b.display() for b in buttons]) | n};
+        field_makers = [];
+        % for field in fields:
+            field_makers.push({'id': '${field.id}', 'field_class': '${field.field_class}', 'maker': ${field.display() | n}});
+        % endfor
         
         $.each(${jsonify(items) | n}, function() {
-            livetable.addrow($("#${id}"), this, 
-                             ${fields and jsonify(fields) or 'null' | n},
-                             rendered_buttons
-            );
+            livetable.addrow($("#${id}"), this, field_makers);
         });
         
         $("table tr:even").addClass("even");

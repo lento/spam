@@ -61,10 +61,6 @@ body {
 	-moz-border-radius: 5px;
 }
 
-td.icon {
-    width: 18px;
-}
-
 .iconbutton {
     height: 16px;
     width: 16px;
@@ -121,6 +117,11 @@ table td {
 table tr.even td {
     background-color: #dfe6ed; /* Sky Blue 0 */
 }
+
+table td.icon {
+    width: 18px;
+}
+
 
 /**********************************************************************
  * Overlay

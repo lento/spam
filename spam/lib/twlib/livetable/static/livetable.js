@@ -1,14 +1,18 @@
 livetable = new(Object);
 
-livetable.addrow = function(table, item, fields, buttons) {
+livetable.addrow = function(table, item, field_makers) {
     row = $('<tr></tr>');
     
-    if (buttons != null && typeof(buttons) != 'undefined') {
-        $.each(buttons, function() {
-            row.append('<td class="icon">' + this + '</td>');
+    if (field_makers != null && typeof(field_makers) != 'undefined') {
+        $.each(field_makers, function() {
+            id = this.id;
+            field_class = this.field_class;
+            field_maker = eval(this.maker);
+            row.append('<td class="' + field_class + '">' + field_maker(item[id]) + '</td>');
         });
     };
     
+    /*
     if (fields == null || typeof(fields) == 'undefined') {
         fields = [];
         $.each(item, function(name, value) {
@@ -19,7 +23,7 @@ livetable.addrow = function(table, item, fields, buttons) {
     $.each(fields, function() {
         row.append('<td>'+item[this]+'</td>');
     });
-    
+    */
     $("tbody", table).append(row);
 }
 
