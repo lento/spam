@@ -22,7 +22,7 @@ class StartupJS(Widget):
 # Live tables
 class ActiveProjects(LiveTable):
     class fields(WidgetsList):
-        edit = IconButton(icon_class='edit')
+        edit = IconButton(icon_class='edit', action='editme')
         archive = IconButton(icon_class='archive')
         id = TextData()
         name = TextData()

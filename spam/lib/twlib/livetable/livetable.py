@@ -45,8 +45,8 @@ class TableData(Widget):
 
 
 class IconButton(TableData):
+    params = ['label_text', 'icon_class', 'action']
     template = 'mako:spam.lib.twlib.livetable.templates.icon_button'
-    params = ['label_text', 'icon_class']
     
     field_class = 'icon'
     

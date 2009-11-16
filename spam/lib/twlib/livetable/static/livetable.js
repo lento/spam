@@ -15,4 +15,3 @@ livetable.addrow = function(table, item, field_makers) {
     $("tbody", table).append(row);
 }
 
-
