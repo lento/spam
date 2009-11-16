@@ -1,9 +1,9 @@
 import tg
 from tw.api import Widget, WidgetsList, JSLink
-from tw import forms
+from tw.forms import TableForm, TextField, TextArea
 from tw.forms.validators import All, Regex, MaxLength
 from spam.lib.repo import pattern_nick
-from spam.lib.twlib import livetable as lt
+from spam.lib.twlib.livetable import LiveTable, IconButton, TextData
 
 spam_js = JSLink(link=tg.url('/parsedjs/spam.js'))
 
@@ -20,30 +20,30 @@ class StartupJS(Widget):
 
 
 # Live tables
-class ActiveProjects(lt.LiveTable):
+class ActiveProjects(LiveTable):
     class fields(WidgetsList):
-        edit = lt.IconButton(icon_class='edit')
-        archive = lt.IconButton(icon_class='archive')
-        id = lt.TextField()
-        name = lt.TextField()
-        description = lt.TextField()
-        created = lt.TextField()
+        edit = IconButton(icon_class='edit')
+        archive = IconButton(icon_class='archive')
+        id = TextData()
+        name = TextData()
+        description = TextData()
+        created = TextData()
 
-class ArchivedProjects(lt.LiveTable):
+class ArchivedProjects(LiveTable):
     class fields(WidgetsList):
-        reactivate = lt.IconButton(icon_class='activate')
-        id = lt.TextField()
-        name = lt.TextField()
-        description = lt.TextField()
-        created = lt.TextField()
+        reactivate = IconButton(icon_class='activate')
+        id = TextData()
+        name = TextData()
+        description = TextData()
+        created = TextData()
 
 
 # Form widgets
-class FormNewProject(forms.TableForm):
+class FormNewProject(TableForm):
     class fields(WidgetsList):
-        nick = forms.TextField(validator=All(Regex(pattern_nick,
+        nick = TextField(validator=All(Regex(pattern_nick,
                                                 not_empty=True), MaxLength(15)))
-        name = forms.TextField(validator=MaxLength(40))
-        description = forms.TextArea(cols=30, rows=3)
+        name = TextField(validator=MaxLength(40))
+        description = TextArea(cols=30, rows=3)
 
 

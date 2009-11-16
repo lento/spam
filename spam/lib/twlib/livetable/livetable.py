@@ -33,18 +33,18 @@ class LiveTable(Widget):
 
     @property
     def ifields(self):
-        return self.ifilter_children(lambda x: isinstance(x,TableField))
+        return self.ifilter_children(lambda x: isinstance(x,TableData))
 
     def update_params(self,d):
         super(LiveTable, self).update_params(d)
         d['fields'] = list(self.ifields)
 
 
-class TableField(Widget):
+class TableData(Widget):
     params = ['field_class']
 
 
-class IconButton(TableField):
+class IconButton(TableData):
     template = 'mako:spam.lib.twlib.livetable.templates.icon_button'
     params = ['label_text', 'icon_class']
     
@@ -56,7 +56,7 @@ class IconButton(TableField):
             self.label_text = name2label(id)
 
 
-class TextField(TableField):
+class TextData(TableData):
     template = 'mako:spam.lib.twlib.livetable.templates.text_field'
     
     field_class = 'text'

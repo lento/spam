@@ -1,3 +1,3 @@
-from livetable import LiveTable, IconButton, TextField
+from livetable import LiveTable, IconButton, TextData
 
-__all__ = ['LiveTable', 'IconButton', 'TextField']
+__all__ = ['LiveTable', 'IconButton', 'TextData']

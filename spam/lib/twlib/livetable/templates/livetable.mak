@@ -13,8 +13,8 @@
             livetable.addrow($("#${id}"), this, field_makers);
         });
         
-        $("table tr:even").addClass("even");
-        $("table tr:odd").addClass("odd");
+        $("#${id} tr:even").addClass("even");
+        $("#${id} tr:odd").addClass("odd");
     });
 </script>
 
