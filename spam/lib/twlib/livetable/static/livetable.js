@@ -8,7 +8,7 @@ livetable.addrow = function(table, item, field_makers) {
             id = this.id;
             field_class = this.field_class;
             field_maker = this.maker;
-            row.append('<td class="' + field_class + '">' + field_maker(item[id]) + '</td>');
+            row.append('<td class="' + field_class + '">' + field_maker(item, id) + '</td>');
         });
     };
     

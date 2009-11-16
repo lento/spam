@@ -22,7 +22,7 @@ class StartupJS(Widget):
 # Live tables
 class ActiveProjects(LiveTable):
     class fields(WidgetsList):
-        edit = IconButton(icon_class='edit', action='editme')
+        edit = IconButton(icon_class='edit', action='edit')
         archive = IconButton(icon_class='archive')
         id = TextData()
         name = TextData()
@@ -43,6 +43,12 @@ class FormNewProject(TableForm):
     class fields(WidgetsList):
         nick = TextField(validator=All(Regex(pattern_nick,
                                                 not_empty=True), MaxLength(15)))
+        name = TextField(validator=MaxLength(40))
+        description = TextArea(cols=30, rows=3)
+
+
+class FormEditProject(TableForm):
+    class fields(WidgetsList):
         name = TextField(validator=MaxLength(40))
         description = TextArea(cols=30, rows=3)
 

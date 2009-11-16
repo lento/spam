@@ -40,7 +40,12 @@ spam/lib/app_globals.py
 spam/lib/base.py
 spam/lib/helpers.py
 spam/lib/repo.py
+spam/lib/utils.py
 spam/lib/widgets.py
+spam/lib/twlib/__init__.py
+spam/lib/twlib/livetable/__init__.py
+spam/lib/twlib/livetable/livetable.py
+spam/lib/twlib/livetable/templates/__init__.py
 spam/model/__init__.py
 spam/model/auth.py
 spam/model/project.py
@@ -65,6 +70,9 @@ spam/public/themes/greentango/images/ok.png
 spam/public/themes/greentango/images/star.png
 spam/public/themes/greentango/images/under_the_hood_blue.png
 spam/public/themes/greentango/images/warning.png
+spam/public/themes/greentango/images/icons/edit.png
+spam/public/themes/greentango/images/icons/redo.png
+spam/public/themes/greentango/images/icons/undo.png
 spam/public/themes/greentango/images/treeview/file.gif
 spam/public/themes/greentango/images/treeview/folder-closed.gif
 spam/public/themes/greentango/images/treeview/folder.gif

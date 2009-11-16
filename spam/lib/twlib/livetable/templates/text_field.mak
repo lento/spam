@@ -1,4 +1,4 @@
-function(data) {
-    field = '<div>' + data + '</div>';
+function(data, id) {
+    field = '<div>' + data[id] + '</div>';
     return field;
 }
