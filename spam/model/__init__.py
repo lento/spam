@@ -50,7 +50,8 @@ def eagerload_maker(proj):
         query = DBSession.query(Project)
         #query = query.options(eagerload('scenes'), eagerload('libgroups'))
         project = query.get(proj)
-        project.scenes, project.libgroups
+        project.scenes
+        project.libgroups
         return (project, datetime.datetime.now())
     return eagerload_project
 
@@ -137,12 +138,18 @@ def query_chooser(query):
             and convert to shard ids
             """
             if isinstance(binary.left, Column):
-                if binary.left.name=='proj_id':
-                    if binary.operator == operators.eq and binary.right.value:
-                        ids.append(binary.right.value)
+                if binary.left.name=='proj_id' and binary.right.value:
+                    if binary.operator == operators.eq:
+                        if callable(binary.right.value):
+                            ids.append(binary.right.value())
+                        else:
+                            ids.append(binary.right.value)
                     elif binary.operator == operators.in_op:
                         for bind in binary.right.clauses:
-                            ids.append(bind.value)
+                            if callable(bind.value):
+                                ids.append(bind.value())
+                            else:
+                                ids.append(bind.value)
                 elif binary.left.table in common_tables:
                     ids.append('common')
             elif isinstance(binary.right, Column):
@@ -162,7 +169,7 @@ def query_chooser(query):
     if len(ids) == 0:
         ids = shards.keys()
 
-    #print('query_chooser 1:', ids)
+    print('query_chooser 1:', ids)
     return ids
 
 
@@ -180,7 +187,7 @@ def init_model(engine):
                                                     query_chooser=query_chooser)
     
     sess = DBSession()
-    pq = sess.query(Project).options(lazyload('scenes'), lazyload('libgroups'))
+    pq = sess.query(Project)
     for p in pq:
         #print('add shard: ', p.id)
         db_url_tmpl = config.get('db_url_tmpl', 'sqlite:///db/spam_%s.sqlite')

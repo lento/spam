@@ -108,15 +108,10 @@ class Scene(DeclarativeBase):
     #group = Column(Unicode(40))
     created = Column(DateTime, default=datetime.now)
 
-    project = relation('Project',
-                primaryjoin='Scene.proj_id==Project.id',
-                foreign_keys=[proj_id],
-                viewonly=True,
-                backref=backref('scenes',
-                    primaryjoin='Project.id==Scene.proj_id',
-                    foreign_keys=[Project.id], viewonly=True, uselist=True,
-                    lazy=True, order_by=name)
-                )
+    project = relation('Project', primaryjoin='Scene.proj_id==Project.id',
+                       foreign_keys=[proj_id], viewonly=True,
+                       backref=backref('scenes', viewonly=True, order_by=name)
+                      )
     
     def __init__(self, proj, name, description=None):
         self.proj_id = proj
@@ -133,7 +128,6 @@ class Scene(DeclarativeBase):
                     description=self.description,
                     created=self.created.strftime('%Y/%m/%d %H:%M'),
                    )
-
 
 class Shot(AssetContainer):
     """
@@ -225,16 +219,29 @@ class LibraryGroup(AssetContainer):
                 foreign_keys=[AssetContainer.proj_id],
                 viewonly=True,
                 backref=backref('libgroups',
-                    primaryjoin='and_(Project.id==LibraryGroup.proj_id, '
-                                'LibraryGroup.parent_id==None)',
-                    foreign_keys=[Project.id], viewonly=True, uselist=True,
-                    lazy=True, order_by=name)
+                                primaryjoin=
+                                    'and_(Project.id==LibraryGroup.proj_id, '
+                                    'LibraryGroup.parent_id==None)',
+                                viewonly=True, order_by=name
+                               )
               )
     
     subgroups = relation('LibraryGroup',
-            primaryjoin=and_(parent_id==id, AssetContainer.proj_id==proj_id),
-                foreign_keys=[parent_id, proj_id], lazy=False, join_depth=5,
-            backref=backref('parent', remote_side=[id, proj_id], uselist=False))
+                         primaryjoin=and_(parent_id==id, proj_id==proj_id),
+                         foreign_keys=[parent_id, proj_id],
+                         lazy=False, join_depth=5,
+                         # this backref doesn't work...
+                         #backref=backref('parent',
+                         #                primaryjoin=and_(id==parent_id, proj_id==proj_id),
+                         #                foreign_keys=[id, proj_id],
+                         #                remote_side=[parent_id, proj_id]
+                         #               )
+                        )
+    
+    parent = relation('LibraryGroup',
+                      primaryjoin=and_(id==parent_id, proj_id==proj_id),
+                      foreign_keys=[id, proj_id], uselist=False,
+                     )
     
     #supervisors = relation('ProjectUser', secondary=supervisors_libgroup_table,
     #                        order_by='ProjectUser.user_name',
