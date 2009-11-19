@@ -1,6 +1,7 @@
 import tg
 from tw.api import Widget, WidgetsList, JSLink
-from tw.forms import TableForm, TextField, TextArea
+from tw.forms import TableForm, TextField, TextArea, HiddenField
+from tw.forms import CalendarDatePicker
 from tw.forms.validators import All, Regex, MaxLength
 from spam.lib.repo import pattern_nick
 from spam.lib.twlib.livetable import LiveTable, IconButton, TextData
@@ -20,16 +21,17 @@ class StartupJS(Widget):
 
 
 # Live tables
-class ActiveProjects(LiveTable):
+class ProjectsActive(LiveTable):
     class fields(WidgetsList):
         edit = IconButton(icon_class='edit', action='edit')
         archive = IconButton(icon_class='archive')
+        delete = IconButton(icon_class='delete', action='delete')
         id = TextData()
         name = TextData()
         description = TextData()
         created = TextData()
 
-class ArchivedProjects(LiveTable):
+class ProjectsArchived(LiveTable):
     class fields(WidgetsList):
         reactivate = IconButton(icon_class='activate')
         id = TextData()
@@ -39,17 +41,30 @@ class ArchivedProjects(LiveTable):
 
 
 # Form widgets
-class FormNewProject(TableForm):
+class FormProjectNew(TableForm):
     class fields(WidgetsList):
-        nick = TextField(validator=All(Regex(pattern_nick,
+        proj = TextField(label_text='id', validator=All(Regex(pattern_nick,
                                                 not_empty=True), MaxLength(15)))
         name = TextField(validator=MaxLength(40))
         description = TextArea(cols=30, rows=3)
 
 
-class FormEditProject(TableForm):
+class FormProjectEdit(TableForm):
     class fields(WidgetsList):
+        _method = HiddenField(default='PUT')
+        proj = HiddenField(not_empty=True)
+        proj_label = TextField(label_text='id', disabled=True)
         name = TextField(validator=MaxLength(40))
         description = TextArea(cols=30, rows=3)
 
-
+class FormProjectDelete(TableForm):
+    class fields(WidgetsList):
+        _method = HiddenField(default='DELETE')
+        proj = HiddenField(not_empty=True)
+        proj_disabled = TextField(label_text='id', disabled=True)
+        name_disabled = TextField(label_text='name', disabled=True)
+        description_disabled = TextArea(label_text='description', disabled=True,
+                                                                cols=30, rows=3)
+        create_disabled = CalendarDatePicker(label_text='created',
+                                                                disabled=True)
+    submit_text = 'delete'

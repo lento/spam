@@ -20,11 +20,16 @@ body {
     color: #204a87; /* Sky Blue 3 */
 }
 
+ul {
+    list-style: none;
+}
+
 h1 {
     font-size: large;
     border-bottom: 1px solid #204a87; /* Sky Blue 3 */
 }
 
+/* result */
 .result {
     float: left;
     width: 50px;
@@ -39,21 +44,25 @@ h1 {
     background: url(../images/error.png) left center no-repeat;
 }
 
+/* messages */
 .msg {
-    padding-top: 15px;
+    padding-bottom: 15px;
     font-size: large;
 }
 
+.warning {
+    padding-bottom: 15px;
+    font-size: large;
+    color: #ef2929; /* Scarlet Red 1 */
+}
+
+/* fields */
 label.required {
     font-weight: bold;
 }
 
 .fielderror {
     color: red;
-}
-
-ul {
-    list-style: none;
 }
 
 .disabled {

@@ -17,6 +17,12 @@
 
 <body>
     <h1>${title}</h1>
+    % if msg:
+        <div class="msg">${msg}</div>
+    % endif
+    % if warning:
+        <div class="warning">${warning}</div>
+    % endif
     ${c.form(args, child_args=child_args) | n}
 </body>
 

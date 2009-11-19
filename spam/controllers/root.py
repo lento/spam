@@ -5,20 +5,16 @@ import os.path, datetime
 from tg import expose, flash, require, url, request, redirect, override_template
 from tg import response, config, app_globals
 from tg.exceptions import HTTPNotFound
-#from pylons import cache
-from beaker.cache import CacheManager
 from pylons.i18n import ugettext as _, lazy_ugettext as l_
 from repoze.what import predicates
-from sqlalchemy.orm import eagerload
 
 from spam.lib.base import SPAMBaseController
 from spam.model import DBSession, metadata, get_project
 from spam.model import User, Group, Permission, Project
 from spam.controllers.error import ErrorController
-#from spam.controllers.spamadmin import SPAMAdminController, SPAMAdminConfig
-from spam.controllers.admin.admin import AdminController
 from spam.controllers.user import UserController
 from spam.controllers.form import FormController
+from spam.controllers.project import ProjectController
 
 
 __all__ = ['RootController']
@@ -38,12 +34,10 @@ class RootController(SPAMBaseController):
     must be wrapped around with :class:`tg.controllers.WSGIAppController`.
     
     """
-    #admin = SPAMAdminController([User, Group, Permission], DBSession,
-    #                                                config_type=SPAMAdminConfig)
-    admin = AdminController()
     error = ErrorController()
     user = UserController()
     form = FormController()
+    project = ProjectController()
     
     @expose()
     def index(self):
@@ -101,17 +95,6 @@ class RootController(SPAMBaseController):
 
         return dict()
 
-    @expose('spam.templates.view.project')
-    def project(self, proj):
-        #query = DBSession.query(Project)
-        #query = query.options(eagerload('scenes'), eagerload('libgroups'))
-        #project = query.get(proj)
-        project = get_project(proj)
-        
-        return dict(page='project view', project=project,
-                                            sidebar=('projects', project.id))
-
-
     @expose('spam.templates.view.scene')
     def scene(self, proj, sc):
         project = get_project(proj)
@@ -130,15 +113,4 @@ class RootController(SPAMBaseController):
         return dict(page='shot view', project=project, scene=scene, shot=shot,
                                             sidebar=('projects', project.id))
 
-    @expose()
-    def getcache(self, key):
-        #cm = CacheManager()
-        #tmpcache = cm.get_cache('tmpcache')
-        #value = tmpcache.get_value(key=key,
-        #                           createfunc=datetime.datetime.now,
-        #                           expiretime=60)
-        #return 'key: %s, value: %s' % (key, value)
-        project = get_project(key)
-        return str(project.modified)
-        
 
