@@ -1,1 +1,1 @@
-extern/jquery.treeview.min.js
+extern/jquery.treeview.svn5759.js

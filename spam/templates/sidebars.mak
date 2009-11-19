@@ -79,6 +79,8 @@
         $(function() {
             $("#sb_project_tree").treeview({
                 persist: "cookie",
+                cookieId: "project_treeview",
+                cookieOptions: {path: "${tg.url('/')}"},
                 collapsed: true
             });
         });
