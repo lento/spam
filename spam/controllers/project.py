@@ -65,7 +65,7 @@ class ProjectController(RestController):
         """Display a EDIT confirmation form."""
         tmpl_context.form = f_project_edit
         project = get_project(proj)
-        fargs = dict(proj=project.id, proj_label=project.id, name=project.name,
+        fargs = dict(proj=project.id, proj_d=project.id, name=project.name,
                                                 description=project.description)
         fcargs = dict()
         return dict(title='Edit project "%s"' % proj, args=fargs,
@@ -82,21 +82,20 @@ class ProjectController(RestController):
         return dict(msg='updated project "%s"' % proj, result='success')
 
     @expose('spam.templates.forms.form')
-    def get_delete(self, proj):
+    def get_delete(self, proj, **kwargs):
         """Display a DELETE confirmation form."""
         tmpl_context.form = f_project_delete
         project = get_project(proj)
-        #fargs = dict(proj=project.id, proj_disabled=project.id,
-        #             name_disabled=project.name,
-        #             description_disabled=project.description,
-        #             create_disabled=project.created)
-        fargs = dict(proj=project.id)
+        fargs = dict(proj=project.id, proj_d=project.id,
+                     name_d=project.name,
+                     description_d=project.description,
+                     create_d=project.created)
         fcargs = dict()
         warning = ('All the data and history of the project will be lost, '
                    'this action is not undoable!')
         return dict(
                 title='Are you sure you want to delete "%s"?' % project.name,
-                warning = warning, args=fargs, child_args=fcargs)
+                warning=warning, args=fargs, child_args=fcargs)
 
     @expose('json')
     @expose('spam.templates.forms.result')
