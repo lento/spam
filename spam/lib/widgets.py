@@ -24,7 +24,7 @@ class StartupJS(Widget):
 # Live tables
 class ProjectsActive(LiveTable):
     class fields(WidgetsList):
-        archive = IconButton(icon_class='archive', action='archive/%(id)s')
+        archive = IconButton(icon_class='archive', action='get_archive/%(id)s')
         edit = IconButton(icon_class='edit', action='%(id)s/edit')
         delete = IconButton(icon_class='delete', action='%(id)s/delete')
         id = TextData()
@@ -35,7 +35,7 @@ class ProjectsActive(LiveTable):
 
 class ProjectsArchived(LiveTable):
     class fields(WidgetsList):
-        reactivate = IconButton(icon_class='activate', action='activate/%(id)s')
+        reactivate = IconButton(icon_class='activate', action='get_activate/%(id)s')
         id = TextData()
         name = TextData()
         description = TextData()

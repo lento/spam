@@ -1,3 +1,4 @@
+import logging
 from pylons import cache
 from tg import expose, url, tmpl_context, redirect, validate
 from tg.controllers import RestController
@@ -7,11 +8,13 @@ from spam.lib.widgets import FormProjectNew, FormProjectEdit, FormProjectConfirm
 from spam.lib.widgets import ProjectsActive, ProjectsArchived
 
 __all__ = ['ProjectsController']
+log = logging.getLogger(__name__)
 
 # form widgets
 f_project_new = FormProjectNew(action=url('/project/'))
 f_project_edit = FormProjectEdit(action=url('/project/'))
 f_project_delete = FormProjectConfirm(action=url('/project/'))
+f_project_confirm = FormProjectConfirm(action=url('/project/'))
 
 # livetable widgets
 w_projects_active = ProjectsActive()
@@ -108,4 +111,53 @@ class ProjectController(RestController):
         return dict(msg='deleted project "%s"' % proj, result='success')
     
     
+    # Custom REST-like attributes
+    _handler_lookup = RestController._handler_lookup
+    _handler_lookup['archive'] = RestController._handle_put_or_post
+    _handler_lookup['activate'] = RestController._handle_put_or_post
+    
+    @expose('spam.templates.forms.form')
+    def get_archive(self, proj, **kwargs):
+        """Display a ARCHIVE confirmation form."""
+        tmpl_context.form = f_project_confirm
+        project = query_projects().filter_by(id=proj).one()
+        fargs = dict(_method='ARCHIVE', proj=project.id, proj_d=project.id,
+                     name_d=project.name,
+                     description_d=project.description,
+                     create_d=project.created)
+        fcargs = dict()
+        return dict(title='Are you sure you want to archive "%s"' % proj,
+                                                args=fargs, child_args=fcargs)
+
+    @expose('json')
+    @expose('spam.templates.forms.result')
+    def archive(self, proj, **kwargs):
+        """Archive a project"""
+        project = query_projects().filter_by(id=proj).one()
+        project.archived = True
+        return dict(msg='archived project "%s"' % proj, result='success')
+
+    @expose('spam.templates.forms.form')
+    def get_activate(self, proj, **kwargs):
+        """Display a ACTIVATE confirmation form."""
+        tmpl_context.form = f_project_confirm
+        project = query_projects_archived().filter_by(id=proj).one()
+        log.debug('get_activate: %s' % project)
+        
+        fargs = dict(_method='ACTIVATE', proj=project.id, proj_d=project.id,
+                     name_d=project.name,
+                     description_d=project.description,
+                     create_d=project.created)
+        fcargs = dict()
+        return dict(title='Are you sure you want to activate "%s"' % proj,
+                                                args=fargs, child_args=fcargs)
+
+    @expose('json')
+    @expose('spam.templates.forms.result')
+    def activate(self, proj, **kwargs):
+        """Activate a project"""
+        project = query_projects_archived().filter_by(id=proj).one()
+        project.archived = False
+        return dict(msg='activated project "%s"' % proj, result='success')
+
 
