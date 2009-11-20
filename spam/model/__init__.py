@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """The application's model objects"""
 
-import datetime
+import datetime, logging
 from pylons import cache
 from zope.sqlalchemy import ZopeTransactionExtension
 from tg import config
@@ -10,6 +10,9 @@ from sqlalchemy.orm import scoped_session, sessionmaker, lazyload, eagerload
 from sqlalchemy.orm.shard import ShardedSession
 from sqlalchemy import create_engine, Column
 from sqlalchemy.sql import ClauseVisitor, operators
+
+
+log = logging.getLogger(__name__)
 
 # Base class for all of our model classes (SQLAlchemy's declarative extension)
 DeclarativeBase = declarative_base()
@@ -108,7 +111,7 @@ common_tables = set([Project.__table__, User.__table__, Group.__table__,
 
 def shard_chooser(mapper, instance, clause=None):
     """Looks at the given instance and returns a shard id."""
-    print('shard_chooser 0:', mapper, instance, clause)
+    log.debug('shard_chooser 0: %s, %s, %s' % (mapper, instance, clause))
     if isinstance(instance, Project) or (instance is None):
         return 'common'
     else:
@@ -117,13 +120,13 @@ def shard_chooser(mapper, instance, clause=None):
 def id_chooser(query, ident):
     """Given a primary key, returns a list of shards to search."""
     ids = set()
-    print('id_chooser 0:', query, ident)
+    log.debug('id_chooser 0: %s, %s' % (query, ident))
     if query.statement.locate_all_froms() <= common_tables:
         ids = set(['common'])
     else:
         ids = set(shards.keys())
     
-    print('id_chooser 1:', ids)
+    log.debug('id_chooser 1: %s' % ids)
     return ids
 
 def query_chooser(query):
@@ -133,7 +136,7 @@ def query_chooser(query):
     Can just be all of them, but here we'll search into the Query in order
     to try to narrow down the list of shards to query.
     """
-    print('query_chooser 0:', query)
+    log.debug('query_chooser 0: %s' % query)
     queries['query'].append(query)
     ids = set()
     
@@ -176,7 +179,7 @@ def query_chooser(query):
     if len(ids) == 0:
         ids = set(shards.keys())
 
-    print('query_chooser 1:', ids)
+    log.debug('query_chooser 1: %s' % ids)
     return ids
 
 
@@ -196,7 +199,7 @@ def init_model(engine):
     sess = DBSession()
     pq = sess.query(Project)
     for p in pq:
-        #print('add shard: ', p.id)
+        #log.debug('add shard: %s' % p.id)
         db_url_tmpl = config.get('db_url_tmpl', 'sqlite:///db/spam_%s.sqlite')
         db = create_engine(db_url_tmpl % p.id, echo=echo)
         sess.bind_shard(p.id, db)
