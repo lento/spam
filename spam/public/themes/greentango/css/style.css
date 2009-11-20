@@ -68,9 +68,10 @@ body {
     cursor: pointer;
 }
 
-.iconbutton.edit {background: url(../images/icons/edit.png) left center no-repeat;}
-.iconbutton.archive {background: url(../images/icons/undo.png) left center no-repeat;}
-.iconbutton.activate {background: url(../images/icons/redo.png) left center no-repeat;}
+.iconbutton.edit {background: url(../images/icons/16x16/edit.png) left center no-repeat;}
+.iconbutton.archive {background: url(../images/icons/16x16/undo.png) left center no-repeat;}
+.iconbutton.activate {background: url(../images/icons/16x16/redo.png) left center no-repeat;}
+.iconbutton.delete {background: url(../images/icons/16x16/trash.png) left center no-repeat;}
 
 /* Toggle */
 .toggle > .toggle_header {
