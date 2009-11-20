@@ -1,5 +1,5 @@
 <%
-    from spam.lib.utils import jsonify
+    from spam.lib.jsonify import encode as json_encode
 %>
 
 <script type="text/javascript">
@@ -9,7 +9,7 @@
             field_makers.push({'id': '${field.id}', 'field_class': '${field.field_class}', 'maker': ${field.display().replace('\n', '') | n}});
         % endfor
         
-        $.each(${jsonify(items) | n}, function() {
+        $.each(${json_encode(items) | n}, function() {
             livetable.addrow($("#${id}"), this, field_makers);
         });
         
