@@ -40,6 +40,12 @@ from spam.model.project import Project, Scene, Shot, LibraryGroup
 ############################################################
 # Caching
 ############################################################
+def query_projects():
+    return DBSession.query(Project).filter_by(archived=False)
+
+def query_projects_archived():
+    return DBSession.query(Project).filter_by(archived=True)
+
 def eagerload_maker(proj):
     """Factory for project eagerloaders.
     
@@ -47,7 +53,7 @@ def eagerload_maker(proj):
     "Cache.get_value"
     """
     def eagerload_project():
-        query = DBSession.query(Project)
+        query = query_projects()
         #query = query.options(eagerload('scenes'), eagerload('libgroups'))
         project = query.get(proj)
         project.scenes
@@ -62,7 +68,7 @@ def get_project(proj):
     instances from the db if the "modified" field is newer then the cache
     """
     # get a lazyload instance of the project, save the modified time and discard
-    curproject = DBSession.query(Project).get(proj)
+    curproject = query_projects().get(proj)
     modified = curproject.modified
     DBSession.expunge(curproject)
     
@@ -85,6 +91,7 @@ def get_project(proj):
         DBSession.add(project)
     
     return project
+
 
 ######################################################################
 # Sharding
@@ -109,12 +116,12 @@ def shard_chooser(mapper, instance, clause=None):
 
 def id_chooser(query, ident):
     """Given a primary key, returns a list of shards to search."""
-    ids = []
+    ids = set()
     print('id_chooser 0:', query, ident)
     if query.statement.locate_all_froms() <= common_tables:
-        ids =['common']
+        ids = set(['common'])
     else:
-        ids = shards.keys()
+        ids = set(shards.keys())
     
     print('id_chooser 1:', ids)
     return ids
@@ -128,7 +135,7 @@ def query_chooser(query):
     """
     print('query_chooser 0:', query)
     queries['query'].append(query)
-    ids = []
+    ids = set()
     
     class FindProject(ClauseVisitor):
         def visit_binary(self, binary):
@@ -141,33 +148,33 @@ def query_chooser(query):
                 if binary.left.name=='proj_id' and binary.right.value:
                     if binary.operator == operators.eq:
                         if callable(binary.right.value):
-                            ids.append(binary.right.value())
+                            ids.add(binary.right.value())
                         else:
-                            ids.append(binary.right.value)
+                            ids.add(binary.right.value)
                     elif binary.operator == operators.in_op:
                         for bind in binary.right.clauses:
                             if callable(bind.value):
-                                ids.append(bind.value())
+                                ids.add(bind.value())
                             else:
-                                ids.append(bind.value)
+                                ids.add(bind.value)
                 elif binary.left.table in common_tables:
-                    ids.append('common')
+                    ids.add('common')
             elif isinstance(binary.right, Column):
                 if binary.right.name=='proj_id':
                     if (binary.operator == operators.eq and
                                                 callable(binary.left.value)):
-                        ids.append(binary.left.value())
+                        ids.add(binary.left.value())
                     elif binary.operator == operators.in_op:
                         for bind in binary.left.clauses:
-                            ids.append(bind.value())
+                            ids.add(bind.value())
             
     if query._criterion:
         FindProject().traverse(query._criterion)
     elif query.statement.locate_all_froms() <= common_tables:
-        ids =['common']
+        ids =set(['common'])
     
     if len(ids) == 0:
-        ids = shards.keys()
+        ids = set(shards.keys())
 
     print('query_chooser 1:', ids)
     return ids

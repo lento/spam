@@ -2,7 +2,8 @@ from pylons import cache
 from tg import expose, url, tmpl_context, redirect, validate
 from tg.controllers import RestController
 from spam.model import DBSession, Project, get_project
-from spam.lib.widgets import FormProjectNew, FormProjectEdit, FormProjectDelete
+from spam.model import query_projects, query_projects_archived
+from spam.lib.widgets import FormProjectNew, FormProjectEdit, FormProjectConfirm
 from spam.lib.widgets import ProjectsActive, ProjectsArchived
 
 __all__ = ['ProjectsController']
@@ -10,20 +11,20 @@ __all__ = ['ProjectsController']
 # form widgets
 f_project_new = FormProjectNew(action=url('/project/'))
 f_project_edit = FormProjectEdit(action=url('/project/'))
-f_project_delete = FormProjectDelete(action=url('/project/'))
+f_project_delete = FormProjectConfirm(action=url('/project/'))
 
 # livetable widgets
 w_projects_active = ProjectsActive()
 w_projects_archived = ProjectsArchived()
 
 class ProjectController(RestController):
-
+    
     @expose('spam.templates.project.get_all')
     def get_all(self):
         tmpl_context.projects_active = w_projects_active
         tmpl_context.projects_archived = w_projects_archived
-        active = DBSession.query(Project).all()
-        archived = [active[0]]*5
+        active = query_projects()
+        archived = query_projects_archived()
         return dict(page='admin/projects', sidebar=('admin', 'projects'),
                                             active=active, archived=archived)
 
@@ -86,7 +87,7 @@ class ProjectController(RestController):
         """Display a DELETE confirmation form."""
         tmpl_context.form = f_project_delete
         project = get_project(proj)
-        fargs = dict(proj=project.id, proj_d=project.id,
+        fargs = dict(_method='DELETE', proj=project.id, proj_d=project.id,
                      name_d=project.name,
                      description_d=project.description,
                      create_d=project.created)
@@ -105,4 +106,6 @@ class ProjectController(RestController):
         project = get_project(proj)
         #DBSession.delete(project)
         return dict(msg='deleted project "%s"' % proj, result='success')
+    
+    
 

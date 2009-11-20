@@ -7,16 +7,16 @@ from datetime import datetime
 
 from sqlalchemy import Table, ForeignKey, Column, UniqueConstraint
 from sqlalchemy import ForeignKeyConstraint, and_
-from sqlalchemy.types import Unicode, UnicodeText, Integer, DateTime
+from sqlalchemy.types import Unicode, UnicodeText, Integer, DateTime, Boolean
 from sqlalchemy.orm import relation, synonym, backref
 
 from spam.model import DeclarativeBase, metadata, DBSession
 
 __all__ = ['Project']
 
-
-#{ Association tables
-
+############################################################
+# Association tables
+############################################################
 
 # Association table for the many-to-many relationship projects-users.
 project_user_table = Table('__project_user', metadata,
@@ -35,30 +35,32 @@ project_admin_table = Table('__project_admin', metadata,
 )
 
 
-#{ The Common model itself
-
-
+############################################################
+# Project
+############################################################
 class Project(DeclarativeBase):
-    """
-    Project definition.
-    
-    """
-    
+    """Project definition."""
     __tablename__ = 'projects'
     
-    #{ Columns
+    # Columns
     id = Column(Unicode(10), primary_key=True)
     name = Column(Unicode(40))
     description = Column(Unicode)
     created = Column(DateTime, default=datetime.now)
     modified = Column(DateTime, default=datetime.now)
+    archived = Column(Boolean, default=False)
     
-    #{ Relations
-    users = relation('User', secondary=project_user_table, backref='projects')
+    # Relations
+    users = relation('User', secondary=project_user_table,
+        primaryjoin='and_(Project.id==__project_user.c.project_id, '
+                         'Project.archived==False)',
+        secondaryjoin='__project_user.c.user_id==User.user_id',
+        backref='projects')
+    
     admins = relation('User', secondary=project_admin_table,
                                                     backref='admin_projects')
     
-    #{ Special methods
+    # Special methods
     def __init__(self, id, name=None, description=None):
         self.id = id
         self.name = name
@@ -74,19 +76,22 @@ class Project(DeclarativeBase):
                     created=self.created.strftime('%Y/%m/%d %H:%M'),
                     modified=self.modified.strftime('%Y/%m/%d %H:%M'),
                    )
-    #}
 
 
+############################################################
 # Containers
+############################################################
 class AssetContainer(DeclarativeBase):
     """Base class for object containers"""
     __tablename__ = 'asset_containers'
         
+    # Columns
     id = Column(Integer, primary_key=True)
     proj_id = Column(Unicode(10))
     type = Column(Unicode(20))
     __mapper_args__ = {'polymorphic_on': type}
 
+    # Special methods
     def __repr__(self):
         return '<AssetContainer: (%s) %d>' % (self.proj_id, self.id)
 
@@ -101,6 +106,7 @@ class Scene(DeclarativeBase):
     __table_args__ = (UniqueConstraint('proj_id', 'name'),
                       {})
     
+    # Columns
     id = Column(Integer, primary_key=True)
     proj_id = Column(Unicode(10))
     name = Column(Unicode(15))
@@ -108,11 +114,13 @@ class Scene(DeclarativeBase):
     #group = Column(Unicode(40))
     created = Column(DateTime, default=datetime.now)
 
+    # Relations
     project = relation('Project', primaryjoin='Scene.proj_id==Project.id',
                        foreign_keys=[proj_id], viewonly=True,
                        backref=backref('scenes', viewonly=True, order_by=name)
                       )
     
+    # Special methods
     def __init__(self, proj, name, description=None):
         self.proj_id = proj
         self.name = name
@@ -144,6 +152,7 @@ class Shot(AssetContainer):
                       {})
     __mapper_args__ = {'polymorphic_identity': 'shot'}
     
+    # Columns
     id = Column(Integer, primary_key=True)
     proj_id = Column(Unicode(10))
     parent_id = Column(Integer)
@@ -161,9 +170,11 @@ class Shot(AssetContainer):
     handle_out = Column(Integer)
     #assoc_id = Column(None, ForeignKey('notes_associations.assoc_id'))
     
+    # Relations
     parent = relation(Scene,
                         backref=backref('shots', order_by=name, lazy=False))
     
+    # Special methods
     def __init__(self, proj_id, name, group=None, description=None,
                             location=None, frames=0, handle_in=0, handle_out=0,
                             action='', parent=None):
@@ -207,6 +218,7 @@ class LibraryGroup(AssetContainer):
                       {})
     __mapper_args__ = {'polymorphic_identity': 'library_group'}
     
+    # Columns
     id = Column(Integer, primary_key=True)
     proj_id = Column(Unicode(10))
     parent_id = Column(Integer)
@@ -214,6 +226,7 @@ class LibraryGroup(AssetContainer):
     description = Column(UnicodeText)
     #note_id = Column(None, ForeignKey('notes_associations.assoc_id'))
     
+    # Relations
     project = relation('Project',
                 primaryjoin='AssetContainer.proj_id==Project.id',
                 foreign_keys=[AssetContainer.proj_id],
@@ -247,6 +260,7 @@ class LibraryGroup(AssetContainer):
     #                        order_by='ProjectUser.user_name',
     #                        backref=backref('supervised_libgroups'))
     
+    # Special methods
     def __init__(self, proj, name, parent=None, description=None):
         self.proj_id = proj
         self.name = name

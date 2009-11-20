@@ -12,15 +12,7 @@ session = Session()
 
 
 # Existing classes and tables to be used in relations
-class User(DeclarativeBase):
-    __tablename__ = 'auth_users'
-    
-    user_id = Column(Integer, autoincrement=True, primary_key=True)
-    user_name = Column(Unicode(16), unique=True, nullable=False)
-    email_address = Column(Unicode(255), unique=True, nullable=False)
-    display_name = Column(Unicode(255))
-    _password = Column(Unicode(80))
-    created = Column(DateTime, default=datetime.now)
+auth_users = Table('auth_users', metadata, autoload=True)
 
 
 # New classes and tables
@@ -45,15 +37,8 @@ class Project(DeclarativeBase):
     name = Column(Unicode(40))
     description = Column(Unicode)
     created = Column(DateTime, default=datetime.now)
-
-    users = relation('User', secondary=project_user_table, backref='projects')
-    admins = relation('User', secondary=project_admin_table,
-                                                    backref='admin_projects')
-
-    def __init__(self, id, name=None, description=None):
-        self.id = id
-        self.name = name
-        self.description = description
+    modified = Column(DateTime, default=datetime.now)
+    archived = Column(Boolean, default=False)
 
 
 def upgrade():
@@ -62,13 +47,6 @@ def upgrade():
     project_user_table.create()
     project_admin_table.create()
     Project.__table__.create()
-    
-    dummy = Project(u'dummy', name=u'Dummy', description=u'A test project')
-    session.add(dummy)
-    
-    admin = session.query(User).filter_by(user_name=u'admin').one()
-    dummy.users.append(admin)
-    dummy.admins.append(admin)
 
 def downgrade():
     # Operations to reverse the above upgrade go here.

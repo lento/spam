@@ -13,19 +13,20 @@ jquery_js = JSLink(link=tg.url('/js/jquery.js'))
 overlay_js = JSLink(link=tg.url('/js/tools.overlay.js'))
 jquery_cookie_js = JSLink(link=tg.url('/js/jquery.cookie.js'))
 jquery_treeview_js = JSLink(link=tg.url('/js/jquery.treeview.js'))
+jquery_sprintf_js = JSLink(link=tg.url('/js/jquery.sprintf.js'))
 
 
 class StartupJS(Widget):
     javascript = [jquery_js, spam_js, overlay_js, jquery_cookie_js,
-                  jquery_treeview_js]
+                  jquery_treeview_js, jquery_sprintf_js]
 
 
 # Live tables
 class ProjectsActive(LiveTable):
     class fields(WidgetsList):
-        archive = IconButton(icon_class='archive')
-        edit = IconButton(icon_class='edit', action='edit')
-        delete = IconButton(icon_class='delete', action='delete')
+        archive = IconButton(icon_class='archive', action='archive/%(id)s')
+        edit = IconButton(icon_class='edit', action='%(id)s/edit')
+        delete = IconButton(icon_class='delete', action='%(id)s/delete')
         id = TextData()
         name = TextData()
         description = TextData()
@@ -34,7 +35,7 @@ class ProjectsActive(LiveTable):
 
 class ProjectsArchived(LiveTable):
     class fields(WidgetsList):
-        reactivate = IconButton(icon_class='activate')
+        reactivate = IconButton(icon_class='activate', action='activate/%(id)s')
         id = TextData()
         name = TextData()
         description = TextData()
@@ -59,9 +60,9 @@ class FormProjectEdit(TableForm):
         description = TextArea(cols=30, rows=3)
 
 
-class FormProjectDelete(TableForm):
+class FormProjectConfirm(TableForm):
     class fields(WidgetsList):
-        _method = HiddenField(default='DELETE', validator=None)
+        _method = HiddenField(default='', validator=None)
         proj = HiddenField(validator=NotEmpty)
         proj_d = TextField(label_text='id', disabled=True, validator=None)
         name_d = TextField(label_text='name', disabled=True, validator=None)
@@ -69,4 +70,5 @@ class FormProjectDelete(TableForm):
                                                 disabled=True, validator=None)
         create_d = CalendarDatePicker(label_text='created',
                                                 disabled=True, validator=None)
-    submit_text = 'delete'
+
+
