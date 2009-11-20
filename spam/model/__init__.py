@@ -38,7 +38,7 @@ from spam.model.project import Project, Scene, Shot, LibraryGroup
 
 
 ############################################################
-# Caching
+# Caching & helpers
 ############################################################
 def query_projects():
     return DBSession.query(Project).filter_by(archived=False)
@@ -55,7 +55,7 @@ def eagerload_maker(proj):
     def eagerload_project():
         query = query_projects()
         #query = query.options(eagerload('scenes'), eagerload('libgroups'))
-        project = query.get(proj)
+        project = query.filter_by(id=proj).one()
         project.scenes
         project.libgroups
         return (project, datetime.datetime.now())
@@ -68,7 +68,7 @@ def get_project(proj):
     instances from the db if the "modified" field is newer then the cache
     """
     # get a lazyload instance of the project, save the modified time and discard
-    curproject = query_projects().get(proj)
+    curproject = query_projects().filter_by(id=proj).one()
     modified = curproject.modified
     DBSession.expunge(curproject)
     

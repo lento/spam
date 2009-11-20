@@ -120,7 +120,7 @@ class ProjectController(RestController):
     def get_archive(self, proj, **kwargs):
         """Display a ARCHIVE confirmation form."""
         tmpl_context.form = f_project_confirm
-        project = query_projects().filter_by(id=proj).one()
+        project = get_project(proj)
         fargs = dict(_method='ARCHIVE', proj=project.id, proj_d=project.id,
                      name_d=project.name,
                      description_d=project.description,
@@ -133,7 +133,7 @@ class ProjectController(RestController):
     @expose('spam.templates.forms.result')
     def archive(self, proj, **kwargs):
         """Archive a project"""
-        project = query_projects().filter_by(id=proj).one()
+        project = get_project(proj)
         project.archived = True
         return dict(msg='archived project "%s"' % proj, result='success')
 
