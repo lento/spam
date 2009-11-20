@@ -15,6 +15,7 @@ from spam.controllers.error import ErrorController
 from spam.controllers.user import UserController
 from spam.controllers.form import FormController
 from spam.controllers.project import ProjectController
+from spam.controllers.sandbox import SandboxController
 
 
 __all__ = ['RootController']
@@ -38,6 +39,7 @@ class RootController(SPAMBaseController):
     user = UserController()
     form = FormController()
     project = ProjectController()
+    sandbox = SandboxController()
     
     @expose()
     def index(self):
