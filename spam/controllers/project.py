@@ -95,8 +95,9 @@ class ProjectController(RestController):
                      description_d=project.description,
                      create_d=project.created)
         fcargs = dict()
-        warning = ('All the data and history of the project will be lost, '
-                   'this action is not undoable!')
+        warning = ('This will only delete the project registration in the '
+                   'database. The data and history of the project must be '
+                   'deleted manually if needed.')
         return dict(
                 title='Are you sure you want to delete "%s"?' % project.name,
                 warning=warning, args=fargs, child_args=fcargs)
@@ -105,11 +106,15 @@ class ProjectController(RestController):
     @expose('spam.templates.forms.result')
     @validate(f_project_delete, error_handler=get_delete)
     def post_delete(self, proj, **kwargs):
-        """Delete a project"""
+        """Delete a project.
+        
+        Only delete the project record from the common db, the project own db
+        and repository must be removed manually.
+        (This should help prevent awful accidents) ;)
+        """
         project = get_project(proj)
-        #DBSession.delete(project)
+        DBSession.delete(project)
         return dict(msg='deleted project "%s"' % proj, result='success')
-    
     
     # Custom REST-like attributes
     _handler_lookup = RestController._handler_lookup
