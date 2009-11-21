@@ -111,22 +111,23 @@ common_tables = set([Project.__table__, User.__table__, Group.__table__,
 
 def shard_chooser(mapper, instance, clause=None):
     """Looks at the given instance and returns a shard id."""
-    log.debug('shard_chooser 0: %s, %s, %s' % (mapper, instance, clause))
+    id_ = None
     if isinstance(instance, Project) or (instance is None):
-        return 'common'
+        id_ = 'common'
     else:
-        return instance.proj_id
+        id_ = instance.proj_id
+    log.debug('shard_chooser: %s' % id_)
+    return id_
 
 def id_chooser(query, ident):
     """Given a primary key, returns a list of shards to search."""
     ids = set()
-    log.debug('id_chooser 0: %s, %s' % (query, ident))
     if query.statement.locate_all_froms() <= common_tables:
         ids = set(['common'])
     else:
         ids = set(shards.keys())
     
-    log.debug('id_chooser 1: %s' % ids)
+    log.debug('id_chooser: %s' % ids)
     return ids
 
 def query_chooser(query):
@@ -136,8 +137,6 @@ def query_chooser(query):
     Can just be all of them, but here we'll search into the Query in order
     to try to narrow down the list of shards to query.
     """
-    log.debug('query_chooser 0: %s' % query)
-    queries['query'].append(query)
     ids = set()
     
     class FindProject(ClauseVisitor):
@@ -179,7 +178,7 @@ def query_chooser(query):
     if len(ids) == 0:
         ids = set(shards.keys())
 
-    log.debug('query_chooser 1: %s' % ids)
+    log.debug('query_chooser: %s' % ids)
     return ids
 
 
