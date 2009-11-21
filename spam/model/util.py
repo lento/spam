@@ -1,6 +1,8 @@
 """Caching & helpers"""
 from datetime import datetime
+from migrate.versioning import api as migrate_api
 from pylons import cache
+from tg import config
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 from spam.lib.exceptions import SPAMProjectNotFound
 from spam.model import DBSession, Project
@@ -11,6 +13,7 @@ def query_projects():
 def query_projects_archived():
     return DBSession.query(Project).filter_by(archived=True)
 
+# Cache
 def eagerload_maker(proj):
     """Factory for project eagerloaders.
     
@@ -61,5 +64,10 @@ def get_project(proj):
     
     return project
 
-
+# DB versioning
+def init_db(proj, version=None):
+    db_url = config.db_url_tmpl % proj
+    migrate_repo = config.db_migrate_repo
+    migrate_api.version_control(db_url, migrate_repo)
+    migrate_api.upgrade(db_url, migrate_repo, version)
 

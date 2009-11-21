@@ -29,6 +29,7 @@ from project import Project, Scene, Shot, LibraryGroup
 
 # Caching & helpers
 from util import query_projects, query_projects_archived, get_project
+from util import init_db
 
 
 # Sharding
