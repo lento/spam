@@ -1,17 +1,18 @@
 from datetime import datetime
-from sqlalchemy import Table, Column
+from sqlalchemy import Table, Column, MetaData
 from sqlalchemy import UniqueConstraint, ForeignKeyConstraint, ForeignKey
 from sqlalchemy.types import Unicode, UnicodeText, DateTime, Integer
 from sqlalchemy.orm import relation, backref
 from migrate import *
 from sqlalchemy.ext.declarative import declarative_base
 
-DeclarativeBase = declarative_base(bind=migrate_engine)
-metadata = DeclarativeBase.metadata
+migrate_metadata = MetaData()
+DeclarativeBase = declarative_base(bind=migrate_engine,
+                                                    metadata=migrate_metadata)
 
 
 # Existing classes and tables to be used in relations
-projects = Table('projects', metadata, autoload=True)
+projects = Table('projects', migrate_metadata, autoload=True)
 
 # New classes and tables
 class AssetContainer(DeclarativeBase):
@@ -40,16 +41,6 @@ class Scene(DeclarativeBase):
     description = Column(UnicodeText)
     #group = Column(Unicode(40))
     created = Column(DateTime, default=datetime.now)
-
-    project = relation('Project',
-                primaryjoin='Scene.proj_id==Project.id',
-                foreign_keys=[proj_id],
-                viewonly=True,
-                backref=backref('scenes',
-                    primaryjoin='Project.id==Scene.proj_id',
-                    foreign_keys=[projects.c.id], viewonly=True, uselist=True,
-                    order_by=name)
-                )
 
 
 class Shot(AssetContainer):

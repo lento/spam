@@ -1,13 +1,14 @@
 from datetime import datetime
-from sqlalchemy import Table, Column, and_
+from sqlalchemy import Table, Column, MetaData, and_
 from sqlalchemy import UniqueConstraint, ForeignKeyConstraint, ForeignKey
 from sqlalchemy.types import Unicode, UnicodeText, DateTime, Integer
 from sqlalchemy.orm import relation, backref
 from migrate import *
 from sqlalchemy.ext.declarative import declarative_base
 
-DeclarativeBase = declarative_base(bind=migrate_engine)
-metadata = DeclarativeBase.metadata
+migrate_metadata = MetaData()
+DeclarativeBase = declarative_base(bind=migrate_engine,
+                                                    metadata=migrate_metadata)
 
 
 # Existing classes and tables to be used in relations

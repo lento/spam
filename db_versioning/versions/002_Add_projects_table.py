@@ -4,21 +4,22 @@ from migrate import *
 from sqlalchemy.orm import sessionmaker, relation
 from sqlalchemy.ext.declarative import declarative_base
 
-DeclarativeBase = declarative_base(bind=migrate_engine)
-metadata = DeclarativeBase.metadata
+migrate_metadata = MetaData()
+DeclarativeBase = declarative_base(bind=migrate_engine,
+                                                    metadata=migrate_metadata)
 
 # Existing classes and tables to be used in relations
-auth_users = Table('auth_users', metadata, autoload=True)
+auth_users = Table('auth_users', migrate_metadata, autoload=True)
 
 # New classes and tables
-project_user_table = Table('__project_user', metadata,
+project_user_table = Table('__project_user', migrate_metadata,
     Column('project_id', Unicode(10), ForeignKey('projects.id',
         onupdate="CASCADE", ondelete="CASCADE")),
     Column('user_id', Integer, ForeignKey('auth_users.user_id',
         onupdate="CASCADE", ondelete="CASCADE"))
 )
 
-project_admin_table = Table('__project_admin', metadata,
+project_admin_table = Table('__project_admin', migrate_metadata,
     Column('project_id', Unicode(10), ForeignKey('projects.id',
         onupdate="CASCADE", ondelete="CASCADE")),
     Column('user_id', Integer, ForeignKey('auth_users.user_id',

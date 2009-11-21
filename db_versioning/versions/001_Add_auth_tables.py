@@ -5,17 +5,18 @@ from migrate import *
 from sqlalchemy.orm import sessionmaker, relation
 from sqlalchemy.ext.declarative import declarative_base
 
-DeclarativeBase = declarative_base(bind=migrate_engine)
-metadata = DeclarativeBase.metadata
+migrate_metadata = MetaData()
+DeclarativeBase = declarative_base(bind=migrate_engine,
+                                                    metadata=migrate_metadata)
 
-group_permission_table = Table('auth_group_permission', metadata,
+group_permission_table = Table('auth_group_permission', migrate_metadata,
     Column('group_id', Integer, ForeignKey('auth_groups.group_id',
         onupdate="CASCADE", ondelete="CASCADE")),
     Column('permission_id', Integer, ForeignKey('auth_permissions.permission_id',
         onupdate="CASCADE", ondelete="CASCADE"))
 )
 
-user_group_table = Table('auth_user_group', metadata,
+user_group_table = Table('auth_user_group', migrate_metadata,
     Column('user_id', Integer, ForeignKey('auth_users.user_id',
         onupdate="CASCADE", ondelete="CASCADE")),
     Column('group_id', Integer, ForeignKey('auth_groups.group_id',
