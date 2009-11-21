@@ -2,10 +2,11 @@ import logging, datetime
 from pylons import cache
 from tg import expose, url, tmpl_context, redirect, validate
 from tg.controllers import RestController
-from spam.model import DBSession, Project, get_project
-from spam.model import query_projects, query_projects_archived
+from spam.model import DBSession, Project, get_project, init_db
+from spam.model import query_projects, query_projects_archived, add_shard
 from spam.lib.widgets import FormProjectNew, FormProjectEdit, FormProjectConfirm
 from spam.lib.widgets import ProjectsActive, ProjectsArchived
+from spam.lib import repo
 
 __all__ = ['ProjectsController']
 log = logging.getLogger(__name__)
@@ -52,16 +53,19 @@ class ProjectController(RestController):
     def post(self, proj, name=None, description=None, **kwargs):
         """Create a new project"""
         # add project to shared db
-        #project = Project(proj, name=name, description=description)
-        #DBSession.add(project)
+        project = Project(proj, name=name, description=description)
+        DBSession.add(project)
         
         # init project db
         #if core_session.bind.url.drivername=='mysql':
         #    create_proj_db(project.id)
-        #init_proj_db(project.id)
+        init_db(project.id)
+        add_shard(proj)
         
         # create directories and init hg repo
-        #repo.create_proj_dirs(project.id)
+        repo.create_proj_dirs(project.id)
+        repo.init_repo(project.id)
+        
         return dict(msg='created project "%s"' % proj, result='success')
     
     @expose('spam.templates.forms.form')

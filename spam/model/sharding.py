@@ -4,9 +4,10 @@ Sharding allows to use a different db for each project, the following functions
 are used by the session to automatically select the db (or list of dbs) to
 query.
 """
-from sqlalchemy import Column
+from tg import config
+from sqlalchemy import create_engine, Column
 from sqlalchemy.sql import ClauseVisitor, operators
-from spam.model import Project, User, Group, Permission
+from spam.model import DBSession, Project, User, Group, Permission, echo
 
 import logging
 log = logging.getLogger(__name__)
@@ -88,5 +89,9 @@ def query_chooser(query):
     log.debug('query_chooser: %s' % ids)
     return ids
 
-
+def add_shard(proj):
+    db_url_tmpl = config.get('db_url_tmpl', 'sqlite:///db/spam_%s.sqlite')
+    db = create_engine(db_url_tmpl % proj, echo=echo)
+    DBSession().bind_shard(proj, db)
+    shards[proj] = db
 

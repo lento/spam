@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
 """The application's model objects"""
 from zope.sqlalchemy import ZopeTransactionExtension
-from tg import config
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import scoped_session, sessionmaker, lazyload, eagerload
 from sqlalchemy.orm.shard import ShardedSession
-from sqlalchemy import create_engine
 
 # Base class for all of our model classes (SQLAlchemy's declarative extension)
 DeclarativeBase = declarative_base()
@@ -21,6 +19,8 @@ maker = sessionmaker(autoflush=True, autocommit=False, class_=ShardedSession,
                      extension=ZopeTransactionExtension())
 DBSession = scoped_session(maker)
 
+# echo value for project engines
+echo = True
 
 # Models import
 from auth import User, Group, Permission
@@ -34,27 +34,20 @@ from util import init_db
 
 # Sharding
 from sharding import shards, queries, shard_chooser, id_chooser, query_chooser
-
+from sharding import add_shard
 
 # Init model
 def init_model(engine):
     """Call me before using any of the tables or classes in the model."""
 
     shards['common'] = engine
-    echo = True
     
     DBSession.configure(shards=shards)
     DBSession.configure(shard_chooser=shard_chooser, id_chooser=id_chooser,
                                                     query_chooser=query_chooser)
     
-    sess = DBSession()
-    pq = sess.query(Project)
-    for p in pq:
-        db_url_tmpl = config.get('db_url_tmpl', 'sqlite:///db/spam_%s.sqlite')
-        db = create_engine(db_url_tmpl % p.id, echo=echo)
-        sess.bind_shard(p.id, db)
-        shards[p.id] = db
-
+    for project in query_projects():
+        add_shard(project.id)
 
 
 
