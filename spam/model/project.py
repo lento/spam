@@ -60,6 +60,10 @@ class Project(DeclarativeBase):
     admins = relation('User', secondary=project_admin_table,
                                                     backref='admin_projects')
     
+    # Methods
+    def touch(self):
+        self.modified = datetime.now()
+    
     # Special methods
     def __init__(self, id, name=None, description=None):
         self.id = id

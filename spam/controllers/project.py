@@ -1,4 +1,4 @@
-import logging
+import logging, datetime
 from pylons import cache
 from tg import expose, url, tmpl_context, redirect, validate
 from tg.controllers import RestController
@@ -52,7 +52,7 @@ class ProjectController(RestController):
     def post(self, proj, name=None, description=None, **kwargs):
         """Create a new project"""
         # add project to shared db
-        #project = Project(id, name=name, description=description)
+        #project = Project(proj, name=name, description=description)
         #DBSession.add(project)
         
         # init project db
@@ -66,7 +66,7 @@ class ProjectController(RestController):
     
     @expose('spam.templates.forms.form')
     def edit(self, proj, **kwargs):
-        """Display a EDIT confirmation form."""
+        """Display a EDIT form."""
         tmpl_context.form = f_project_edit
         project = get_project(proj)
         fargs = dict(proj=project.id, proj_d=project.id, name=project.name,
@@ -83,6 +83,7 @@ class ProjectController(RestController):
         project = get_project(proj)
         if name: project.name = name
         if description: project.description = description
+        project.touch()
         return dict(msg='updated project "%s"' % proj, result='success')
 
     @expose('spam.templates.forms.form')
@@ -140,6 +141,7 @@ class ProjectController(RestController):
         """Archive a project"""
         project = get_project(proj)
         project.archived = True
+        project.touch()
         return dict(msg='archived project "%s"' % proj, result='success')
 
     @expose('spam.templates.forms.form')
@@ -163,6 +165,7 @@ class ProjectController(RestController):
         """Activate a project"""
         project = query_projects_archived().filter_by(id=proj).one()
         project.archived = False
+        project.touch()
         return dict(msg='activated project "%s"' % proj, result='success')
 
 
