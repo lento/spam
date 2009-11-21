@@ -8,14 +8,13 @@ except ImportError:
 
 setup(
     name='spam',
-    version='0.1',
+    version='0.2',
     description='',
     author='',
     author_email='',
     #url='',
     install_requires=[
         "TurboGears2 >= 2.0b7",
-        "Catwalk >= 2.0.2",
         "Babel >=0.9.4",
         #can be removed iif use_toscawidgets = False
         "toscawidgets >= 0.9.7.1",
@@ -25,6 +24,7 @@ setup(
         "repoze.what-quickstart >= 1.0",
         
         "ipython",
+        "mercurial",
                 ],
     setup_requires=["PasteScript >= 1.7"],
     paster_plugins=['PasteScript', 'Pylons', 'TurboGears2', 'tg.devtools'],
