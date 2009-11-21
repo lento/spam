@@ -6,3 +6,9 @@ class SPAMProjectNotFound(HTTPClientError):
     explanation = ''
 
 
+class SPAMRepoNotFound(HTTPClientError):
+    code = 400
+    title = 'Repository Not Found'
+    explanation = ''
+
+

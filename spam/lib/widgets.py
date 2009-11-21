@@ -3,7 +3,7 @@ from tw.api import Widget, WidgetsList, JSLink
 from tw.forms import TableForm, TextField, TextArea, HiddenField
 from tw.forms import CalendarDatePicker
 from tw.forms.validators import All, Regex, MaxLength, NotEmpty
-from spam.lib.repo import pattern_nick
+from spam.lib.repo import pattern_proj
 from spam.lib.twlib.livetable import LiveTable, IconButton, TextData
 
 spam_js = JSLink(link=tg.url('/parsedjs/spam.js'))
@@ -45,7 +45,7 @@ class ProjectsArchived(LiveTable):
 # Form widgets
 class FormProjectNew(TableForm):
     class fields(WidgetsList):
-        proj = TextField(label_text='id', validator=All(Regex(pattern_nick,
+        proj = TextField(label_text='id', validator=All(Regex(pattern_proj,
                                                 not_empty=True), MaxLength(15)))
         name = TextField(validator=MaxLength(40))
         description = TextArea(cols=30, rows=3)
