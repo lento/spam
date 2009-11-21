@@ -1,19 +1,14 @@
 from datetime import datetime
 from sqlalchemy import *
 from migrate import *
-#from sqlalchemy.types import Unicode, Integer, DateTime
 from sqlalchemy.orm import sessionmaker, relation
 from sqlalchemy.ext.declarative import declarative_base
 
 DeclarativeBase = declarative_base(bind=migrate_engine)
 metadata = DeclarativeBase.metadata
-Session = sessionmaker(bind=migrate_engine)
-session = Session()
-
 
 # Existing classes and tables to be used in relations
 auth_users = Table('auth_users', metadata, autoload=True)
-
 
 # New classes and tables
 project_user_table = Table('__project_user', metadata,

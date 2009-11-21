@@ -7,8 +7,6 @@ from sqlalchemy.ext.declarative import declarative_base
 
 DeclarativeBase = declarative_base(bind=migrate_engine)
 metadata = DeclarativeBase.metadata
-Session = sessionmaker(bind=migrate_engine)
-session = Session()
 
 group_permission_table = Table('auth_group_permission', metadata,
     Column('group_id', Integer, ForeignKey('auth_groups.group_id',
@@ -65,34 +63,6 @@ def upgrade():
     User.__table__.create()
     Permission.__table__.create()
     
-    # default users
-    admin = User()
-    admin.user_name = u'admin'
-    admin.display_name = u'SPAM Administrator'
-    admin.email_address = u'admin@example.com'
-    admin._password = u'4e1b983227e6992278c9fc9346356e40169bef8839441bb9b9ddbb5174a3b89cdc27ad71d79245cd'
-
-    session.add(admin)
-    
-    # default groups
-    administrators = Group()
-    administrators.group_name = u'administrators'
-    administrators.display_name = u'SPAM Administrators'
-    administrators.users.append(admin)
-    
-    session.add(administrators)
-    
-    # default permissions
-    #perm_user_edit = Permission()
-    #perm_user_edit.permission_name = u'edit user'
-    #perm_user_edit.description = u'This permission allows to edit a user'
-    #perm_user_edit.groups.append(administrators)
-    
-    #session.add(perm_user_edit)
-    
-    session.commit()
-    session.close()
-
 def downgrade():
     # Operations to reverse the above upgrade go here.
     group_permission_table.drop()
