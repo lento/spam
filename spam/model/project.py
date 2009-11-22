@@ -11,6 +11,8 @@ from sqlalchemy.types import Unicode, UnicodeText, Integer, DateTime, Boolean
 from sqlalchemy.orm import relation, synonym, backref
 
 from spam.model import DeclarativeBase, metadata, DBSession
+from spam.model import migraterepo_get_version, db_get_version
+from spam.model import db_upgrade, db_downgrade
 
 __all__ = ['Project']
 
@@ -60,9 +62,26 @@ class Project(DeclarativeBase):
     admins = relation('User', secondary=project_admin_table,
                                                     backref='admin_projects')
     
+    # Properties
+    @property
+    def schema_is_uptodate(self):
+        proj_version = db_get_version(self.id)
+        repo_version = migraterepo_get_version()
+        return proj_version==repo_version
+    
+    @property
+    def schema_version(self):
+        return db_get_version(self.id)
+    
     # Methods
     def touch(self):
         self.modified = datetime.now()
+    
+    def schema_upgrade(self, version=None):
+        db_upgrade(self.id, version)
+    
+    def schema_downgrade(self, version):
+        db_downgrade(self.id, version)
     
     # Special methods
     def __init__(self, id, name=None, description=None):

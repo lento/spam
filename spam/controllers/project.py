@@ -2,7 +2,7 @@ import logging, datetime
 from pylons import cache
 from tg import expose, url, tmpl_context, redirect, validate
 from tg.controllers import RestController
-from spam.model import DBSession, Project, get_project, init_db
+from spam.model import DBSession, Project, get_project, db_init
 from spam.model import query_projects, query_projects_archived, add_shard
 from spam.lib.widgets import FormProjectNew, FormProjectEdit, FormProjectConfirm
 from spam.lib.widgets import ProjectsActive, ProjectsArchived
@@ -59,7 +59,7 @@ class ProjectController(RestController):
         # init project db
         #if core_session.bind.url.drivername=='mysql':
         #    create_proj_db(project.id)
-        init_db(project.id)
+        db_init(project.id)
         add_shard(proj)
         
         # create directories and init hg repo

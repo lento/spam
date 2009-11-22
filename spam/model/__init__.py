@@ -22,6 +22,10 @@ DBSession = scoped_session(maker)
 # echo value for project engines
 echo = True
 
+# Migrate versioning
+from versioning import db_init, migraterepo_get_version, db_get_version
+from versioning import db_upgrade, db_downgrade
+
 # Models import
 from auth import User, Group, Permission
 from project import Project, Scene, Shot, LibraryGroup
@@ -29,8 +33,6 @@ from project import Project, Scene, Shot, LibraryGroup
 
 # Caching & helpers
 from util import query_projects, query_projects_archived, get_project
-from util import init_db
-
 
 # Sharding
 from sharding import shards, queries, shard_chooser, id_chooser, query_chooser
