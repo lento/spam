@@ -27,10 +27,10 @@ class SchemaButton(IconButton):
 # Live tables
 class ProjectsActive(LiveTable):
     class fields(WidgetsList):
-        archive = IconButton(icon_class='archive', action='get_archive/%(id)s')
+        archive = IconButton(icon_class='archive', action='%(id)s/archive')
         edit = IconButton(icon_class='edit', action='%(id)s/edit')
         delete = IconButton(icon_class='delete', action='%(id)s/delete')
-        schema = SchemaButton(action={'uptodate': '', 'outdated': 'get_upgrade/%(id)s'})
+        schema = SchemaButton(action={'uptodate': '', 'outdated': '%(id)s/upgrade'})
         id = TextData()
         name = TextData()
         description = TextData()
@@ -39,7 +39,7 @@ class ProjectsActive(LiveTable):
 
 class ProjectsArchived(LiveTable):
     class fields(WidgetsList):
-        reactivate = IconButton(icon_class='activate', action='get_activate/%(id)s')
+        reactivate = IconButton(icon_class='activate', action='%(id)s/activate')
         id = TextData()
         name = TextData()
         description = TextData()
