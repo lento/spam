@@ -1,4 +1,5 @@
 function(data, id) {
-    field = '<div>' + data[id] + '</div>';
+    text = (data[id]) ? data[id] : '';
+    field = '<div>' + text + '</div>';
     return field;
 }
