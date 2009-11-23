@@ -14,7 +14,7 @@ setup(
     author_email='',
     #url='',
     install_requires=[
-        "TurboGears2 >= 2.0b7",
+        "TurboGears2 >= 2.1a2",
         "Babel >=0.9.4",
         #can be removed iif use_toscawidgets = False
         "toscawidgets >= 0.9.7.1",

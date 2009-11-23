@@ -50,6 +50,7 @@ spam/model/auth.py
 spam/model/project.py
 spam/model/sharding.py
 spam/model/util.py
+spam/model/versioning.py
 spam/public/js/jquery.cookie.js
 spam/public/js/jquery.js
 spam/public/js/jquery.sprintf.js
@@ -75,9 +76,11 @@ spam/public/themes/greentango/images/star.png
 spam/public/themes/greentango/images/under_the_hood_blue.png
 spam/public/themes/greentango/images/warning.png
 spam/public/themes/greentango/images/icons/16x16/edit.png
+spam/public/themes/greentango/images/icons/16x16/green.png
 spam/public/themes/greentango/images/icons/16x16/redo.png
 spam/public/themes/greentango/images/icons/16x16/trash.png
 spam/public/themes/greentango/images/icons/16x16/undo.png
+spam/public/themes/greentango/images/icons/16x16/update-urgent.png
 spam/public/themes/greentango/images/treeview/file.gif
 spam/public/themes/greentango/images/treeview/folder-closed.gif
 spam/public/themes/greentango/images/treeview/folder.gif
@@ -117,6 +120,8 @@ spam/templates/view/__init__.py
 spam/templates/view/__init__.pyc
 spam/templates/view/scene.mak
 spam/templates/view/shot.mak
+spam/templates/widgets/__init__.py
+spam/templates/widgets/schema_button.mak
 spam/tests/__init__.py
 spam/tests/functional/__init__.py
 spam/tests/functional/test_authentication.py
