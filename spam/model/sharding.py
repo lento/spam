@@ -14,13 +14,13 @@ log = logging.getLogger(__name__)
 
 shards = {}
 queries = {'query': [], 'id': []}
-common_tables = set([Project.__table__, User.__table__, Group.__table__,
-                     Permission.__table__,])
+common_classes = [Project, User, Group, Permission]
+common_tables = set([cls.__table__ for cls in common_classes])
 
 def shard_chooser(mapper, instance, clause=None):
     """Looks at the given instance and returns a shard id."""
     id_ = None
-    if isinstance(instance, Project) or (instance is None):
+    if type(instance) in common_classes or (instance is None):
         id_ = 'common'
     else:
         id_ = instance.proj_id
