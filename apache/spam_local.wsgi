@@ -1,21 +1,33 @@
-import os, sys, site
+ALLDIRS = ['/home/lorenzo/dev/virtualenv/tg21env/lib/python2.6/site-packages']
+
+import sys 
+import site 
 sys.stdout = sys.stderr
 
-#import site
-site.addsitedir('/home/lorenzo/dev/virtualenv/tg2env/lib/python2.6/site-packages')
+# Remember original sys.path.
+#prev_sys_path = list(sys.path) 
 
-#new_sys_path = []
-#for item in list(sys.path):
-#    if item not in prev_sys_path:
-#        new_sys_path.append(item)
-#        sys.path.remove(item)
-#sys.path[:0] = new_sys_path 
+# Add each new site-packages directory.
+for directory in ALLDIRS:
+  site.addsitedir(directory)
 
-#import os, sys
+# Reorder sys.path so new directories at the front.
+#new_sys_path = [] 
+#for item in list(sys.path): 
+#    if item not in prev_sys_path: 
+#        new_sys_path.append(item) 
+#        sys.path.remove(item) 
+#sys.path[:0] = new_sys_path
 
-sys.path.append('/home/lorenzo/dev/spam')
+import os
 os.environ['PYTHON_EGG_CACHE'] = '/var/www/wsgi/python-eggs'
 
 from paste.deploy import loadapp
+application = loadapp('config:/home/lorenzo/dev/spam/apache.ini')
 
-application = loadapp('config:/home/lorenzo/dev/spam/ini/apache.ini')
+# init the app by calling '/' to be sure that all threads register toscawidgets
+# and their resources
+import paste.fixture
+app = paste.fixture.TestApp(application)
+app.get("/")
+
