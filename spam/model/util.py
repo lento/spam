@@ -12,6 +12,13 @@ def query_projects_archived():
     return DBSession.query(Project).filter_by(archived=True)
 
 # Cache
+def get_project_lazy(proj):
+    """Return a lazyloaded project"""
+    try:
+        return query_projects().filter_by(id=proj).one()
+    except (NoResultFound, MultipleResultsFound):
+        raise SPAMProjectNotFound('Project "%s" could not be found.' % proj)
+
 def eagerload_maker(proj):
     """Factory for project eagerloaders.
     
@@ -28,17 +35,15 @@ def eagerload_maker(proj):
         return (project, datetime.now())
     return eagerload_project
 
-def get_project(proj):
+def get_project_eager(proj):
     """Return a project eagerloaded with its scenes and libgroups
     
-    "get_project" keeps a (thread-local) cache of loaded projects, reloading
-    instances from the db if the "modified" field is newer then the cache
+    "get_project_eager" keeps a (thread-local) cache of loaded projects,
+    reloading instances from the db if the "modified" field is newer then the
+    cache.
     """
     # get a lazyload instance of the project, save the modified time and discard
-    try:
-        curproject = query_projects().filter_by(id=proj).one()
-    except (NoResultFound, MultipleResultsFound):
-        raise SPAMProjectNotFound('Project "%s" could not be found.' % proj)
+    curproject = get_project_lazy(proj)
     modified = curproject.modified
     DBSession.expunge(curproject)
     

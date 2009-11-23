@@ -32,7 +32,8 @@ from project import Project, Scene, Shot, LibraryGroup
 
 
 # Caching & helpers
-from util import query_projects, query_projects_archived, get_project
+from util import query_projects, query_projects_archived, get_project_lazy
+from util import get_project_eager
 
 # Sharding
 from sharding import shards, queries, shard_chooser, id_chooser, query_chooser

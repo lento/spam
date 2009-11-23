@@ -2,7 +2,8 @@ import logging, datetime
 from pylons import cache
 from tg import expose, url, tmpl_context, redirect, validate
 from tg.controllers import RestController
-from spam.model import DBSession, Project, get_project, db_init
+from spam.model import DBSession, Project, db_init, get_project_lazy
+from spam.model import get_project_eager
 from spam.model import query_projects, query_projects_archived, add_shard
 from spam.lib.widgets import FormProjectNew, FormProjectEdit, FormProjectConfirm
 from spam.lib.widgets import ProjectsActive, ProjectsArchived
@@ -35,7 +36,7 @@ class ProjectController(RestController):
     @expose('json')
     @expose('spam.templates.project.get_one')
     def get_one(self, proj):
-        project = get_project(proj)
+        project = get_project_eager(proj)
         return dict(page='admin/projects/%s' % proj, project=project,
                                                 sidebar=('projects', project.id))
 
@@ -72,7 +73,7 @@ class ProjectController(RestController):
     def edit(self, proj, **kwargs):
         """Display a EDIT form."""
         tmpl_context.form = f_project_edit
-        project = get_project(proj)
+        project = get_project_lazy(proj)
         fargs = dict(proj=project.id, proj_d=project.id, name=project.name,
                                                 description=project.description)
         fcargs = dict()
@@ -84,7 +85,7 @@ class ProjectController(RestController):
     @validate(f_project_edit, error_handler=edit)
     def put(self, proj, name=None, description=None, **kwargs):
         """Edit a project"""
-        project = get_project(proj)
+        project = get_project_lazy(proj)
         if name: project.name = name
         if description: project.description = description
         project.touch()
@@ -94,7 +95,7 @@ class ProjectController(RestController):
     def get_delete(self, proj, **kwargs):
         """Display a DELETE confirmation form."""
         tmpl_context.form = f_project_delete
-        project = get_project(proj)
+        project = get_project_lazy(proj)
         fargs = dict(_method='DELETE', proj=project.id, proj_d=project.id,
                      name_d=project.name,
                      description_d=project.description,
@@ -117,7 +118,7 @@ class ProjectController(RestController):
         and repository must be removed manually.
         (This should help prevent awful accidents) ;)
         """
-        project = get_project(proj)
+        project = get_project_lazy(proj)
         DBSession.delete(project)
         return dict(msg='deleted project "%s"' % proj, result='success')
     
@@ -125,12 +126,13 @@ class ProjectController(RestController):
     _handler_lookup = RestController._handler_lookup
     _handler_lookup['archive'] = RestController._handle_put_or_post
     _handler_lookup['activate'] = RestController._handle_put_or_post
+    _handler_lookup['upgrade'] = RestController._handle_put_or_post
     
     @expose('spam.templates.forms.form')
     def get_archive(self, proj, **kwargs):
         """Display a ARCHIVE confirmation form."""
         tmpl_context.form = f_project_confirm
-        project = get_project(proj)
+        project = get_project_lazy(proj)
         fargs = dict(_method='ARCHIVE', proj=project.id, proj_d=project.id,
                      name_d=project.name,
                      description_d=project.description,
@@ -143,7 +145,7 @@ class ProjectController(RestController):
     @expose('spam.templates.forms.result')
     def archive(self, proj, **kwargs):
         """Archive a project"""
-        project = get_project(proj)
+        project = get_project_lazy(proj)
         project.archived = True
         project.touch()
         return dict(msg='archived project "%s"' % proj, result='success')

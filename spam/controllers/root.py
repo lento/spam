@@ -9,7 +9,7 @@ from pylons.i18n import ugettext as _, lazy_ugettext as l_
 from repoze.what import predicates
 
 from spam.lib.base import SPAMBaseController
-from spam.model import DBSession, metadata, get_project
+from spam.model import DBSession, metadata, get_project_eager
 from spam.model import User, Group, Permission, Project
 from spam.controllers.error import ErrorController
 from spam.controllers.user import UserController
@@ -99,7 +99,7 @@ class RootController(SPAMBaseController):
 
     @expose('spam.templates.view.scene')
     def scene(self, proj, sc):
-        project = get_project(proj)
+        project = get_project_eager(proj)
         scene = [s for s in project.scenes if s.name==sc][0]
         
         return dict(page='scene view', project=project, scene=scene,
@@ -108,7 +108,7 @@ class RootController(SPAMBaseController):
 
     @expose('spam.templates.view.shot')
     def shot(self, proj, sc, sh):
-        project = get_project(proj)
+        project = get_project_eager(proj)
         scene = [s for s in project.scenes if s.name==sc][0]
         shot = [h for h in scene.shots if h.name==sh][0]
         
