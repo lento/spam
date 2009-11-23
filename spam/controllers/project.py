@@ -122,11 +122,8 @@ class ProjectController(RestController):
         DBSession.delete(project)
         return dict(msg='deleted project "%s"' % proj, result='success')
     
-    # Custom REST-like attributes
-    _handler_lookup = RestController._handler_lookup
-    _handler_lookup['archive'] = RestController._handle_put_or_post
-    _handler_lookup['activate'] = RestController._handle_put_or_post
-    _handler_lookup['upgrade'] = RestController._handle_put_or_post
+    # Custom REST-like actions
+    custom_actions = ['archive', 'activate', 'upgrade']
     
     @expose('spam.templates.forms.form')
     def get_archive(self, proj, **kwargs):
@@ -143,7 +140,7 @@ class ProjectController(RestController):
 
     @expose('json')
     @expose('spam.templates.forms.result')
-    def archive(self, proj, **kwargs):
+    def post_archive(self, proj, **kwargs):
         """Archive a project"""
         project = get_project_lazy(proj)
         project.archived = True
@@ -167,7 +164,7 @@ class ProjectController(RestController):
 
     @expose('json')
     @expose('spam.templates.forms.result')
-    def activate(self, proj, **kwargs):
+    def post_activate(self, proj, **kwargs):
         """Activate a project"""
         project = query_projects_archived().filter_by(id=proj).one()
         project.archived = False
@@ -190,7 +187,7 @@ class ProjectController(RestController):
 
     @expose('json')
     @expose('spam.templates.forms.result')
-    def upgrade(self, proj, **kwargs):
+    def post_upgrade(self, proj, **kwargs):
         """Upgrade the DB schema for a project"""
         project = get_project_lazy(proj)
         project.schema_upgrade()
