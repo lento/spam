@@ -98,6 +98,7 @@ class Project(DeclarativeBase):
                     description=self.description,
                     created=self.created.strftime('%Y/%m/%d %H:%M'),
                     modified=self.modified.strftime('%Y/%m/%d %H:%M'),
+                    schema_is_uptodate=self.schema_is_uptodate,
                    )
 
 

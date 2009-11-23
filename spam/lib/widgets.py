@@ -20,6 +20,9 @@ class StartupJS(Widget):
     javascript = [jquery_js, spam_js, overlay_js, jquery_cookie_js,
                   jquery_treeview_js, jquery_sprintf_js]
 
+# Custom LiveTable widgets
+class SchemaButton(IconButton):
+    template = 'mako:spam.templates.widgets.schema_button'
 
 # Live tables
 class ProjectsActive(LiveTable):
@@ -27,6 +30,7 @@ class ProjectsActive(LiveTable):
         archive = IconButton(icon_class='archive', action='get_archive/%(id)s')
         edit = IconButton(icon_class='edit', action='%(id)s/edit')
         delete = IconButton(icon_class='delete', action='%(id)s/delete')
+        schema = SchemaButton(action={'uptodate': '', 'outdated': '%(id)s/upgrade'})
         id = TextData()
         name = TextData()
         description = TextData()
