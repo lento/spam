@@ -91,32 +91,38 @@
             <ul id="sb_project_tree">
                 <li>
                     <span>scenes</span>
-                    <ul id="sb_project_scenes">
-                        % for scene in project.scenes:
-                        <li>
-                            <a href="${tg.url('/scene/%s/%s' % (project.id, scene.name))}">
-                                ${scene.name}
-                            </a>
-                            <ul>
-                                % for shot in scene.shots:
-                                <li>
-                                    <a href="${tg.url('/shot/%s/%s/%s' % (project.id, scene.name, shot.name))}">
-                                        ${shot.name}
-                                    </a>
-                                </li>
-                                % endfor
-                            </ul>
-                        </li>
-                        % endfor
-                    </ul>
+                    % if project.scenes:
+                        <ul id="sb_project_scenes">
+                            % for scene in project.scenes:
+                            <li>
+                                <a href="${tg.url('/scene/%s/%s' % (project.id, scene.name))}">
+                                    ${scene.name}
+                                </a>
+                                % if scene.shots:
+                                    <ul>
+                                        % for shot in scene.shots:
+                                        <li>
+                                            <a href="${tg.url('/shot/%s/%s/%s' % (project.id, scene.name, shot.name))}">
+                                                ${shot.name}
+                                            </a>
+                                        </li>
+                                        % endfor
+                                    </ul>
+                                % endif
+                            </li>
+                            % endfor
+                        </ul>
+                    % endif
                 </li>
                 <li>
                     <span>library</span>
-                    <ul id="sb_project_libgroups">
-                        % for libgroup in project.libgroups:
-                            ${insert_libgroup(libgroup)}
-                        % endfor
-                    </ul>
+                    % if project.libgroups:
+                        <ul id="sb_project_libgroups">
+                            % for libgroup in project.libgroups:
+                                ${insert_libgroup(libgroup)}
+                            % endfor
+                        </ul>
+                    % endif
                 </li>
             </ul>
         </div>
