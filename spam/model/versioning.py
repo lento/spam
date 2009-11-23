@@ -1,12 +1,16 @@
 from tg import config
 from migrate.versioning import api as migrate_api
+from migrate.versioning.exceptions import DatabaseAlreadyControlledError
 from spam.model import DBSession
 
 # DB versioning
 def db_init(proj, version=None):
     db_url = config.db_url_tmpl % proj
     migrate_repo = config.db_migrate_repo
-    migrate_api.version_control(db_url, migrate_repo)
+    try:
+        migrate_api.version_control(db_url, migrate_repo)
+    except DatabaseAlreadyControlledError:
+        pass
     migrate_api.upgrade(db_url, migrate_repo, version)
 
 def migraterepo_get_version():

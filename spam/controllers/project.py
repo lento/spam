@@ -2,8 +2,8 @@ import logging, datetime
 from pylons import cache
 from tg import expose, url, tmpl_context, redirect, validate
 from tg.controllers import RestController
-from spam.model import DBSession, Project, db_init, get_project_lazy
-from spam.model import get_project_eager
+from spam.model import DBSession, Project, User,  db_init
+from spam.model import get_project_eager, get_project_lazy
 from spam.model import query_projects, query_projects_archived, add_shard
 from spam.lib.widgets import FormProjectNew, FormProjectEdit, FormProjectConfirm
 from spam.lib.widgets import ProjectsActive, ProjectsArchived
@@ -61,13 +61,18 @@ class ProjectController(RestController):
         #if core_session.bind.url.drivername=='mysql':
         #    create_proj_db(project.id)
         db_init(project.id)
-        add_shard(proj)
+        add_shard(project.id)
         
         # create directories and init hg repo
         repo.create_proj_dirs(project.id)
         repo.init_repo(project.id)
         
-        return dict(msg='created project "%s"' % proj, result='success')
+        # grant project rights to user "admin"
+        admin = DBSession.query(User).filter_by(user_name=u'admin').one()
+        project.users.append(admin)
+        project.admins.append(admin)
+        
+        return dict(msg='created project "%s"' % project.id, result='success')
     
     @expose('spam.templates.forms.form')
     def edit(self, proj, **kwargs):
