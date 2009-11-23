@@ -174,4 +174,27 @@ class ProjectController(RestController):
         project.touch()
         return dict(msg='activated project "%s"' % proj, result='success')
 
+    @expose('spam.templates.forms.form')
+    def get_upgrade(self, proj, **kwargs):
+        """Display a UPGRADE confirmation form."""
+        tmpl_context.form = f_project_confirm
+        project = get_project_lazy(proj)
+        
+        fargs = dict(_method='UPGRADE', proj=project.id, proj_d=project.id,
+                     name_d=project.name,
+                     description_d=project.description,
+                     create_d=project.created)
+        fcargs = dict()
+        return dict(title='Are you sure you want to upgrade "%s" schema?' %
+                                            proj, args=fargs, child_args=fcargs)
+
+    @expose('json')
+    @expose('spam.templates.forms.result')
+    def upgrade(self, proj, **kwargs):
+        """Upgrade the DB schema for a project"""
+        project = get_project_lazy(proj)
+        project.schema_upgrade()
+        project.touch()
+        return dict(msg='upgraded project "%s" schema' % proj, result='success')
+
 

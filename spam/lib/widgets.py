@@ -30,7 +30,7 @@ class ProjectsActive(LiveTable):
         archive = IconButton(icon_class='archive', action='get_archive/%(id)s')
         edit = IconButton(icon_class='edit', action='%(id)s/edit')
         delete = IconButton(icon_class='delete', action='%(id)s/delete')
-        schema = SchemaButton(action={'uptodate': '', 'outdated': '%(id)s/upgrade'})
+        schema = SchemaButton(action={'uptodate': '', 'outdated': 'get_upgrade/%(id)s'})
         id = TextData()
         name = TextData()
         description = TextData()
