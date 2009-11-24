@@ -1,7 +1,11 @@
 livetable = new(Object);
 
-livetable.addrow = function(table, item, field_makers) {
+livetable.field_makers = {}
+
+livetable.addrow = function(table_id, item) {
+    table = $("#" + table_id);
     row = $('<tr></tr>');
+    field_makers = livetable.field_makers[table_id];
     
     if (field_makers != null && typeof(field_makers) != 'undefined') {
         $.each(field_makers, function() {

@@ -18,7 +18,7 @@ def name2label(name):
 
 
 class LiveTable(Widget):
-    params = ['id', 'items']
+    params = ['id', 'items', 'update_topic', 'update_condition']
     template = 'mako:spam.lib.twlib.livetable.templates.livetable'
     live_table_js = JSLink(modname='spam.lib.twlib.livetable', filename='static/livetable.js')
     javascript=[live_table_js]

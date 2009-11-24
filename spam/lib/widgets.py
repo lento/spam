@@ -37,6 +37,9 @@ class SchemaButton(IconButton):
 
 # Live tables
 class ProjectsActive(LiveTable):
+    update_topic = '/topic/project'
+    update_condition = '!data.project.archived'
+
     class fields(WidgetsList):
         archive = IconButton(icon_class='archive', action='%(id)s/archive')
         edit = IconButton(icon_class='edit', action='%(id)s/edit')
@@ -49,6 +52,9 @@ class ProjectsActive(LiveTable):
 
 
 class ProjectsArchived(LiveTable):
+    update_topic = '/topic/project'
+    update_condition = 'data.project.archived'
+
     class fields(WidgetsList):
         reactivate = IconButton(icon_class='activate', action='%(id)s/activate')
         id = TextData()
