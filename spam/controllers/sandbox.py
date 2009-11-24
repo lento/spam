@@ -27,4 +27,7 @@ class SandboxController(SPAMBaseController):
                                     (kwargs, tmpl_context.form_errors or None),
                                     result='success')
 
+    @expose('spam.templates.sandbox.stomp')
+    def stomp(self):
+        return dict(page='sandbox/stomp')
 

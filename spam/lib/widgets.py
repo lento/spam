@@ -1,4 +1,4 @@
-import tg
+from tg import config, url
 from tw.api import Widget, WidgetsList, JSLink
 from tw.forms import TableForm, TextField, TextArea, HiddenField
 from tw.forms import CalendarDatePicker
@@ -6,15 +6,26 @@ from tw.forms.validators import All, Regex, MaxLength, NotEmpty
 from spam.lib.repo import pattern_proj
 from spam.lib.twlib.livetable import LiveTable, IconButton, TextData
 
-spam_js = JSLink(link=tg.url('/parsedjs/spam.js'))
+# Orbited
+orbited_address = config.get('orbited_address', 'http://localhost:9000')
+
+orbited_js = JSLink(link='%s/static/Orbited.js' % orbited_address)
+initsocket_js = JSLink(link=url('/js/init_TCPSocket.js'))
+stomp_js = JSLink(link='%s/static/protocols/stomp/stomp.js' % orbited_address)
+
+# SPAM
+spam_js = JSLink(link=url('/parsedjs/spam.js'))
 
 # JQuery and plugins
-jquery_js = JSLink(link=tg.url('/js/jquery.js'))
-overlay_js = JSLink(link=tg.url('/js/tools.overlay.js'))
-jquery_cookie_js = JSLink(link=tg.url('/js/jquery.cookie.js'))
-jquery_treeview_js = JSLink(link=tg.url('/js/jquery.treeview.js'))
-jquery_sprintf_js = JSLink(link=tg.url('/js/jquery.sprintf.js'))
+jquery_js = JSLink(link=url('/js/jquery.js'))
+overlay_js = JSLink(link=url('/js/tools.overlay.js'))
+jquery_cookie_js = JSLink(link=url('/js/jquery.cookie.js'))
+jquery_treeview_js = JSLink(link=url('/js/jquery.treeview.js'))
+jquery_sprintf_js = JSLink(link=url('/js/jquery.sprintf.js'))
 
+
+class NetworkingJS(Widget):
+    javascript = [orbited_js, initsocket_js, stomp_js]
 
 class StartupJS(Widget):
     javascript = [jquery_js, spam_js, overlay_js, jquery_cookie_js,

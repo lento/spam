@@ -8,8 +8,9 @@ from tg import request
 from pylons.i18n import _, ungettext, N_
 from tw.api import WidgetBunch
 import spam.model as model
-from spam.lib.widgets import StartupJS 
+from spam.lib.widgets import StartupJS, NetworkingJS 
 
+w_networkingjs = NetworkingJS()
 w_startupjs = StartupJS()
 
 __all__ = ['Controller', 'BaseController']
@@ -57,6 +58,7 @@ class SPAMBaseController(TGController):
         tmpl_context.theme = config.get('theme', 'default')
         
         # load javascripts
+        tmpl_context.networkingjs = w_networkingjs
         tmpl_context.startupjs = w_startupjs
         
         return TGController.__call__(self, environ, start_response)

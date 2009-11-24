@@ -6,10 +6,13 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
+    <!-- document.domain is needed by orbited for cross-port deployment
+    <script> document.domain = document.domain; </script>-->
     ${self.meta()}
     <title>${self.title()}</title>
     <link rel="stylesheet" type="text/css" media="screen" href="${tg.url('/themes/%s/css/style.css' % c.theme)}" />
 
+    ${c.networkingjs()}
     ${c.startupjs()}
     <script type="text/javascript">
     $(function() {
