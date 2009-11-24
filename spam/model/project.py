@@ -10,7 +10,7 @@ from sqlalchemy import ForeignKeyConstraint, and_
 from sqlalchemy.types import Unicode, UnicodeText, Integer, DateTime, Boolean
 from sqlalchemy.orm import relation, synonym, backref
 
-from spam.model import DeclarativeBase, metadata, DBSession
+from spam.model import DeclarativeBase, metadata
 from spam.model import migraterepo_get_version, db_get_version
 from spam.model import db_upgrade, db_downgrade
 

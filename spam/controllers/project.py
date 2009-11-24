@@ -2,9 +2,9 @@ import logging, datetime
 from pylons import cache
 from tg import expose, url, tmpl_context, redirect, validate
 from tg.controllers import RestController
-from spam.model import DBSession, Project, User,  db_init
+from spam.model import get_session, Project, User,  db_init
 from spam.model import get_project_eager, get_project_lazy
-from spam.model import query_projects, query_projects_archived, add_shard
+from spam.model import query_projects, query_projects_archived
 from spam.lib.widgets import FormProjectNew, FormProjectEdit, FormProjectConfirm
 from spam.lib.widgets import ProjectsActive, ProjectsArchived
 from spam.lib import repo
@@ -53,22 +53,23 @@ class ProjectController(RestController):
     @validate(f_project_new, error_handler=new)
     def post(self, proj, name=None, description=None, **kwargs):
         """Create a new project"""
+        session = get_session()
+        
         # add project to shared db
         project = Project(proj, name=name, description=description)
-        DBSession.add(project)
+        session.add(project)
         
         # init project db
         #if core_session.bind.url.drivername=='mysql':
         #    create_proj_db(project.id)
         db_init(project.id)
-        add_shard(project.id)
         
         # create directories and init hg repo
         repo.create_proj_dirs(project.id)
         repo.init_repo(project.id)
         
         # grant project rights to user "admin"
-        admin = DBSession.query(User).filter_by(user_name=u'admin').one()
+        admin = session.query(User).filter_by(user_name=u'admin').one()
         project.users.append(admin)
         project.admins.append(admin)
         
@@ -123,8 +124,9 @@ class ProjectController(RestController):
         and repository must be removed manually.
         (This should help prevent awful accidents) ;)
         """
+        session = get_session()
         project = get_project_lazy(proj)
-        DBSession.delete(project)
+        session.delete(project)
         return dict(msg='deleted project "%s"' % proj, result='success')
     
     # Custom REST-like actions

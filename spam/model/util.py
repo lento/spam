@@ -1,15 +1,29 @@
 """Caching & helpers"""
 from datetime import datetime
 from pylons import cache
+from tg import config
+from sqlalchemy import create_engine
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 from spam.lib.exceptions import SPAMProjectNotFound
 from spam.model import DBSession, Project
 
+def add_shard(proj):
+    db_url_tmpl = config.get('db_url_tmpl', 'sqlite:///spam_%s.sqlite')
+    db = create_engine(db_url_tmpl % proj)
+    DBSession().bind_shard(proj, db)
+
+def get_session():
+    shards = DBSession()._ShardedSession__binds.keys()
+    for project in DBSession.query(Project):
+        if project not in shards:
+            add_shard(project.id)
+    return DBSession()
+
 def query_projects():
-    return DBSession.query(Project).filter_by(archived=False)
+    return get_session().query(Project).filter_by(archived=False)
 
 def query_projects_archived():
-    return DBSession.query(Project).filter_by(archived=True)
+    return get_session().query(Project).filter_by(archived=True)
 
 # Cache
 def get_project_lazy(proj):
@@ -42,10 +56,12 @@ def get_project_eager(proj):
     reloading instances from the db if the "modified" field is newer then the
     cache.
     """
+    session = get_session()
+    
     # get a lazyload instance of the project, save the modified time and discard
     curproject = get_project_lazy(proj)
     modified = curproject.modified
-    DBSession.expunge(curproject)
+    session.expunge(curproject)
     
     # get the project from cache
     projcache = cache.get_cache('projects')
@@ -62,8 +78,8 @@ def get_project_eager(proj):
                                   expiretime=360)
     
     # put the instance back into the session
-    if project not in DBSession:
-        DBSession.add(project)
+    if project not in session:
+        session.add(project)
     
     return project
 

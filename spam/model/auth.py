@@ -20,7 +20,7 @@ from sqlalchemy import Table, ForeignKey, Column
 from sqlalchemy.types import Unicode, Integer, DateTime
 from sqlalchemy.orm import relation, synonym, backref
 
-from spam.model import DeclarativeBase, metadata, DBSession
+from spam.model import DeclarativeBase, metadata
 
 __all__ = ['User', 'Group', 'Permission']
 
@@ -117,16 +117,6 @@ class User(DeclarativeBase):
         for g in self.groups:
             perms = perms | set(g.permissions)
         return perms
-
-    @classmethod
-    def by_email_address(cls, email):
-        """Return the user object whose email address is ``email``."""
-        return DBSession.query(cls).filter(cls.email_address==email).first()
-
-    @classmethod
-    def by_user_name(cls, username):
-        """Return the user object whose user name is ``username``."""
-        return DBSession.query(cls).filter(cls.user_name==username).first()
 
     def _set_password(self, password):
         """Hash ``password`` on the fly and store its hashed version."""
