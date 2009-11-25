@@ -2,12 +2,12 @@ import logging, datetime
 from pylons import cache
 from tg import expose, url, tmpl_context, redirect, validate
 from tg.controllers import RestController
-from spam.model import get_session, Project, User,  db_init
+from spam.model import get_session, Project, User,  db_init, add_shard
 from spam.model import get_project_eager, get_project_lazy
 from spam.model import query_projects, query_projects_archived
 from spam.lib.widgets import FormProjectNew, FormProjectEdit, FormProjectConfirm
 from spam.lib.widgets import ProjectsActive, ProjectsArchived
-from spam.lib import repo
+from spam.lib import repo, notify
 
 __all__ = ['ProjectsController']
 log = logging.getLogger(__name__)
@@ -59,6 +59,10 @@ class ProjectController(RestController):
         project = Project(proj, name=name, description=description)
         session.add(project)
         
+        # shards are dinamically loaded at each request, but for the current
+        # request we have to add it manually
+        add_shard(project.id)
+        
         # init project db
         #if core_session.bind.url.drivername=='mysql':
         #    create_proj_db(project.id)
@@ -73,6 +77,8 @@ class ProjectController(RestController):
         project.users.append(admin)
         project.admins.append(admin)
         
+        # send a stomp message to notify clients
+        notify.project(project, update_type='added')
         return dict(msg='created project "%s"' % project.id, result='success')
     
     @expose('spam.templates.forms.form')
@@ -95,6 +101,7 @@ class ProjectController(RestController):
         if name: project.name = name
         if description: project.description = description
         project.touch()
+        notify.project(project, update_type='updated')
         return dict(msg='updated project "%s"' % proj, result='success')
 
     @expose('spam.templates.forms.form')
@@ -127,6 +134,7 @@ class ProjectController(RestController):
         session = get_session()
         project = get_project_lazy(proj)
         session.delete(project)
+        notify.project(project, update_type='deleted')
         return dict(msg='deleted project "%s"' % proj, result='success')
     
     # Custom REST-like actions
@@ -152,6 +160,7 @@ class ProjectController(RestController):
         project = get_project_lazy(proj)
         project.archived = True
         project.touch()
+        notify.project(project, update_type='archived')
         return dict(msg='archived project "%s"' % proj, result='success')
 
     @expose('spam.templates.forms.form')
@@ -176,6 +185,7 @@ class ProjectController(RestController):
         project = query_projects_archived().filter_by(id=proj).one()
         project.archived = False
         project.touch()
+        notify.project(project, update_type='activated')
         return dict(msg='activated project "%s"' % proj, result='success')
 
     @expose('spam.templates.forms.form')
@@ -199,6 +209,7 @@ class ProjectController(RestController):
         project = get_project_lazy(proj)
         project.schema_upgrade()
         project.touch()
+        notify.project(project, update_type='updated')
         return dict(msg='upgraded project "%s" schema' % proj, result='success')
 
 

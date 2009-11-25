@@ -2,12 +2,22 @@ livetable = new(Object);
 
 livetable.field_makers = {}
 
-$.fn.showUpdates = function() {
+$.fn.showUpdates = function(callback) {
     return this.each(function() {
-        $(this).addClass('updated', "slow", function () {
-            $(this).removeClass("updated", "slow");
+        $(this).addClass('updated', "slow", function() {
+            $(this).removeClass("updated", "slow", function() {
+                if (typeof(callback) != 'undefined')
+                    callback();
+            });
         });
     });
+}
+
+livetable.zebra = function(table_id) {
+    var table = $("#" + table_id);
+
+    $("tr:even", table).addClass("even");
+    $("tr:odd", table).addClass("odd");
 }
 
 livetable.addrow = function(table_id, item, show_update) {
@@ -30,19 +40,32 @@ livetable.addrow = function(table_id, item, show_update) {
     if (show_update) {
         row.showUpdates();
     }
+    
+    livetable.zebra(table_id);
+    
+    /* activate overlay */
+    $(".overlay", row).overlay(function() {
+        trigger = this.getTrigger();
+        target = trigger.attr("href");
+        iframe = $("#overlay iframe")[0];
+        iframe.src = target
+    });
 }
 
 livetable.deleterow = function(table_id, item, show_update) {
-    var show_update = typeof(show_update) != 'undefined' ? show_update : true;
-
+    //var show_update = typeof(show_update) != 'undefined' ? show_update : true;
+    // show_update is ignored here, somehow jquery animations don't play nice
+    
     var table = $("#" + table_id);
     var row = $("#" + table_id + "_" + item.id, table);
+    console.log('livetable.deleterow: ', table_id, item, show_update, row);
     
-    if (show_update) {
-        row.showUpdates();
-    }
-    row.fadeOut(function() {
-        row.remove();
-    });
+    row.remove();
+    livetable.zebra(table_id);
+}
+
+livetable.updaterow = function(table_id, item, show_update) {
+    livetable.deleterow(table_id, item, show_update);
+    livetable.addrow(table_id, item, show_update);
 }
 

@@ -38,10 +38,11 @@ class SchemaButton(IconButton):
 
 # Live tables
 class ProjectsActive(LiveTable):
-    update_topic = '/topic/project'
+    update_topic = '/topic/projects'
     update_condition = '!data.ob.archived || data.update_type=="archived"'
     update_functions = ('{"added": livetable.addrow,'
                         ' "deleted": livetable.deleterow,'
+                        ' "updated": livetable.updaterow,'
                         ' "archived": livetable.deleterow,'
                         ' "activated": livetable.addrow}')
 
@@ -57,10 +58,11 @@ class ProjectsActive(LiveTable):
 
 
 class ProjectsArchived(LiveTable):
-    #update_topic = '/topic/project'
+    update_topic = '/topic/projects'
     update_condition = 'data.ob.archived || data.update_type=="activated"'
     update_functions = ('{"added": livetable.addrow,'
                         ' "deleted": livetable.deleterow,'
+                        ' "updated": livetable.updaterow,'
                         ' "archived": livetable.addrow,'
                         ' "activated": livetable.deleterow}')
 

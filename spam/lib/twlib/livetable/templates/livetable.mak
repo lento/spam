@@ -13,21 +13,11 @@
             livetable.addrow("${id}", this, false);
         });
         
-        $("#${id} tr:even").addClass("even");
-        $("#${id} tr:odd").addClass("odd");
-
-        /* activate overlay */
-        $(".overlay", $("#${id}")).overlay(function() { 
-            trigger = this.getTrigger();
-            target = trigger.attr("href");
-            iframe = $("#overlay iframe")[0];
-            iframe.src = target
-        });
-        
         % if update_topic:
             spam.stomp.add_listener("${update_topic}",
                 function(data){
                     if (${update_condition | n}) {
+                        console.log('stomp: calling listener "${id}"', data);
                         $.each(${update_functions}, function(type, func) {
                             if (data.update_type==type) {
                                 func("${id}", data.ob);

@@ -25,6 +25,9 @@ setup(
         
         "ipython",
         "mercurial",
+        "orbited",
+        "Twisted",
+        "stomp.py<2.1",
                 ],
     setup_requires=["PasteScript >= 1.7"],
     paster_plugins=['PasteScript', 'Pylons', 'TurboGears2', 'tg.devtools'],
