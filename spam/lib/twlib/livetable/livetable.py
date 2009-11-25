@@ -18,11 +18,14 @@ def name2label(name):
 
 
 class LiveTable(Widget):
-    params = ['id', 'items', 'update_topic', 'update_condition', 'update_functions']
+    params = ['id', 'items', 'show_headers',
+              'update_topic', 'update_condition', 'update_functions']
     template = 'mako:spam.lib.twlib.livetable.templates.livetable'
-    live_table_js = JSLink(modname='spam.lib.twlib.livetable', filename='static/livetable.js')
-    javascript=[live_table_js]
+    livetable_js = JSLink(modname='spam.lib.twlib.livetable',
+                                                filename='static/livetable.js')
+    javascript=[livetable_js]
     
+    show_headers = True
     update_functions = '{}';
     
     def __new__(cls, id=None, parent=None, children=[], **kw):
@@ -43,7 +46,10 @@ class LiveTable(Widget):
 
 
 class TableData(Widget):
-    params = ['field_class']
+    params = ['field_class', 'show_header', 'sort_header']
+    
+    show_header = True
+    sort_header = True
 
 
 class IconButton(TableData):
@@ -51,6 +57,8 @@ class IconButton(TableData):
     template = 'mako:spam.lib.twlib.livetable.templates.icon_button'
     
     field_class = 'icon'
+    show_header = False
+    sort_header = False
     
     def __init__(self, id=None, parent=None, children=[], **kw):
         super(IconButton, self).__init__(id,parent,children, **kw)

@@ -13,11 +13,17 @@ $.fn.showUpdates = function(callback) {
     });
 }
 
+/*
 livetable.zebra = function(table_id) {
+    console.log('livetable.zebra', table_id);
     var table = $("#" + table_id);
-
-    $("tr:even", table).addClass("even");
-    $("tr:odd", table).addClass("odd");
+    $("tr:even", table).removeClass("odd").addClass("even");
+    $("tr:odd", table).removeClass("even").addClass("odd");
+}
+*/
+livetable.update_sorter = function(table_id) {
+    var table = $("#" + table_id);
+    table.trigger("update").trigger("sorton", [[[7,0]]]);
 }
 
 livetable.addrow = function(table_id, item, show_update) {
@@ -41,7 +47,7 @@ livetable.addrow = function(table_id, item, show_update) {
         row.showUpdates();
     }
     
-    livetable.zebra(table_id);
+    livetable.update_sorter(table_id);
     
     /* activate overlay */
     $(".overlay", row).overlay(function() {
@@ -61,7 +67,7 @@ livetable.deleterow = function(table_id, item, show_update) {
     console.log('livetable.deleterow: ', table_id, item, show_update, row);
     
     row.remove();
-    livetable.zebra(table_id);
+    livetable.update_sorter(table_id);
 }
 
 livetable.updaterow = function(table_id, item, show_update) {

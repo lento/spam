@@ -13,6 +13,8 @@
             livetable.addrow("${id}", this, false);
         });
         
+        $("#${id}").tablesorter({widgets: ['zebra']});
+        
         % if update_topic:
             spam.stomp.add_listener("${update_topic}",
                 function(data){
@@ -31,6 +33,15 @@
 </script>
 
 <table id="${id}">
+    % if show_headers:
+        <thead>
+            <tr>
+                % for field in fields:
+                    <th>${field.show_header and field.id or ''}</th>
+                % endfor
+            </tr>
+        </thead>
+    % endif
     <tbody></tbody>
 </table>
 
