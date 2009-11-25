@@ -1,6 +1,15 @@
 ## the following line is just to have the file sintax-highlighted in gedit ;)
 ##<script type="text/javascript">
+
+/* we put all our functions and objects inside "spam" so we don't clutter
+ * the namespace */
 spam = new(Object);
+
+/* if firebug is not active we create a fake "console" */
+if (typeof(console)=="undefined") {
+    console = new(Object);
+    console.log = function() {};
+}
 
 /**********************************************************************
  * Toggles
