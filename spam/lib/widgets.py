@@ -13,23 +13,24 @@ orbited_js = JSLink(link='%s/static/Orbited.js' % orbited_address)
 initsocket_js = JSLink(link=url('/js/init_TCPSocket.js'))
 stomp_js = JSLink(link='%s/static/protocols/stomp/stomp.js' % orbited_address)
 
-# SPAM
-spam_js = JSLink(link=url('/parsedjs/spam.js'))
-
 # JQuery and plugins
 jquery_js = JSLink(link=url('/js/jquery.js'))
+jquery_ui_js = JSLink(link=url('/js/jquery-ui.js'))
 overlay_js = JSLink(link=url('/js/tools.overlay.js'))
 jquery_cookie_js = JSLink(link=url('/js/jquery.cookie.js'))
 jquery_treeview_js = JSLink(link=url('/js/jquery.treeview.js'))
 jquery_sprintf_js = JSLink(link=url('/js/jquery.sprintf.js'))
+
+# SPAM
+spam_js = JSLink(link=url('/parsedjs/spam.js'))
 
 
 class NetworkingJS(Widget):
     javascript = [orbited_js, initsocket_js, stomp_js]
 
 class StartupJS(Widget):
-    javascript = [jquery_js, spam_js, overlay_js, jquery_cookie_js,
-                  jquery_treeview_js, jquery_sprintf_js]
+    javascript = [jquery_js, jquery_ui_js, overlay_js, jquery_cookie_js,
+                  jquery_treeview_js, jquery_sprintf_js, spam_js]
 
 # Custom LiveTable widgets
 class SchemaButton(IconButton):
@@ -38,7 +39,11 @@ class SchemaButton(IconButton):
 # Live tables
 class ProjectsActive(LiveTable):
     update_topic = '/topic/project'
-    update_condition = '!data.project.archived'
+    update_condition = '!data.ob.archived || data.update_type=="archived"'
+    update_functions = ('{"added": livetable.addrow,'
+                        ' "deleted": livetable.deleterow,'
+                        ' "archived": livetable.deleterow,'
+                        ' "activated": livetable.addrow}')
 
     class fields(WidgetsList):
         archive = IconButton(icon_class='archive', action='%(id)s/archive')
@@ -52,8 +57,12 @@ class ProjectsActive(LiveTable):
 
 
 class ProjectsArchived(LiveTable):
-    update_topic = '/topic/project'
-    update_condition = 'data.project.archived'
+    #update_topic = '/topic/project'
+    update_condition = 'data.ob.archived || data.update_type=="activated"'
+    update_functions = ('{"added": livetable.addrow,'
+                        ' "deleted": livetable.deleterow,'
+                        ' "archived": livetable.addrow,'
+                        ' "activated": livetable.deleterow}')
 
     class fields(WidgetsList):
         reactivate = IconButton(icon_class='activate', action='%(id)s/activate')

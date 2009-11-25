@@ -1,3 +1,4 @@
+## the following line is just to have the file sintax-highlighted in gedit ;)
 ##<script type="text/javascript">
 spam = new(Object);
 

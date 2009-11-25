@@ -18,11 +18,13 @@ def name2label(name):
 
 
 class LiveTable(Widget):
-    params = ['id', 'items', 'update_topic', 'update_condition']
+    params = ['id', 'items', 'update_topic', 'update_condition', 'update_functions']
     template = 'mako:spam.lib.twlib.livetable.templates.livetable'
     live_table_js = JSLink(modname='spam.lib.twlib.livetable', filename='static/livetable.js')
     javascript=[live_table_js]
-
+    
+    update_functions = '{}';
+    
     def __new__(cls, id=None, parent=None, children=[], **kw):
         fields = kw.pop('fields', None)
         if fields is not None:

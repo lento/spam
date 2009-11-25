@@ -3,6 +3,9 @@
 
 /*
 common colors from the tango palette:
+#fcaf3e; / * Orange 1 * /
+#f57900; / * Orange 2 * /
+#ce5c00; / * Orange 3 * /
 #fce94f; / * Butter 1 * /
 #edd400; / * Butter 2 * /
 #8ae234; / * Chameleon 1 * /
@@ -18,6 +21,9 @@ common colors from the tango palette:
 #729fcf; / * Sky Blue 1 * /
 #3465a4; / * Sky Blue 2 * /
 #204a87; / * Sky Blue 3 * /
+#ad7fa8; / * Plum 1 * /
+#75507b; / * Plum 2 * /
+#5c3566; / * Plum 3 * /
 #ef2929; / * Scarlet Red 1 * /
 
 */
@@ -125,13 +131,10 @@ table {
 }
 
 table tr {
-}
-
-table td {
     background-color: #f6f6f4; /* Aluminium 0 */
 }
 
-table tr.even td {
+table tr.even {
     background-color: #dfe6ed; /* Sky Blue 0 */
 }
 
@@ -139,6 +142,10 @@ table td.icon {
     width: 18px;
 }
 
+/* Udates */
+.updated {
+    background-color: #ad7fa8; /* Plum 1 */
+}
 
 /**********************************************************************
  * Overlay

@@ -10,12 +10,12 @@
         % endfor
         
         $.each(${json_encode(items) | n}, function() {
-            livetable.addrow("${id}", this);
+            livetable.addrow("${id}", this, false);
         });
         
         $("#${id} tr:even").addClass("even");
         $("#${id} tr:odd").addClass("odd");
-        
+
         /* activate overlay */
         $(".overlay", $("#${id}")).overlay(function() { 
             trigger = this.getTrigger();
@@ -23,16 +23,20 @@
             iframe = $("#overlay iframe")[0];
             iframe.src = target
         });
-
-        spam.stomp.add_listener("${update_topic}",
-            function(data){
-                if (${update_condition | n}) {
-                    if (data.update_type=="added") {
-                        livetable.addrow("${id}", data.project);
+        
+        % if update_topic:
+            spam.stomp.add_listener("${update_topic}",
+                function(data){
+                    if (${update_condition | n}) {
+                        $.each(${update_functions}, function(type, func) {
+                            if (data.update_type==type) {
+                                func("${id}", data.ob);
+                            }
+                        });
                     }
                 }
-            }
-        );
+            );
+        % endif
     });
 </script>
 
