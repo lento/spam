@@ -14,10 +14,15 @@ $.fn.showUpdates = function(callback) {
     });
 }
 
-livetable.update_sorter = function(table_id) {
+livetable.update_sorter = function(table_id, callback) {
     var table = $("#" + table_id);
     table.trigger("update");
     if ($("tbody tr", table).length > 0) {
+        table.one("sortEnd", function(e) {
+            if (typeof(callback) != 'undefined') {
+                callback();
+            }
+        });
         table.trigger("sorton", [table[0].config.sortList]);
     }
 }
@@ -40,11 +45,13 @@ livetable.addrow = function(table_id, item, show_update) {
     
     $("tbody", table).append(row);
     if (show_update) {
-        row.showUpdates();
+        livetable.update_sorter(table_id, function() {
+            row.showUpdates();
+        });
+    } else {
+        livetable.update_sorter(table_id);
     }
-    
-    livetable.update_sorter(table_id);
-    
+
     /* activate overlay */
     $(".overlay", row).overlay(function() {
         trigger = this.getTrigger();
@@ -60,7 +67,6 @@ livetable.deleterow = function(table_id, item, show_update) {
     
     var table = $("#" + table_id);
     var row = $("#" + table_id + "_" + item.id, table);
-    console.log('livetable.deleterow: ', table_id, item, show_update, row);
     
     row.remove();
     livetable.update_sorter(table_id);

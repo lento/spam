@@ -124,27 +124,28 @@ body {
     display: none;
 }
 
+/* Zebra striping */
+.odd {
+    background-color: #f6f6f4; /* Aluminium 0 */
+}
+
+.even {
+    background-color: #dfe6ed; /* Sky Blue 0 */
+}
+
+/* Udates */
+.updated {
+    background-color: #ad7fa8; /* Plum 1 */
+}
+
 /* Table */
 table {
     /*border: 1px solid black;*/
     width: 100%;
 }
 
-table tr {
-    background-color: #f6f6f4; /* Aluminium 0 */
-}
-
-table tr.even {
-    background-color: #dfe6ed; /* Sky Blue 0 */
-}
-
 table td.icon {
     width: 18px;
-}
-
-/* Udates */
-.updated {
-    background-color: #ad7fa8; /* Plum 1 */
 }
 
 /**********************************************************************
