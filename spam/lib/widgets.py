@@ -24,6 +24,7 @@ jquery_tablesorter_js = JSLink(link=url('/js/jquery.tablesorter.js'))
 
 # SPAM
 spam_js = JSLink(link=url('/parsedjs/spam.js'))
+spam_stomp_client_js = JSLink(link=url('/parsedjs/spam_stomp_client.js'))
 
 
 class NetworkingJS(Widget):
@@ -40,6 +41,7 @@ class SchemaButton(IconButton):
 
 # Live tables
 class ProjectsActive(LiveTable):
+    javascript = [spam_stomp_client_js]
     update_topic = '/topic/projects'
     update_condition = '!data.ob.archived || data.update_type=="archived"'
     update_functions = ('{"added": livetable.addrow,'
@@ -60,6 +62,7 @@ class ProjectsActive(LiveTable):
 
 
 class ProjectsArchived(LiveTable):
+    javascript = [spam_stomp_client_js]
     update_topic = '/topic/projects'
     update_condition = 'data.ob.archived || data.update_type=="activated"'
     update_functions = ('{"added": livetable.addrow,'

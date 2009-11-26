@@ -21,14 +21,19 @@ class LiveTable(Widget):
     params = ['id', 'items', 'show_headers',
               'update_topic', 'update_condition', 'update_functions']
     template = 'mako:spam.lib.twlib.livetable.templates.livetable'
-    livetable_js = JSLink(modname='spam.lib.twlib.livetable',
-                                                filename='static/livetable.js')
-    javascript=[livetable_js]
     
     show_headers = False
     update_functions = '{}';
     
     def __new__(cls, id=None, parent=None, children=[], **kw):
+        # add livetable javascripts to those defined by the subclassed widgets
+        livetable_js = JSLink(modname='spam.lib.twlib.livetable',
+                              filename='static/livetable.js')
+        if livetable_js not in cls.javascript:
+            cls.javascript.append(livetable_js)
+        
+        # get children widgets form the "field" keyword argument (if present)
+        # or from the "fields" attribute (a WidgetList class containing widgets)
         fields = kw.pop('fields', None)
         if fields is not None:
             children = fields
