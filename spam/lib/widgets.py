@@ -56,7 +56,7 @@ class ProjectsActive(LiveTable):
         id = TextData()
         name = TextData()
         description = TextData()
-        created = TextData()
+        created = TextData(sort_default=True)
 
 
 class ProjectsArchived(LiveTable):
@@ -73,7 +73,7 @@ class ProjectsArchived(LiveTable):
         id = TextData()
         name = TextData()
         description = TextData()
-        created = TextData()
+        created = TextData(sort_default=True)
 
 
 # Form widgets

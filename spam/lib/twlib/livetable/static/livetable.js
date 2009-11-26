@@ -1,6 +1,7 @@
 livetable = new(Object);
 
 livetable.field_makers = {}
+livetable.sorting = {}
 
 $.fn.showUpdates = function(callback) {
     return this.each(function() {
@@ -13,17 +14,12 @@ $.fn.showUpdates = function(callback) {
     });
 }
 
-/*
-livetable.zebra = function(table_id) {
-    console.log('livetable.zebra', table_id);
-    var table = $("#" + table_id);
-    $("tr:even", table).removeClass("odd").addClass("even");
-    $("tr:odd", table).removeClass("even").addClass("odd");
-}
-*/
 livetable.update_sorter = function(table_id) {
     var table = $("#" + table_id);
-    table.trigger("update").trigger("sorton", [[[7,0]]]);
+    table.trigger("update");
+    if ($("tbody tr", table).length > 0) {
+        table.trigger("sorton", [table[0].config.sortList]);
+    }
 }
 
 livetable.addrow = function(table_id, item, show_update) {

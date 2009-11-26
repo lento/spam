@@ -25,7 +25,7 @@ class LiveTable(Widget):
                                                 filename='static/livetable.js')
     javascript=[livetable_js]
     
-    show_headers = True
+    show_headers = False
     update_functions = '{}';
     
     def __new__(cls, id=None, parent=None, children=[], **kw):
@@ -46,10 +46,13 @@ class LiveTable(Widget):
 
 
 class TableData(Widget):
-    params = ['field_class', 'show_header', 'sort_header']
+    params = ['field_class', 'show_header', 'sortable', 'sort_default',
+              'sort_direction']
     
     show_header = True
-    sort_header = True
+    sortable = True
+    sort_default = False
+    sort_direction = 'asc'
 
 
 class IconButton(TableData):
@@ -58,7 +61,7 @@ class IconButton(TableData):
     
     field_class = 'icon'
     show_header = False
-    sort_header = False
+    sortable = False
     
     def __init__(self, id=None, parent=None, children=[], **kw):
         super(IconButton, self).__init__(id,parent,children, **kw)
