@@ -347,7 +347,7 @@ table td.icon {
 #content {
     margin: 13px 0 15px 200px;
     min-height: 400px;
-    color: #2e3436; / * Aluminium 6 * /
+    color: #2e3436; /* Aluminium 6 */
 }
 
 #content h1 {

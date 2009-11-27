@@ -50,7 +50,7 @@
                         % for p in c.user.projects:
                         <li class="${p.id}">
                             <div class="hidden id">${p.id}</div>
-                            <a href="${tg.url('/project/%s' % p.id)}">${p.name}</a>
+                            <a href="${tg.url('/project/%s/' % p.id)}">${p.name}</a>
                         </li>
                         % endfor
                     </ul>

@@ -11,6 +11,14 @@ if (typeof(console)=="undefined") {
     console.log = function() {};
 }
 
+/* for some pages we need to make sure that the url pathname has a trailing
+ * slash, so we can use relative paths (tabs, for an example) */
+spam.add_trailing_slash = function() {
+    if (!window.location.pathname.match(/\/$/))
+        window.location.replace(window.location.pathname + '/' +
+                                window.location.search + window.location.hash);
+}
+
 /**********************************************************************
  * Toggles
  **********************************************************************/
@@ -75,7 +83,7 @@ $(function() {
     });
 
     // setup ul.tabs to work as tabs for each div.pane directly under div.panes 
-    $(".tabs").tabs("div.panes > div.pane");
+    $(".tabs").tabs("div.panes > div.pane", {effect: 'ajax'}).history();
 });
 
 ##</script>

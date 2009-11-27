@@ -9,6 +9,8 @@ from spam.lib.widgets import FormProjectNew, FormProjectEdit, FormProjectConfirm
 from spam.lib.widgets import ProjectsActive, ProjectsArchived
 from spam.lib import repo, notify
 
+from tabs import ProjectTabController
+
 __all__ = ['ProjectsController']
 log = logging.getLogger(__name__)
 
@@ -24,21 +26,23 @@ w_projects_archived = ProjectsArchived()
 
 class ProjectController(RestController):
     
+    tab = ProjectTabController()
+    
     @expose('spam.templates.project.get_all')
     def get_all(self):
         tmpl_context.projects_active = w_projects_active
         tmpl_context.projects_archived = w_projects_archived
         active = query_projects()
         archived = query_projects_archived()
-        return dict(page='admin/projects', sidebar=('admin', 'projects'),
+        return dict(page='admin/project', sidebar=('admin', 'projects'),
                                             active=active, archived=archived)
 
     @expose('json')
     @expose('spam.templates.project.get_one')
     def get_one(self, proj):
         project = get_project_eager(proj)
-        return dict(page='admin/projects/%s' % proj, project=project,
-                                                sidebar=('projects', project.id))
+        return dict(page='project/%s' % proj, project=project,
+                                            sidebar=('projects', project.id))
 
 
     @expose('spam.templates.forms.form')

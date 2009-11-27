@@ -31,3 +31,7 @@ class SandboxController(SPAMBaseController):
     def stomp(self):
         return dict(page='sandbox/stomp')
 
+    @expose('spam.templates.sandbox.location')
+    def location(self, *args, **kwargs):
+        return dict(page='sandbox/location', args=args, kwargs=kwargs)
+    
