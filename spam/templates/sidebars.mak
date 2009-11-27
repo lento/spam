@@ -87,10 +87,16 @@
         </script>
         
         <div id="sb_project" class="sidebar">
-            <div class="title">${c.project.name}</div>
+            <div class="title">
+                <a href="${tg.url('/project/%s' % c.project.id)}">${c.project.name}</a>
+            </div>
             <ul id="sb_project_tree">
                 <li>
-                    <span>scenes</span>
+                    <%
+                        tab_url = tg.url('/scene/%s' % c.project.id)
+                        scenes_url = tg.url('/project/%s/#%s' % (c.project.id, tab_url))
+                    %>
+                    <a href="${scenes_url}">scenes</a>
                     % if c.project.scenes:
                         <ul id="sb_project_scenes">
                             % for scene in c.project.scenes:

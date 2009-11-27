@@ -337,6 +337,9 @@ table td.icon {
     min-width: 180px;
 }
 
+#sb_project .title a:hover {
+    color: inherit;
+}
 
 /**********************************************************************
  * TreeView
