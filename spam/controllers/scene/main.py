@@ -41,7 +41,7 @@ class Controller(RestController):
         
         scene = [s for s in project.scenes if s.name==sc][0]
         tabs = [('Summary', 'tab/summary'),
-                ('Shots', 'tab/shots'),
+                ('Shots', url('/shot/%s/%s' % (project.id, scene.name))),
                 ('Tasks', 'tab/tasks'),
                ]
         return dict(page='scenes/%s' % scene.name, tabs=tabs, 

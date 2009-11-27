@@ -43,7 +43,7 @@ class Controller(RestController):
         project = get_project_eager(proj)
         tmpl_context.project = project
         tabs = [('Summary', 'tab/summary'),
-                ('Scenes', 'tab/scenes'),
+                ('Scenes', url('/scene/%s' % project.id)),
                 ('Tasks', 'tab/tasks'),
                ]
         return dict(page='project/%s' % project.id, tabs=tabs,
