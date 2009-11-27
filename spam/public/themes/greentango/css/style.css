@@ -385,9 +385,21 @@ table td.icon {
 /****************************************
  * Content
  ****************************************/
-#content {
-    margin: 13px 0 15px 200px;
+#content_wrapper {
+    margin: 15px 0 15px 200px;
+}
+
+#tabbed_content_wrapper {
+    margin-top: -2px;
+}
+
+.content {
+    clear: right;
     min-height: 400px;
+	padding: 15px 20px;
+	border: 2px solid #73d216; /* Chameleon 2 */
+	-moz-border-radius: 10px;
+	background-color: #eeeeec; /* Aluminium 1 */
     color: #2e3436; /* Aluminium 6 */
 }
 
@@ -438,20 +450,12 @@ ul.tabs a.current {
 }
 
 /* tab pane */
-div.panes {
-    clear: right;
-	border: 2px solid #73d216; /* Chameleon 2 */
-	-moz-border-radius: 10px;
-	background-color: #eeeeec; /* Aluminium 1 */
-}
-
-div.panes div.pane {
+.pane {
 	display: none;
 	min-height: 150px;
-	padding: 15px 20px;
 }
 
-div.panes div.pane.ajax {
+.pane.fixed {
 	display: block;
 }
 

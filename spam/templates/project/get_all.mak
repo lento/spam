@@ -11,7 +11,7 @@
     });
 </script>
 
-<div>
+<div class="content">
     <a href="${tg.url('./new')}" rel="#overlay" class="overlay button">new project</a>
     <br/>
     <br/>

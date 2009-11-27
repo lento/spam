@@ -105,7 +105,7 @@
 
 
 <%def name="content_wrapper()">
-    <div id="content">
+    <div id="content_wrapper">
         ${self.body()}
     </div>
 </%def>

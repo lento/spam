@@ -83,7 +83,7 @@ $(function() {
     });
 
     // setup ul.tabs to work as tabs for each div.pane directly under div.panes 
-    $(".tabs").tabs("div.panes > div.pane", {effect: 'ajax'}).history();
+    $(".tabs").tabs(".content > .pane", {effect: 'ajax'}).history();
 });
 
 ##</script>
