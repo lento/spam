@@ -3,7 +3,7 @@
 import os.path, datetime
 
 from tg import expose, flash, require, url, request, redirect, override_template
-from tg import response, config, app_globals
+from tg import response, config, app_globals, tmpl_context
 from tg.exceptions import HTTPNotFound
 from pylons.i18n import ugettext as _, lazy_ugettext as l_
 from repoze.what import predicates
@@ -98,19 +98,21 @@ class RootController(SPAMBaseController):
     @expose('spam.templates.view.scene')
     def scene(self, proj, sc):
         project = get_project_eager(proj)
+        tmpl_context.project = project
         scene = [s for s in project.scenes if s.name==sc][0]
         
-        return dict(page='scene view', project=project, scene=scene,
+        return dict(page='scene view', scene=scene,
                                             sidebar=('projects', project.id))
 
 
     @expose('spam.templates.view.shot')
     def shot(self, proj, sc, sh):
         project = get_project_eager(proj)
+        tmpl_context.project = project
         scene = [s for s in project.scenes if s.name==sc][0]
         shot = [h for h in scene.shots if h.name==sh][0]
         
-        return dict(page='shot view', project=project, scene=scene, shot=shot,
+        return dict(page='shot view', scene=scene, shot=shot,
                                             sidebar=('projects', project.id))
 
 
