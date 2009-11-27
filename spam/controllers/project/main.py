@@ -40,12 +40,12 @@ class Controller(RestController):
     @expose('json')
     @expose('spam.templates.tabs')
     def get_one(self, proj):
-        project = get_project_lazy(proj)
+        project = get_project_eager(proj)
         tabs = [('Summary', 'tab/summary'),
                 ('Scenes', 'tab/scenes'),
                 ('Task', 'task'),
                ]
-        return dict(page='project/%s' % project.id, tabs=tabs,
+        return dict(page='project/%s' % project.id, project=project, tabs=tabs,
                                             sidebar=('projects', project.id))
 
 
