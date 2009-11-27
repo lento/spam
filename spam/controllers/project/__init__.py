@@ -1,1 +1,1 @@
-from main import ProjectController
+from main import Controller

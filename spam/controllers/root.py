@@ -13,8 +13,8 @@ from spam.model import get_project_eager, User, Group, Permission, Project
 from spam.controllers.error import ErrorController
 from spam.controllers.user import UserController
 from spam.controllers.form import FormController
-from spam.controllers.project import ProjectController
 from spam.controllers.sandbox import SandboxController
+from spam.controllers import project
 
 
 __all__ = ['RootController']
@@ -22,7 +22,7 @@ __all__ = ['RootController']
 
 class RootController(SPAMBaseController):
     """
-    The root controller for the spam application.
+    The root controller for the SPAM application.
     
     All the other controllers and WSGI applications should be mounted on this
     controller. For example::
@@ -32,12 +32,11 @@ class RootController(SPAMBaseController):
     
     Keep in mind that WSGI applications shouldn't be mounted directly: They
     must be wrapped around with :class:`tg.controllers.WSGIAppController`.
-    
     """
     error = ErrorController()
     user = UserController()
     form = FormController()
-    project = ProjectController()
+    project = project.Controller()
     sandbox = SandboxController()
     
     @expose()

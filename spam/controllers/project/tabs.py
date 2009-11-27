@@ -9,7 +9,7 @@ from spam.lib.base import SPAMBaseController
 from spam.model import get_project_eager
 
 
-class ProjectTabController(SPAMBaseController):
+class TabController(SPAMBaseController):
     """The controller for project tabs."""
     def __before__(self, *args, **kw):
         proj = request.url.split('/')[-3]

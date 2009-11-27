@@ -7,15 +7,15 @@
 </script>
 
 <!-- the tabs --> 
-<ul class="tabs"> 
-    <li><a id="summary" href="tab/summary">Summary</a></li> 
-    <li><a id="scenes" href="tab/scenes">Scenes</a></li> 
-    <li><a id="tasks" href="tab/tasks">Tasks</a></li> 
+<ul class="tabs">
+    % for name, dest in tabs:
+        <li><a href="${dest}">${name}</a></li>
+    % endfor
 </ul> 
  
 <!-- tab "panes" --> 
 <div class="panes"> 
-    <div class="pane" style="display:block"></div> 
+    <div class="pane ajax"></div> 
 </div>
 
 
