@@ -1,6 +1,3 @@
-@import "jquery.treeview.css";
-
-
 /*
 common colors from the tango palette:
 #fcaf3e; / * Orange 1 * /
@@ -277,6 +274,7 @@ table td.icon {
     background-color: #eeeeec; /* Aluminium 1 */
 	-moz-border-radius: 10px;
 	border: 2px solid #73d216; /* Chameleon 2 */
+    font-size: 0.9em;
 }    
 
 .side .sidebar {
@@ -293,6 +291,7 @@ table td.icon {
     padding-left: 5px;
     background-color: #3465a4; /* Sky Blue 2 */
     color: #eeeeec; /* Aluminium 1 */
+    font-size: medium;
 }
 
 .side .sidebar.active .title {
@@ -302,11 +301,10 @@ table td.icon {
 
 .side ul {
     padding-left: 5px;
-    font-size: 0.9em;
 }
 
-.side li:hover {
-    color: #3465a4; /* Sky Blue 2 */
+.side a:hover {
+    color: #204a87; / * Sky Blue 3 * /
 }
 
 .side li.active {
@@ -339,6 +337,49 @@ table td.icon {
     min-width: 180px;
 }
 
+
+/**********************************************************************
+ * TreeView
+ **********************************************************************/
+.treeview, .treeview ul { 
+	padding: 0;
+	margin: 0;
+	list-style: none;
+}
+
+.treeview ul {
+	margin-top: 2px;
+}
+
+.treeview .hitarea {
+	background: url(../images/treeview/treeview-default.gif) -64px -25px no-repeat;
+	height: 16px;
+	width: 16px;
+	margin-left: -16px;
+	float: left;
+	cursor: pointer;
+}
+
+.treeview li { 
+	margin: 0;
+	padding: 0px 0pt 3px 16px;
+}
+
+.treeview a.selected {
+	background-color: #eee;
+}
+
+.treeview li { background: url(../images/treeview/treeview-default-line.gif) 0 0 no-repeat; }
+.treeview li.collapsable, .treeview li.expandable { background-position: 0 -177px; }
+
+.treeview .expandable-hitarea { background-position: -80px -1px; }
+
+.treeview li.last { background-position: 0 -1766px }
+.treeview li.lastCollapsable, .treeview li.lastExpandable { background-image: url(../images/treeview/treeview-default.gif); }  
+.treeview li.lastCollapsable { background-position: 0 -111px }
+.treeview li.lastExpandable { background-position: -32px -67px }
+
+.treeview div.lastCollapsable-hitarea, .treeview div.lastExpandable-hitarea { background-position: 0; }
 
 
 /****************************************
@@ -380,7 +421,7 @@ ul.tabs a {
 	border: 2px solid #73d216; /* Chameleon 2 */
 	border-bottom: 0px;
 	background-color: #babdb6; /* Aluminium 3 */
-	margin-right: 4px;
+	margin-right: 2px;
 	-moz-border-radius-topleft: 10px;
 	-moz-border-radius-topright: 10px;
 }
