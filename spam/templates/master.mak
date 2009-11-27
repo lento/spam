@@ -38,7 +38,7 @@
             ${sidebars.sb_user()}
             ${sidebars.sb_projects()}
         </div>
-        % if c.project:
+        % if hasattr(c, 'project'):
             <div id="side_overflow_container">
                 <div id="side_overflow_activearea">
                     <div id="side_overflow" class="side overflow">
