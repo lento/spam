@@ -73,5 +73,10 @@ $(function() {
             $("#flash div").slideUp();
         }, 4000);
     });
+
+    // setup ul.tabs to work as tabs for each div.pane directly under div.panes 
+    $(".tabs").tabs("div.panes > div.pane");
 });
+
 ##</script>
+

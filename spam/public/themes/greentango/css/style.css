@@ -52,6 +52,9 @@ body {
 	font-family:"Lucida Grande","Lucida Sans Unicode",geneva,verdana,sans-serif;
 }
 
+:focus {
+  outline-style: none;
+}
 
 /**********************************************************************
  * Common
@@ -263,9 +266,11 @@ table td.icon {
 /****************************************
  * Side
  ****************************************/
-.side {
-    clear: left;
+#side {
     float: left;
+}
+
+.side {
     margin-top: 15px;
     padding: 10px 0;
     width: 180px;
@@ -309,8 +314,6 @@ table td.icon {
 }
 
 #side_overflow_container {
-    clear: left;
-    float: left;
     position: relative;
 }
 
@@ -342,18 +345,69 @@ table td.icon {
  * Content
  ****************************************/
 #content {
-    margin: 15px 0 15px 200px;
-    padding: 10px;
+    margin: 13px 0 15px 200px;
     min-height: 400px;
-    background-color: #eeeeec; /* Aluminium 1 */
-	border: 2px solid #73d216; /* Chameleon 2 */
-    color: #2e3436; /* Aluminium 6 */
-	-moz-border-radius: 10px;
+    color: #2e3436; / * Aluminium 6 * /
 }
 
 #content h1 {
     margin: 20px 0 5px 0;
     font-weight: normal;
+}
+
+/**********************************************************************
+ * Tabs
+ **********************************************************************/
+
+/* root element for tabs  */
+ul.tabs {
+    float: right;
+	margin: 0 10px 0 0 !important; 
+	padding: 0;
+    position: relative;
+    top: 2px;
+}
+
+/* single tab */
+ul.tabs li {
+    float: left;
+}
+
+/* link inside the tab */
+ul.tabs a { 
+	display: block;
+	padding: 4px 15px;	
+	border: 2px solid #73d216; /* Chameleon 2 */
+	border-bottom: 0px;
+	background-color: #babdb6; /* Aluminium 3 */
+	margin-right: 4px;
+	-moz-border-radius-topleft: 10px;
+	-moz-border-radius-topright: 10px;
+}
+
+ul.tabs a:hover {
+	background-color: #f6f6f4; /* Aluminium 0 */
+}
+	
+/* selected tab */
+ul.tabs a.current {
+	background-color: #eeeeec; /* Aluminium 1 */
+	border-bottom: 2px solid #eeeeec; /* Aluminium 1 */
+	cursor: default;
+}
+
+/* tab pane */
+div.panes {
+    clear: right;
+	border: 2px solid #73d216; /* Chameleon 2 */
+	-moz-border-radius: 10px;
+	background-color: #eeeeec; /* Aluminium 1 */
+}
+
+div.panes div.pane {
+	display: none;
+	min-height: 150px;
+	padding: 15px 20px;
 }
 
 /****************************************

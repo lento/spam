@@ -16,7 +16,7 @@ stomp_js = JSLink(link='%s/static/protocols/stomp/stomp.js' % orbited_address)
 # JQuery and plugins
 jquery_js = JSLink(link=url('/js/jquery.js'))
 jquery_ui_js = JSLink(link=url('/js/jquery-ui.js'))
-overlay_js = JSLink(link=url('/js/tools.overlay.js'))
+jquery_tools_js = JSLink(link=url('/js/jquery.tools.js'))
 jquery_cookie_js = JSLink(link=url('/js/jquery.cookie.js'))
 jquery_treeview_js = JSLink(link=url('/js/jquery.treeview.js'))
 jquery_sprintf_js = JSLink(link=url('/js/jquery.sprintf.js'))
@@ -31,7 +31,7 @@ class NetworkingJS(Widget):
     javascript = [orbited_js, initsocket_js, stomp_js]
 
 class StartupJS(Widget):
-    javascript = [jquery_js, jquery_ui_js, overlay_js, jquery_cookie_js,
+    javascript = [jquery_js, jquery_ui_js, jquery_tools_js, jquery_cookie_js,
                   jquery_treeview_js, jquery_sprintf_js, jquery_tablesorter_js,
                   spam_js]
 
