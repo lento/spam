@@ -41,11 +41,12 @@ class Controller(RestController):
     @expose('spam.templates.tabs')
     def get_one(self, proj):
         project = get_project_eager(proj)
+        tmpl_context.project = project
         tabs = [('Summary', 'tab/summary'),
                 ('Scenes', 'tab/scenes'),
                 ('Task', 'task'),
                ]
-        return dict(page='project/%s' % project.id, project=project, tabs=tabs,
+        return dict(page='project/%s' % project.id, tabs=tabs,
                                             sidebar=('projects', project.id))
 
 
