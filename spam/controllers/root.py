@@ -14,7 +14,7 @@ from spam.controllers.error import ErrorController
 from spam.controllers.user import UserController
 from spam.controllers.form import FormController
 from spam.controllers.sandbox import SandboxController
-from spam.controllers import project
+from spam.controllers import project, scene, shot
 
 
 __all__ = ['RootController']
@@ -36,8 +36,10 @@ class RootController(SPAMBaseController):
     error = ErrorController()
     user = UserController()
     form = FormController()
-    project = project.Controller()
     sandbox = SandboxController()
+    project = project.Controller()
+    scene = scene.Controller()
+    shot = shot.Controller()
     
     @expose()
     def index(self):
@@ -94,25 +96,4 @@ class RootController(SPAMBaseController):
         override_template(self.parsedjs, 'mako:%s' % templatename)
 
         return dict()
-
-    @expose('spam.templates.view.scene')
-    def scene(self, proj, sc):
-        project = get_project_eager(proj)
-        tmpl_context.project = project
-        scene = [s for s in project.scenes if s.name==sc][0]
-        
-        return dict(page='scene view', scene=scene,
-                                            sidebar=('projects', project.id))
-
-
-    @expose('spam.templates.view.shot')
-    def shot(self, proj, sc, sh):
-        project = get_project_eager(proj)
-        tmpl_context.project = project
-        scene = [s for s in project.scenes if s.name==sc][0]
-        shot = [h for h in scene.shots if h.name==sh][0]
-        
-        return dict(page='shot view', scene=scene, shot=shot,
-                                            sidebar=('projects', project.id))
-
 

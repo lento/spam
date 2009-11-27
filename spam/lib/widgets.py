@@ -80,6 +80,8 @@ class ProjectsArchived(LiveTable):
 
 
 # Form widgets
+
+# Project
 class FormProjectNew(TableForm):
     class fields(WidgetsList):
         proj = TextField(label_text='id', validator=All(Regex(pattern_proj,
@@ -107,5 +109,32 @@ class FormProjectConfirm(TableForm):
                                                 disabled=True, validator=None)
         create_d = CalendarDatePicker(label_text='created',
                                                 disabled=True, validator=None)
+
+
+# Scene
+class FormSceneNew(TableForm):
+    pass
+
+
+class FormSceneEdit(TableForm):
+    pass
+
+
+class FormSceneConfirm(TableForm):
+    pass
+
+
+# Shot
+class FormShotNew(TableForm):
+    pass
+
+
+class FormShotEdit(TableForm):
+    pass
+
+
+class FormShotConfirm(TableForm):
+    pass
+
 
 
