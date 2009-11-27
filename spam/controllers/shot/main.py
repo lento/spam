@@ -25,9 +25,13 @@ class Controller(RestController):
     @expose('spam.templates.shot.get_all')
     def get_all(self, proj, sc):
         project = get_project_eager(proj)
-        scene = [s for s in project.scenes if s.name==sc]
+        scene = [s for s in project.scenes if s.name==sc][0]
         return dict(page='shot', sidebar=('projects', project.id),
                                                             shots=scene.shots)
+
+    @expose('spam.templates.shot.get_all')
+    def default(self, proj, sc, *args, **kwargs):
+        return self.get_all(proj, sc)
 
     @expose('json')
     @expose('spam.templates.tabs')

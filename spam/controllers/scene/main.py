@@ -28,6 +28,10 @@ class Controller(RestController):
         return dict(page='scenes', sidebar=('projects', project.id),
                                                         scenes=project.scenes)
 
+    @expose('spam.templates.scene.get_all')
+    def default(self, proj, *args, **kwargs):
+        return self.get_all(proj)
+
     @expose('json')
     @expose('spam.templates.tabs')
     def get_one(self, proj, sc):
