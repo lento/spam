@@ -11,7 +11,7 @@ from spam.model import project_get_eager
 
 class TabController(SPAMBaseController):
     """The controller for project tabs."""
-    def __before__(self, *args, **kw):
+    def _before(self, *args, **kw):
         proj = request.url.split('/')[-3]
         tmpl_context.project = project_get_eager(proj)
 

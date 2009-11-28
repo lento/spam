@@ -1,8 +1,14 @@
 from tg.exceptions import HTTPClientError
 
-class SPAMProjectNotFound(HTTPClientError):
+class SPAMDBError(HTTPClientError):
     code = 400
-    title = 'Project Not Found'
+    title = 'Database Error'
+    explanation = ''
+
+
+class SPAMDBNotFound(HTTPClientError):
+    code = 400
+    title = 'DB Element Not Found'
     explanation = ''
 
 

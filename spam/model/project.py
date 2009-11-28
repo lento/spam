@@ -13,6 +13,7 @@ from sqlalchemy.orm import relation, synonym, backref
 from spam.model import DeclarativeBase, metadata
 from spam.model import migraterepo_get_version, db_get_version
 from spam.model import db_upgrade, db_downgrade
+from spam.config import SCENES
 
 __all__ = ['Project']
 
@@ -144,6 +145,11 @@ class Scene(DeclarativeBase):
                        foreign_keys=[proj_id], viewonly=True,
                        backref=backref('scenes', viewonly=True, order_by=name)
                       )
+    
+    # Properties
+    @property
+    def path(self):
+        return '%s/%s/%s' % (self.proj_id, SCENES, self.name)
     
     # Special methods
     def __init__(self, proj, name, description=None):

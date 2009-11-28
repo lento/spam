@@ -6,7 +6,7 @@ from pylons.i18n import ugettext as _, lazy_ugettext as l_
 from repoze.what import predicates
 
 from spam.lib.base import SPAMBaseController
-from spam.model import project_get_eager
+from spam.model import project_get_eager, scene_get, shot_get
 
 
 class TabController(SPAMBaseController):
@@ -15,9 +15,9 @@ class TabController(SPAMBaseController):
         proj, sc, sh = request.url.split('/')[-5:-2]
         project = project_get_eager(proj)
         tmpl_context.project = project
-        scene = [s for s in project.scenes if s.name==sc][0]
+        scene = scene_get(project.id, sc)
         tmpl_context.scene = scene
-        shot = [s for s in scene.shots if s.name==sh][0]
+        shot = shot_get(project.id, scene.name, sh)
         tmpl_context.shot = shot
 
     @expose('spam.templates.shot.tabs.summary')

@@ -1,7 +1,7 @@
 from tg import expose, url, tmpl_context, redirect, validate
 from tg.controllers import RestController
 from spam.model import session_get, Project, User
-from spam.model import project_get_eager, project_get_lazy
+from spam.model import project_get_eager
 from spam.model import query_projects, query_projects_archived
 from spam.lib.widgets import FormShotNew, FormShotEdit, FormShotConfirm
 from spam.lib import repo, notify
@@ -51,6 +51,7 @@ class Controller(RestController):
 
     @expose('spam.templates.forms.form')
     def new(self, proj, **kwargs):
+        """Display a NEW form."""
         tmpl_context.form = f_new
         fargs = dict()
         fcargs = dict()

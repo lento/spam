@@ -1,7 +1,7 @@
 from tg import expose, url, tmpl_context, redirect, validate
 from tg.controllers import RestController
 from spam.model import session_get, Project, User, db_init, add_shard
-from spam.model import project_get_eager, project_get_lazy
+from spam.model import project_get_eager, project_get
 from spam.model import query_projects, query_projects_archived
 from spam.lib.widgets import FormProjectNew, FormProjectEdit, FormProjectConfirm
 from spam.lib.widgets import ProjectsActive, ProjectsArchived
@@ -51,6 +51,7 @@ class Controller(RestController):
 
     @expose('spam.templates.forms.form')
     def new(self, **kwargs):
+        """Display a NEW form."""
         tmpl_context.form = f_new
         fargs = dict()
         fcargs = dict()
@@ -93,7 +94,7 @@ class Controller(RestController):
     def edit(self, proj, **kwargs):
         """Display a EDIT form."""
         tmpl_context.form = f_edit
-        project = project_get_lazy(proj)
+        project = project_get(proj)
         fargs = dict(proj=project.id, proj_d=project.id, name=project.name,
                                                 description=project.description)
         fcargs = dict()
@@ -105,7 +106,7 @@ class Controller(RestController):
     @validate(f_edit, error_handler=edit)
     def put(self, proj, name=None, description=None, **kwargs):
         """Edit a project"""
-        project = project_get_lazy(proj)
+        project = project_get(proj)
         if name: project.name = name
         if description: project.description = description
         project.touch()
@@ -116,7 +117,7 @@ class Controller(RestController):
     def get_delete(self, proj, **kwargs):
         """Display a DELETE confirmation form."""
         tmpl_context.form = f_confirm
-        project = project_get_lazy(proj)
+        project = project_get(proj)
         fargs = dict(_method='DELETE', proj=project.id, proj_d=project.id,
                      name_d=project.name,
                      description_d=project.description,
@@ -140,7 +141,7 @@ class Controller(RestController):
         (This should help prevent awful accidents) ;)
         """
         session = session_get()
-        project = project_get_lazy(proj)
+        project = project_get(proj)
         session.delete(project)
         notify.project(project, update_type='deleted')
         return dict(msg='deleted project "%s"' % proj, result='success')
@@ -152,7 +153,7 @@ class Controller(RestController):
     def get_archive(self, proj, **kwargs):
         """Display a ARCHIVE confirmation form."""
         tmpl_context.form = f_confirm
-        project = project_get_lazy(proj)
+        project = project_get(proj)
         fargs = dict(_method='ARCHIVE', proj=project.id, proj_d=project.id,
                      name_d=project.name,
                      description_d=project.description,
@@ -165,7 +166,7 @@ class Controller(RestController):
     @expose('spam.templates.forms.result')
     def post_archive(self, proj, **kwargs):
         """Archive a project"""
-        project = project_get_lazy(proj)
+        project = project_get(proj)
         project.archived = True
         project.touch()
         notify.project(project, update_type='archived')
@@ -200,7 +201,7 @@ class Controller(RestController):
     def get_upgrade(self, proj, **kwargs):
         """Display a UPGRADE confirmation form."""
         tmpl_context.form = f_confirm
-        project = project_get_lazy(proj)
+        project = project_get(proj)
         
         fargs = dict(_method='UPGRADE', proj=project.id, proj_d=project.id,
                      name_d=project.name,
@@ -214,7 +215,7 @@ class Controller(RestController):
     @expose('spam.templates.forms.result')
     def post_upgrade(self, proj, **kwargs):
         """Upgrade the DB schema for a project"""
-        project = project_get_lazy(proj)
+        project = project_get(proj)
         project.schema_upgrade()
         project.touch()
         notify.project(project, update_type='updated')

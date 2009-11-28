@@ -1,7 +1,7 @@
 from tg import expose, url, tmpl_context, redirect, validate
 from tg.controllers import RestController
-from spam.model import session_get, Project, User
-from spam.model import project_get_eager, project_get_lazy
+from spam.model import session_get, Scene
+from spam.model import project_get_eager, project_get, scene_get
 from spam.model import query_projects, query_projects_archived
 from spam.lib.widgets import FormSceneNew, FormSceneEdit, FormSceneConfirm
 from spam.lib import repo, notify
@@ -12,9 +12,9 @@ import logging
 log = logging.getLogger(__name__)
 
 # form widgets
-f_new = FormSceneNew(action=url('/project/'))
-f_edit = FormSceneEdit(action=url('/project/'))
-f_confirm = FormSceneConfirm(action=url('/project/'))
+f_new = FormSceneNew(action=url('/scene/'))
+f_edit = FormSceneEdit(action=url('/scene/'))
+f_confirm = FormSceneConfirm(action=url('/scene/'))
 
 # livetable widgets
 
@@ -29,29 +29,25 @@ class Controller(RestController):
         return dict(page='scenes', sidebar=('projects', project.id),
                                                         scenes=project.scenes)
 
-    @expose('spam.templates.project.tabs.scenes')
-    def default(self, proj, *args, **kwargs):
-        return self.get_all(proj)
-
     @expose('json')
     @expose('spam.templates.tabbed_content')
     def get_one(self, proj, sc):
         # we add the project to tmpl_context to show the project sidebar
-        project = project_get_eager(proj)
-        tmpl_context.project = project
+        scene = scene_get(project.id, sc)
+        tmpl_context.project = scene.project
         
-        scene = [s for s in project.scenes if s.name==sc][0]
         tabs = [('Summary', 'tab/summary'),
-                ('Shots', url('/shot/%s/%s' % (project.id, scene.name))),
+                ('Shots', url('/shot/%s/%s' % (scene.project.id, scene.name))),
                 ('Tasks', 'tab/tasks'),
                ]
-        return dict(page='scenes/%s' % scene.name, tabs=tabs, 
-                                            sidebar=('projects', project.id))
+        return dict(page='%s' % scene.path, tabs=tabs, 
+                                        sidebar=('projects', scene.project.id))
 
     @expose('spam.templates.forms.form')
     def new(self, proj, **kwargs):
+        """Display a NEW form."""
         tmpl_context.form = f_new
-        project = project_get_lazy(proj)
+        project = project_get(proj)
         fargs = dict(proj=project.id, _project=project.name)
         fcargs = dict()
         return dict(title='Create a new scene', args=fargs, child_args=fcargs)
@@ -59,45 +55,58 @@ class Controller(RestController):
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_new, error_handler=new)
-    def post(self, proj, name, description=None, **kwargs):
+    def post(self, proj, sc, description=None, **kwargs):
         """Create a new scene"""
         session = session_get()
+        project = project_get(proj)
         
         # add scene to db
-        scene = Scene(proj, name, description)
+        scene = Scene(project.id, sc, description)
         session.add(scene)
+        session.flush()
         
         # create directories
+        repo.scene_create_dirs(project.id, scene.name)
         
         # send a stomp message to notify clients
-        return dict(msg='created scene "%s"' % 'scena', result='success')
+        notify.scene(scene, update_type='added')
+        return dict(msg='created scene "%s"' % scene.path, result='success')
     
     @expose('spam.templates.forms.form')
     def edit(self, proj, sc, **kwargs):
         """Display a EDIT form."""
         tmpl_context.form = f_edit
-        fargs = dict()
+        scene = scene_get(proj, sc)
+        fargs = dict(proj=scene.project.id, _project=scene.project.name,
+                     sc=scene.name, _name=scene.name,
+                     description=scene.description)
         fcargs = dict()
-        return dict(title='Edit scene "%s"' % 'scena', args=fargs,
-                                                            child_args=fcargs)
+        return dict(title='Edit scene "%s"' % scene.path,
+                                                args=fargs, child_args=fcargs)
         
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_edit, error_handler=edit)
-    def put(self, proj, sc, name=None, description=None, **kwargs):
+    def put(self, proj, sc, description=None, **kwargs):
         """Edit a scene"""
-        return dict(msg='updated scene "%s"' % 'scena', result='success')
+        scene = scene_get(proj, sc)
+        if description: scene.description = description
+        notify.scene(scene)
+        return dict(msg='updated scene "%s"' % scene.path, result='success')
 
     @expose('spam.templates.forms.form')
     def get_delete(self, proj, sc, **kwargs):
         """Display a DELETE confirmation form."""
-        tmpl_context.form = f_delete
-        fargs = dict()
+        tmpl_context.form = f_confirm
+        scene = scene_get(proj, sc)
+        fargs = dict(proj=scene.project.id, _project=scene.project.name,
+                     sc=scene.name, _name=scene.name,
+                     _description=scene.description)
         fcargs = dict()
         warning = ('This will only delete the scene registration in the '
                    'database. The data must be deleted manually if needed.')
         return dict(
-                title='Are you sure you want to delete "%s"?' % 'scena',
+                title='Are you sure you want to delete "%s"?' % scene.path,
                 warning=warning, args=fargs, child_args=fcargs)
 
     @expose('json')
@@ -110,7 +119,12 @@ class Controller(RestController):
         removed manually.
         (This should help prevent awful accidents) ;)
         """
-        return dict(msg='deleted scene "%s"' % 'scena', result='success')
+        session = session_get()
+        scene = scene_get(proj, sc)
+        
+        session.delete(scene)
+        notify.scene(scene, update_type='removed')
+        return dict(msg='deleted scene "%s"' % scene.path, result='success')
     
     # Custom REST-like actions
     custom_actions = []

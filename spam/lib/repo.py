@@ -4,15 +4,9 @@ from mercurial.error import RepoError
 from tg import config
 from spam.lib.exceptions import SPAMRepoNotFound
 from spam.model import session_get, Scene
-
-REPOSITORY = config.get('repository', '/var/lib/spam/repo')
-PREVIEWS = config.get('previews_dir', '.previews')
-SCENES = config.get('default_scenes_dir', 'scenes')
-LIBRARY = config.get('default_library_dir', 'library')
-ADDITIONAL_PROJ_DIRS = config.get('additional_proj_dirs', '').split()
-DEFAULT_PROJ_DIRS = [SCENES, LIBRARY, PREVIEWS] + ADDITIONAL_PROJ_DIRS
-
-pattern_name = re.compile('^[a-zA-Z0-9_\-]+$')
+from spam.config import REPOSITORY, PREVIEWS, SCENES, LIBRARY
+from spam.config import ADDITIONAL_PROJ_DIRS, DEFAULT_PROJ_DIRS
+from spam.config import pattern_name
 
 repo_ui = ui.ui()
 repo_ui.setconfig('ui', 'interactive', 'False')
@@ -55,4 +49,12 @@ def project_create_dirs(proj):
     except (OSError):
         pass
 
+def scene_create_dirs(proj, sc):
+    scene_path = os.path.join(REPOSITORY, proj, SCENES, sc)
+    previews_path = os.path.join(REPOSITORY, proj, PREVIEWS, SCENES, sc)
+    try:
+        os.makedirs(scene_path)
+        os.makedirs(previews_path)
+    except (OSError):
+        pass
 

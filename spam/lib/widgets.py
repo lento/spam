@@ -3,7 +3,7 @@ from tw.api import Widget, WidgetsList, JSLink
 from tw.forms import TableForm, TextField, TextArea, HiddenField
 from tw.forms import CalendarDatePicker
 from tw.forms.validators import All, Regex, MaxLength, NotEmpty
-from spam.lib.repo import pattern_name
+from spam.config import pattern_name
 from spam.lib.twlib.livetable import LiveTable, IconButton, TextData
 
 # Orbited
@@ -116,17 +116,29 @@ class FormSceneNew(TableForm):
     class fields(WidgetsList):
         proj = HiddenField(validator=NotEmpty)
         _project = TextField(validator=None, disabled=True)
-        name = TextField(validator=All(Regex(pattern_name, not_empty=True),
-                                                                MaxLength(15)))
+        sc = TextField(label_text='name', validator=All(Regex(pattern_name,
+                                                not_empty=True), MaxLength(15)))
         description = TextArea(cols=30, rows=3)
 
 
 class FormSceneEdit(TableForm):
-    pass
+    class fields(WidgetsList):
+        _method = HiddenField(default='PUT', validator=None)
+        proj = HiddenField(validator=NotEmpty)
+        sc = HiddenField(validator=NotEmpty)
+        _project = TextField(validator=None, disabled=True)
+        _name = TextField(validator=None, disabled=True)
+        description = TextArea(cols=30, rows=3)
 
 
 class FormSceneConfirm(TableForm):
-    pass
+    class fields(WidgetsList):
+        _method = HiddenField(default='DELETE', validator=None)
+        proj = HiddenField(validator=NotEmpty)
+        sc = HiddenField(validator=NotEmpty)
+        _project = TextField(validator=None, disabled=True)
+        _name = TextField(validator=None, disabled=True)
+        _description = TextArea(cols=30, rows=3, disabled=True, validator=None)
 
 
 # Shot
