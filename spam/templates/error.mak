@@ -13,12 +13,14 @@
 <body>
     ${master.header()}
     
-    <div id="content">
-        % if code==403:
-            <div>${_('Access was denied to this resource.')}</div>
-        %else:
-            <div>${message | n}</div>
-        % endif
+    <div id="content_wrapper">
+        <div class="content">
+            % if code==403:
+                <div>${_('Access was denied to this resource.')}</div>
+            %else:
+                <div>${message | n}</div>
+            % endif
+        </div>
     </div>
     
     ${master.footer()}

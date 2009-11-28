@@ -38,7 +38,7 @@ class Controller(RestController):
                                             active=active, archived=archived)
 
     @expose('json')
-    @expose('spam.templates.tabs')
+    @expose('spam.templates.tabbed_content')
     def get_one(self, proj):
         project = get_project_eager(proj)
         tmpl_context.project = project

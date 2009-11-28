@@ -34,7 +34,7 @@ class Controller(RestController):
         return self.get_all(proj, sc)
 
     @expose('json')
-    @expose('spam.templates.tabs')
+    @expose('spam.templates.tabbed_content')
     def get_one(self, proj, sc, sh):
         # we add the project to tmpl_context to show the project sidebar
         project = get_project_eager(proj)

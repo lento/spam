@@ -16,7 +16,7 @@
     ${c.startupjs()}
     <script type="text/javascript">
     $(function() {
-        spam.setActiveSidebar("${sidebar and sidebar[0] or ''}",
+        spam.sidebar_set_active("${sidebar and sidebar[0] or ''}",
                               "${sidebar and sidebar[1] or ''}");
     });
     </script>

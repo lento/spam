@@ -1,4 +1,4 @@
-<div>
-    Summary tab for shot ${c.project.name}/${c.scene.name}/${c.shot.name}
-</div>
+<%inherit file="spam.templates.tab"/>
+
+Summary tab for shot ${c.project.name}/${c.scene.name}/${c.shot.name}
 

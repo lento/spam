@@ -25,6 +25,7 @@ class Controller(RestController):
     @expose('spam.templates.project.tabs.scenes')
     def get_all(self, proj):
         project = get_project_eager(proj)
+        tmpl_context.project = project
         return dict(page='scenes', sidebar=('projects', project.id),
                                                         scenes=project.scenes)
 
@@ -33,7 +34,7 @@ class Controller(RestController):
         return self.get_all(proj)
 
     @expose('json')
-    @expose('spam.templates.tabs')
+    @expose('spam.templates.tabbed_content')
     def get_one(self, proj, sc):
         # we add the project to tmpl_context to show the project sidebar
         project = get_project_eager(proj)

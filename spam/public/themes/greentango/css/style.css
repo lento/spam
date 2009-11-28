@@ -154,6 +154,7 @@ table td.icon {
 #overlay {
 	padding: 30px;	
 	display: none;
+	z-index: 10;
 }
  
 /*  

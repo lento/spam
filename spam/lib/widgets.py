@@ -3,7 +3,7 @@ from tw.api import Widget, WidgetsList, JSLink
 from tw.forms import TableForm, TextField, TextArea, HiddenField
 from tw.forms import CalendarDatePicker
 from tw.forms.validators import All, Regex, MaxLength, NotEmpty
-from spam.lib.repo import pattern_proj
+from spam.lib.repo import pattern_proj, pattern_name
 from spam.lib.twlib.livetable import LiveTable, IconButton, TextData
 
 # Orbited
@@ -113,7 +113,11 @@ class FormProjectConfirm(TableForm):
 
 # Scene
 class FormSceneNew(TableForm):
-    pass
+    class fields(WidgetsList):
+        proj = HiddenField(validator=NotEmpty)
+        name = TextField(validator=All(Regex(pattern_name, not_empty=True),
+                                                                MaxLength(15)))
+        description = TextArea(cols=30, rows=3)
 
 
 class FormSceneEdit(TableForm):

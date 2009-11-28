@@ -12,6 +12,7 @@ ADDITIONAL_PROJ_DIRS = config.get('additional_proj_dirs', '').split()
 DEFAULT_PROJ_DIRS = [SCENES, LIBRARY, PREVIEWS] + ADDITIONAL_PROJ_DIRS
 
 pattern_proj = re.compile('^[a-zA-Z0-9_\-]+$')
+pattern_name = re.compile('^[a-zA-Z0-9_\-]+$')
 
 repo_ui = ui.ui()
 repo_ui.setconfig('ui', 'interactive', 'False')

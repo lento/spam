@@ -21,12 +21,6 @@ class TabController(SPAMBaseController):
         #project = tmpl_context.project
         return dict()
 
-    @expose('spam.templates.project.tabs.scenes')
-    def scenes(self):
-        """Handle the 'scenes' tab."""
-        #project = tmpl_context.project
-        return dict()
-
     @expose('spam.templates.project.tabs.tasks')
     def tasks(self):
         """Handle the 'tasks' tab."""

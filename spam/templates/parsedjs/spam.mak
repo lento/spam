@@ -22,7 +22,7 @@ spam.add_trailing_slash = function() {
 /**********************************************************************
  * Toggles
  **********************************************************************/
-spam.activate_toggles = function () {
+spam.toggles_activate = function () {
     /* set toggle state based on cookies (toggles without an id are skipped)*/
     $('.toggle').each(function() {
         id = this.id;
@@ -55,10 +55,22 @@ spam.activate_toggles = function () {
 }
 
 
+/**********************************************************************
+ * Overlays
+ **********************************************************************/
+spam.overlays_activate = function() {
+    $(".overlay").overlay(function() { 
+        trigger = this.getTrigger();
+        target = trigger.attr("href");
+        iframe = $("#overlay iframe")[0];
+        iframe.src = target
+    });
+}
+
 /****************************************
  * Sidebar
  ****************************************/
-spam.setActiveSidebar = function(sidebar, item) {
+spam.sidebar_set_active = function(sidebar, item) {
     if (sidebar && item) {
         sbid = "#sb_"+sidebar;
         itemclass = "."+item;
@@ -73,7 +85,8 @@ spam.setActiveSidebar = function(sidebar, item) {
  * Startup function
  ****************************************/
 $(function() {
-    spam.activate_toggles();
+    spam.toggles_activate();
+    spam.overlays_activate();
     
     /* make #flash slide in and out */
     $("#flash div").hide().slideDown(function() {
