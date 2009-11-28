@@ -22,13 +22,13 @@ class Controller(RestController):
     
     tab = TabController()
     
-    @expose('spam.templates.scene.get_all')
+    @expose('spam.templates.project.tabs.scenes')
     def get_all(self, proj):
         project = get_project_eager(proj)
         return dict(page='scenes', sidebar=('projects', project.id),
                                                         scenes=project.scenes)
 
-    @expose('spam.templates.scene.get_all')
+    @expose('spam.templates.project.tabs.scenes')
     def default(self, proj, *args, **kwargs):
         return self.get_all(proj)
 
