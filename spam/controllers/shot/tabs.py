@@ -11,13 +11,11 @@ from spam.model import project_get_eager, scene_get, shot_get
 
 class TabController(SPAMBaseController):
     """The controller for shot tabs."""
-    def __before__(self, *args, **kw):
+    def _before(self, *args, **kw):
         proj, sc, sh = request.url.split('/')[-5:-2]
-        project = project_get_eager(proj)
-        tmpl_context.project = project
-        scene = scene_get(project.id, sc)
-        tmpl_context.scene = scene
-        shot = shot_get(project.id, scene.name, sh)
+        shot = shot_get(proj, sc, sh)
+        tmpl_context.project = shot.project
+        tmpl_context.scene = shot.parent
         tmpl_context.shot = shot
 
     @expose('spam.templates.shot.tabs.summary')

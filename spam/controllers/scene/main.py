@@ -1,8 +1,7 @@
-from tg import expose, url, tmpl_context, redirect, validate
+from tg import expose, url, tmpl_context, validate
 from tg.controllers import RestController
 from spam.model import session_get, Scene
 from spam.model import project_get_eager, project_get, scene_get
-from spam.model import query_projects, query_projects_archived
 from spam.lib.widgets import FormSceneNew, FormSceneEdit, FormSceneConfirm
 from spam.lib import repo, notify
 
@@ -29,15 +28,19 @@ class Controller(RestController):
         return dict(page='scenes', sidebar=('projects', project.id),
                                                         scenes=project.scenes)
 
+    @expose('spam.templates.project.tabs.scenes')
+    def default(self, proj, *args, **kwargs):
+        return self.get_all(proj)
+
     @expose('json')
     @expose('spam.templates.tabbed_content')
     def get_one(self, proj, sc):
         # we add the project to tmpl_context to show the project sidebar
-        scene = scene_get(project.id, sc)
+        scene = scene_get(proj, sc)
         tmpl_context.project = scene.project
         
         tabs = [('Summary', 'tab/summary'),
-                ('Shots', url('/shot/%s/%s' % (scene.project.id, scene.name))),
+                ('Shots', url('/shot/%s/%s/' % (scene.project.id, scene.name))),
                 ('Tasks', 'tab/tasks'),
                ]
         return dict(page='%s' % scene.path, tabs=tabs, 
@@ -48,6 +51,7 @@ class Controller(RestController):
         """Display a NEW form."""
         tmpl_context.form = f_new
         project = project_get(proj)
+
         fargs = dict(proj=project.id, _project=project.name)
         fcargs = dict()
         return dict(title='Create a new scene', args=fargs, child_args=fcargs)
@@ -77,6 +81,7 @@ class Controller(RestController):
         """Display a EDIT form."""
         tmpl_context.form = f_edit
         scene = scene_get(proj, sc)
+
         fargs = dict(proj=scene.project.id, _project=scene.project.name,
                      sc=scene.name, _name=scene.name,
                      description=scene.description)
@@ -90,6 +95,7 @@ class Controller(RestController):
     def put(self, proj, sc, description=None, **kwargs):
         """Edit a scene"""
         scene = scene_get(proj, sc)
+
         if description: scene.description = description
         notify.scene(scene)
         return dict(msg='updated scene "%s"' % scene.path, result='success')
@@ -99,12 +105,14 @@ class Controller(RestController):
         """Display a DELETE confirmation form."""
         tmpl_context.form = f_confirm
         scene = scene_get(proj, sc)
-        fargs = dict(proj=scene.project.id, _project=scene.project.name,
+
+        fargs = dict(_method='DELETE',
+                     proj=scene.project.id, _project=scene.project.name,
                      sc=scene.name, _name=scene.name,
                      _description=scene.description)
         fcargs = dict()
-        warning = ('This will only delete the scene registration in the '
-                   'database. The data must be deleted manually if needed.')
+        warning = ('This will only delete the scene entry in the database. '
+                   'The data must be deleted manually if needed.')
         return dict(
                 title='Are you sure you want to delete "%s"?' % scene.path,
                 warning=warning, args=fargs, child_args=fcargs)

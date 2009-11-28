@@ -12,6 +12,12 @@ class SPAMDBNotFound(HTTPClientError):
     explanation = ''
 
 
+class SPAMRepoError(HTTPClientError):
+    code = 400
+    title = 'Repository Error'
+    explanation = ''
+
+
 class SPAMRepoNotFound(HTTPClientError):
     code = 400
     title = 'Repository Not Found'

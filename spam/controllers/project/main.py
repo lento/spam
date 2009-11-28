@@ -123,9 +123,9 @@ class Controller(RestController):
                      description_d=project.description,
                      create_d=project.created)
         fcargs = dict()
-        warning = ('This will only delete the project registration in the '
-                   'database. The data and history of the project must be '
-                   'deleted manually if needed.')
+        warning = ('This will only delete the project entry in the database. '
+                   'The data and history of the project must be deleted '
+                   'manually if needed.')
         return dict(
                 title='Are you sure you want to delete "%s"?' % project.name,
                 warning=warning, args=fargs, child_args=fcargs)

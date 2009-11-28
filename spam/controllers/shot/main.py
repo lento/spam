@@ -1,8 +1,7 @@
-from tg import expose, url, tmpl_context, redirect, validate
+from tg import expose, url, tmpl_context, validate
 from tg.controllers import RestController
-from spam.model import session_get, Project, User
-from spam.model import project_get_eager
-from spam.model import query_projects, query_projects_archived
+from spam.model import session_get, Project, User, Shot
+from spam.model import scene_get, shot_get
 from spam.lib.widgets import FormShotNew, FormShotEdit, FormShotConfirm
 from spam.lib import repo, notify
 
@@ -12,9 +11,9 @@ import logging
 log = logging.getLogger(__name__)
 
 # form widgets
-f_new = FormShotNew(action=url('/project/'))
-f_edit = FormShotEdit(action=url('/project/'))
-f_confirm = FormShotConfirm(action=url('/project/'))
+f_new = FormShotNew(action=url('/shot/'))
+f_edit = FormShotEdit(action=url('/shot/'))
+f_confirm = FormShotConfirm(action=url('/shot/'))
 
 # livetable widgets
 
@@ -24,9 +23,10 @@ class Controller(RestController):
     
     @expose('spam.templates.scene.tabs.shots')
     def get_all(self, proj, sc):
-        project = project_get_eager(proj)
-        scene = [s for s in project.scenes if s.name==sc][0]
-        return dict(page='shot', sidebar=('projects', project.id),
+        scene = scene_get(proj, sc)
+        tmpl_context.project = scene.project
+        tmpl_context.scene = scene
+        return dict(page='shot', sidebar=('projects', scene.project.id),
                                                             shots=scene.shots)
 
     @expose('spam.templates.scene.tabs.shots')
@@ -36,80 +36,120 @@ class Controller(RestController):
     @expose('json')
     @expose('spam.templates.tabbed_content')
     def get_one(self, proj, sc, sh):
-        # we add the project to tmpl_context to show the project sidebar
-        project = project_get_eager(proj)
-        tmpl_context.project = project
+        shot = shot_get(proj, sc, sh)
         
-        scene = [s for s in project.scenes if s.name==sc][0]
-        shot = [s for s in scene.shots if s.name==sh][0]
+        # we add the project to tmpl_context to show the project sidebar
+        tmpl_context.project = shot.project
+        
         tabs = [('Summary', 'tab/summary'),
                 ('Assets', 'tab/assets'),
                 ('Tasks', 'tab/tasks'),
                ]
-        return dict(page='shot/%s' % shot.name, tabs=tabs, 
-                                            sidebar=('projects', project.id))
+        return dict(page='%s' % shot.path, tabs=tabs, 
+                                        sidebar=('projects', shot.project.id))
 
     @expose('spam.templates.forms.form')
-    def new(self, proj, **kwargs):
+    def new(self, proj, sc, **kwargs):
         """Display a NEW form."""
         tmpl_context.form = f_new
-        fargs = dict()
+        scene = scene_get(proj, sc)
+        
+        fargs = dict(proj=scene.project.id, _project=scene.project.name,
+                     sc=scene.name, _scene=scene.name)
         fcargs = dict()
-        return dict(title='Create a new scene', args=fargs, child_args=fcargs)
+        return dict(title='Create a new shot', args=fargs, child_args=fcargs)
 
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_new, error_handler=new)
-    def post(self, proj, name=None, description=None, **kwargs):
-        """Create a new scene"""
+    def post(self, proj, sc, sh, description=None, action=None, frames=0,
+             handle_in=0, handle_out=0, **kwargs):
+        """Create a new shot"""
         session = session_get()
+        scene = scene_get(proj, sc)
         
-        # add scene to db
+        # add shot to db
+        shot = Shot(scene.project.id, sh, parent=scene, description=description,
+                    action=action, frames=frames, handle_in=handle_in,
+                    handle_out=handle_out)
+        session.add(shot)
+        session.flush()
         
         # create directories
+        repo.shot_create_dirs(scene.project.id, scene.name, shot.name)
         
         # send a stomp message to notify clients
-        return dict(msg='created scene "%s"' % 'scena', result='success')
+        notify.shot(shot, update_type='added')
+        return dict(msg='created shot "%s"' % shot.path, result='success')
     
     @expose('spam.templates.forms.form')
-    def edit(self, proj, sc, **kwargs):
+    def edit(self, proj, sc, sh, **kwargs):
         """Display a EDIT form."""
         tmpl_context.form = f_edit
-        fargs = dict()
+        shot = shot_get(proj, sc, sh)
+        
+        fargs = dict(proj=shot.project.id, _project=shot.project.name,
+                     sc=shot.parent.name, _scene=shot.parent.name,
+                     sh=shot.name, _name=shot.name,
+                     description=shot.description, action=shot.action,
+                     frames=shot.frames, handle_in=shot.handle_in,
+                     handle_out=shot.handle_out)
         fcargs = dict()
-        return dict(title='Edit scene "%s"' % 'scena', args=fargs,
+        return dict(title='Edit shot "%s"' % shot.path, args=fargs,
                                                             child_args=fcargs)
         
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_edit, error_handler=edit)
-    def put(self, proj, sc, name=None, description=None, **kwargs):
-        """Edit a scene"""
-        return dict(msg='updated scene "%s"' % 'scena', result='success')
+    def put(self, proj, sc, sh, description=None, action=None,
+                  frames=0, handle_in=0, handle_out=0, **kwargs):
+        """Edit a shot"""
+        shot = shot_get(proj, sc, sh)
+        
+        if description: shot.description = description
+        if action: shot.action = action
+        if frames: shot.frames = frames
+        if handle_in: shot.handle_in = handle_in
+        if handle_out: shot.handle_out = handle_out
+        
+        notify.shot(shot)
+        return dict(msg='updated shot "%s"' % shot.path, result='success')
 
     @expose('spam.templates.forms.form')
-    def get_delete(self, proj, sc, **kwargs):
+    def get_delete(self, proj, sc, sh, **kwargs):
         """Display a DELETE confirmation form."""
-        tmpl_context.form = f_delete
-        fargs = dict()
+        tmpl_context.form = f_confirm
+        shot = shot_get(proj, sc, sh)
+        fargs = dict(_method='DELETE',
+                     proj=shot.project.id, _project=shot.project.name,
+                     sc=shot.parent.name, _scene=shot.parent.name,
+                     sh=shot.name, _name=shot.name,
+                     _description=shot.description, _action=shot.action,
+                     _frames=shot.frames, _handle_in=shot.handle_in,
+                     _handle_out=shot.handle_out)
         fcargs = dict()
-        warning = ('This will only delete the scene registration in the '
-                   'database. The data must be deleted manually if needed.')
+        warning = ('This will only delete the shot entry in the database. '
+                   'The data must be deleted manually if needed.')
         return dict(
-                title='Are you sure you want to delete "%s"?' % 'scena',
+                title='Are you sure you want to delete "%s"?' % shot.path,
                 warning=warning, args=fargs, child_args=fcargs)
 
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_confirm, error_handler=get_delete)
-    def post_delete(self, proj, sc, **kwargs):
-        """Delete a scene.
+    def post_delete(self, proj, sc, sh, **kwargs):
+        """Delete a shot.
         
-        Only delete the scene record from the db, the scene directories must be
+        Only delete the shot record from the db, the shot directories must be
         removed manually.
         (This should help prevent awful accidents) ;)
         """
-        return dict(msg='deleted scene "%s"' % 'scena', result='success')
+        session = session_get()
+        shot = shot_get(proj, sc, sh)
+        
+        session.delete(shot)
+        notify.shot(shot, update_type='removed')
+        return dict(msg='deleted shot "%s"' % shot.path, result='success')
     
     # Custom REST-like actions
     custom_actions = []

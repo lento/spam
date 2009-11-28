@@ -10,10 +10,10 @@ from sqlalchemy import ForeignKeyConstraint, and_
 from sqlalchemy.types import Unicode, UnicodeText, Integer, DateTime, Boolean
 from sqlalchemy.orm import relation, synonym, backref
 
+from tg import app_globals as G
 from spam.model import DeclarativeBase, metadata
 from spam.model import migraterepo_get_version, db_get_version
 from spam.model import db_upgrade, db_downgrade
-from spam.config import SCENES
 
 __all__ = ['Project']
 
@@ -126,7 +126,7 @@ class Scene(DeclarativeBase):
     """
     The scene container.
     
-    This models a "film scene" that acts as a container for Shot objects.
+    This represents a "film scene" that acts as a container for Shot objects.
     """
     __tablename__ = "scenes"
     __table_args__ = (UniqueConstraint('proj_id', 'name'),
@@ -137,7 +137,6 @@ class Scene(DeclarativeBase):
     proj_id = Column(Unicode(10))
     name = Column(Unicode(15))
     description = Column(UnicodeText)
-    #group = Column(Unicode(40))
     created = Column(DateTime, default=datetime.now)
 
     # Relations
@@ -149,7 +148,7 @@ class Scene(DeclarativeBase):
     # Properties
     @property
     def path(self):
-        return '%s/%s/%s' % (self.proj_id, SCENES, self.name)
+        return '%s/%s/%s' % (self.proj_id, G.SCENES, self.name)
     
     # Special methods
     def __init__(self, proj, name, description=None):
@@ -172,7 +171,7 @@ class Shot(AssetContainer):
     """
     The shot container.
 
-    This models a "film shot" that acts as a container for Asset objects.
+    This represents a "film shot" that acts as a container for Asset objects.
     """
     __tablename__ = "shots"
     __table_args__ = (UniqueConstraint('proj_id', 'parent_id', 'name'),
@@ -188,30 +187,36 @@ class Shot(AssetContainer):
     proj_id = Column(Unicode(10))
     parent_id = Column(Integer)
     name = Column(Unicode(15))
+    created = Column(DateTime, default=datetime.now)
     description = Column(UnicodeText)
-    #_group = Column(Unicode(40))
     location = Column(Unicode(255))
     action = Column(UnicodeText)
-    #elements = Column(UnicodeText)
-    #characters = Column(UnicodeText)
-    #props = Column(UnicodeText)
-    created = Column(DateTime, default=datetime.now)
     frames = Column(Integer)
     handle_in = Column(Integer)
     handle_out = Column(Integer)
     #assoc_id = Column(None, ForeignKey('notes_associations.assoc_id'))
     
     # Relations
+    project = relation('Project', primaryjoin=proj_id==Project.id,
+                       foreign_keys=[proj_id], viewonly=True,
+                      )
+    
     parent = relation(Scene,
                         backref=backref('shots', order_by=name, lazy=False))
     
+    # Properties
+    @property
+    def path(self):
+        return '%s/%s/%s/%s' % (self.proj_id, G.SCENES,
+                                self.parent.name, self.name)
+    
     # Special methods
-    def __init__(self, proj_id, name, group=None, description=None,
-                            location=None, frames=0, handle_in=0, handle_out=0,
-                            action='', parent=None):
+    def __init__(self, proj_id, name, parent=None,
+                       description=None, action=None, location=None,
+                       frames=0, handle_in=0, handle_out=0,
+                ):
         self.proj_id = proj_id
         self.name = name
-        #self.group = group
         self.description = description
         self.location = location
         self.frames = frames
@@ -234,7 +239,7 @@ class Shot(AssetContainer):
                     action=self.action,
                     frames=self.frames,
                     handle_in=self.handle_in,
-                    handle_out=self.handel_out,
+                    handle_out=self.handle_out,
                    )
                     
 

@@ -1,9 +1,9 @@
 from tg import config, url
+from tg import app_globals as G
 from tw.api import Widget, WidgetsList, JSLink
 from tw.forms import TableForm, TextField, TextArea, HiddenField
 from tw.forms import CalendarDatePicker
-from tw.forms.validators import All, Regex, MaxLength, NotEmpty
-from spam.config import pattern_name
+from tw.forms.validators import All, Regex, MaxLength, NotEmpty, Int
 from spam.lib.twlib.livetable import LiveTable, IconButton, TextData
 
 # Orbited
@@ -54,7 +54,8 @@ class ProjectsActive(LiveTable):
         archive = IconButton(icon_class='archive', action='%(id)s/archive')
         edit = IconButton(icon_class='edit', action='%(id)s/edit')
         delete = IconButton(icon_class='delete', action='%(id)s/delete')
-        schema = SchemaButton(action={'uptodate': '', 'outdated': '%(id)s/upgrade'})
+        schema = SchemaButton(action={'uptodate': '',
+                                      'outdated': '%(id)s/upgrade'})
         id = TextData()
         name = TextData()
         description = TextData()
@@ -84,7 +85,7 @@ class ProjectsArchived(LiveTable):
 # Project
 class FormProjectNew(TableForm):
     class fields(WidgetsList):
-        proj = TextField(label_text='id', validator=All(Regex(pattern_name,
+        proj = TextField(label_text='id', validator=All(Regex(G.pattern_name,
                                                 not_empty=True), MaxLength(15)))
         name = TextField(validator=MaxLength(40))
         description = TextArea(cols=30, rows=3)
@@ -116,7 +117,7 @@ class FormSceneNew(TableForm):
     class fields(WidgetsList):
         proj = HiddenField(validator=NotEmpty)
         _project = TextField(validator=None, disabled=True)
-        sc = TextField(label_text='name', validator=All(Regex(pattern_name,
+        sc = TextField(label_text='name', validator=All(Regex(G.pattern_name,
                                                 not_empty=True), MaxLength(15)))
         description = TextArea(cols=30, rows=3)
 
@@ -133,7 +134,7 @@ class FormSceneEdit(TableForm):
 
 class FormSceneConfirm(TableForm):
     class fields(WidgetsList):
-        _method = HiddenField(default='DELETE', validator=None)
+        _method = HiddenField(default='', validator=None)
         proj = HiddenField(validator=NotEmpty)
         sc = HiddenField(validator=NotEmpty)
         _project = TextField(validator=None, disabled=True)
@@ -143,15 +144,50 @@ class FormSceneConfirm(TableForm):
 
 # Shot
 class FormShotNew(TableForm):
-    pass
+    class fields(WidgetsList):
+        proj = HiddenField(validator=NotEmpty)
+        sc = HiddenField(validator=NotEmpty)
+        _project = TextField(validator=None, disabled=True)
+        _scene = TextField(validator=None, disabled=True)
+        sh = TextField(label_text='name', validator=All(Regex(G.pattern_name,
+                                                not_empty=True), MaxLength(15)))
+        description = TextArea(cols=30, rows=3)
+        action = TextArea(cols=30, rows=3)
+        frames = TextField(validator=Int)
+        handle_in = TextField(validator=Int)
+        handle_out = TextField(validator=Int)
 
 
 class FormShotEdit(TableForm):
-    pass
+    class fields(WidgetsList):
+        _method = HiddenField(default='PUT', validator=None)
+        proj = HiddenField(validator=NotEmpty)
+        sc = HiddenField(validator=NotEmpty)
+        sh = HiddenField(validator=NotEmpty)
+        _project = TextField(validator=None, disabled=True)
+        _scene = TextField(validator=None, disabled=True)
+        _name = TextField(validator=None, disabled=True)
+        description = TextArea(cols=30, rows=3)
+        action = TextArea(cols=30, rows=3)
+        frames = TextField(validator=Int)
+        handle_in = TextField(validator=Int)
+        handle_out = TextField(validator=Int)
 
 
 class FormShotConfirm(TableForm):
-    pass
+    class fields(WidgetsList):
+        _method = HiddenField(default='', validator=None)
+        proj = HiddenField(validator=NotEmpty)
+        sc = HiddenField(validator=NotEmpty)
+        sh = HiddenField(validator=NotEmpty)
+        _project = TextField(validator=None, disabled=True)
+        _scene = TextField(validator=None, disabled=True)
+        _name = TextField(validator=None, disabled=True)
+        _description = TextArea(cols=30, rows=3, validator=None, disabled=True)
+        _action = TextArea(cols=30, rows=3, validator=None, disabled=True)
+        _frames = TextField(validator=None, disabled=True)
+        _handle_in = TextField(validator=None, disabled=True)
+        _handle_out = TextField(validator=None, disabled=True)
 
 
 
