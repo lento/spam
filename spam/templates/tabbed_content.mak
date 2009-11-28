@@ -16,7 +16,7 @@
      
     <!-- tab "panes" --> 
     <div class="content"> 
-        <div class="pane fixed"></div> 
+        <div class="pane ajax"></div> 
     </div>
 </div>
 

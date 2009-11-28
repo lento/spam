@@ -12,7 +12,7 @@ def add_shard(proj):
     db = create_engine(db_url_tmpl % proj)
     DBSession().bind_shard(proj, db)
 
-def get_session():
+def session_get():
     shards = DBSession()._ShardedSession__binds.keys()
     for project in DBSession.query(Project):
         if project not in shards:
@@ -20,13 +20,13 @@ def get_session():
     return DBSession()
 
 def query_projects():
-    return get_session().query(Project).filter_by(archived=False)
+    return session_get().query(Project).filter_by(archived=False)
 
 def query_projects_archived():
-    return get_session().query(Project).filter_by(archived=True)
+    return session_get().query(Project).filter_by(archived=True)
 
 # Cache
-def get_project_lazy(proj):
+def project_get_lazy(proj):
     """Return a lazyloaded project"""
     try:
         return query_projects().filter_by(id=proj).one()
@@ -49,17 +49,17 @@ def eagerload_maker(proj):
         return (project, datetime.now())
     return eagerload_project
 
-def get_project_eager(proj):
+def project_get_eager(proj):
     """Return a project eagerloaded with its scenes and libgroups
     
-    "get_project_eager" keeps a (thread-local) cache of loaded projects,
+    "project_get_eager" keeps a (thread-local) cache of loaded projects,
     reloading instances from the db if the "modified" field is newer then the
     cache.
     """
-    session = get_session()
+    session = session_get()
     
     # get a lazyload instance of the project, save the modified time and discard
-    curproject = get_project_lazy(proj)
+    curproject = project_get_lazy(proj)
     modified = curproject.modified
     session.expunge(curproject)
     

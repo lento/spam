@@ -6,14 +6,14 @@ from pylons.i18n import ugettext as _, lazy_ugettext as l_
 from repoze.what import predicates
 
 from spam.lib.base import SPAMBaseController
-from spam.model import get_project_eager
+from spam.model import project_get_eager
 
 
 class TabController(SPAMBaseController):
     """The controller for scene tabs."""
     def __before__(self, *args, **kw):
         proj, sc = request.url.split('/')[-4:-2]
-        project = get_project_eager(proj)
+        project = project_get_eager(proj)
         tmpl_context.project = project
         scene = [s for s in project.scenes if s.name==sc][0]
         tmpl_context.scene = scene

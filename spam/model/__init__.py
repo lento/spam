@@ -26,8 +26,8 @@ from auth import User, Group, Permission
 from project import Project, Scene, Shot, LibraryGroup
 
 # Caching & helpers
-from util import query_projects, query_projects_archived, get_project_lazy
-from util import get_project_eager, get_session, add_shard
+from util import query_projects, query_projects_archived, project_get_lazy
+from util import project_get_eager, session_get, add_shard
 
 # Sharding
 from sharding import shards, queries, shard_chooser, id_chooser, query_chooser

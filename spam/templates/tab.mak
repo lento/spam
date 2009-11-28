@@ -1,6 +1,6 @@
 <script type="text/javascript">
-    spam.toggles_activate();
-    spam.overlays_activate();
+    spam.toggles_activate(".pane.ajax");
+    spam.overlays_activate(".pane.ajax");
 </script>
 
 <div>

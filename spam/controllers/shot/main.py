@@ -1,7 +1,7 @@
 from tg import expose, url, tmpl_context, redirect, validate
 from tg.controllers import RestController
-from spam.model import get_session, Project, User
-from spam.model import get_project_eager, get_project_lazy
+from spam.model import session_get, Project, User
+from spam.model import project_get_eager, project_get_lazy
 from spam.model import query_projects, query_projects_archived
 from spam.lib.widgets import FormShotNew, FormShotEdit, FormShotConfirm
 from spam.lib import repo, notify
@@ -24,7 +24,7 @@ class Controller(RestController):
     
     @expose('spam.templates.scene.tabs.shots')
     def get_all(self, proj, sc):
-        project = get_project_eager(proj)
+        project = project_get_eager(proj)
         scene = [s for s in project.scenes if s.name==sc][0]
         return dict(page='shot', sidebar=('projects', project.id),
                                                             shots=scene.shots)
@@ -37,7 +37,7 @@ class Controller(RestController):
     @expose('spam.templates.tabbed_content')
     def get_one(self, proj, sc, sh):
         # we add the project to tmpl_context to show the project sidebar
-        project = get_project_eager(proj)
+        project = project_get_eager(proj)
         tmpl_context.project = project
         
         scene = [s for s in project.scenes if s.name==sc][0]
@@ -61,7 +61,7 @@ class Controller(RestController):
     @validate(f_new, error_handler=new)
     def post(self, proj, name=None, description=None, **kwargs):
         """Create a new scene"""
-        session = get_session()
+        session = session_get()
         
         # add scene to db
         

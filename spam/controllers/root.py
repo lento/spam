@@ -9,7 +9,7 @@ from pylons.i18n import ugettext as _, lazy_ugettext as l_
 from repoze.what import predicates
 
 from spam.lib.base import SPAMBaseController
-from spam.model import get_project_eager, User, Group, Permission, Project
+from spam.model import User, Group, Permission, Project
 from spam.controllers.error import ErrorController
 from spam.controllers.user import UserController
 from spam.controllers.form import FormController

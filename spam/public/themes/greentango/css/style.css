@@ -459,7 +459,7 @@ ul.tabs a.current {
 	min-height: 150px;
 }
 
-.pane.fixed {
+.pane.ajax {
 	display: block;
 }
 

@@ -1,9 +1,7 @@
-import logging, datetime
-from pylons import cache
 from tg import expose, url, tmpl_context, redirect, validate
 from tg.controllers import RestController
-from spam.model import get_session, Project, User,  db_init, add_shard
-from spam.model import get_project_eager, get_project_lazy
+from spam.model import session_get, Project, User, db_init, add_shard
+from spam.model import project_get_eager, project_get_lazy
 from spam.model import query_projects, query_projects_archived
 from spam.lib.widgets import FormProjectNew, FormProjectEdit, FormProjectConfirm
 from spam.lib.widgets import ProjectsActive, ProjectsArchived
@@ -11,14 +9,15 @@ from spam.lib import repo, notify
 
 from tabs import TabController
 
-__all__ = ['ProjectsController']
+import logging
 log = logging.getLogger(__name__)
 
+__all__ = ['ProjectsController']
+
 # form widgets
-f_project_new = FormProjectNew(action=url('/project/'))
-f_project_edit = FormProjectEdit(action=url('/project/'))
-f_project_delete = FormProjectConfirm(action=url('/project/'))
-f_project_confirm = FormProjectConfirm(action=url('/project/'))
+f_new = FormProjectNew(action=url('/project/'))
+f_edit = FormProjectEdit(action=url('/project/'))
+f_confirm = FormProjectConfirm(action=url('/project/'))
 
 # livetable widgets
 w_projects_active = ProjectsActive()
@@ -40,7 +39,7 @@ class Controller(RestController):
     @expose('json')
     @expose('spam.templates.tabbed_content')
     def get_one(self, proj):
-        project = get_project_eager(proj)
+        project = project_get_eager(proj)
         tmpl_context.project = project
         tabs = [('Summary', 'tab/summary'),
                 ('Scenes', url('/scene/%s' % project.id)),
@@ -52,17 +51,17 @@ class Controller(RestController):
 
     @expose('spam.templates.forms.form')
     def new(self, **kwargs):
-        tmpl_context.form = f_project_new
+        tmpl_context.form = f_new
         fargs = dict()
         fcargs = dict()
         return dict(title='Create a new project', args=fargs, child_args=fcargs)
 
     @expose('json')
     @expose('spam.templates.forms.result')
-    @validate(f_project_new, error_handler=new)
+    @validate(f_new, error_handler=new)
     def post(self, proj, name=None, description=None, **kwargs):
         """Create a new project"""
-        session = get_session()
+        session = session_get()
         
         # add project to shared db
         project = Project(proj, name=name, description=description)
@@ -78,8 +77,8 @@ class Controller(RestController):
         db_init(project.id)
         
         # create directories and init hg repo
-        repo.create_proj_dirs(project.id)
-        repo.init_repo(project.id)
+        repo.project_create_dirs(project.id)
+        repo.repo_init(project.id)
         
         # grant project rights to user "admin"
         admin = session.query(User).filter_by(user_name=u'admin').one()
@@ -93,8 +92,8 @@ class Controller(RestController):
     @expose('spam.templates.forms.form')
     def edit(self, proj, **kwargs):
         """Display a EDIT form."""
-        tmpl_context.form = f_project_edit
-        project = get_project_lazy(proj)
+        tmpl_context.form = f_edit
+        project = project_get_lazy(proj)
         fargs = dict(proj=project.id, proj_d=project.id, name=project.name,
                                                 description=project.description)
         fcargs = dict()
@@ -103,10 +102,10 @@ class Controller(RestController):
         
     @expose('json')
     @expose('spam.templates.forms.result')
-    @validate(f_project_edit, error_handler=edit)
+    @validate(f_edit, error_handler=edit)
     def put(self, proj, name=None, description=None, **kwargs):
         """Edit a project"""
-        project = get_project_lazy(proj)
+        project = project_get_lazy(proj)
         if name: project.name = name
         if description: project.description = description
         project.touch()
@@ -116,8 +115,8 @@ class Controller(RestController):
     @expose('spam.templates.forms.form')
     def get_delete(self, proj, **kwargs):
         """Display a DELETE confirmation form."""
-        tmpl_context.form = f_project_delete
-        project = get_project_lazy(proj)
+        tmpl_context.form = f_confirm
+        project = project_get_lazy(proj)
         fargs = dict(_method='DELETE', proj=project.id, proj_d=project.id,
                      name_d=project.name,
                      description_d=project.description,
@@ -132,7 +131,7 @@ class Controller(RestController):
 
     @expose('json')
     @expose('spam.templates.forms.result')
-    @validate(f_project_delete, error_handler=get_delete)
+    @validate(f_confirm, error_handler=get_delete)
     def post_delete(self, proj, **kwargs):
         """Delete a project.
         
@@ -140,8 +139,8 @@ class Controller(RestController):
         and repository must be removed manually.
         (This should help prevent awful accidents) ;)
         """
-        session = get_session()
-        project = get_project_lazy(proj)
+        session = session_get()
+        project = project_get_lazy(proj)
         session.delete(project)
         notify.project(project, update_type='deleted')
         return dict(msg='deleted project "%s"' % proj, result='success')
@@ -152,8 +151,8 @@ class Controller(RestController):
     @expose('spam.templates.forms.form')
     def get_archive(self, proj, **kwargs):
         """Display a ARCHIVE confirmation form."""
-        tmpl_context.form = f_project_confirm
-        project = get_project_lazy(proj)
+        tmpl_context.form = f_confirm
+        project = project_get_lazy(proj)
         fargs = dict(_method='ARCHIVE', proj=project.id, proj_d=project.id,
                      name_d=project.name,
                      description_d=project.description,
@@ -166,7 +165,7 @@ class Controller(RestController):
     @expose('spam.templates.forms.result')
     def post_archive(self, proj, **kwargs):
         """Archive a project"""
-        project = get_project_lazy(proj)
+        project = project_get_lazy(proj)
         project.archived = True
         project.touch()
         notify.project(project, update_type='archived')
@@ -175,7 +174,7 @@ class Controller(RestController):
     @expose('spam.templates.forms.form')
     def get_activate(self, proj, **kwargs):
         """Display a ACTIVATE confirmation form."""
-        tmpl_context.form = f_project_confirm
+        tmpl_context.form = f_confirm
         project = query_projects_archived().filter_by(id=proj).one()
         log.debug('get_activate: %s' % project)
         
@@ -200,8 +199,8 @@ class Controller(RestController):
     @expose('spam.templates.forms.form')
     def get_upgrade(self, proj, **kwargs):
         """Display a UPGRADE confirmation form."""
-        tmpl_context.form = f_project_confirm
-        project = get_project_lazy(proj)
+        tmpl_context.form = f_confirm
+        project = project_get_lazy(proj)
         
         fargs = dict(_method='UPGRADE', proj=project.id, proj_d=project.id,
                      name_d=project.name,
@@ -215,7 +214,7 @@ class Controller(RestController):
     @expose('spam.templates.forms.result')
     def post_upgrade(self, proj, **kwargs):
         """Upgrade the DB schema for a project"""
-        project = get_project_lazy(proj)
+        project = project_get_lazy(proj)
         project.schema_upgrade()
         project.touch()
         notify.project(project, update_type='updated')

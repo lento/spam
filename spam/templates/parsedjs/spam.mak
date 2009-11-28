@@ -22,9 +22,14 @@ spam.add_trailing_slash = function() {
 /**********************************************************************
  * Toggles
  **********************************************************************/
-spam.toggles_activate = function () {
+spam.toggles_activate = function (select) {
+    if (typeof(select)=="undefined" || select==null) {
+        select = "";
+    }
+    console.log('toggles_activate', select);
+    
     /* set toggle state based on cookies (toggles without an id are skipped)*/
-    $('.toggle').each(function() {
+    $(select + " .toggle").each(function() {
         id = this.id;
         if (id) {
             if ($.cookie(id)=="expanded")
@@ -35,7 +40,7 @@ spam.toggles_activate = function () {
     });            
     
     /* instrument arrows to open and close the toggle */
-    $('.toggle_arrow').click(function(event){
+    $(select + ".toggle_arrow").click(function(event){
         toggle = $(this).parents(".toggle:first");
         id = toggle.attr("id");
         
@@ -58,8 +63,12 @@ spam.toggles_activate = function () {
 /**********************************************************************
  * Overlays
  **********************************************************************/
-spam.overlays_activate = function() {
-    $(".overlay").overlay(function() { 
+spam.overlays_activate = function(select) {
+    if (typeof(select)=="undefined" || select==null) {
+        select = "";
+    }
+    console.log('overlays_activate', select);
+    $(select + " .overlay").overlay(function() { 
         trigger = this.getTrigger();
         target = trigger.attr("href");
         iframe = $("#overlay iframe")[0];
