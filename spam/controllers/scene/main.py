@@ -3,7 +3,8 @@ from tg.controllers import RestController
 from spam.model import session_get, Scene
 from spam.model import project_get_eager, project_get, scene_get
 from spam.lib.widgets import FormSceneNew, FormSceneEdit, FormSceneConfirm
-from spam.lib import repo, notify
+from spam.lib import repo
+from spam.lib.notifications import notify
 
 from tabs import TabController
 
@@ -73,7 +74,7 @@ class Controller(RestController):
         repo.scene_create_dirs(project.id, scene.name)
         
         # send a stomp message to notify clients
-        notify.scene(scene, update_type='added')
+        notify.send(scene, update_type='added')
         return dict(msg='created scene "%s"' % scene.path, result='success')
     
     @expose('spam.templates.forms.form')
@@ -97,7 +98,7 @@ class Controller(RestController):
         scene = scene_get(proj, sc)
 
         if description: scene.description = description
-        notify.scene(scene)
+        notify.send(scene)
         return dict(msg='updated scene "%s"' % scene.path, result='success')
 
     @expose('spam.templates.forms.form')
@@ -131,7 +132,7 @@ class Controller(RestController):
         scene = scene_get(proj, sc)
         
         session.delete(scene)
-        notify.scene(scene, update_type='removed')
+        notify.send(scene, update_type='removed')
         return dict(msg='deleted scene "%s"' % scene.path, result='success')
     
     # Custom REST-like actions

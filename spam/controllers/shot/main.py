@@ -3,7 +3,8 @@ from tg.controllers import RestController
 from spam.model import session_get, Project, User, Shot
 from spam.model import scene_get, shot_get
 from spam.lib.widgets import FormShotNew, FormShotEdit, FormShotConfirm
-from spam.lib import repo, notify
+from spam.lib import repo
+from spam.lib.notifications import notify
 
 from tabs import TabController
 
@@ -79,7 +80,7 @@ class Controller(RestController):
         repo.shot_create_dirs(scene.project.id, scene.name, shot.name)
         
         # send a stomp message to notify clients
-        notify.shot(shot, update_type='added')
+        notify.send(shot, update_type='added')
         return dict(msg='created shot "%s"' % shot.path, result='success')
     
     @expose('spam.templates.forms.form')
@@ -112,7 +113,7 @@ class Controller(RestController):
         if handle_in: shot.handle_in = handle_in
         if handle_out: shot.handle_out = handle_out
         
-        notify.shot(shot)
+        notify.send(shot)
         return dict(msg='updated shot "%s"' % shot.path, result='success')
 
     @expose('spam.templates.forms.form')
@@ -148,7 +149,7 @@ class Controller(RestController):
         shot = shot_get(proj, sc, sh)
         
         session.delete(shot)
-        notify.shot(shot, update_type='removed')
+        notify.send(shot, update_type='removed')
         return dict(msg='deleted shot "%s"' % shot.path, result='success')
     
     # Custom REST-like actions

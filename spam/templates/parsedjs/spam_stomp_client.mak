@@ -5,6 +5,7 @@
  * STOMP client
  **********************************************************************/
 spam.stomp = new(Object);
+spam.stomp.is_connected = false;
 
 spam.stomp.host = "${tg.config.get('stomp_host', 'localhost')}";
 spam.stomp.port = ${tg.config.get('stomp_port', '61613')};
@@ -27,9 +28,14 @@ spam.stomp.add_listener = function(dest, callback) {
 }
 
 spam.stomp.start_client = function(){
-    console.log('stomp: starting client')
     document.domain=document.domain;
-    spam.stomp.is_connected = false;
+    
+    // if the orbited server has not started STOMPClient won't be available
+    if (typeof(STOMPClient)=='undefined') {
+        console.log('stomp: STOMPClient not loaded, notifications will not ' +
+                    'be available');
+        return null;
+    }
     
     stomp = new STOMPClient();
     stomp.onopen = function() {
@@ -38,7 +44,7 @@ spam.stomp.start_client = function(){
     stomp.onclose = function(c) {
         console.log('stomp: Lost Connection, Code: ', c, ' ...reconnecting');
         spam.stomp.is_connected = false;
-        stomp.connect(spam.stomp.host, spam.stomp.port);
+        setTimeout(function() {stomp.connect(spam.stomp.host, spam.stomp.port)}, 10000);
     };
     stomp.onerror = function(error) {
         console.log("stomp: Error: ", error);

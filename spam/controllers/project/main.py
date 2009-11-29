@@ -5,7 +5,8 @@ from spam.model import project_get_eager, project_get
 from spam.model import query_projects, query_projects_archived
 from spam.lib.widgets import FormProjectNew, FormProjectEdit, FormProjectConfirm
 from spam.lib.widgets import ProjectsActive, ProjectsArchived
-from spam.lib import repo, notify
+from spam.lib import repo
+from spam.lib.notifications import notify
 
 from tabs import TabController
 
@@ -87,7 +88,7 @@ class Controller(RestController):
         project.admins.append(admin)
         
         # send a stomp message to notify clients
-        notify.project(project, update_type='added')
+        notify.send(project, update_type='added')
         return dict(msg='created project "%s"' % project.id, result='success')
     
     @expose('spam.templates.forms.form')
@@ -110,7 +111,7 @@ class Controller(RestController):
         if name: project.name = name
         if description: project.description = description
         project.touch()
-        notify.project(project, update_type='updated')
+        notify.send(project, update_type='updated')
         return dict(msg='updated project "%s"' % proj, result='success')
 
     @expose('spam.templates.forms.form')
@@ -143,7 +144,7 @@ class Controller(RestController):
         session = session_get()
         project = project_get(proj)
         session.delete(project)
-        notify.project(project, update_type='deleted')
+        notify.send(project, update_type='deleted')
         return dict(msg='deleted project "%s"' % proj, result='success')
     
     # Custom REST-like actions
@@ -169,7 +170,7 @@ class Controller(RestController):
         project = project_get(proj)
         project.archived = True
         project.touch()
-        notify.project(project, update_type='archived')
+        notify.send(project, update_type='archived')
         return dict(msg='archived project "%s"' % proj, result='success')
 
     @expose('spam.templates.forms.form')
@@ -194,7 +195,7 @@ class Controller(RestController):
         project = query_projects_archived().filter_by(id=proj).one()
         project.archived = False
         project.touch()
-        notify.project(project, update_type='activated')
+        notify.send(project, update_type='activated')
         return dict(msg='activated project "%s"' % proj, result='success')
 
     @expose('spam.templates.forms.form')
@@ -218,7 +219,7 @@ class Controller(RestController):
         project = project_get(proj)
         project.schema_upgrade()
         project.touch()
-        notify.project(project, update_type='updated')
+        notify.send(project, update_type='updated')
         return dict(msg='upgraded project "%s" schema' % proj, result='success')
 
 
