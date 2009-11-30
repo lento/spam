@@ -1,4 +1,4 @@
-from tg import expose, url, tmpl_context, redirect, validate
+from tg import expose, url, tmpl_context, redirect, validate, require
 from tg.controllers import RestController
 from pylons.i18n import ugettext as _, lazy_ugettext as l_
 from spam.model import session_get, Project, User, db_init, add_shard
@@ -9,6 +9,8 @@ from spam.lib.widgets import ProjectsActive, ProjectsArchived
 from spam.lib import repo
 from spam.lib.notifications import notify
 from spam.lib.decorators import project_set_active
+from spam.lib.predicates import is_project_user
+from repoze.what.predicates import in_group
 
 from tabs import TabController
 
@@ -30,6 +32,7 @@ class Controller(RestController):
     
     tab = TabController()
     
+    @require(in_group('administrators'))
     @expose('spam.templates.project.get_all')
     def get_all(self):
         tmpl_context.projects_active = w_projects_active
@@ -40,6 +43,7 @@ class Controller(RestController):
                                             active=active, archived=archived)
 
     @project_set_active
+    @require(is_project_user())
     @expose('json')
     @expose('spam.templates.tabbed_content')
     def get_one(self, proj):
@@ -52,6 +56,7 @@ class Controller(RestController):
                                             sidebar=('projects', project.id))
 
 
+    @require(in_group('administrators'))
     @expose('spam.templates.forms.form')
     def new(self, **kwargs):
         """Display a NEW form."""
@@ -60,6 +65,7 @@ class Controller(RestController):
         fcargs = dict()
         return dict(title='Create a new project', args=fargs, child_args=fcargs)
 
+    @require(in_group('administrators'))
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_new, error_handler=new)
@@ -94,6 +100,7 @@ class Controller(RestController):
         return dict(msg='created project "%s"' % project.id, result='success')
     
     @project_set_active
+    @require(in_group('administrators'))
     @expose('spam.templates.forms.form')
     def edit(self, proj, **kwargs):
         """Display a EDIT form."""
@@ -106,6 +113,7 @@ class Controller(RestController):
                                                             child_args=fcargs)
         
     @project_set_active
+    @require(in_group('administrators'))
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_edit, error_handler=edit)
@@ -119,6 +127,7 @@ class Controller(RestController):
         return dict(msg='updated project "%s"' % proj, result='success')
 
     @project_set_active
+    @require(in_group('administrators'))
     @expose('spam.templates.forms.form')
     def get_delete(self, proj, **kwargs):
         """Display a DELETE confirmation form."""
@@ -137,6 +146,7 @@ class Controller(RestController):
                 warning=warning, args=fargs, child_args=fcargs)
 
     @project_set_active
+    @require(in_group('administrators'))
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_confirm, error_handler=get_delete)
@@ -157,6 +167,7 @@ class Controller(RestController):
     custom_actions = ['archive', 'activate', 'upgrade']
     
     @project_set_active
+    @require(in_group('administrators'))
     @expose('spam.templates.forms.form')
     def get_archive(self, proj, **kwargs):
         """Display a ARCHIVE confirmation form."""
@@ -171,6 +182,7 @@ class Controller(RestController):
                                                 args=fargs, child_args=fcargs)
 
     @project_set_active
+    @require(in_group('administrators'))
     @expose('json')
     @expose('spam.templates.forms.result')
     def post_archive(self, proj, **kwargs):
@@ -181,6 +193,7 @@ class Controller(RestController):
         notify.send(project, update_type='archived')
         return dict(msg='archived project "%s"' % proj, result='success')
 
+    @require(in_group('administrators'))
     @expose('spam.templates.forms.form')
     def get_activate(self, proj, **kwargs):
         """Display a ACTIVATE confirmation form."""
@@ -196,6 +209,7 @@ class Controller(RestController):
         return dict(title='Are you sure you want to activate "%s"' % proj,
                                                 args=fargs, child_args=fcargs)
 
+    @require(in_group('administrators'))
     @expose('json')
     @expose('spam.templates.forms.result')
     def post_activate(self, proj, **kwargs):
@@ -207,6 +221,7 @@ class Controller(RestController):
         return dict(msg='activated project "%s"' % proj, result='success')
 
     @project_set_active
+    @require(in_group('administrators'))
     @expose('spam.templates.forms.form')
     def get_upgrade(self, proj, **kwargs):
         """Display a UPGRADE confirmation form."""
@@ -222,6 +237,7 @@ class Controller(RestController):
                                             proj, args=fargs, child_args=fcargs)
 
     @project_set_active
+    @require(in_group('administrators'))
     @expose('json')
     @expose('spam.templates.forms.result')
     def post_upgrade(self, proj, **kwargs):

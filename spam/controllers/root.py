@@ -6,7 +6,7 @@ from tg import expose, flash, require, url, request, redirect, override_template
 from tg import response, config, app_globals, tmpl_context
 from tg.exceptions import HTTPNotFound
 from pylons.i18n import ugettext as _, lazy_ugettext as l_
-from repoze.what import predicates
+from repoze.what.predicates import not_anonymous
 
 from spam.lib.base import SPAMBaseController
 from spam.model import User, Group, Permission, Project
@@ -83,6 +83,7 @@ class RootController(SPAMBaseController):
         redirect(came_from)
     
     @expose(content_type='text/javascript')
+    @require(not_anonymous(msg=l_('Please login')))
     def parsedjs(self, script):
         scriptname = os.path.splitext(script)[0]
         templatename = 'spam.templates.parsedjs.%s' % scriptname

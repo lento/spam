@@ -10,7 +10,6 @@ log = logging.getLogger(__name__)
 
 @decorator
 def project_set_active(func, *args, **kwargs):
-    session = session_get()
     if 'proj' in kwargs:
         proj = kwargs['proj']
     elif len(args)>1:

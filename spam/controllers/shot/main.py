@@ -1,4 +1,4 @@
-from tg import expose, url, tmpl_context, validate
+from tg import expose, url, tmpl_context, validate, require
 from tg.controllers import RestController
 from spam.model import session_get, Project, User, Shot
 from spam.model import scene_get, shot_get
@@ -6,6 +6,7 @@ from spam.lib.widgets import FormShotNew, FormShotEdit, FormShotConfirm
 from spam.lib import repo
 from spam.lib.notifications import notify
 from spam.lib.decorators import project_set_active
+from spam.lib.predicates import is_project_user, is_project_admin
 
 from tabs import TabController
 
@@ -24,6 +25,7 @@ class Controller(RestController):
     tab = TabController()
     
     @project_set_active
+    @require(is_project_user())
     @expose('spam.templates.scene.tabs.shots')
     def get_all(self, proj, sc):
         scene = scene_get(proj, sc)
@@ -36,6 +38,7 @@ class Controller(RestController):
         return self.get_all(proj, sc)
 
     @project_set_active
+    @require(is_project_user())
     @expose('json')
     @expose('spam.templates.tabbed_content')
     def get_one(self, proj, sc, sh):
@@ -49,6 +52,7 @@ class Controller(RestController):
                                         sidebar=('projects', shot.project.id))
 
     @project_set_active
+    @require(is_project_admin())
     @expose('spam.templates.forms.form')
     def new(self, proj, sc, **kwargs):
         """Display a NEW form."""
@@ -61,6 +65,7 @@ class Controller(RestController):
         return dict(title='Create a new shot', args=fargs, child_args=fcargs)
 
     @project_set_active
+    @require(is_project_admin())
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_new, error_handler=new)
@@ -85,6 +90,7 @@ class Controller(RestController):
         return dict(msg='created shot "%s"' % shot.path, result='success')
     
     @project_set_active
+    @require(is_project_admin())
     @expose('spam.templates.forms.form')
     def edit(self, proj, sc, sh, **kwargs):
         """Display a EDIT form."""
@@ -102,6 +108,7 @@ class Controller(RestController):
                                                             child_args=fcargs)
         
     @project_set_active
+    @require(is_project_admin())
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_edit, error_handler=edit)
@@ -120,6 +127,7 @@ class Controller(RestController):
         return dict(msg='updated shot "%s"' % shot.path, result='success')
 
     @project_set_active
+    @require(is_project_admin())
     @expose('spam.templates.forms.form')
     def get_delete(self, proj, sc, sh, **kwargs):
         """Display a DELETE confirmation form."""
@@ -140,6 +148,7 @@ class Controller(RestController):
                 warning=warning, args=fargs, child_args=fcargs)
 
     @project_set_active
+    @require(is_project_admin())
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_confirm, error_handler=get_delete)
