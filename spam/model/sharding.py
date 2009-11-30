@@ -20,7 +20,7 @@ def shard_chooser(mapper, instance, clause=None):
     """Looks at the given instance and returns a shard id."""
     id_ = None
     if type(instance) in common_classes or (instance is None):
-        id_ = 'common'
+        id_ = u'common'
     else:
         id_ = instance.proj_id
     log.debug('shard_chooser: %s' % id_)
@@ -30,7 +30,7 @@ def id_chooser(query, ident):
     """Given a primary key, returns a list of shards to search."""
     ids = set()
     if query.statement.locate_all_froms() <= common_tables:
-        ids = set(['common'])
+        ids = set([u'common'])
     else:
         ids = set(shards.keys())
     
@@ -67,7 +67,7 @@ def query_chooser(query):
                             else:
                                 ids.add(bind.value)
                 elif binary.left.table in common_tables:
-                    ids.add('common')
+                    ids.add(u'common')
             elif isinstance(binary.right, Column):
                 if binary.right.name=='proj_id':
                     if (binary.operator == operators.eq and
@@ -80,7 +80,7 @@ def query_chooser(query):
     if query._criterion:
         FindProject().traverse(query._criterion)
     elif query.statement.locate_all_froms() <= common_tables:
-        ids =set(['common'])
+        ids =set([u'common'])
     
     if len(ids) == 0:
         ids = set(shards.keys())

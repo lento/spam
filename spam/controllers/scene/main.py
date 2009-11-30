@@ -5,6 +5,7 @@ from spam.model import project_get_eager, project_get, scene_get
 from spam.lib.widgets import FormSceneNew, FormSceneEdit, FormSceneConfirm
 from spam.lib import repo
 from spam.lib.notifications import notify
+from spam.lib.decorators import project_set_active
 
 from tabs import TabController
 
@@ -22,10 +23,10 @@ class Controller(RestController):
     
     tab = TabController()
     
+    @project_set_active
     @expose('spam.templates.project.tabs.scenes')
     def get_all(self, proj):
-        project = project_get_eager(proj)
-        tmpl_context.project = project
+        project = tmpl_context.project
         return dict(page='scenes', sidebar=('projects', project.id),
                                                         scenes=project.scenes)
 
@@ -33,12 +34,11 @@ class Controller(RestController):
     def default(self, proj, *args, **kwargs):
         return self.get_all(proj)
 
+    @project_set_active
     @expose('json')
     @expose('spam.templates.tabbed_content')
     def get_one(self, proj, sc):
-        # we add the project to tmpl_context to show the project sidebar
         scene = scene_get(proj, sc)
-        tmpl_context.project = scene.project
         
         tabs = [('Summary', 'tab/summary'),
                 ('Shots', url('/shot/%s/%s/' % (scene.project.id, scene.name))),
@@ -47,23 +47,25 @@ class Controller(RestController):
         return dict(page='%s' % scene.path, tabs=tabs, 
                                         sidebar=('projects', scene.project.id))
 
+    @project_set_active
     @expose('spam.templates.forms.form')
     def new(self, proj, **kwargs):
         """Display a NEW form."""
         tmpl_context.form = f_new
-        project = project_get(proj)
+        project = tmpl_context.project
 
         fargs = dict(proj=project.id, _project=project.name)
         fcargs = dict()
         return dict(title='Create a new scene', args=fargs, child_args=fcargs)
 
+    @project_set_active
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_new, error_handler=new)
     def post(self, proj, sc, description=None, **kwargs):
         """Create a new scene"""
         session = session_get()
-        project = project_get(proj)
+        project = tmpl_context.project
         
         # add scene to db
         scene = Scene(project.id, sc, description)
@@ -77,6 +79,7 @@ class Controller(RestController):
         notify.send(scene, update_type='added')
         return dict(msg='created scene "%s"' % scene.path, result='success')
     
+    @project_set_active
     @expose('spam.templates.forms.form')
     def edit(self, proj, sc, **kwargs):
         """Display a EDIT form."""
@@ -90,6 +93,7 @@ class Controller(RestController):
         return dict(title='Edit scene "%s"' % scene.path,
                                                 args=fargs, child_args=fcargs)
         
+    @project_set_active
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_edit, error_handler=edit)
@@ -101,6 +105,7 @@ class Controller(RestController):
         notify.send(scene)
         return dict(msg='updated scene "%s"' % scene.path, result='success')
 
+    @project_set_active
     @expose('spam.templates.forms.form')
     def get_delete(self, proj, sc, **kwargs):
         """Display a DELETE confirmation form."""
@@ -118,6 +123,7 @@ class Controller(RestController):
                 title='Are you sure you want to delete "%s"?' % scene.path,
                 warning=warning, args=fargs, child_args=fcargs)
 
+    @project_set_active
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_confirm, error_handler=get_delete)

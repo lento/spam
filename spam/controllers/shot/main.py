@@ -5,6 +5,7 @@ from spam.model import scene_get, shot_get
 from spam.lib.widgets import FormShotNew, FormShotEdit, FormShotConfirm
 from spam.lib import repo
 from spam.lib.notifications import notify
+from spam.lib.decorators import project_set_active
 
 from tabs import TabController
 
@@ -22,10 +23,10 @@ class Controller(RestController):
     
     tab = TabController()
     
+    @project_set_active
     @expose('spam.templates.scene.tabs.shots')
     def get_all(self, proj, sc):
         scene = scene_get(proj, sc)
-        tmpl_context.project = scene.project
         tmpl_context.scene = scene
         return dict(page='shot', sidebar=('projects', scene.project.id),
                                                             shots=scene.shots)
@@ -34,13 +35,11 @@ class Controller(RestController):
     def default(self, proj, sc, *args, **kwargs):
         return self.get_all(proj, sc)
 
+    @project_set_active
     @expose('json')
     @expose('spam.templates.tabbed_content')
     def get_one(self, proj, sc, sh):
         shot = shot_get(proj, sc, sh)
-        
-        # we add the project to tmpl_context to show the project sidebar
-        tmpl_context.project = shot.project
         
         tabs = [('Summary', 'tab/summary'),
                 ('Assets', 'tab/assets'),
@@ -49,6 +48,7 @@ class Controller(RestController):
         return dict(page='%s' % shot.path, tabs=tabs, 
                                         sidebar=('projects', shot.project.id))
 
+    @project_set_active
     @expose('spam.templates.forms.form')
     def new(self, proj, sc, **kwargs):
         """Display a NEW form."""
@@ -60,6 +60,7 @@ class Controller(RestController):
         fcargs = dict()
         return dict(title='Create a new shot', args=fargs, child_args=fcargs)
 
+    @project_set_active
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_new, error_handler=new)
@@ -83,6 +84,7 @@ class Controller(RestController):
         notify.send(shot, update_type='added')
         return dict(msg='created shot "%s"' % shot.path, result='success')
     
+    @project_set_active
     @expose('spam.templates.forms.form')
     def edit(self, proj, sc, sh, **kwargs):
         """Display a EDIT form."""
@@ -99,6 +101,7 @@ class Controller(RestController):
         return dict(title='Edit shot "%s"' % shot.path, args=fargs,
                                                             child_args=fcargs)
         
+    @project_set_active
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_edit, error_handler=edit)
@@ -116,6 +119,7 @@ class Controller(RestController):
         notify.send(shot)
         return dict(msg='updated shot "%s"' % shot.path, result='success')
 
+    @project_set_active
     @expose('spam.templates.forms.form')
     def get_delete(self, proj, sc, sh, **kwargs):
         """Display a DELETE confirmation form."""
@@ -135,6 +139,7 @@ class Controller(RestController):
                 title='Are you sure you want to delete "%s"?' % shot.path,
                 warning=warning, args=fargs, child_args=fcargs)
 
+    @project_set_active
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_confirm, error_handler=get_delete)

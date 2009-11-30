@@ -1,5 +1,6 @@
 from tg import expose, url, tmpl_context, redirect, validate
 from tg.controllers import RestController
+from pylons.i18n import ugettext as _, lazy_ugettext as l_
 from spam.model import session_get, Project, User, db_init, add_shard
 from spam.model import project_get_eager, project_get
 from spam.model import query_projects, query_projects_archived
@@ -7,6 +8,7 @@ from spam.lib.widgets import FormProjectNew, FormProjectEdit, FormProjectConfirm
 from spam.lib.widgets import ProjectsActive, ProjectsArchived
 from spam.lib import repo
 from spam.lib.notifications import notify
+from spam.lib.decorators import project_set_active
 
 from tabs import TabController
 
@@ -37,11 +39,11 @@ class Controller(RestController):
         return dict(page='admin/project', sidebar=('admin', 'projects'),
                                             active=active, archived=archived)
 
+    @project_set_active
     @expose('json')
     @expose('spam.templates.tabbed_content')
     def get_one(self, proj):
-        project = project_get_eager(proj)
-        tmpl_context.project = project
+        project = tmpl_context.project
         tabs = [('Summary', 'tab/summary'),
                 ('Scenes', url('/scene/%s' % project.id)),
                 ('Tasks', 'tab/tasks'),
@@ -91,34 +93,37 @@ class Controller(RestController):
         notify.send(project, update_type='added')
         return dict(msg='created project "%s"' % project.id, result='success')
     
+    @project_set_active
     @expose('spam.templates.forms.form')
     def edit(self, proj, **kwargs):
         """Display a EDIT form."""
         tmpl_context.form = f_edit
-        project = project_get(proj)
+        project = tmpl_context.project
         fargs = dict(proj=project.id, proj_d=project.id, name=project.name,
                                                 description=project.description)
         fcargs = dict()
         return dict(title='Edit project "%s"' % proj, args=fargs,
                                                             child_args=fcargs)
         
+    @project_set_active
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_edit, error_handler=edit)
     def put(self, proj, name=None, description=None, **kwargs):
         """Edit a project"""
-        project = project_get(proj)
+        project = tmpl_context.project
         if name: project.name = name
         if description: project.description = description
         project.touch()
         notify.send(project, update_type='updated')
         return dict(msg='updated project "%s"' % proj, result='success')
 
+    @project_set_active
     @expose('spam.templates.forms.form')
     def get_delete(self, proj, **kwargs):
         """Display a DELETE confirmation form."""
         tmpl_context.form = f_confirm
-        project = project_get(proj)
+        project = tmpl_context.project
         fargs = dict(_method='DELETE', proj=project.id, proj_d=project.id,
                      name_d=project.name,
                      description_d=project.description,
@@ -131,6 +136,7 @@ class Controller(RestController):
                 title='Are you sure you want to delete "%s"?' % project.name,
                 warning=warning, args=fargs, child_args=fcargs)
 
+    @project_set_active
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_confirm, error_handler=get_delete)
@@ -142,7 +148,7 @@ class Controller(RestController):
         (This should help prevent awful accidents) ;)
         """
         session = session_get()
-        project = project_get(proj)
+        project = tmpl_context.project
         session.delete(project)
         notify.send(project, update_type='deleted')
         return dict(msg='deleted project "%s"' % proj, result='success')
@@ -150,11 +156,12 @@ class Controller(RestController):
     # Custom REST-like actions
     custom_actions = ['archive', 'activate', 'upgrade']
     
+    @project_set_active
     @expose('spam.templates.forms.form')
     def get_archive(self, proj, **kwargs):
         """Display a ARCHIVE confirmation form."""
         tmpl_context.form = f_confirm
-        project = project_get(proj)
+        project = tmpl_context.project
         fargs = dict(_method='ARCHIVE', proj=project.id, proj_d=project.id,
                      name_d=project.name,
                      description_d=project.description,
@@ -163,11 +170,12 @@ class Controller(RestController):
         return dict(title='Are you sure you want to archive "%s"' % proj,
                                                 args=fargs, child_args=fcargs)
 
+    @project_set_active
     @expose('json')
     @expose('spam.templates.forms.result')
     def post_archive(self, proj, **kwargs):
         """Archive a project"""
-        project = project_get(proj)
+        project = tmpl_context.project
         project.archived = True
         project.touch()
         notify.send(project, update_type='archived')
@@ -198,11 +206,12 @@ class Controller(RestController):
         notify.send(project, update_type='activated')
         return dict(msg='activated project "%s"' % proj, result='success')
 
+    @project_set_active
     @expose('spam.templates.forms.form')
     def get_upgrade(self, proj, **kwargs):
         """Display a UPGRADE confirmation form."""
         tmpl_context.form = f_confirm
-        project = project_get(proj)
+        project = tmpl_context.project
         
         fargs = dict(_method='UPGRADE', proj=project.id, proj_d=project.id,
                      name_d=project.name,
@@ -212,11 +221,12 @@ class Controller(RestController):
         return dict(title='Are you sure you want to upgrade "%s" schema?' %
                                             proj, args=fargs, child_args=fcargs)
 
+    @project_set_active
     @expose('json')
     @expose('spam.templates.forms.result')
     def post_upgrade(self, proj, **kwargs):
         """Upgrade the DB schema for a project"""
-        project = project_get(proj)
+        project = tmpl_context.project
         project.schema_upgrade()
         project.touch()
         notify.send(project, update_type='updated')

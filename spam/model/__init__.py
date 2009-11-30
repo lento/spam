@@ -36,7 +36,7 @@ from sharding import shards, queries, shard_chooser, id_chooser, query_chooser
 def init_model(engine):
     """Call me before using any of the tables or classes in the model."""
 
-    shards['common'] = engine
+    shards[u'common'] = engine
     
     DBSession.configure(shards=shards)
     DBSession.configure(shard_chooser=shard_chooser, id_chooser=id_chooser,

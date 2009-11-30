@@ -26,8 +26,7 @@ spam.toggles_activate = function (select) {
     if (typeof(select)=="undefined" || select==null) {
         select = "";
     }
-    console.log('toggles_activate', select);
-    
+
     /* set toggle state based on cookies (toggles without an id are skipped)*/
     $(select + " .toggle").each(function() {
         id = this.id;
@@ -67,7 +66,7 @@ spam.overlays_activate = function(select) {
     if (typeof(select)=="undefined" || select==null) {
         select = "";
     }
-    console.log('overlays_activate', select);
+
     $(select + " .overlay").overlay(function() { 
         trigger = this.getTrigger();
         target = trigger.attr("href");
