@@ -1,5 +1,6 @@
 from tg import expose, url, tmpl_context, redirect, validate, require
 from tg.controllers import RestController
+from tg.decorators import with_trailing_slash
 from pylons.i18n import ugettext as _, lazy_ugettext as l_
 from spam.model import session_get, Project, User, db_init, add_shard
 from spam.model import project_get_eager, project_get
@@ -44,6 +45,7 @@ class Controller(RestController):
 
     @project_set_active
     @require(is_project_user())
+    @with_trailing_slash
     @expose('json')
     @expose('spam.templates.tabbed_content')
     def get_one(self, proj):

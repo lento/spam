@@ -1,5 +1,6 @@
 from tg import expose, url, tmpl_context, validate, require
 from tg.controllers import RestController
+from tg.decorators import with_trailing_slash
 from spam.model import session_get, Project, User, Shot
 from spam.model import scene_get, shot_get
 from spam.lib.widgets import FormShotNew, FormShotEdit, FormShotConfirm
@@ -39,6 +40,7 @@ class Controller(RestController):
 
     @project_set_active
     @require(is_project_user())
+    @with_trailing_slash
     @expose('json')
     @expose('spam.templates.tabbed_content')
     def get_one(self, proj, sc, sh):

@@ -1,11 +1,5 @@
 <%inherit file="spam.templates.master"/>
 
-<script type="text/javascript">
-    /* we make sure the url pathname has a trailing slash so we can use relative
-     * paths for panes */
-    spam.add_trailing_slash();
-</script>
-
 <div id="tabbed_content_wrapper"> 
     <!-- the tabs --> 
     <ul class="tabs">
