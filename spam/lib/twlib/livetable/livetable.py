@@ -74,9 +74,39 @@ class IconButton(TableData):
             self.label_text = name2label(id)
 
 
+class IconBox(TableData):
+    template = 'mako:spam.lib.twlib.livetable.templates.icon_box'
+    
+    field_class = 'iconbox'
+
+    def __new__(cls, id=None, parent=None, children=[], **kw):
+        # get children widgets form the "buttons" keyword argument (if present)
+        # or from the "buttons" attribute (a WidgetList containing widgets)
+        buttons = kw.pop('buttons', None)
+        if buttons is not None:
+            children = buttons
+        else:
+            children = getattr(cls, 'buttons', children)
+        return super(IconBox, cls).__new__(cls, id,parent,children,**kw)
+
+    @property
+    def ibuttons(self):
+        return self.ifilter_children(lambda x: isinstance(x,IconButton))
+
+    def update_params(self,d):
+        super(IconBox, self).update_params(d)
+        d['buttons'] = list(self.ibuttons)
+
+
 class TextData(TableData):
     template = 'mako:spam.lib.twlib.livetable.templates.text_field'
     
     field_class = 'text'
 
+
+class ThumbData(TableData):
+    template = 'mako:spam.lib.twlib.livetable.templates.thumb_data'
+    
+    field_class = 'thumbnail'
+    
 

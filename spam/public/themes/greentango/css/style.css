@@ -74,6 +74,8 @@ body {
 
 .iconbutton {
     display: block;
+    float: left;
+    padding: 1px;
     height: 16px;
     width: 16px;
     cursor: pointer;
@@ -93,6 +95,16 @@ body {
 }
 .iconbutton.schema_outdated {background: url(../images/icons/16x16/update-urgent.png) left center no-repeat;}
 
+.thumbnail {
+    width: 120px;
+    height: 68px;
+}
+
+.thumbnail img {
+    display: block;
+    width: 120px;
+    height: 68px;
+}
 
 /* Toggle */
 .toggle > .toggle_header {
@@ -142,6 +154,10 @@ body {
 table {
     /*border: 1px solid black;*/
     width: 100%;
+}
+
+table td {
+    vertical-align: top;
 }
 
 table td.icon {

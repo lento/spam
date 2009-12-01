@@ -4,7 +4,8 @@ from tw.api import Widget, WidgetsList, JSLink
 from tw.forms import TableForm, TextField, TextArea, HiddenField
 from tw.forms import CalendarDatePicker
 from tw.forms.validators import All, Regex, MaxLength, NotEmpty, Int
-from spam.lib.twlib.livetable import LiveTable, IconButton, TextData
+from spam.lib.twlib.livetable import LiveTable, IconButton, TextData, ThumbData
+from spam.lib.twlib.livetable import IconBox
 
 # Orbited
 orbited_address = config.get('orbited_address', 'http://localhost:9000')
@@ -85,15 +86,29 @@ class ProjectsArchived(LiveTable):
 
 class TableScenes(LiveTable):
     class fields(WidgetsList):
+        thumbnail = ThumbData(label_text='preview')
         name = TextData(sort_default=True)
         description = TextData()
+        actions = IconBox(buttons=[
+            IconButton(id='edit', icon_class='edit',
+              action=url('/scene/%(proj_id)s/%(name)s/edit')),
+            IconButton(id='delete', icon_class='delete',
+              action=url('/scene/%(proj_id)s/%(name)s/delete')),
+        ])
 
 
 class TableShots(LiveTable):
     class fields(WidgetsList):
+        thumbnail = ThumbData(label_text='preview')
         name = TextData(sort_default=True)
         description = TextData()
         frames = TextData()
+        actions = IconBox(buttons=[
+            IconButton(id='edit', icon_class='edit',
+              action=url('/shot/%(proj_id)s/%(parent_name)s/%(name)s/edit')),
+            IconButton(id='delete', icon_class='delete',
+              action=url('/shot/%(proj_id)s/%(parent_name)s/%(name)s/delete')),
+        ])
 
 
 # Form widgets

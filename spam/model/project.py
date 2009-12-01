@@ -3,6 +3,7 @@ Project data model.
 
 This is where the model for project data is defined.
 """
+import os.path
 from datetime import datetime
 
 from sqlalchemy import Table, ForeignKey, Column, UniqueConstraint
@@ -148,7 +149,11 @@ class Scene(DeclarativeBase):
     # Properties
     @property
     def path(self):
-        return '%s/%s/%s' % (self.proj_id, G.SCENES, self.name)
+        return os.path.join(self.proj_id, G.SCENES, self.name)
+    
+    @property
+    def thumbnail(self):
+        return os.path.join(G.PREVIEWS, self.path, 'thumb.png')
     
     # Special methods
     def __init__(self, proj, name, description=None):
@@ -165,6 +170,7 @@ class Scene(DeclarativeBase):
                     name=self.name,
                     description=self.description,
                     created=self.created.strftime('%Y/%m/%d %H:%M'),
+                    thumbnail=self.thumbnail,
                    )
 
 class Shot(AssetContainer):
@@ -210,6 +216,10 @@ class Shot(AssetContainer):
         return '%s/%s/%s/%s' % (self.proj_id, G.SCENES,
                                 self.parent.name, self.name)
     
+    @property
+    def parent_name(self):
+        return self.parent.name
+    
     # Special methods
     def __init__(self, proj_id, name, parent=None,
                        description=None, action=None, location=None,
@@ -232,6 +242,7 @@ class Shot(AssetContainer):
         return dict(id=self.id,
                     proj_id=self.proj_id,
                     parent_id=self.parent_id,
+                    parent_name=self.parent_name,
                     name=self.name,
                     description=self.description,
                     created=self.created.strftime('%Y/%m/%d %H:%M'),
