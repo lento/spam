@@ -54,7 +54,7 @@ def scene_create_dirs(proj, sc):
     try:
         os.makedirs(scene_path)
         os.makedirs(previews_path)
-    except (OSError):
+    except OSError as error:
         # error 17 is "file exists", in that case we just skip the exception
         if not error.errno==17:
             raise SPAMRepoError("Couldn't create directories for shot %s" % sh)
