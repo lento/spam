@@ -2,6 +2,10 @@ import logging
 from tg import url, expose, validate, tmpl_context
 from spam.lib.base import SPAMBaseController
 from spam.lib.widgets import FormProjectEdit
+from spam.lib.widgets import TableScenes
+from spam.model import project_get
+
+t_scenes = TableScenes()
 
 log = logging.getLogger(__name__)
 f_project_edit = FormProjectEdit(action=url('/test/putvalidation'))
@@ -34,4 +38,10 @@ class SandboxController(SPAMBaseController):
     @expose('spam.templates.sandbox.location')
     def location(self, *args, **kwargs):
         return dict(page='sandbox/location', args=args, kwargs=kwargs)
+    
+    @expose('spam.templates.sandbox.scenes')
+    def scenes(self, proj):
+        project = project_get(proj)
+        tmpl_context.t_scenes = t_scenes
+        return dict(scenes=project.scenes)
     

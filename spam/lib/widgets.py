@@ -26,6 +26,9 @@ jquery_tablesorter_js = JSLink(link=url('/js/jquery.tablesorter.js'))
 spam_js = JSLink(link=url('/parsedjs/spam.js'))
 spam_stomp_client_js = JSLink(link=url('/parsedjs/spam_stomp_client.js'))
 
+# load LiveTable js on every page, so we can use it in tabs
+livetable_js = JSLink(modname='spam.lib.twlib.livetable',
+                      filename='static/livetable.js')
 
 class NetworkingJS(Widget):
     javascript = [orbited_js, initsocket_js, stomp_js]
@@ -33,7 +36,7 @@ class NetworkingJS(Widget):
 class StartupJS(Widget):
     javascript = [jquery_js, jquery_ui_js, jquery_tools_js, jquery_cookie_js,
                   jquery_treeview_js, jquery_sprintf_js, jquery_tablesorter_js,
-                  spam_js]
+                  spam_js, livetable_js]
 
 # Custom LiveTable widgets
 class SchemaButton(IconButton):
@@ -78,6 +81,19 @@ class ProjectsArchived(LiveTable):
         name = TextData()
         description = TextData()
         created = TextData(sort_default=True)
+
+
+class TableScenes(LiveTable):
+    class fields(WidgetsList):
+        name = TextData(sort_default=True)
+        description = TextData()
+
+
+class TableShots(LiveTable):
+    class fields(WidgetsList):
+        name = TextData(sort_default=True)
+        description = TextData()
+        frames = TextData()
 
 
 # Form widgets

@@ -4,6 +4,7 @@ from tg.decorators import with_trailing_slash
 from spam.model import session_get, Scene
 from spam.model import project_get_eager, project_get, scene_get
 from spam.lib.widgets import FormSceneNew, FormSceneEdit, FormSceneConfirm
+from spam.lib.widgets import TableScenes
 from spam.lib import repo
 from spam.lib.notifications import notify
 from spam.lib.decorators import project_set_active
@@ -20,6 +21,7 @@ f_edit = FormSceneEdit(action=url('/scene/'))
 f_confirm = FormSceneConfirm(action=url('/scene/'))
 
 # livetable widgets
+t_scenes = TableScenes()
 
 class Controller(RestController):
     
@@ -30,6 +32,7 @@ class Controller(RestController):
     @expose('spam.templates.project.tabs.scenes')
     def get_all(self, proj):
         project = tmpl_context.project
+        tmpl_context.t_scenes = t_scenes
         return dict(page='scenes', sidebar=('projects', project.id),
                                                         scenes=project.scenes)
 
