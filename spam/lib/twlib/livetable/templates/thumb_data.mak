@@ -1,6 +1,7 @@
 function(data, id) {
-    src = (data[id]) ? data[id] : '';
-    field = '<img src=""></img>';
+    src = $.sprintf('${src or '' | n}', data);
+    dest = $.sprintf('${dest or '' | n}', data);
+    field = '<a href="' + dest + '"><img src="' + src + '"></img></a>';
     return field;
 }
 

@@ -5,7 +5,7 @@ from tw.forms import TableForm, TextField, TextArea, HiddenField
 from tw.forms import CalendarDatePicker
 from tw.forms.validators import All, Regex, MaxLength, NotEmpty, Int
 from spam.lib.twlib.livetable import LiveTable, IconButton, TextData, ThumbData
-from spam.lib.twlib.livetable import IconBox
+from spam.lib.twlib.livetable import IconBox, LinkData
 
 # Orbited
 orbited_address = config.get('orbited_address', 'http://localhost:9000')
@@ -88,8 +88,12 @@ class TableScenes(LiveTable):
     javascript = [spam_stomp_client_js]
     update_topic = '/topic/scenes'
     class fields(WidgetsList):
-        thumbnail = ThumbData(label_text='preview')
-        name = TextData(sort_default=True)
+        thumbnail = ThumbData(label_text='preview',
+            src=url('/repo/%(proj_id)s/%(name)s/thumb.png'),
+            dest=url('/repo/%(proj_id)s/%(name)s/preview.png')
+        )
+        name = LinkData(dest=url('/scene/%(proj_id)s/%(name)s/'),
+                        sort_default=True)
         description = TextData()
         actions = IconBox(buttons=[
             IconButton(id='edit', icon_class='edit',
@@ -103,8 +107,12 @@ class TableShots(LiveTable):
     javascript = [spam_stomp_client_js]
     update_topic = '/topic/shots'
     class fields(WidgetsList):
-        thumbnail = ThumbData(label_text='preview')
-        name = TextData(sort_default=True)
+        thumbnail = ThumbData(label_text='preview',
+            src=url('/repo/%(proj_id)s/%(parent_name)s/%(name)s/thumb.png'),
+            dest=url('/repo/%(proj_id)s/%(parent_name)s/%(name)s/preview.png')
+        )
+        name = LinkData(dest=url('/shot/%(proj_id)s/%(parent_name)s/%(name)s/'),
+                        sort_default=True)
         description = TextData()
         frames = TextData()
         actions = IconBox(buttons=[

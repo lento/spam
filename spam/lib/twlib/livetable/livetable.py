@@ -112,12 +112,20 @@ class IconBox(TableData):
 
 
 class TextData(TableData):
-    template = 'mako:spam.lib.twlib.livetable.templates.text_field'
+    template = 'mako:spam.lib.twlib.livetable.templates.text_data'
     
     field_class = 'text'
 
 
+class LinkData(TableData):
+    params = ['dest']
+    template = 'mako:spam.lib.twlib.livetable.templates.link_data'
+    
+    field_class = 'link'
+
+
 class ThumbData(TableData):
+    params = ['src', 'dest']
     template = 'mako:spam.lib.twlib.livetable.templates.thumb_data'
     
     field_class = 'thumbnail'
