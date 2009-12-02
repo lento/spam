@@ -64,8 +64,8 @@ class Controller(RestController):
         tmpl_context.form = f_new
         scene = scene_get(proj, sc)
         
-        fargs = dict(proj=scene.project.id, _project=scene.project.name,
-                     sc=scene.name, _scene=scene.name)
+        fargs = dict(proj=scene.project.id, project_=scene.project.name,
+                     sc=scene.name, scene_=scene.name)
         fcargs = dict()
         return dict(title='Create a new shot', args=fargs, child_args=fcargs)
 
@@ -102,9 +102,9 @@ class Controller(RestController):
         tmpl_context.form = f_edit
         shot = shot_get(proj, sc, sh)
         
-        fargs = dict(proj=shot.project.id, _project=shot.project.name,
-                     sc=shot.parent.name, _scene=shot.parent.name,
-                     sh=shot.name, _name=shot.name,
+        fargs = dict(proj=shot.project.id, project_=shot.project.name,
+                     sc=shot.parent.name, scene_=shot.parent.name,
+                     sh=shot.name, name_=shot.name,
                      description=shot.description, action=shot.action,
                      frames=shot.frames, handle_in=shot.handle_in,
                      handle_out=shot.handle_out)
@@ -139,12 +139,12 @@ class Controller(RestController):
         tmpl_context.form = f_confirm
         shot = shot_get(proj, sc, sh)
         fargs = dict(_method='DELETE',
-                     proj=shot.project.id, _project=shot.project.name,
-                     sc=shot.parent.name, _scene=shot.parent.name,
-                     sh=shot.name, _name=shot.name,
-                     _description=shot.description, _action=shot.action,
-                     _frames=shot.frames, _handle_in=shot.handle_in,
-                     _handle_out=shot.handle_out)
+                     proj=shot.project.id, project_=shot.project.name,
+                     sc=shot.parent.name, scene_=shot.parent.name,
+                     sh=shot.name, name_=shot.name,
+                     description_=shot.description, action_=shot.action,
+                     frames_=shot.frames, handle_in_=shot.handle_in,
+                     handle_out_=shot.handle_out)
         fcargs = dict()
         warning = ('This will only delete the shot entry in the database. '
                    'The data must be deleted manually if needed.')

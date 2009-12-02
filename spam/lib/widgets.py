@@ -126,7 +126,7 @@ class FormProjectEdit(TableForm):
     class fields(WidgetsList):
         _method = HiddenField(default='PUT', validator=None)
         proj = HiddenField(validator=NotEmpty)
-        proj_d = TextField(label_text='id', disabled=True, validator=None)
+        id_ = TextField(disabled=True, validator=None)
         name = TextField(validator=MaxLength(40))
         description = TextArea(cols=30, rows=3)
 
@@ -135,19 +135,17 @@ class FormProjectConfirm(TableForm):
     class fields(WidgetsList):
         _method = HiddenField(default='', validator=None)
         proj = HiddenField(validator=NotEmpty)
-        proj_d = TextField(label_text='id', disabled=True, validator=None)
-        name_d = TextField(label_text='name', disabled=True, validator=None)
-        description_d = TextArea(label_text='description', cols=30, rows=3,
-                                                disabled=True, validator=None)
-        create_d = CalendarDatePicker(label_text='created',
-                                                disabled=True, validator=None)
+        id_ = TextField(disabled=True, validator=None)
+        name_ = TextField(disabled=True, validator=None)
+        description_ = TextArea(cols=30, rows=3, disabled=True, validator=None)
+        created_ = CalendarDatePicker(disabled=True, validator=None)
 
 
 # Scene
 class FormSceneNew(TableForm):
     class fields(WidgetsList):
         proj = HiddenField(validator=NotEmpty)
-        _project = TextField(validator=None, disabled=True)
+        project_ = TextField(validator=None, disabled=True)
         sc = TextField(label_text='name', validator=All(Regex(G.pattern_name,
                                                 not_empty=True), MaxLength(15)))
         description = TextArea(cols=30, rows=3)
@@ -158,8 +156,8 @@ class FormSceneEdit(TableForm):
         _method = HiddenField(default='PUT', validator=None)
         proj = HiddenField(validator=NotEmpty)
         sc = HiddenField(validator=NotEmpty)
-        _project = TextField(validator=None, disabled=True)
-        _name = TextField(validator=None, disabled=True)
+        project_ = TextField(validator=None, disabled=True)
+        name_ = TextField(validator=None, disabled=True)
         description = TextArea(cols=30, rows=3)
 
 
@@ -168,9 +166,9 @@ class FormSceneConfirm(TableForm):
         _method = HiddenField(default='', validator=None)
         proj = HiddenField(validator=NotEmpty)
         sc = HiddenField(validator=NotEmpty)
-        _project = TextField(validator=None, disabled=True)
-        _name = TextField(validator=None, disabled=True)
-        _description = TextArea(cols=30, rows=3, disabled=True, validator=None)
+        project_ = TextField(validator=None, disabled=True)
+        name_ = TextField(validator=None, disabled=True)
+        description_ = TextArea(cols=30, rows=3, disabled=True, validator=None)
 
 
 # Shot
@@ -178,8 +176,8 @@ class FormShotNew(TableForm):
     class fields(WidgetsList):
         proj = HiddenField(validator=NotEmpty)
         sc = HiddenField(validator=NotEmpty)
-        _project = TextField(validator=None, disabled=True)
-        _scene = TextField(validator=None, disabled=True)
+        project_ = TextField(validator=None, disabled=True)
+        scene_ = TextField(validator=None, disabled=True)
         sh = TextField(label_text='name', validator=All(Regex(G.pattern_name,
                                                 not_empty=True), MaxLength(15)))
         description = TextArea(cols=30, rows=3)
@@ -195,9 +193,9 @@ class FormShotEdit(TableForm):
         proj = HiddenField(validator=NotEmpty)
         sc = HiddenField(validator=NotEmpty)
         sh = HiddenField(validator=NotEmpty)
-        _project = TextField(validator=None, disabled=True)
-        _scene = TextField(validator=None, disabled=True)
-        _name = TextField(validator=None, disabled=True)
+        project_ = TextField(validator=None, disabled=True)
+        scene_ = TextField(validator=None, disabled=True)
+        name_ = TextField(validator=None, disabled=True)
         description = TextArea(cols=30, rows=3)
         action = TextArea(cols=30, rows=3)
         frames = TextField(validator=Int)
@@ -211,14 +209,14 @@ class FormShotConfirm(TableForm):
         proj = HiddenField(validator=NotEmpty)
         sc = HiddenField(validator=NotEmpty)
         sh = HiddenField(validator=NotEmpty)
-        _project = TextField(validator=None, disabled=True)
-        _scene = TextField(validator=None, disabled=True)
-        _name = TextField(validator=None, disabled=True)
-        _description = TextArea(cols=30, rows=3, validator=None, disabled=True)
-        _action = TextArea(cols=30, rows=3, validator=None, disabled=True)
-        _frames = TextField(validator=None, disabled=True)
-        _handle_in = TextField(validator=None, disabled=True)
-        _handle_out = TextField(validator=None, disabled=True)
+        project_ = TextField(validator=None, disabled=True)
+        scene_ = TextField(validator=None, disabled=True)
+        name_ = TextField(validator=None, disabled=True)
+        description_ = TextArea(cols=30, rows=3, validator=None, disabled=True)
+        action_ = TextArea(cols=30, rows=3, validator=None, disabled=True)
+        frames_ = TextField(validator=None, disabled=True)
+        handle_in_ = TextField(validator=None, disabled=True)
+        handle_out_ = TextField(validator=None, disabled=True)
 
 
 

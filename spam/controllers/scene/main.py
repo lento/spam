@@ -63,7 +63,7 @@ class Controller(RestController):
         tmpl_context.form = f_new
         project = tmpl_context.project
 
-        fargs = dict(proj=project.id, _project=project.name)
+        fargs = dict(proj=project.id, project_=project.name)
         fcargs = dict()
         return dict(title='Create a new scene', args=fargs, child_args=fcargs)
 
@@ -97,8 +97,8 @@ class Controller(RestController):
         tmpl_context.form = f_edit
         scene = scene_get(proj, sc)
 
-        fargs = dict(proj=scene.project.id, _project=scene.project.name,
-                     sc=scene.name, _name=scene.name,
+        fargs = dict(proj=scene.project.id, project_=scene.project.name,
+                     sc=scene.name, name_=scene.name,
                      description=scene.description)
         fcargs = dict()
         return dict(title='Edit scene "%s"' % scene.path,
@@ -126,9 +126,9 @@ class Controller(RestController):
         scene = scene_get(proj, sc)
 
         fargs = dict(_method='DELETE',
-                     proj=scene.project.id, _project=scene.project.name,
-                     sc=scene.name, _name=scene.name,
-                     _description=scene.description)
+                     proj=scene.project.id, project_=scene.project.name,
+                     sc=scene.name, name_=scene.name,
+                     description_=scene.description)
         fcargs = dict()
         warning = ('This will only delete the scene entry in the database. '
                    'The data must be deleted manually if needed.')

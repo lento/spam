@@ -108,7 +108,7 @@ class Controller(RestController):
         """Display a EDIT form."""
         tmpl_context.form = f_edit
         project = tmpl_context.project
-        fargs = dict(proj=project.id, proj_d=project.id, name=project.name,
+        fargs = dict(proj=project.id, id_=project.id, name=project.name,
                                                 description=project.description)
         fcargs = dict()
         return dict(title='Edit project "%s"' % proj, args=fargs,
@@ -135,10 +135,10 @@ class Controller(RestController):
         """Display a DELETE confirmation form."""
         tmpl_context.form = f_confirm
         project = tmpl_context.project
-        fargs = dict(_method='DELETE', proj=project.id, proj_d=project.id,
-                     name_d=project.name,
-                     description_d=project.description,
-                     create_d=project.created)
+        fargs = dict(_method='DELETE', proj=project.id, id_=project.id,
+                     name_=project.name,
+                     description_=project.description,
+                     created_=project.created)
         fcargs = dict()
         warning = ('This will only delete the project entry in the database. '
                    'The data and history of the project must be deleted '
@@ -175,10 +175,10 @@ class Controller(RestController):
         """Display a ARCHIVE confirmation form."""
         tmpl_context.form = f_confirm
         project = tmpl_context.project
-        fargs = dict(_method='ARCHIVE', proj=project.id, proj_d=project.id,
-                     name_d=project.name,
-                     description_d=project.description,
-                     create_d=project.created)
+        fargs = dict(_method='ARCHIVE', proj=project.id, id_=project.id,
+                     name_=project.name,
+                     description_=project.description,
+                     created_=project.created)
         fcargs = dict()
         return dict(title='Are you sure you want to archive "%s"' % proj,
                                                 args=fargs, child_args=fcargs)
@@ -203,10 +203,10 @@ class Controller(RestController):
         project = query_projects_archived().filter_by(id=proj).one()
         log.debug('get_activate: %s' % project)
         
-        fargs = dict(_method='ACTIVATE', proj=project.id, proj_d=project.id,
-                     name_d=project.name,
-                     description_d=project.description,
-                     create_d=project.created)
+        fargs = dict(_method='ACTIVATE', proj=project.id, id_=project.id,
+                     name_=project.name,
+                     description_=project.description,
+                     created_=project.created)
         fcargs = dict()
         return dict(title='Are you sure you want to activate "%s"' % proj,
                                                 args=fargs, child_args=fcargs)
@@ -230,10 +230,10 @@ class Controller(RestController):
         tmpl_context.form = f_confirm
         project = tmpl_context.project
         
-        fargs = dict(_method='UPGRADE', proj=project.id, proj_d=project.id,
-                     name_d=project.name,
-                     description_d=project.description,
-                     create_d=project.created)
+        fargs = dict(_method='UPGRADE', proj=project.id, id_=project.id,
+                     name_=project.name,
+                     description_=project.description,
+                     created_=project.created)
         fcargs = dict()
         return dict(title='Are you sure you want to upgrade "%s" schema?' %
                                             proj, args=fargs, child_args=fcargs)
