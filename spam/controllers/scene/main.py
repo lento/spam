@@ -152,7 +152,7 @@ class Controller(RestController):
         scene = scene_get(proj, sc)
         
         session.delete(scene)
-        notify.send(scene, update_type='removed')
+        notify.send(scene, update_type='deleted')
         return dict(msg='deleted scene "%s"' % scene.path, result='success')
     
     # Custom REST-like actions

@@ -22,8 +22,13 @@ class LiveTable(Widget):
               'update_topic', 'update_condition', 'update_functions']
     template = 'mako:spam.lib.twlib.livetable.templates.livetable'
     
+    js_calls = []
     show_headers = False
-    update_functions = '{}';
+    update_condition = 'true'
+    update_functions = ('{"added": livetable.addrow,'
+                        ' "deleted": livetable.deleterow,'
+                        ' "updated": livetable.updaterow}'
+                       )
     
     def __new__(cls, id=None, parent=None, children=[], **kw):
         # add livetable javascripts to those defined by the subclassed widgets
@@ -41,6 +46,14 @@ class LiveTable(Widget):
             children = getattr(cls, 'fields', children)
         return super(LiveTable, cls).__new__(cls, id,parent,children,**kw)
 
+    def __init__(self, *args, **kwargs):
+        print('LiveTable.__init__(): %s' % self.js_calls)
+        super(LiveTable, self).__init__(*args, **kwargs)
+    
+        # call javascript functions
+        for call in self.js_calls:
+            self.add_call(call)
+    
     @property
     def ifields(self):
         return self.ifilter_children(lambda x: isinstance(x,TableData))

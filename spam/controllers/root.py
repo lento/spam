@@ -82,7 +82,7 @@ class RootController(SPAMBaseController):
     
     @expose(content_type='text/javascript')
     @require(not_anonymous(msg=l_('Please login')))
-    def parsedjs(self, script):
+    def parsedjs(self, script, *args, **kwargs):
         scriptname = os.path.splitext(script)[0]
         templatename = 'spam.templates.parsedjs.%s' % scriptname
         

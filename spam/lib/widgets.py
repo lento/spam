@@ -1,6 +1,6 @@
 from tg import config, url
 from tg import app_globals as G
-from tw.api import Widget, WidgetsList, JSLink
+from tw.api import Widget, WidgetsList, JSLink, js_function
 from tw.forms import TableForm, TextField, TextArea, HiddenField
 from tw.forms import CalendarDatePicker
 from tw.forms.validators import All, Regex, MaxLength, NotEmpty, Int
@@ -37,7 +37,7 @@ class NetworkingJS(Widget):
 class StartupJS(Widget):
     javascript = [jquery_js, jquery_ui_js, jquery_tools_js, jquery_cookie_js,
                   jquery_treeview_js, jquery_sprintf_js, jquery_tablesorter_js,
-                  spam_js, livetable_js]
+                  spam_js]
 
 # Custom LiveTable widgets
 class SchemaButton(IconButton):
@@ -85,6 +85,8 @@ class ProjectsArchived(LiveTable):
 
 
 class TableScenes(LiveTable):
+    javascript = [spam_stomp_client_js]
+    update_topic = '/topic/scenes'
     class fields(WidgetsList):
         thumbnail = ThumbData(label_text='preview')
         name = TextData(sort_default=True)
@@ -98,6 +100,8 @@ class TableScenes(LiveTable):
 
 
 class TableShots(LiveTable):
+    javascript = [spam_stomp_client_js]
+    update_topic = '/topic/shots'
     class fields(WidgetsList):
         thumbnail = ThumbData(label_text='preview')
         name = TextData(sort_default=True)

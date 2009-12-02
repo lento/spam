@@ -168,7 +168,7 @@ class Controller(RestController):
         shot = shot_get(proj, sc, sh)
         
         session.delete(shot)
-        notify.send(shot, update_type='removed')
+        notify.send(shot, update_type='deleted')
         return dict(msg='deleted shot "%s"' % shot.path, result='success')
     
     # Custom REST-like actions
