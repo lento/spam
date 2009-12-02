@@ -7,14 +7,16 @@ import os.path
 from datetime import datetime
 
 from sqlalchemy import Table, ForeignKey, Column, UniqueConstraint
-from sqlalchemy import ForeignKeyConstraint, and_
+from sqlalchemy import ForeignKeyConstraint, and_, desc
 from sqlalchemy.types import Unicode, UnicodeText, Integer, DateTime, Boolean
+from sqlalchemy.types import String
 from sqlalchemy.orm import relation, synonym, backref
 
 from tg import app_globals as G
 from spam.model import DeclarativeBase, metadata
 from spam.model import migraterepo_get_version, db_get_version
 from spam.model import db_upgrade, db_downgrade
+from spam.model.auth import User
 
 __all__ = ['Project']
 
@@ -325,5 +327,173 @@ class LibraryGroup(AssetContainer):
                     description=self.description,
                     #created=self.created.strftime('%Y/%m/%d %H:%M'),
                    )
+
+############################################################
+# Assets
+############################################################
+class Asset(DeclarativeBase):
+    """Asset"""
+    __tablename__ = "assets"
+    __table_args__ = (UniqueConstraint('category_id', 'parent_id', 'name'),
+                      ForeignKeyConstraint(['parent_id', 'proj_id'],
+                          ['asset_containers.id', 'asset_containers.proj_id']),
+                      {})
+    
+    # Columns
+    id = Column(Integer, autoincrement=True, primary_key=True)
+    proj_id = Column(Unicode(10))
+    name = Column(Unicode(50))
+    parent_id = Column(Integer)
+    category_id = Column(Integer, ForeignKey('asset_categories.id'))
+    user_id = Column(Integer, ForeignKey('auth_users.user_id'))
+    checkedout = Column(Boolean, default=False)
+    submitter_id = Column(Integer, ForeignKey('auth_users.user_id'))
+    submitted = Column(Boolean, default=False)
+    submitted_date = Column(DateTime)
+    approver_id = Column(Integer, ForeignKey('auth_users.user_id'))
+    approved = Column(Boolean, default=False)
+    approved_date = Column(DateTime)
+
+    # Relations
+    category = relation('AssetCategory', backref=backref('assets'))
+    
+    user = relation('User',
+                        primaryjoin=user_id==User.user_id,
+                        backref=backref('assets'))
+
+    parent = relation('AssetContainer', backref=backref('assets'))
+
+    submitted_by = relation('User',
+                        primaryjoin=submitter_id==User.user_id,
+                        backref=backref('submitted_assets'))
+
+    approved_by = relation('User',
+                        primaryjoin=approver_id==User.user_id,
+                        backref=backref('approved_assets'))
+    
+    # Special methods
+    def __init__(self, proj, parent, category, name, user):
+        self.proj_id = proj
+        self.parent = parent
+        self.category = category
+        self.name = name
+        
+        #create version zero
+        AssetVersion(proj, self, 0, user, '')
+    
+    def __repr__(self):
+        return '<Asset: %s>' % (self.id or 0)
+
+    def __json__(self):
+        return {'id': self.id,
+                'name': self.name,
+                'parent_id': self.parent_id,
+                'parent': self.parent,
+                #'path': self.path,
+                #'repopath': self.repopath,
+                #'basedir': self.basedir,
+                #'repobasedir': self.repobasedir,
+                #'has_preview': self.has_preview,
+                #'preview_small_repopath': self.preview_small_repopath,
+                #'preview_large_repopath': self.preview_large_repopath,
+                #'current': self.current,
+                'checkedout': self.checkedout,
+                'user': self.user,
+                #'status': self.status,
+                #'flow': self.flow,
+                #'waiting_for_approval': self.waiting_for_approval,
+                'approved': self.approved,
+                'category': self.category,
+                }
+
+
+class AssetCategory(DeclarativeBase):
+    """Asset category"""
+    __tablename__ = "asset_categories"
+    
+    # Columns
+    id = Column(Integer, autoincrement=True, primary_key=True)
+    name = Column(Unicode(30), unique=True)
+    ordering = Column(Integer)
+    #naming_convention = Column(Unicode(30))
+    
+    # Relations
+    #users = relation('User', secondary=users_category_table,
+    #                        order_by='User.user_name',
+    #                        backref=backref('categories'))
+
+    #supervisors = relation('User', secondary=supervisors_category_table,
+    #                        order_by='User.user_name',
+    #                        backref=backref('supervised_categories'))
+
+    # Special methods
+    def __init__(self, name, ordering=None):
+        self.name = name
+        self.ordering = ordering
+
+    def __repr__(self):
+        return '<AssetCategory: %s "%s">' % (self.id or 0, self.name)
+
+    def __json__(self):
+        return {'id': self.id,
+                'name': self.name,
+                }
+
+
+class AssetVersion(DeclarativeBase):
+    """Asset version"""
+    __tablename__ = "asset_versions"
+    
+    # Columns
+    id = Column(Integer, primary_key=True)
+    proj_id = Column(Unicode(10))
+    asset_id = Column(Integer, ForeignKey('assets.id'))
+    ver = Column(Integer)
+    created = Column(DateTime, default=datetime.now)
+    repoid = Column(String(50))
+    #has_preview = Column(Boolean)
+    #preview_ext = Column(String(10))
+    user_id = Column(Integer, ForeignKey('auth_users.user_id'))
+    #note_id = Column(None, ForeignKey('notes_associations.assoc_id'))
+
+    # Relations
+    asset = relation('Asset',
+                         primaryjoin=and_(asset_id==Asset.id,
+                                          proj_id==Asset.proj_id),
+                         foreign_keys=[asset_id, proj_id],
+                         backref=backref('versions', order_by=desc(ver)))
+    
+    user = relation('User')
+    
+    # Properties
+    @property
+    def fmtver(self):
+        return self.ver and 'v%03d' % self.ver
+    
+    # Special methods
+    def __init__(self, proj, asset, ver, user, repoid, has_preview=False,
+                                                            preview_ext=None):
+        self.proj_id = proj
+        self.asset = asset
+        self.ver = ver
+        self.user = user
+        self.repoid = repoid
+        #self.has_preview = has_preview
+        #self.preview_ext = preview_ext
+
+    def __repr__(self):
+        return '<AssetVersion: "%s" v%03d>' % (self.asset_id, self.ver)
+
+    def __json__(self):
+        return {'object_id': self.object_id,
+                'ver': self.ver,
+                'fmtver': self.fmtver,
+                'created': self.created,
+                #'has_preview': self.has_preview,
+                #'preview_small_repopath': self.preview_small_repopath,
+                #'preview_large_repopath': self.preview_large_repopath,
+                #'strftime': self.strftime,
+                }
+
 
 

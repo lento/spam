@@ -6,14 +6,14 @@ query.
 """
 from sqlalchemy import Column
 from sqlalchemy.sql import ClauseVisitor, operators
-from spam.model import Project, User, Group, Permission
+from spam.model import Project, User, Group, Permission, AssetCategory
 
 import logging
 log = logging.getLogger(__name__)
 
 shards = {}
 queries = {'query': [], 'id': []}
-common_classes = [Project, User, Group, Permission]
+common_classes = [Project, User, Group, Permission, AssetCategory]
 common_tables = set([cls.__table__ for cls in common_classes])
 
 def shard_chooser(mapper, instance, clause=None):

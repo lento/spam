@@ -23,7 +23,8 @@ from versioning import db_upgrade, db_downgrade
 
 # Models import
 from auth import User, Group, Permission
-from project import Project, Scene, Shot, LibraryGroup
+from project import Project, Scene, Shot, LibraryGroup, Asset, AssetCategory
+from project import AssetVersion
 
 # Caching & helpers
 from util import query_projects, query_projects_archived, project_get
