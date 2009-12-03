@@ -31,7 +31,7 @@ spam.toggles_activate = function (select) {
     });            
     
     /* instrument arrows to open and close the toggle */
-    $(select + ".toggle_arrow").click(function(event){
+    $(select + " .toggle_arrow").click(function(event){
         toggle = $(this).parents(".toggle:first");
         id = toggle.attr("id");
         

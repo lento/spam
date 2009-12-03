@@ -50,7 +50,8 @@ class Controller(RestController):
         shot = shot_get(proj, sc, sh)
         
         tabs = [('Summary', 'tab/summary'),
-                ('Assets', 'tab/assets'),
+                ('Assets', url('/asset/%s/shot/%s' %
+                                                (shot.project.id, shot.id))),
                 ('Tasks', 'tab/tasks'),
                ]
         return dict(page='%s' % shot.path, tabs=tabs, 

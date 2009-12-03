@@ -468,7 +468,7 @@ class AssetVersion(DeclarativeBase):
     # Properties
     @property
     def fmtver(self):
-        return self.ver and 'v%03d' % self.ver
+        return 'v%03d' % self.ver
     
     # Special methods
     def __init__(self, proj, asset, ver, user, repoid, has_preview=False,
@@ -485,10 +485,10 @@ class AssetVersion(DeclarativeBase):
         return '<AssetVersion: "%s" v%03d>' % (self.asset_id, self.ver)
 
     def __json__(self):
-        return {'object_id': self.object_id,
+        return {'asset_id': self.asset_id,
                 'ver': self.ver,
                 'fmtver': self.fmtver,
-                'created': self.created,
+                'created': self.created.strftime('%Y/%m/%d %H:%M'),
                 #'has_preview': self.has_preview,
                 #'preview_small_repopath': self.preview_small_repopath,
                 #'preview_large_repopath': self.preview_large_repopath,

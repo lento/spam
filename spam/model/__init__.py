@@ -29,6 +29,7 @@ from project import AssetVersion
 # Caching & helpers
 from util import query_projects, query_projects_archived, project_get
 from util import project_get_eager, session_get, add_shard, scene_get, shot_get
+from util import container_get, asset_get, category_get
 
 # Sharding
 from sharding import shards, queries, shard_chooser, id_chooser, query_chooser

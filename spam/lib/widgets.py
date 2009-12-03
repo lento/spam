@@ -2,8 +2,8 @@ from tg import config, url
 from tg import app_globals as G
 from tw.api import Widget, WidgetsList, JSLink, js_function
 from tw.forms import TableForm, TextField, TextArea, HiddenField
-from tw.forms import CalendarDatePicker
-from tw.forms.validators import All, Regex, MaxLength, NotEmpty, Int
+from tw.forms import CalendarDatePicker, SingleSelectField
+from tw.forms.validators import All, Any, Regex, MaxLength, NotEmpty, Int
 from spam.lib.twlib.livetable import LiveTable, IconButton, TextData, ThumbData
 from spam.lib.twlib.livetable import IconBox, LinkData
 
@@ -123,6 +123,26 @@ class TableShots(LiveTable):
         ])
 
 
+class TableAssets(LiveTable):
+    javascript = [spam_stomp_client_js]
+    update_topic = '/topic/assets'
+    class fields(WidgetsList):
+        thumbnail = ThumbData(label_text='preview',
+            src=url('/repo/%(proj_id)s/thumb.png'),
+            dest=url('/repo/%(proj_id)s/preview.png')
+        )
+        name = TextData(sort_default=True)
+
+
+class TableAssetHistory(LiveTable):
+    class fields(WidgetsList):
+        thumbnail = ThumbData(label_text='preview',
+            src=url('/repo/%(proj_id)s/thumb.png'),
+            dest=url('/repo/%(proj_id)s/preview.png')
+        )
+        fmtver = TextData(label_text='ver')
+
+
 # Form widgets
 
 # Project
@@ -229,6 +249,34 @@ class FormShotConfirm(TableForm):
         frames_ = TextField(validator=None, disabled=True)
         handle_in_ = TextField(validator=None, disabled=True)
         handle_out_ = TextField(validator=None, disabled=True)
+
+
+# Asset
+class FormAssetNew(TableForm):
+    class fields(WidgetsList):
+        proj = HiddenField(validator=NotEmpty)
+        container_type = HiddenField(validator=NotEmpty)
+        container_id = HiddenField(validator=NotEmpty)
+        project_ = TextField(validator=None, disabled=True)
+        name = TextField(validator=Any(Regex(G.pattern_file, not_empty=True),
+                                       Regex(G.pattern_seq, not_empty=True)))
+        category_id = SingleSelectField(label_text='category', options=[],
+                validator=Int(min=1,
+                              messages={'tooLow': 'Please choose a category'}),
+                default=0)
+
+class FormAssetEdit(TableForm):
+    class fields(WidgetsList):
+        _method = HiddenField(default='PUT', validator=None)
+        proj = HiddenField(validator=NotEmpty)
+        project_ = TextField(validator=None, disabled=True)
+
+
+class FormAssetConfirm(TableForm):
+    class fields(WidgetsList):
+        _method = HiddenField(default='', validator=None)
+        proj = HiddenField(validator=NotEmpty)
+        project_ = TextField(validator=None, disabled=True)
 
 
 

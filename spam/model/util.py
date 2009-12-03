@@ -5,7 +5,8 @@ from tg import config
 from sqlalchemy import create_engine
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 from spam.lib.exceptions import SPAMDBError, SPAMDBNotFound
-from spam.model import DBSession, Project, Scene, Shot
+from spam.model import DBSession, Project, Scene, Shot, LibraryGroup, Asset
+from spam.model import AssetCategory
 
 def add_shard(proj):
     db_url_tmpl = config.get('db_url_tmpl', 'sqlite:///spam_%s.sqlite')
@@ -55,6 +56,48 @@ def shot_get(proj, sc, sh):
         raise SPAMDBNotFound('Shot "%s" could not be found.' % sh)
     except MultipleResultsFound:
         raise SPAMDBError('Error when searching shot "%s".' % sh)
+
+def container_get(proj, container_type, container_id):
+    """return a container"""
+    if container_type=='shot':
+        query = session_get().query(Shot)
+    elif container_type=='libgroup':
+        query = session_get().query(LibraryGroup)
+    query = query.filter_by(proj_id=proj)
+    try:
+        return query.filter_by(id=container_id).one()
+    except NoResultFound:
+        raise SPAMDBNotFound('Container "%s %s" could not be found.' %
+                                                (container_type, container_id))
+    except MultipleResultsFound:
+        raise SPAMDBError('Error when searching container "%s %s".' %
+                                                (container_type, container_id))
+
+def asset_get(proj, asset_id):
+    """return an asset"""
+    query = session_get().query(Asset).filter_by(proj_id=proj)
+    try:
+        return query.filter_by(id=asset_id).one()
+    except NoResultFound:
+        raise SPAMDBNotFound('Asset "%s" could not be found.' % asset_id)
+    except MultipleResultsFound:
+        raise SPAMDBError('Error when searching asset "%s".' % asset_id)
+
+def category_get(id_or_name):
+    """return a asset category"""
+    query = session_get().query(AssetCategory)
+    if isinstance(id_or_name, int):
+        query = query.filter_by(id=id_or_name)
+    elif isinstance(id_or_name, str):
+        query = query.filter_by(name=id_or_name)
+    else:
+        raise SPAMDBError('Error when searching category "%s".' % id_or_name)
+    try:
+        return query.one()
+    except NoResultFound:
+        raise SPAMDBNotFound('Category "%s" could not be found.' % sh)
+    except MultipleResultsFound:
+        raise SPAMDBError('Error when searching category "%s".' % sh)
 
 # Cache
 def eagerload_maker(proj):
