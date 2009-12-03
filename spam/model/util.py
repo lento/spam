@@ -57,6 +57,16 @@ def shot_get(proj, sc, sh):
     except MultipleResultsFound:
         raise SPAMDBError('Error when searching shot "%s".' % sh)
 
+def libgroup_get(proj, libgroup_id):
+    """Return a lazyloaded libgroup"""
+    query = session_get().query(LibraryGroup).filter_by(proj_id=proj)
+    try:
+        return query.filter_by(id=libgroup_id).one()
+    except NoResultFound:
+        raise SPAMDBNotFound('LibraryGroup "%s" could not be found.' % libgroup_id)
+    except MultipleResultsFound:
+        raise SPAMDBError('Error when searching Librarygroup "%s".' % libgroup_id)
+
 def container_get(proj, container_type, container_id):
     """return a container"""
     if container_type=='shot':

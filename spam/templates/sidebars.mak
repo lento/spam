@@ -61,7 +61,7 @@
 
 <%def name="insert_libgroup(libgroup)">
     <li>
-        <a href="${tg.url('/libgroup/%s/%s/' % (c.project.id, libgroup.name))}">${libgroup.name}</a>
+        <a href="${tg.url('/libgroup/%s/%s/' % (c.project.id, libgroup.id))}">${libgroup.name}</a>
         % if libgroup.subgroups:
             <ul>
                 % for subgroup in libgroup.subgroups:
@@ -92,8 +92,10 @@
             <ul id="sb_project_tree">
                 <li>
                     <%
-                        tab_url = tg.url('/scene/%s' % c.project.id)
-                        scenes_url = tg.url('/project/%s/#%s' % (c.project.id, tab_url))
+                        tab_scenes_url = tg.url('/scene/%s' % c.project.id)
+                        scenes_url = tg.url('/project/%s/#%s' % (c.project.id, tab_scenes_url))
+                        tab_library_url = tg.url('/libgroup/%s' % c.project.id)
+                        library_url = tg.url('/project/%s/#%s' % (c.project.id, tab_library_url))
                     %>
                     <a href="${scenes_url}">scenes</a>
                     % if c.project.scenes:
@@ -120,7 +122,7 @@
                     % endif
                 </li>
                 <li>
-                    <span>library</span>
+                    <a href="${library_url}">library</a>
                     % if c.project.libgroups:
                         <ul id="sb_project_libgroups">
                             % for libgroup in c.project.libgroups:

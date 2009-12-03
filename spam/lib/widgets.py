@@ -142,6 +142,25 @@ class TableShots(LiveTable):
         ])
 
 
+class TableLibgroups(LiveTable):
+    javascript = [spam_stomp_client_js]
+    update_topic = '/topic/libgroups'
+    class fields(WidgetsList):
+        thumbnail = ThumbData(label_text='preview',
+            src=url('/repo/%(proj_id)s/%(id)s/thumb.png'),
+            dest=url('/repo/%(proj_id)s/%(id)s/preview.png')
+        )
+        name = LinkData(dest=url('/libgroup/%(proj_id)s/%(id)s/'),
+                        sort_default=True)
+        description = TextData()
+        actions = IconBox(buttons=[
+            IconButton(id='edit', icon_class='edit',
+              action=url('/libgroup/%(proj_id)s/%(id)s/edit')),
+            IconButton(id='delete', icon_class='delete',
+              action=url('/libgroup/%(proj_id)s/%(id)s/delete')),
+        ])
+
+
 class TableAssets(LiveTable):
     params = ['category']
     
@@ -296,6 +315,37 @@ class FormShotConfirm(TableForm):
         frames_ = TextField(validator=None, disabled=True)
         handle_in_ = TextField(validator=None, disabled=True)
         handle_out_ = TextField(validator=None, disabled=True)
+
+
+# Libgroups
+class FormLibgroupNew(TableForm):
+    class fields(WidgetsList):
+        proj = HiddenField(validator=NotEmpty)
+        parent_id = HiddenField()
+        project_ = TextField(validator=None, disabled=True)
+        name = TextField(validator=All(Regex(G.pattern_name, not_empty=True),
+                                       MaxLength(15)))
+        description = TextArea(cols=30, rows=3)
+
+
+class FormLibgroupEdit(TableForm):
+    class fields(WidgetsList):
+        _method = HiddenField(default='PUT', validator=None)
+        proj = HiddenField(validator=NotEmpty)
+        libgroup_id = HiddenField(validator=NotEmpty)
+        project_ = TextField(validator=None, disabled=True)
+        name_ = TextField(validator=None, disabled=True)
+        description = TextArea(cols=30, rows=3)
+
+
+class FormLibgroupConfirm(TableForm):
+    class fields(WidgetsList):
+        _method = HiddenField(default='', validator=None)
+        proj = HiddenField(validator=NotEmpty)
+        libgroup_id = HiddenField(validator=NotEmpty)
+        project_ = TextField(validator=None, disabled=True)
+        name_ = TextField(validator=None, disabled=True)
+        description_ = TextArea(cols=30, rows=3, disabled=True, validator=None)
 
 
 # Asset

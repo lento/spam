@@ -52,6 +52,7 @@ class Controller(RestController):
         project = tmpl_context.project
         tabs = [('Summary', 'tab/summary'),
                 ('Scenes', url('/scene/%s' % project.id)),
+                ('Library', url('/libgroup/%s' % project.id)),
                 ('Tasks', 'tab/tasks'),
                ]
         return dict(page='project/%s' % project.id, tabs=tabs,
