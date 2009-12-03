@@ -26,9 +26,8 @@
                 </div>
                 <div class="toggleable">
                     <ul class="links">
-                        <li class="users"><a href="${tg.url('/admin/users')}">${_('users')}</a></li>
-                        <li class="groups"><a href="${tg.url('/admin/groups')}">${_('groups')}</a></li>
-                        <li class="permissions"><a href="${tg.url('/admin/permissions')}">${_('permissions')}</a></li>
+                        <li class="users"><a href="${tg.url('/user/')}">${_('users')}</a></li>
+                        <li class="categories"><a href="${tg.url('/category/')}">${_('categories')}</a></li>
                         <li class="projects"><a href="${tg.url('/project/')}">${_('projects')}</a></li>
                     </ul>
                 </div>

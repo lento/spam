@@ -13,7 +13,7 @@ from spam.model import User, Group, Permission, Project
 from spam.controllers.error import ErrorController
 from spam.controllers.user import UserController
 from spam.controllers.sandbox import SandboxController
-from spam.controllers import project, scene, shot, asset
+from spam.controllers import project, scene, shot, asset, category
 
 
 __all__ = ['RootController']
@@ -39,6 +39,7 @@ class RootController(SPAMBaseController):
     scene = scene.Controller()
     shot = shot.Controller()
     asset = asset.Controller()
+    category = category.Controller()
     
     @expose()
     def index(self):

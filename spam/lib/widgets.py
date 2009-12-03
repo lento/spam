@@ -44,6 +44,20 @@ class SchemaButton(IconButton):
     template = 'mako:spam.templates.widgets.schema_button'
 
 # Live tables
+class TableCategories(LiveTable):
+    javascript = [spam_stomp_client_js]
+    update_topic = '/topic/categories'
+    class fields(WidgetsList):
+        ordering = TextData(sort_default=True)
+        name = TextData()
+        actions = IconBox(buttons=[
+            IconButton(id='edit', icon_class='edit',
+              action=url('/category/%(name)s/edit')),
+            IconButton(id='delete', icon_class='delete',
+              action=url('/category/%(name)s/delete')),
+        ])
+
+
 class ProjectsActive(LiveTable):
     javascript = [spam_stomp_client_js]
     update_topic = '/topic/projects'
@@ -144,6 +158,28 @@ class TableAssetHistory(LiveTable):
 
 
 # Form widgets
+
+# Category
+class FormCategoryNew(TableForm):
+    class fields(WidgetsList):
+        name = TextField(validator=All(Regex(G.pattern_name, not_empty=True),
+                                       MaxLength(30)))
+
+
+class FormCategoryEdit(TableForm):
+    class fields(WidgetsList):
+        _method = HiddenField(default='PUT', validator=None)
+        category_id = HiddenField(validator=All(NotEmpty, Int))
+        name = TextField(validator=All(Regex(G.pattern_name, not_empty=True),
+                                       MaxLength(30)))
+
+
+class FormCategoryConfirm(TableForm):
+    class fields(WidgetsList):
+        _method = HiddenField(default='', validator=None)
+        category_id = HiddenField(validator=All(NotEmpty, Int))
+        name_ = TextField(disabled=True, validator=None)
+
 
 # Project
 class FormProjectNew(TableForm):

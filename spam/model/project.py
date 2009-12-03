@@ -427,7 +427,7 @@ class AssetCategory(DeclarativeBase):
     #                        backref=backref('supervised_categories'))
 
     # Special methods
-    def __init__(self, name, ordering=None):
+    def __init__(self, name, ordering=0):
         self.name = name
         self.ordering = ordering
 
@@ -437,6 +437,7 @@ class AssetCategory(DeclarativeBase):
     def __json__(self):
         return {'id': self.id,
                 'name': self.name,
+                'ordering': self.ordering,
                 }
 
 

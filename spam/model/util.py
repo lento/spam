@@ -95,9 +95,9 @@ def category_get(id_or_name):
     try:
         return query.one()
     except NoResultFound:
-        raise SPAMDBNotFound('Category "%s" could not be found.' % sh)
+        raise SPAMDBNotFound('Category "%s" could not be found.' % id_or_name)
     except MultipleResultsFound:
-        raise SPAMDBError('Error when searching category "%s".' % sh)
+        raise SPAMDBError('Error when searching category "%s".' % id_or_name)
 
 # Cache
 def eagerload_maker(proj):
