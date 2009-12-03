@@ -4,6 +4,7 @@
 /* we put all our functions and objects inside "spam" so we don't clutter
  * the namespace */
 spam = new(Object);
+spam.temp = new(Object);
 
 /* if firebug is not active we create a fake "console" */
 if (typeof(console)=="undefined") {

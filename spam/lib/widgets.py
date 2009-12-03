@@ -34,6 +34,11 @@ livetable_js = JSLink(modname='spam.lib.twlib.livetable',
 class NetworkingJS(Widget):
     javascript = [orbited_js, initsocket_js, stomp_js]
 
+
+class StompClient(Widget):
+    javascript = [spam_stomp_client_js]
+
+
 class StartupJS(Widget):
     javascript = [jquery_js, jquery_ui_js, jquery_tools_js, jquery_cookie_js,
                   jquery_treeview_js, jquery_sprintf_js, jquery_tablesorter_js,
@@ -138,6 +143,8 @@ class TableShots(LiveTable):
 
 
 class TableAssets(LiveTable):
+    params = ['category']
+    
     javascript = [spam_stomp_client_js]
     update_topic = '/topic/assets'
     class fields(WidgetsList):
@@ -146,6 +153,10 @@ class TableAssets(LiveTable):
             dest=url('/repo/%(proj_id)s/preview.png')
         )
         name = TextData(sort_default=True)
+    
+    def update_params(self, d):
+        super(TableAssets, self).update_params(d)
+        d['update_condition'] = 'data.ob.category.name=="%s"' % d['category']
 
 
 class TableAssetHistory(LiveTable):

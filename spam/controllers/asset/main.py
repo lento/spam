@@ -4,7 +4,7 @@ from tg.decorators import with_trailing_slash
 from spam.model import session_get, Asset, AssetCategory, category_get
 from spam.model import project_get_eager, project_get, container_get, asset_get
 from spam.lib.widgets import FormAssetNew, FormAssetEdit, FormAssetConfirm
-from spam.lib.widgets import TableAssets, TableAssetHistory
+from spam.lib.widgets import TableAssets, TableAssetHistory, StompClient
 from spam.lib import repo
 from spam.lib.notifications import notify
 from spam.lib.decorators import project_set_active
@@ -22,6 +22,9 @@ f_confirm = FormAssetConfirm(action=url('/asset/'))
 t_assets = TableAssets()
 t_history = TableAssetHistory()
 
+# javascripts
+j_stomp_client = StompClient()
+
 class Controller(RestController):
     
     @project_set_active
@@ -30,18 +33,19 @@ class Controller(RestController):
     def get_all(self, proj, container_type, container_id):
         project = tmpl_context.project
         tmpl_context.t_assets = t_assets
+        tmpl_context.j_stomp_client = j_stomp_client
         container = container_get(proj, container_type, container_id)
         
-        categories = {}
+        assets_per_category = {}
         for a in container.assets:
             cat = a.category.name
-            if cat not in categories:
-                categories[cat] = []
-            categories[cat].append(a)
+            if cat not in assets_per_category:
+                assets_per_category[cat] = []
+            assets_per_category[cat].append(a)
         
         return dict(page='assets', sidebar=('projects', project.id),
-                    container_type=container_type, container_id=container_id,
-                    container=container, categories=categories)
+                container_type=container_type, container_id=container_id,
+                container=container, assets_per_category=assets_per_category)
 
     @expose('spam.templates.asset.get_all')
     def default(self, proj, container_type, container_id, *args, **kwargs):
