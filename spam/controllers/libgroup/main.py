@@ -77,7 +77,7 @@ class Controller(RestController):
     @expose('spam.templates.forms.result')
     @validate(f_new, error_handler=new)
     def post(self, proj, parent_id, name, description=None, **kwargs):
-        """Create a new scene"""
+        """Create a new libgroup"""
         session = session_get()
         project = tmpl_context.project
         parent = parent_id and libgroup_get(proj, parent_id) or None
@@ -88,7 +88,7 @@ class Controller(RestController):
         session.flush()
         
         # create directories
-        #repo.libgroup_create_dirs(project.id, libgroup.id)
+        repo.libgroup_create_dirs(project.id, libgroup)
         
         # invalidate project cache
         project.touch()
@@ -161,6 +161,14 @@ class Controller(RestController):
         project = tmpl_context.project
         session = session_get()
         libgroup = libgroup_get(proj, libgroup_id)
+        if libgroup.subgroups:
+            return dict(msg='cannot delete libgroup "%s" because it contains '
+                            'subgroups' % libgroup.path,
+                        result='failed')
+        if libgroup.assets:
+            return dict(msg='cannot delete libgroup "%s" because it contains '
+                            'assets' % libgroup.path,
+                        result='failed')
         
         session.delete(libgroup)
 

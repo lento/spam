@@ -154,7 +154,7 @@ class Scene(DeclarativeBase):
     # Properties
     @property
     def path(self):
-        return os.path.join(self.proj_id, G.SCENES, self.name)
+        return os.path.join(G.SCENES, self.name)
     
     @property
     def thumbnail(self):
@@ -218,8 +218,7 @@ class Shot(AssetContainer):
     # Properties
     @property
     def path(self):
-        return '%s/%s/%s/%s' % (self.proj_id, G.SCENES,
-                                self.parent.name, self.name)
+        return os.path.join(self.parent.path, self.name)
     
     @property
     def parent_name(self):
@@ -314,8 +313,8 @@ class LibraryGroup(AssetContainer):
         if self.parent_id:
             path = self.parent.path
         else:
-            path = '%s/%s' % (self.proj_id, G.LIBRARY)
-        path = '%s/%s' % (path, self.name)
+            path = G.LIBRARY
+        path = os.path.join(path, self.name)
         return path
     
     # Special methods
@@ -379,6 +378,11 @@ class Asset(DeclarativeBase):
     approved_by = relation('User',
                         primaryjoin=approver_id==User.user_id,
                         backref=backref('approved_assets'))
+    
+    # Properties
+    @property
+    def path(self):
+        return os.path.join(self.parent.path, self.name)
     
     # Special methods
     def __init__(self, proj, parent, category, name, user):
@@ -471,7 +475,8 @@ class AssetVersion(DeclarativeBase):
                          primaryjoin=and_(asset_id==Asset.id,
                                           proj_id==Asset.proj_id),
                          foreign_keys=[asset_id, proj_id],
-                         backref=backref('versions', order_by=desc(ver)))
+                         backref=backref('versions', order_by=desc(ver),
+                                         cascade="all, delete, delete-orphan"))
     
     user = relation('User')
     

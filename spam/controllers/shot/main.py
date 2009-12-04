@@ -89,7 +89,7 @@ class Controller(RestController):
         session.flush()
         
         # create directories
-        repo.shot_create_dirs(scene.project.id, scene.name, shot.name)
+        repo.shot_create_dirs(scene.project.id, shot)
         
         # invalidate project cache
         project.touch()
@@ -172,6 +172,10 @@ class Controller(RestController):
         project = tmpl_context.project
         session = session_get()
         shot = shot_get(proj, sc, sh)
+        if shot.assets:
+            return dict(msg='cannot delete shot "%s" because it contains '
+                            'assets' % shot.path,
+                        result='failed')
         
         session.delete(shot)
 
