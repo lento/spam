@@ -85,8 +85,12 @@ class Controller(RestController):
         # create directories
         repo.scene_create_dirs(project.id, scene.name)
         
+        # invalidate project cache
+        project.touch()
+        
         # send a stomp message to notify clients
         notify.send(scene, update_type='added')
+        notify.send(project)
         return dict(msg='created scene "%s"' % scene.path, result='success')
     
     @project_set_active
@@ -148,11 +152,17 @@ class Controller(RestController):
         removed manually.
         (This should help prevent awful accidents) ;)
         """
+        project = tmpl_context.project
         session = session_get()
         scene = scene_get(proj, sc)
         
         session.delete(scene)
+
+        # invalidate project cache
+        project.touch()
+        
         notify.send(scene, update_type='deleted')
+        notify.send(project)
         return dict(msg='deleted scene "%s"' % scene.path, result='success')
     
     # Custom REST-like actions

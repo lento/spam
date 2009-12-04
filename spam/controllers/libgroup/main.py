@@ -90,8 +90,12 @@ class Controller(RestController):
         # create directories
         #repo.libgroup_create_dirs(project.id, libgroup.id)
         
+        # invalidate project cache
+        project.touch()
+        
         # send a stomp message to notify clients
         notify.send(libgroup, update_type='added')
+        notify.send(project)
         return dict(msg='created libgroup "%s"' % libgroup.path,
                                                             result='success')
     
@@ -154,11 +158,17 @@ class Controller(RestController):
         be removed manually.
         (This should help prevent awful accidents) ;)
         """
+        project = tmpl_context.project
         session = session_get()
         libgroup = libgroup_get(proj, libgroup_id)
         
         session.delete(libgroup)
+
+        # invalidate project cache
+        project.touch()
+        
         notify.send(libgroup, update_type='deleted')
+        notify.send(project)
         return dict(msg='deleted libgroup "%s"' % libgroup_id,
                                                             result='success')
     

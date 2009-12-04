@@ -25,7 +25,7 @@ jquery_tablesorter_js = JSLink(link=url('/js/jquery.tablesorter.js'))
 
 # SPAM
 spam_js = JSLink(link=url('/parsedjs/spam.js'))
-spam_stomp_client_js = JSLink(link=url('/parsedjs/spam_stomp_client.js'))
+notify_client_js = JSLink(link=url('/parsedjs/notify_client.js'))
 
 # load LiveTable js on every page, so we can use it in tabs
 livetable_js = JSLink(modname='spam.lib.twlib.livetable',
@@ -35,8 +35,8 @@ class NetworkingJS(Widget):
     javascript = [orbited_js, initsocket_js, stomp_js]
 
 
-class StompClient(Widget):
-    javascript = [spam_stomp_client_js]
+class NotifyClientJS(Widget):
+    javascript = [notify_client_js]
 
 
 class StartupJS(Widget):
@@ -50,7 +50,7 @@ class SchemaButton(IconButton):
 
 # Live tables
 class TableCategories(LiveTable):
-    javascript = [spam_stomp_client_js]
+    javascript = [notify_client_js]
     update_topic = '/topic/categories'
     class fields(WidgetsList):
         ordering = TextData(sort_default=True)
@@ -64,7 +64,7 @@ class TableCategories(LiveTable):
 
 
 class ProjectsActive(LiveTable):
-    javascript = [spam_stomp_client_js]
+    javascript = [notify_client_js]
     update_topic = '/topic/projects'
     update_condition = '!data.ob.archived || data.update_type=="archived"'
     update_functions = ('{"added": livetable.addrow,'
@@ -86,7 +86,7 @@ class ProjectsActive(LiveTable):
 
 
 class ProjectsArchived(LiveTable):
-    javascript = [spam_stomp_client_js]
+    javascript = [notify_client_js]
     update_topic = '/topic/projects'
     update_condition = 'data.ob.archived || data.update_type=="activated"'
     update_functions = ('{"added": livetable.addrow,'
@@ -104,7 +104,7 @@ class ProjectsArchived(LiveTable):
 
 
 class TableScenes(LiveTable):
-    javascript = [spam_stomp_client_js]
+    javascript = [notify_client_js]
     update_topic = '/topic/scenes'
     class fields(WidgetsList):
         thumbnail = ThumbData(label_text='preview',
@@ -123,7 +123,7 @@ class TableScenes(LiveTable):
 
 
 class TableShots(LiveTable):
-    javascript = [spam_stomp_client_js]
+    javascript = [notify_client_js]
     update_topic = '/topic/shots'
     class fields(WidgetsList):
         thumbnail = ThumbData(label_text='preview',
@@ -143,7 +143,7 @@ class TableShots(LiveTable):
 
 
 class TableLibgroups(LiveTable):
-    javascript = [spam_stomp_client_js]
+    javascript = [notify_client_js]
     update_topic = '/topic/libgroups'
     class fields(WidgetsList):
         thumbnail = ThumbData(label_text='preview',
@@ -164,7 +164,7 @@ class TableLibgroups(LiveTable):
 class TableAssets(LiveTable):
     params = ['category']
     
-    javascript = [spam_stomp_client_js]
+    javascript = [notify_client_js]
     update_topic = '/topic/assets'
     class fields(WidgetsList):
         thumbnail = ThumbData(label_text='preview',

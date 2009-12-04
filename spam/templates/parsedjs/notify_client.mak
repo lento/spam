@@ -4,49 +4,50 @@
 /**********************************************************************
  * STOMP client
  **********************************************************************/
-if (typeof(spam.stomp)=='undefined') {
-    spam.stomp = new(Object);
-    spam.stomp.is_connected = false;
+if (typeof(notify)=='undefined') {
+    console.log('notify is undefined, reloading');
+    notify = new(Object);
+    notify.is_connected = false;
 
-    spam.stomp.host = "${tg.config.get('stomp_host', 'localhost')}";
-    spam.stomp.port = ${tg.config.get('stomp_port', '61613')};
+    notify.host = "${tg.config.get('stomp_host', 'localhost')}";
+    notify.port = ${tg.config.get('stomp_port', '61613')};
 
-    spam.stomp.listeners = [];
-    spam.stomp.subscribes = new(Object);
+    notify.listeners = [];
+    notify.subscribes = new(Object);
 }
 /* listeners_tab is reinitialized on every load, so listeners defined in tabs
  * don't pile up when switching tabs*/
-spam.stomp.listeners_tab = [];
+notify.listeners_tab = [];
 
-spam.stomp.add_listener = function(dest, callback) {
-    if (spam.stomp.is_connected) {
-        spam.stomp.listeners.push({'destination': dest, 'callback': callback});
-        console.log('stomp: add_listener ', dest, spam.stomp.listeners, spam.stomp.listeners_tab);
-        if (!(dest in spam.stomp.subscribes)) {
-            spam.stomp.client.subscribe(dest);
-            spam.stomp.subscribes[dest] = 1;
+notify.add_listener = function(dest, callback) {
+    if (notify.is_connected) {
+        notify.listeners.push({'destination': dest, 'callback': callback});
+        console.log('stomp: add_listener ', dest, notify.listeners, notify.listeners_tab);
+        if (!(dest in notify.subscribes)) {
+            notify.client.subscribe(dest);
+            notify.subscribes[dest] = 1;
             console.log('stomp: subscribed: ', dest);
         }
     } else {
-        setTimeout(function() {spam.stomp.add_listener(dest, callback);}, 250);
+        setTimeout(function() {notify.add_listener(dest, callback);}, 250);
     }
 }
 
-spam.stomp.add_listener_tab = function(dest, callback) {
-    if (spam.stomp.is_connected) {
-        spam.stomp.listeners_tab.push({'destination': dest, 'callback': callback});
-        console.log('stomp: add_listener_tab ', dest, spam.stomp.listeners, spam.stomp.listeners_tab);
-        if (!(dest in spam.stomp.subscribes)) {
-            spam.stomp.client.subscribe(dest);
-            spam.stomp.subscribes[dest] = 1;
+notify.add_listener_tab = function(dest, callback) {
+    if (notify.is_connected) {
+        notify.listeners_tab.push({'destination': dest, 'callback': callback});
+        console.log('stomp: add_listener_tab ', dest, notify.listeners, notify.listeners_tab);
+        if (!(dest in notify.subscribes)) {
+            notify.client.subscribe(dest);
+            notify.subscribes[dest] = 1;
             console.log('stomp: subscribed: ', dest);
         }
     } else {
-        setTimeout(function() {spam.stomp.add_listener_tab(dest, callback);}, 250);
+        setTimeout(function() {notify.add_listener_tab(dest, callback);}, 250);
     }
 }
 
-spam.stomp.start_client = function(){
+notify.start_client = function(){
     document.domain=document.domain;
     
     // if the orbited server has not started STOMPClient won't be available
@@ -58,7 +59,7 @@ spam.stomp.start_client = function(){
     
     /* check if the client is already connected (could happen in a ajax tab,
      * for example) */
-    if (spam.stomp.is_connected) {
+    if (notify.is_connected) {
         return;
     }
     
@@ -68,8 +69,8 @@ spam.stomp.start_client = function(){
     };
     stomp.onclose = function(c) {
         console.log('stomp: Lost Connection, Code: ', c, ' ...reconnecting');
-        spam.stomp.is_connected = false;
-        setTimeout(function() {stomp.connect(spam.stomp.host, spam.stomp.port)}, 10000);
+        notify.is_connected = false;
+        setTimeout(function() {stomp.connect(notify.host, notify.port)}, 10000);
     };
     stomp.onerror = function(error) {
         console.log("stomp: Error: ", error);
@@ -79,30 +80,30 @@ spam.stomp.start_client = function(){
     };
     stomp.onconnectedframe = function() {
         console.log('stomp: connected');
-        spam.stomp.is_connected = true;
+        notify.is_connected = true;
     };
     stomp.onmessageframe = function(frame) {
         //console.log('stomp: message frame', frame);
-        $.each(spam.stomp.listeners, function(i,l){
+        $.each(notify.listeners, function(i,l){
             if (frame.headers.destination==l.destination) {
                 l.callback(JSON.parse(frame.body));
             }
         });
-        $.each(spam.stomp.listeners_tab, function(i,l){
+        $.each(notify.listeners_tab, function(i,l){
             if (frame.headers.destination==l.destination) {
                 l.callback(JSON.parse(frame.body));
             }
         });
     };
     
-    stomp.connect(spam.stomp.host, spam.stomp.port);
-    console.log('stomp: started stomp client ', spam.stomp.host, spam.stomp.port);
+    stomp.connect(notify.host, notify.port);
+    console.log('stomp: started stomp client ', notify.host, notify.port);
     
-    spam.stomp.client =  stomp;
+    notify.client =  stomp;
 }
 
 /* start the client on page load */
 $(function() {
-    spam.stomp.start_client();
+    notify.start_client();
 });
 

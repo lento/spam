@@ -13,7 +13,8 @@
         </div>
         <div class="toggleable">
             ${c.t_assets(id="assets_%s_%s_%s" % (container_type, container_id, cat),
-                         items=assets, category=cat) | n}
+                         items=assets, category=cat,
+                         update_listener_adder="notify.add_listener_tab") | n}
         </div>
     </div>
 % endfor
@@ -21,7 +22,7 @@
 ## we load the stomp client in case there's no livetable on the page (this can
 ## happen if the container has no assets). The <script> tag will be put in
 ## the <head> section inherited from "spam.templates.tab"
-${c.j_stomp_client()}
+${c.j_notify_client()}
 <script type="text/javascript">
     spam.temp.reload_tab = function() {
         console.log('spam.temp.reload_tab');
@@ -34,7 +35,7 @@ ${c.j_stomp_client()}
     console.log('spam.temp.current_categories', $.inArray("uncategorized", spam.temp.current_categories));
     
     $(function() {
-        spam.stomp.add_listener("/topic/assets", function(data) {
+        notify.add_listener("/topic/assets", function(data) {
             if ($.inArray(data.ob.category.name, spam.temp.current_categories)<0) {
                 spam.temp.reload_tab();
             }

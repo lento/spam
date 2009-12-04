@@ -18,12 +18,13 @@ def name2label(name):
 
 
 class LiveTable(Widget):
-    params = ['id', 'items', 'show_headers',
+    params = ['id', 'items', 'show_headers', 'update_listener_adder',
               'update_topic', 'update_condition', 'update_functions']
     template = 'mako:spam.lib.twlib.livetable.templates.livetable'
     
     js_calls = []
     show_headers = False
+    update_listener_adder = 'notify.listener_add'
     update_condition = 'true'
     update_functions = ('{"added": livetable.addrow,'
                         ' "deleted": livetable.deleterow,'

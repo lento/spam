@@ -4,7 +4,7 @@ from tg.decorators import with_trailing_slash
 from spam.model import session_get, Asset, AssetCategory, category_get
 from spam.model import project_get_eager, project_get, container_get, asset_get
 from spam.lib.widgets import FormAssetNew, FormAssetEdit, FormAssetConfirm
-from spam.lib.widgets import TableAssets, TableAssetHistory, StompClient
+from spam.lib.widgets import TableAssets, TableAssetHistory, NotifyClientJS
 from spam.lib import repo
 from spam.lib.notifications import notify
 from spam.lib.decorators import project_set_active
@@ -23,7 +23,7 @@ t_assets = TableAssets()
 t_history = TableAssetHistory()
 
 # javascripts
-j_stomp_client = StompClient()
+j_notify_client = NotifyClientJS()
 
 class Controller(RestController):
     
@@ -33,7 +33,7 @@ class Controller(RestController):
     def get_all(self, proj, container_type, container_id):
         project = tmpl_context.project
         tmpl_context.t_assets = t_assets
-        tmpl_context.j_stomp_client = j_stomp_client
+        tmpl_context.j_notify_client = j_notify_client
         container = container_get(proj, container_type, container_id)
         
         assets_per_category = {}

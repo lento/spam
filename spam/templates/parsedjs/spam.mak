@@ -96,7 +96,7 @@ $(function() {
         }, 4000);
     });
 
-    // setup ul.tabs to work as tabs for each div.pane directly under div.panes 
+    // setup tabs 
     $(".tabs").tabs(".content > .pane", {effect: 'ajax'}).history();
 });
 

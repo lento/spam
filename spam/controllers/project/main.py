@@ -167,7 +167,7 @@ class Controller(RestController):
         return dict(msg='deleted project "%s"' % proj, result='success')
     
     # Custom REST-like actions
-    custom_actions = ['archive', 'activate', 'upgrade']
+    custom_actions = ['archive', 'activate', 'upgrade', 'sidebar']
     
     @project_set_active
     @require(in_group('administrators'))
@@ -251,4 +251,9 @@ class Controller(RestController):
         notify.send(project, update_type='updated')
         return dict(msg='upgraded project "%s" schema' % proj, result='success')
 
-
+    @project_set_active
+    @require(is_project_user())
+    @expose('spam.templates.project.sidebar')
+    def get_sidebar(self, proj):
+        project = tmpl_context.project
+        return dict()

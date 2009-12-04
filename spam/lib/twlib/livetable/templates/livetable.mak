@@ -28,7 +28,7 @@
         % endif
         
         % if update_topic:
-            spam.stomp.add_listener("${update_topic}",
+            ${update_listener_adder}("${update_topic}",
                 function(data){
                     if (${update_condition | n}) {
                         $.each(${update_functions}, function(type, func) {

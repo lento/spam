@@ -12,8 +12,8 @@
     <title>${self.title()}</title>
     <link rel="stylesheet" type="text/css" media="screen" href="${tg.url('/themes/%s/css/style.css' % c.theme)}" />
 
-    ${c.networkingjs()}
-    ${c.startupjs()}
+    ${c.j_networking()}
+    ${c.j_startup()}
     <script type="text/javascript">
     $(function() {
         spam.sidebar_set_active("${sidebar and sidebar[0] or ''}",

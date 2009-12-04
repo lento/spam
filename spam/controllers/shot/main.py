@@ -78,6 +78,7 @@ class Controller(RestController):
     def post(self, proj, sc, sh, description=None, action=None, frames=0,
              handle_in=0, handle_out=0, **kwargs):
         """Create a new shot"""
+        project = tmpl_context.project
         session = session_get()
         scene = scene_get(proj, sc)
         
@@ -91,8 +92,12 @@ class Controller(RestController):
         # create directories
         repo.shot_create_dirs(scene.project.id, scene.name, shot.name)
         
+        # invalidate project cache
+        project.touch()
+        
         # send a stomp message to notify clients
         notify.send(shot, update_type='added')
+        notify.send(project)
         return dict(msg='created shot "%s"' % shot.path, result='success')
     
     @project_set_active
@@ -165,11 +170,17 @@ class Controller(RestController):
         removed manually.
         (This should help prevent awful accidents) ;)
         """
+        project = tmpl_context.project
         session = session_get()
         shot = shot_get(proj, sc, sh)
         
         session.delete(shot)
+
+        # invalidate project cache
+        project.touch()
+        
         notify.send(shot, update_type='deleted')
+        notify.send(project)
         return dict(msg='deleted shot "%s"' % shot.path, result='success')
     
     # Custom REST-like actions
