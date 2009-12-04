@@ -321,7 +321,7 @@ table td.icon {
 }
 
 .side a:hover {
-    color: #204a87; / * Sky Blue 3 * /
+    color: #204a87; /* Sky Blue 3 */
 }
 
 .side li.active {
