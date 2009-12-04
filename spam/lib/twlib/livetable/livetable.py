@@ -47,7 +47,6 @@ class LiveTable(Widget):
         return super(LiveTable, cls).__new__(cls, id,parent,children,**kw)
 
     def __init__(self, *args, **kwargs):
-        print('LiveTable.__init__(): %s' % self.js_calls)
         super(LiveTable, self).__init__(*args, **kwargs)
     
         # call javascript functions

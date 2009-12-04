@@ -24,12 +24,6 @@ class TabController(SPAMBaseController):
         return dict()
 
     @require(is_project_user())
-    @expose('spam.templates.libgroup.tabs.assets')
-    def assets(self):
-        """Handle the 'assets' tab."""
-        return dict()
-
-    @require(is_project_user())
     @expose('spam.templates.libgroup.tabs.tasks')
     def tasks(self):
         """Handle the 'tasks' tab."""

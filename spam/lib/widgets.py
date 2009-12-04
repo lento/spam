@@ -323,6 +323,7 @@ class FormLibgroupNew(TableForm):
         proj = HiddenField(validator=NotEmpty)
         parent_id = HiddenField()
         project_ = TextField(validator=None, disabled=True)
+        parent_ = TextField(validator=None, disabled=True)
         name = TextField(validator=All(Regex(G.pattern_name, not_empty=True),
                                        MaxLength(15)))
         description = TextArea(cols=30, rows=3)

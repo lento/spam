@@ -18,6 +18,9 @@ from spam.model import migraterepo_get_version, db_get_version
 from spam.model import db_upgrade, db_downgrade
 from spam.model.auth import User
 
+import logging
+log = logging.getLogger(__name__)
+
 __all__ = ['Project']
 
 ############################################################
@@ -302,18 +305,24 @@ class LibraryGroup(AssetContainer):
     
     parent = relation('LibraryGroup',
                       primaryjoin=and_(id==parent_id, proj_id==proj_id),
-                      foreign_keys=[id, proj_id], uselist=False,
+                      foreign_keys=[id, proj_id], uselist=False, viewonly=True,
                      )
     
-    #supervisors = relation('ProjectUser', secondary=supervisors_libgroup_table,
-    #                        order_by='ProjectUser.user_name',
-    #                        backref=backref('supervised_libgroups'))
+    # Properties
+    @property
+    def path(self):
+        if self.parent_id:
+            path = self.parent.path
+        else:
+            path = '%s/%s' % (self.proj_id, G.LIBRARY)
+        path = '%s/%s' % (path, self.name)
+        return path
     
     # Special methods
     def __init__(self, proj, name, parent=None, description=None):
         self.proj_id = proj
         self.name = name
-        self.parent = parent
+        if parent: self.parent_id = parent.id
         self.description = description
 
     def __repr__(self):
