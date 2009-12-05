@@ -63,16 +63,23 @@
     % if tg.predicates.not_anonymous() and c.project:
         ${c.j_notify_client()}
         <div id="sb_project" class="sidebar">
+            <div class="title">
+                <a href="${tg.url('/project/%s' % c.project.id)}">${c.project.name}</a>
+                <div class="icon"></div>
+            </div>
+            <div id="sb_project_content"></div>
         </div>
         <script type="text/javascript">
             $(function() {
-                $("#sb_project").load("${tg.url('/project/%s/sidebar' % c.project.id)}", function() {
+                $("#sb_project").addClass("loading");
+                $("#sb_project_content").load("${tg.url('/project/%s/sidebar' % c.project.id)}", function() {
                     notify.add_listener("/topic/projects", function(data) {
                         console.log("#sb_project listener", data)
                         if (data.ob.id=="${c.project.id}" && data.update_type=="updated") {
                             $("#sb_project").load("${tg.url('/project/%s/sidebar' % c.project.id)}");
                         }
                     });
+                    $("#sb_project").removeClass("loading");
                 });
             });
         </script>

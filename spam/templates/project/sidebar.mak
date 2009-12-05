@@ -15,9 +15,6 @@
 
 
 ${c.j_notify_client()}
-<div class="title">
-    <a href="${tg.url('/project/%s' % c.project.id)}">${c.project.name}</a>
-</div>
 <ul id="sb_project_tree" class="hidden">
     <li>
         <%

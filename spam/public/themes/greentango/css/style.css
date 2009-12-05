@@ -354,6 +354,17 @@ table td.icon {
     min-width: 180px;
 }
 
+#sb_project .title .icon {
+    float: right;
+    width: 16px;
+    height: 16px;
+    background-image: none;
+}
+
+#sb_project.loading .title .icon {
+    background-image: url(../images/icons/16x16/animated-throbber-white.png);
+}
+
 #sb_project .title a:hover {
     color: inherit;
 }
