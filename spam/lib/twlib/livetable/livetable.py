@@ -24,7 +24,7 @@ class LiveTable(Widget):
     
     js_calls = []
     show_headers = False
-    update_listener_adder = 'notify.listener_add'
+    update_listener_adder = 'notify.add_listener'
     update_condition = 'true'
     update_functions = ('{"added": livetable.addrow,'
                         ' "deleted": livetable.deleterow,'
