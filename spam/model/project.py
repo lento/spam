@@ -363,6 +363,12 @@ class Asset(DeclarativeBase):
     approved_date = Column(DateTime)
 
     # Relations
+    project = relation('Project',
+                primaryjoin=proj_id==Project.id,
+                foreign_keys=[proj_id],
+                viewonly=True,
+              )
+    
     category = relation('AssetCategory', backref=backref('assets'))
     
     user = relation('User',
@@ -382,7 +388,8 @@ class Asset(DeclarativeBase):
     # Properties
     @property
     def path(self):
-        return os.path.join(self.parent.path, self.name)
+        #return os.path.join(self.parent.path, self.name)
+        return os.path.join(self.category.name, self.name)
     
     # Special methods
     def __init__(self, proj, parent, category, name, user):
@@ -400,9 +407,10 @@ class Asset(DeclarativeBase):
     def __json__(self):
         return {'id': self.id,
                 'name': self.name,
+                'proj_id': self.proj_id,
                 'parent_id': self.parent_id,
                 'parent': self.parent,
-                #'path': self.path,
+                'path': self.path,
                 #'repopath': self.repopath,
                 #'basedir': self.basedir,
                 #'repobasedir': self.repobasedir,

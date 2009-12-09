@@ -172,6 +172,12 @@ class TableAssets(LiveTable):
             dest=url('/repo/%(proj_id)s/preview.png')
         )
         name = TextData(sort_default=True)
+        actions = IconBox(buttons=[
+            IconButton(id='edit', icon_class='edit',
+              action=url('/asset/%(proj_id)s/%(id)s/edit')),
+            IconButton(id='delete', icon_class='delete',
+              action=url('/asset/%(proj_id)s/%(id)s/delete')),
+        ])
     
     def update_params(self, d):
         super(TableAssets, self).update_params(d)
@@ -375,6 +381,16 @@ class FormAssetConfirm(TableForm):
         _method = HiddenField(default='', validator=None)
         proj = HiddenField(validator=NotEmpty)
         project_ = TextField(validator=None, disabled=True)
+        asset_id = HiddenField(validator=NotEmpty)
+        container_ = TextField(validator=None, disabled=True)
+        category_ = TextField(validator=None, disabled=True)
+        name_ = TextField(validator=None, disabled=True)
 
+
+class FormAssetPublish(TableForm):
+    class fields(WidgetsList):
+        _method = HiddenField(default='PUBLISH', validator=None)
+        proj = HiddenField(validator=NotEmpty)
+        asset_id = HiddenField(validator=NotEmpty)
 
 

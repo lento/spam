@@ -134,23 +134,27 @@ class Controller(RestController):
         notify.send(scene)
         return dict(msg='updated scene "%s"' % scene.path, result='success')
 
+    '''
     @project_set_active
     @require(is_project_admin())
     @expose('spam.templates.forms.form')
-    def get_delete(self, proj, sc, **kwargs):
+    def get_delete(self, proj, asset_id, **kwargs):
         """Display a DELETE confirmation form."""
         tmpl_context.form = f_confirm
-        scene = scene_get(proj, sc)
+        asset = asset_get(proj, asset_id)
 
         fargs = dict(_method='DELETE',
-                     proj=scene.project.id, project_=scene.project.name,
-                     sc=scene.name, name_=scene.name,
-                     description_=scene.description)
+                     proj=asset.project.id, project_=asset.project.name,
+                     asset_id=asset.id, name_=asset.name,
+                     container_=asset.parent.path,
+                     category_=asset.category.name,
+                    )
+                     
         fcargs = dict()
-        warning = ('This will only delete the scene entry in the database. '
+        warning = ('This will only delete the asset entry in the database. '
                    'The data must be deleted manually if needed.')
         return dict(
-                title='Are you sure you want to delete "%s"?' % scene.path,
+                title='Are you sure you want to delete "%s"?' % asset.path,
                 warning=warning, args=fargs, child_args=fcargs)
 
     @project_set_active
@@ -158,21 +162,20 @@ class Controller(RestController):
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_confirm, error_handler=get_delete)
-    def post_delete(self, proj, sc, **kwargs):
-        """Delete a scene.
+    def post_delete(self, proj, asset_id, **kwargs):
+        """Delete an asset.
         
-        Only delete the scene record from the db, the scene directories must be
+        Only delete the asset record from the db, the asset file(s) must be
         removed manually.
         (This should help prevent awful accidents) ;)
         """
         session = session_get()
-        scene = scene_get(proj, sc)
+        asset = asset_get(proj, asset_id)
         
-        session.delete(scene)
-        notify.send(scene, update_type='deleted')
-        return dict(msg='deleted scene "%s"' % scene.path, result='success')
+        session.delete(asset)
+        notify.send(asset, update_type='deleted')
+        return dict(msg='deleted asset "%s"' % asset.path, result='success')
     
     # Custom REST-like actions
     custom_actions = []
-    '''
 

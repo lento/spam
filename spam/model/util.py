@@ -154,9 +154,5 @@ def project_get_eager(proj):
                                   createfunc=eagerload_maker(proj),
                                   expiretime=360)
     
-    # put the instance back into the session
-    if project not in session:
-        session.add(project)
-    
     return project
 
