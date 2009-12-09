@@ -1,4 +1,5 @@
-import logging
+import logging, os
+from tg import request
 from tg import url, expose, validate, tmpl_context
 from spam.lib.base import SPAMBaseController
 from spam.lib.widgets import FormProjectEdit
@@ -45,3 +46,24 @@ class SandboxController(SPAMBaseController):
         tmpl_context.t_scenes = t_scenes
         return dict(scenes=project.scenes)
     
+    @expose('spam.templates.sandbox.publish')
+    def publish(self):
+        return dict()
+    
+    @expose('spam.templates.sandbox.upload')
+    def upload(self, uploadedfile):
+        log.debug('sandbox upload(): %s' % (uploadedfile))
+        #tmpfd, tmpname = tempfile.mkstemp()
+        #tmpf = os.fdopen(tmpfd, 'w+b')
+        if isinstance(uploadedfile, list):
+            for uf in uploadedfile:
+                tmpf = open('/home/lorenzo/Desktop/upload/%s' % uf.filename, 'w+b')
+                tmpf.write(uf.file.read())
+                tmpf.close()
+        else:
+            tmpf = open('/home/lorenzo/Desktop/upload/%s' % uploadedfile.filename, 'w+b')
+            tmpf.write(uploadedfile.file.read())
+            #tmpf.write(request.body_file.read())
+            tmpf.close()
+        return dict()
+

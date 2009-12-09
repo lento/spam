@@ -36,10 +36,12 @@ livetable.addrow = function(table_id, item, show_update) {
     
     if (field_makers != null && typeof(field_makers) != "undefined") {
         $.each(field_makers, function() {
-            id = this.id;
-            field_class = this.field_class;
-            field_maker = this.maker;
-            row.append('<td class="' + field_class + '">' + field_maker(item, id) + '</td>');
+            if (this.condition(item)) {
+                var id = this.id;
+                var field_class = this.field_class;
+                var field_maker = this.maker;
+                row.append('<td class="' + field_class + '">' + field_maker(item, id) + '</td>');
+            }
         });
     };
     
@@ -54,10 +56,10 @@ livetable.addrow = function(table_id, item, show_update) {
 
     /* activate overlay */
     $(".overlay", row).overlay(function() {
-        trigger = this.getTrigger();
-        target = trigger.attr("href");
-        iframe = $("#overlay iframe")[0];
-        iframe.src = target
+        var trigger = this.getTrigger();
+        var target = trigger.attr("href");
+        var iframe = $("#overlay iframe")[0];
+        iframe.src = target;
     });
 }
 

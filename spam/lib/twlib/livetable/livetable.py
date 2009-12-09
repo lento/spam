@@ -65,12 +65,13 @@ class LiveTable(Widget):
 
 class TableData(Widget):
     params = ['field_class', 'show_header', 'sortable', 'sort_default',
-              'sort_direction']
+              'sort_direction', 'condition']
     
     show_header = True
     sortable = True
     sort_default = False
     sort_direction = 'asc'
+    condition = 'true'
 
 
 class IconButton(TableData):

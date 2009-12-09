@@ -14,7 +14,12 @@
     $(function() {
         livetable.field_makers["${id}"] = [];
         % for index, field in enumerate(fields):
-            livetable.field_makers["${id}"].push({"id": "${field.id}", "field_class": "${field.field_class}", "maker": ${field.display().replace('\n', '') | n}});
+            livetable.field_makers["${id}"].push(
+                        {"id": "${field.id}",
+                         "field_class": "${field.field_class}",
+                         "condition": function(data) {return (${field.condition | n});},
+                         "maker": ${field.display().replace('\n', '') | n},
+                        });
         % endfor
         
         $("#${id}").tablesorter({widgets: ['zebra'], headers: ${json_encode(sort_headers)}});
@@ -29,11 +34,11 @@
         
         % if update_topic:
             ${update_listener_adder}("${update_topic}",
-                function(data){
+                function(msg){
                     if (${update_condition | n}) {
                         $.each(${update_functions}, function(type, func) {
-                            if (data.update_type==type) {
-                                func("${id}", data.ob);
+                            if (msg.update_type==type) {
+                                func("${id}", msg.ob);
                             }
                         });
                     }

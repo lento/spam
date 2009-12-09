@@ -3,6 +3,7 @@ from datetime import datetime
 from pylons import cache
 from tg import config
 from sqlalchemy import create_engine
+from sqlalchemy.exceptions import InvalidRequestError
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 from spam.lib.exceptions import SPAMDBError, SPAMDBNotFound
 from spam.model import DBSession, Project, Scene, Shot, LibraryGroup, Asset
@@ -153,6 +154,12 @@ def project_get_eager(proj):
         project, cached = projcache.get_value(key=proj,
                                   createfunc=eagerload_maker(proj),
                                   expiretime=360)
+    
+    # put project back into the session if necessary
+    try:
+        session.add(project)
+    except InvalidRequestError:
+        pass
     
     return project
 

@@ -35,8 +35,8 @@ ${c.j_notify_client()}
     console.log('spam.temp.current_categories', $.inArray("uncategorized", spam.temp.current_categories));
     
     $(function() {
-        notify.add_listener("/topic/assets", function(data) {
-            if ($.inArray(data.ob.category.name, spam.temp.current_categories)<0) {
+        notify.add_listener("/topic/assets", function(msg) {
+            if ($.inArray(msg.ob.category.name, spam.temp.current_categories)<0) {
                 spam.temp.reload_tab();
             }
         })

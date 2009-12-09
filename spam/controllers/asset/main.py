@@ -177,5 +177,54 @@ class Controller(RestController):
         return dict(msg='deleted asset "%s"' % asset.path, result='success')
     
     # Custom REST-like actions
-    custom_actions = []
+    custom_actions = ['checkout', 'release']
+
+    @project_set_active
+    @require(is_project_user())
+    @expose('json')
+    @expose('spam.templates.forms.result')
+    @validate(f_confirm, error_handler=get_delete)
+    def checkout(self, proj, asset_id, **kwargs):
+        """Checkout an asset.
+        
+        The asset will be blocked and only the current owner will be able to
+        publish new versions until it is released.
+        """
+        asset = asset_get(proj, asset_id)
+        user = tmpl_context.user
+        
+        if not asset.checkedout:
+            asset.user = user
+            asset.checkedout = True
+            notify.send(asset)
+            return dict(msg='checkedout asset "%s"' % asset.path,
+                                                            result='success')
+        else:
+            return dict(msg='asset "%s" is already checkedout' % asset.path,
+                                                            result='failed')
+
+
+    @project_set_active
+    @require(is_project_user())
+    @expose('json')
+    @expose('spam.templates.forms.result')
+    @validate(f_confirm, error_handler=get_delete)
+    def release(self, proj, asset_id, **kwargs):
+        """Release an asset.
+        
+        The asset will be unblocked and available to project users to checkout.
+        """
+        asset = asset_get(proj, asset_id)
+        user = tmpl_context.user
+        
+        if asset.checkedout:
+            asset.user = None
+            asset.checkedout = False
+            notify.send(asset)
+            return dict(msg='released asset "%s"' % asset.path,
+                                                            result='success')
+        else:
+            return dict(msg='asset "%s" is not checkedout' % asset.path,
+                                                            result='failed')
+
 

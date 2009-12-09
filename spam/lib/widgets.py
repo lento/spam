@@ -66,7 +66,7 @@ class TableCategories(LiveTable):
 class ProjectsActive(LiveTable):
     javascript = [notify_client_js]
     update_topic = '/topic/projects'
-    update_condition = '!data.ob.archived || data.update_type=="archived"'
+    update_condition = '!msg.ob.archived || msg.update_type=="archived"'
     update_functions = ('{"added": livetable.addrow,'
                         ' "deleted": livetable.deleterow,'
                         ' "updated": livetable.updaterow,'
@@ -88,7 +88,7 @@ class ProjectsActive(LiveTable):
 class ProjectsArchived(LiveTable):
     javascript = [notify_client_js]
     update_topic = '/topic/projects'
-    update_condition = 'data.ob.archived || data.update_type=="activated"'
+    update_condition = 'msg.ob.archived || msg.update_type=="activated"'
     update_functions = ('{"added": livetable.addrow,'
                         ' "deleted": livetable.deleterow,'
                         ' "updated": livetable.updaterow,'
@@ -173,15 +173,19 @@ class TableAssets(LiveTable):
         )
         name = TextData(sort_default=True)
         actions = IconBox(buttons=[
-            IconButton(id='edit', icon_class='edit',
-              action=url('/asset/%(proj_id)s/%(id)s/edit')),
+            IconButton(id='checkout', icon_class='checkout',
+              action=url('/asset/%(proj_id)s/%(id)s/checkout'),
+              condition='!data.checkedout'),
+            IconButton(id='release', icon_class='release',
+              action=url('/asset/%(proj_id)s/%(id)s/release'),
+              condition='data.checkedout'),
             IconButton(id='delete', icon_class='delete',
               action=url('/asset/%(proj_id)s/%(id)s/delete')),
         ])
     
     def update_params(self, d):
         super(TableAssets, self).update_params(d)
-        d['update_condition'] = 'data.ob.category.name=="%s"' % d['category']
+        d['update_condition'] = 'msg.ob.category.name=="%s"' % d['category']
 
 
 class TableAssetHistory(LiveTable):

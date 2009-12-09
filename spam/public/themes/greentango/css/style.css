@@ -94,6 +94,8 @@ body {
     cursor: default;
 }
 .iconbutton.schema_outdated {background: url(../images/icons/16x16/update-urgent.png) left center no-repeat;}
+.iconbutton.checkout {background: url(../images/icons/16x16/checkout.png) left center no-repeat;}
+.iconbutton.release {background: url(../images/icons/16x16/release.png) left center no-repeat;}
 
 .thumbnail {
     width: 120px;
