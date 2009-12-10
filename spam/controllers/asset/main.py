@@ -1,9 +1,11 @@
 from tg import expose, url, tmpl_context, validate, require
 from tg.controllers import RestController
 from tg.decorators import with_trailing_slash
+from tw.forms import validators
 from spam.model import session_get, Asset, AssetCategory, category_get
 from spam.model import project_get_eager, project_get, container_get, asset_get
 from spam.lib.widgets import FormAssetNew, FormAssetEdit, FormAssetConfirm
+from spam.lib.widgets import FormAssetPublish
 from spam.lib.widgets import TableAssets, TableAssetHistory, NotifyClientJS
 from spam.lib import repo
 from spam.lib.notifications import notify
@@ -17,6 +19,7 @@ log = logging.getLogger(__name__)
 f_new = FormAssetNew(action=url('/asset/'))
 f_edit = FormAssetEdit(action=url('/asset/'))
 f_confirm = FormAssetConfirm(action=url('/asset/'))
+f_publish = FormAssetPublish(action=url('/asset/'))
 
 # livetable widgets
 t_assets = TableAssets()
@@ -177,7 +180,7 @@ class Controller(RestController):
         return dict(msg='deleted asset "%s"' % asset.path, result='success')
     
     # Custom REST-like actions
-    custom_actions = ['checkout', 'release']
+    custom_actions = ['checkout', 'release', 'publish']
 
     @project_set_active
     @require(is_project_user())
@@ -227,4 +230,45 @@ class Controller(RestController):
             return dict(msg='asset "%s" is not checkedout' % asset.path,
                                                             result='failed')
 
+
+    @project_set_active
+    @require(is_project_admin())
+    @expose('spam.templates.forms.form')
+    def get_publish(self, proj, asset_id, **kwargs):
+        """Display a PUBLISH form."""
+        log.debug('asset/get_publish: %s %s' % (kwargs, tmpl_context.form_errors))
+        tmpl_context.form = f_publish
+        asset = asset_get(proj, asset_id)
+
+        fargs = dict(_method='PUBLISH',
+                     proj=asset.project.id, project_=asset.project.name,
+                     asset_id=asset.id, name_=asset.name,
+                     container_=asset.parent.path,
+                     category_=asset.category.name,
+                    )
+                     
+        fcargs = dict()
+        return dict(title='Publish a new version for "%s"' % asset.path,
+                                        args=fargs, child_args=fcargs)
+
+    @project_set_active
+    @require(is_project_admin())
+    @expose('json')
+    @expose('spam.templates.forms.result')
+    @validate(f_publish, error_handler=get_publish)
+    def post_publish(self, proj, asset_id, uploaded, **kwargs):
+        """Publish a new version of an asset.
+        
+        This will commit to the repo the file(s) already uploaded in a temporary
+        storage area.
+        """
+        log.debug('asset/post_publish: %s' % uploaded)
+        return dict(msg='%s' % uploaded, result='success')
+        '''
+        session = session_get()
+        asset = asset_get(proj, asset_id)
+        
+        notify.send(asset)
+        return dict(msg='published asset "%s"' % asset.path, result='success')
+        '''
 

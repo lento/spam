@@ -68,3 +68,37 @@ label.required {
 .disabled {
     color: gray;
 }
+
+/* Progressbar */
+#upload_queue {
+    margin: 5px 0;
+}
+
+.queue_item {
+    clear: left;
+}
+
+.progress {
+    float: left;
+}
+
+.ui-progressbar {
+    height:1em;
+    width: 50px;
+    margin-right: 5px;
+    text-align: left;
+    border: 1px solid black;
+    -moz-border-radius: 5px;
+}
+
+.ui-progressbar .ui-progressbar-value {
+    /*margin: -1px;*/
+    height:100%;
+    background-color: #4e9a06; /* Chameleon 3 */
+    -moz-border-radius: 4px;
+}
+
+.progress.error .ui-progressbar-value {
+    background-color: #ef2929; /* Scarlet Red 1 */
+}
+

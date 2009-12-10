@@ -24,6 +24,7 @@ class Globals(object):
         self.DEFAULT_PROJ_DIRS = [self.SCENES, self.LIBRARY, self.PREVIEWS]
         self.ADDITIONAL_PROJ_DIRS = config.get('additional_proj_dirs', '').split()
         self.DEFAULT_PROJ_DIRS.extend(self.ADDITIONAL_PROJ_DIRS)
+        self.UPLOAD = config.get('upload_dir', '/var/lib/spam/upload')
 
         self.pattern_name = re.compile('^[a-zA-Z0-9_\-]+$')
         self.pattern_file = re.compile('^[a-zA-Z0-9_\-]+\.[a-zA-Z0-9]+$')

@@ -1,8 +1,8 @@
 from tg import config, url
 from tg import app_globals as G
 from tw.api import Widget, WidgetsList, JSLink, js_function
-from tw.forms import TableForm, TextField, TextArea, HiddenField
-from tw.forms import CalendarDatePicker, SingleSelectField
+from tw.forms import TableForm, TextField, TextArea, HiddenField, FormField
+from tw.forms import CalendarDatePicker, SingleSelectField, FileField
 from tw.forms.validators import All, Any, Regex, MaxLength, NotEmpty, Int
 from spam.lib.twlib.livetable import LiveTable, IconButton, TextData, ThumbData
 from spam.lib.twlib.livetable import IconBox, LinkData
@@ -178,6 +178,9 @@ class TableAssets(LiveTable):
               condition='!data.checkedout'),
             IconButton(id='release', icon_class='release',
               action=url('/asset/%(proj_id)s/%(id)s/release'),
+              condition='data.checkedout'),
+            IconButton(id='publish', icon_class='publish',
+              action=url('/asset/%(proj_id)s/%(id)s/publish'),
               condition='data.checkedout'),
             IconButton(id='delete', icon_class='delete',
               action=url('/asset/%(proj_id)s/%(id)s/delete')),
@@ -391,10 +394,18 @@ class FormAssetConfirm(TableForm):
         name_ = TextField(validator=None, disabled=True)
 
 
+class Upload(FormField):
+    template = 'mako:spam.templates.widgets.upload'
+    upload_js = JSLink(link=url('/parsedjs/upload.js'))
+    javascript = [upload_js]
+
+
 class FormAssetPublish(TableForm):
     class fields(WidgetsList):
         _method = HiddenField(default='PUBLISH', validator=None)
         proj = HiddenField(validator=NotEmpty)
         asset_id = HiddenField(validator=NotEmpty)
-
+        uploaded = HiddenField(validator=NotEmpty(
+                    messages={'empty': 'Please choose the file(s) to upload'}))
+        uploader = Upload()
 

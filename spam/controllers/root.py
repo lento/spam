@@ -3,7 +3,7 @@
 import os.path, datetime
 
 from tg import expose, flash, require, url, request, redirect, override_template
-from tg import response, config, app_globals, tmpl_context
+from tg import response, config, tmpl_context, app_globals as G
 from tg.exceptions import HTTPNotFound
 from pylons.i18n import ugettext as _, lazy_ugettext as l_
 from repoze.what.predicates import not_anonymous
@@ -90,12 +90,26 @@ class RootController(SPAMBaseController):
         templatename = 'spam.templates.parsedjs.%s' % scriptname
         
         if config.get('use_dotted_templatenames', False):
-            template = app_globals.dotted_filename_finder.get_dotted_filename(
+            template = G.dotted_filename_finder.get_dotted_filename(
                                     templatename, template_extension='.mak')
             if not os.path.exists(template):
                 raise HTTPNotFound
         
         override_template(self.parsedjs, 'mako:%s' % templatename)
 
+        return dict()
+
+    @expose('spam.templates.sandbox.upload')
+    @require(not_anonymous(msg=l_('Please login')))
+    def upload(self, uploadedfile):
+        if isinstance(uploadedfile, list):
+            for uf in uploadedfile:
+                tmpf = open(os.path.join(G.UPLOAD, uf.filename), 'w+b')
+                tmpf.write(uf.file.read())
+                tmpf.close()
+        else:
+            tmpf = open(os.path.join(G.UPLOAD, uploadedfile.filename), 'w+b')
+            tmpf.write(uploadedfile.file.read())
+            tmpf.close()
         return dict()
 
