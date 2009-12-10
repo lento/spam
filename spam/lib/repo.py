@@ -1,4 +1,4 @@
-import os
+import os, shutil
 from mercurial import ui, hg, commands, match
 from mercurial.error import RepoError
 from tg import app_globals as G
@@ -37,7 +37,41 @@ def repo_init(proj):
     if not '.hgignore' in repo['tip']:
         repo.add(['.hgignore'])
         matched = match.exact(repo.root, repo.getcwd(), ['.hgignore'])
-        commitid = repo.commit('add .hgignore', user='system', match=matched)
+        commit_id = repo.commit('add .hgignore', user='system', match=matched)
+
+def commit_single(proj, asset, filename, text, username=None):
+    repo_path = os.path.join(G.REPOSITORY, proj)
+    repo = repo_get(proj)
+    
+    if isinstance(filename, list):
+        raise SPAMRepoError('expected a single file for asset %s' % asset.id)
+
+    uploadedfile = os.path.join(G.UPLOAD, filename)
+    target_file_name = os.path.join(repo_path, asset.path)
+    if not os.path.exists(os.path.dirname(target_file_name)):
+        os.makedirs(os.path.dirname(target_file_name))
+    shutil.move(uploadedfile, target_file_name)
+    
+    path = asset.path.encode()
+    
+    if not path in repo['tip']:
+        repo.add([path])
+    
+    matched = match.exact(repo.root, repo.getcwd(), [path])
+    commit_id = repo.commit(text, user=username, match=matched)
+    if commit_id:
+        return repo[commit_id].hex()
+    else:
+        return None
+
+def commit_multi(proj, asset, filenames, text, username=None):
+    return None
+
+def commit(proj, asset, filenames, text, username=None):
+    if asset.is_sequence:
+        return commit_multi(proj, asset, filenames, text, username=None)
+    else:
+        return commit_single(proj, asset, filenames[0], text, username=None)
 
 # Directories
 def project_create_dirs(proj):

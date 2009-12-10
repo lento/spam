@@ -4,6 +4,7 @@ from tg.decorators import with_trailing_slash
 from tw.forms import validators
 from spam.model import session_get, Asset, AssetCategory, category_get
 from spam.model import project_get_eager, project_get, container_get, asset_get
+from spam.model import AssetVersion
 from spam.lib.widgets import FormAssetNew, FormAssetEdit, FormAssetConfirm
 from spam.lib.widgets import FormAssetPublish
 from spam.lib.widgets import TableAssets, TableAssetHistory, NotifyClientJS
@@ -256,19 +257,30 @@ class Controller(RestController):
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_publish, error_handler=get_publish)
-    def post_publish(self, proj, asset_id, uploaded, **kwargs):
+    def post_publish(self, proj, asset_id, uploaded, comment='', **kwargs):
         """Publish a new version of an asset.
         
         This will commit to the repo the file(s) already uploaded in a temporary
         storage area.
         """
-        log.debug('asset/post_publish: %s' % uploaded)
-        return dict(msg='%s' % uploaded, result='success')
-        '''
+        uploaded = uploaded[1:] # the form send an empty string as first item
+        log.debug('post_publish: %s' % uploaded)
         session = session_get()
         asset = asset_get(proj, asset_id)
+        user = tmpl_context.user
+        
+        # commit file to repo
+        text = u'[published v%03d]\n%s' % (asset.current_ver+1, comment)
+        repo_id = repo.commit(proj, asset, uploaded, text, user.user_name)
+        if not repo_id:
+            return dict(msg='%s is already the latest version' %
+                                                    uploaded, result='failed')
+        
+        # create a new version
+        newver = AssetVersion(proj, asset, asset.current_ver+1, user, repo_id)
+        session.add(newver)
+        session.flush()
         
         notify.send(asset)
         return dict(msg='published asset "%s"' % asset.path, result='success')
-        '''
 

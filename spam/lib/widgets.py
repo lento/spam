@@ -2,7 +2,7 @@ from tg import config, url
 from tg import app_globals as G
 from tw.api import Widget, WidgetsList, JSLink, js_function
 from tw.forms import TableForm, TextField, TextArea, HiddenField, FormField
-from tw.forms import CalendarDatePicker, SingleSelectField, FileField
+from tw.forms import CalendarDatePicker, SingleSelectField, FileField, Spacer
 from tw.forms.validators import All, Any, Regex, MaxLength, NotEmpty, Int
 from spam.lib.twlib.livetable import LiveTable, IconButton, TextData, ThumbData
 from spam.lib.twlib.livetable import IconBox, LinkData
@@ -172,6 +172,7 @@ class TableAssets(LiveTable):
             dest=url('/repo/%(proj_id)s/preview.png')
         )
         name = TextData(sort_default=True)
+        current_fmtver = TextData(label_text='ver')
         actions = IconBox(buttons=[
             IconButton(id='checkout', icon_class='checkout',
               action=url('/asset/%(proj_id)s/%(id)s/checkout'),
@@ -407,5 +408,7 @@ class FormAssetPublish(TableForm):
         asset_id = HiddenField(validator=NotEmpty)
         uploaded = HiddenField(validator=NotEmpty(
                     messages={'empty': 'Please choose the file(s) to upload'}))
-        uploader = Upload()
+        uploader = Upload(label_text='File(s) to Upload')
+        spacer = Spacer(label_text='')
+        comment = TextArea(cols=30, rows=3)
 

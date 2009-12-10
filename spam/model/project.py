@@ -388,8 +388,19 @@ class Asset(DeclarativeBase):
     # Properties
     @property
     def path(self):
-        #return os.path.join(self.parent.path, self.name)
-        return os.path.join(self.category.name, self.name)
+        return os.path.join(self.parent.path, self.category.name, self.name)
+    
+    @property
+    def current_ver(self):
+        return self.versions[0].ver
+    
+    @property
+    def current_fmtver(self):
+        return self.versions[0].fmtver
+    
+    @property
+    def is_sequence(self):
+        return False
     
     # Special methods
     def __init__(self, proj, parent, category, name, user):
@@ -410,21 +421,23 @@ class Asset(DeclarativeBase):
                 'proj_id': self.proj_id,
                 'parent_id': self.parent_id,
                 'parent': self.parent,
+                'category': self.category,
+                'checkedout': self.checkedout,
+                'user': self.user,
+                'approved': self.approved,
                 'path': self.path,
+                'current_ver': self.current_ver,
+                'current_fmtver': self.current_fmtver,
+                'is_sequence': self.is_sequence,
                 #'repopath': self.repopath,
                 #'basedir': self.basedir,
                 #'repobasedir': self.repobasedir,
                 #'has_preview': self.has_preview,
                 #'preview_small_repopath': self.preview_small_repopath,
                 #'preview_large_repopath': self.preview_large_repopath,
-                #'current': self.current,
-                'checkedout': self.checkedout,
-                'user': self.user,
                 #'status': self.status,
                 #'flow': self.flow,
                 #'waiting_for_approval': self.waiting_for_approval,
-                'approved': self.approved,
-                'category': self.category,
                 }
 
 
