@@ -120,8 +120,8 @@ class AssetContainer(DeclarativeBase):
     # Columns
     id = Column(Integer, primary_key=True)
     proj_id = Column(Unicode(10))
-    type = Column(Unicode(20))
-    __mapper_args__ = {'polymorphic_on': type}
+    discriminator = Column('type', Unicode(20))
+    __mapper_args__ = {'polymorphic_on': discriminator}
 
     # Special methods
     def __repr__(self):
@@ -140,14 +140,13 @@ class Scene(DeclarativeBase):
     
     # Columns
     id = Column(Integer, primary_key=True)
-    proj_id = Column(Unicode(10))
+    proj_id = Column(Unicode(10), ForeignKey(Project.id))
     name = Column(Unicode(15))
     description = Column(UnicodeText)
     created = Column(DateTime, default=datetime.now)
 
     # Relations
-    project = relation('Project', primaryjoin='Scene.proj_id==Project.id',
-                       foreign_keys=[proj_id], viewonly=True,
+    project = relation('Project', viewonly=True,
                        backref=backref('scenes', viewonly=True, order_by=name)
                       )
     

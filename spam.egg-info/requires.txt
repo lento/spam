@@ -6,3 +6,6 @@ repoze.tm2 >= 1.0a4
 repoze.what-quickstart >= 1.0
 ipython
 mercurial
+orbited
+Twisted
+stomp.py<2.1
