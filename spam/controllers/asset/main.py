@@ -280,6 +280,7 @@ class Controller(RestController):
         newver = AssetVersion(proj, asset, asset.current_ver+1, user, repo_id)
         session.add(newver)
         session.flush()
+        session.refresh(asset)
         
         notify.send(asset)
         return dict(msg='published asset "%s"' % asset.path, result='success')
