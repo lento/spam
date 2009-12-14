@@ -91,25 +91,19 @@ class User(DeclarativeBase):
     """
     __tablename__ = 'auth_users'
     
-    #{ Columns
+    # Columns
     user_id = Column(Integer, autoincrement=True, primary_key=True)
     user_name = Column(Unicode(16), unique=True, nullable=False)
-    email_address = Column(Unicode(255), unique=True, nullable=False,
-                           info={'rum': {'field':'Email'}})
+    email_address = Column(Unicode(255), unique=True, nullable=True)
     display_name = Column(Unicode(255))
-    _password = Column(Unicode(80),
-                       info={'rum': {'field':'Password'}})
+    _password = Column(Unicode(80))
     created = Column(DateTime, default=datetime.now)
     
-    #{ Special methods
-    def __repr__(self):
-        return '<User: email="%s", display name="%s">' % (
-                self.email_address, self.display_name)
-
-    def __unicode__(self):
-        return self.display_name or self.user_name
+    # Properties
+    @property
+    def id(self):
+        return self.user_id
     
-    #{ Getters and setters
     @property
     def permissions(self):
         """Return a set of strings for the permissions granted."""
@@ -147,7 +141,6 @@ class User(DeclarativeBase):
 
     password = synonym('_password', descriptor=property(_get_password,
                                                         _set_password))
-    #}
     
     def validate_password(self, password):
         """
@@ -165,6 +158,21 @@ class User(DeclarativeBase):
         hashed_pass.update(password + self.password[:40])
         return self.password[40:] == hashed_pass.hexdigest()
 
+    # Special methods
+    def __repr__(self):
+        return '<User: email="%s", display name="%s">' % (
+                self.email_address, self.display_name)
+
+    def __unicode__(self):
+        return self.display_name or self.user_name
+    
+    def __json__(self):
+        return dict(user_id=self.user_id,
+                    id=self.id,
+                    user_name=self.user_name,
+                    display_name=self.display_name,
+                   )
+    
 
 class Permission(DeclarativeBase):
     """

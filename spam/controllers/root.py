@@ -11,9 +11,9 @@ from repoze.what.predicates import not_anonymous
 from spam.lib.base import SPAMBaseController
 from spam.model import User, Group, Permission, Project
 from spam.controllers.error import ErrorController
-from spam.controllers.user import UserController
 from spam.controllers.sandbox import SandboxController
-from spam.controllers import project, scene, shot, asset, category, libgroup
+from spam.controllers import user, category
+from spam.controllers import project, scene, shot, asset, libgroup
 
 
 __all__ = ['RootController']
@@ -33,7 +33,7 @@ class RootController(SPAMBaseController):
     must be wrapped around with :class:`tg.controllers.WSGIAppController`.
     """
     error = ErrorController()
-    user = UserController()
+    user = user.Controller()
     sandbox = SandboxController()
     project = project.Controller()
     scene = scene.Controller()

@@ -3,6 +3,7 @@ from tg import app_globals as G
 from tw.api import Widget, WidgetsList, JSLink, js_function
 from tw.forms import TableForm, TextField, TextArea, HiddenField, FormField
 from tw.forms import CalendarDatePicker, SingleSelectField, FileField, Spacer
+from tw.forms import PasswordField
 from tw.forms.validators import All, Any, Regex, MaxLength, NotEmpty, Int
 from spam.lib.twlib.livetable import LiveTable, IconButton, TextData, ThumbData
 from spam.lib.twlib.livetable import IconBox, LinkData
@@ -49,6 +50,22 @@ class SchemaButton(IconButton):
     template = 'mako:spam.templates.widgets.schema_button'
 
 # Live tables
+class TableUsers(LiveTable):
+    javascript = [notify_client_js]
+    update_topic = '/topic/users'
+    class fields(WidgetsList):
+        user_id = TextData()
+        user_name = TextData(sort_default=True)
+        display_name = TextData()
+        created = TextData()
+        actions = IconBox(buttons=[
+            IconButton(id='edit', icon_class='edit',
+              action=url('/user/%(user_name)s/edit')),
+            IconButton(id='delete', icon_class='delete',
+              action=url('/user/%(user_name)s/delete')),
+        ])
+
+
 class TableCategories(LiveTable):
     javascript = [notify_client_js]
     update_topic = '/topic/categories'
@@ -202,6 +219,30 @@ class TableAssetHistory(LiveTable):
 
 
 # Form widgets
+
+# User
+class FormUserNew(TableForm):
+    class fields(WidgetsList):
+        user_name = TextField(validator=MaxLength(16, not_empty=True))
+        display_name = TextField(validator=MaxLength(255, not_empty=True))
+        password = PasswordField(validator=MaxLength(80, not_empty=True))
+
+
+class FormUserEdit(TableForm):
+    class fields(WidgetsList):
+        _method = HiddenField(default='PUT', validator=None)
+        user_id = HiddenField(validator=All(NotEmpty, Int))
+        user_name = TextField(validator=MaxLength(16, not_empty=True))
+        display_name = TextField(validator=MaxLength(255, not_empty=True))
+
+
+class FormUserConfirm(TableForm):
+    class fields(WidgetsList):
+        _method = HiddenField(default='', validator=None)
+        user_id = HiddenField(validator=Int(not_empty=True))
+        user_name_ = TextField(disabled=True, validator=None)
+        display_name_ = TextField(disabled=True, validator=None)
+
 
 # Category
 class FormCategoryNew(TableForm):

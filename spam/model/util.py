@@ -7,7 +7,7 @@ from sqlalchemy.exceptions import InvalidRequestError
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 from spam.lib.exceptions import SPAMDBError, SPAMDBNotFound
 from spam.model import DBSession, Project, Scene, Shot, LibraryGroup, Asset
-from spam.model import AssetCategory
+from spam.model import AssetCategory, User
 from spam.model import sharding
 
 def add_shard(proj):
@@ -29,6 +29,22 @@ def query_projects():
 
 def query_projects_archived():
     return session_get().query(Project).filter_by(archived=True)
+
+def user_get(id_or_name):
+    """return a user"""
+    query = session_get().query(User)
+    if isinstance(id_or_name, int):
+        query = query.filter_by(user_id=id_or_name)
+    elif isinstance(id_or_name, str):
+        query = query.filter_by(user_name=id_or_name)
+    else:
+        raise SPAMDBError('Error when searching user "%s".' % id_or_name)
+    try:
+        return query.one()
+    except NoResultFound:
+        raise SPAMDBNotFound('User "%s" could not be found.' % id_or_name)
+    except MultipleResultsFound:
+        raise SPAMDBError('Error when searching user "%s".' % id_or_name)
 
 def project_get(proj):
     """Return a lazyloaded project"""
