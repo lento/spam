@@ -4,10 +4,13 @@ from tg import expose, url, tmpl_context, redirect, validate, require
 from tg.controllers import RestController
 from tg.decorators import with_trailing_slash
 from pylons.i18n import ugettext as _, lazy_ugettext as l_
-from spam.model import session_get, User, user_get, group_get
+from spam.model import session_get, User, user_get, group_get, project_get
 from spam.lib.widgets import FormUserNew, FormUserEdit
 from spam.lib.widgets import FormUserConfirm, FormUserAddToGroup
-from spam.lib.notifications import notify, TOPIC_GROUPS
+from spam.lib.widgets import FormUserAddAdmins
+from spam.lib.notifications import notify, TOPIC_GROUPS, TOPIC_PROJECT_ADMINS
+from spam.lib.decorators import project_set_active
+from spam.lib.predicates import is_project_user, is_project_admin
 from repoze.what.predicates import in_group, not_anonymous
 
 from tabs import TabController
@@ -20,6 +23,7 @@ f_new = FormUserNew(action=url('/user/'))
 f_edit = FormUserEdit(action=url('/user/'))
 f_confirm = FormUserConfirm(action=url('/user/'))
 f_add_to_group = FormUserAddToGroup(action=url('/user/'))
+f_add_admins = FormUserAddAdmins(action=url('/user/'))
 
 class Controller(RestController):
     
@@ -123,11 +127,13 @@ class Controller(RestController):
         return dict(msg='deleted user "%s"' % user.user_name, result='success')
 
     # Custom REST-like actions
-    custom_actions = ['add', 'remove']
+    custom_actions = ['add_to_group', 'remove_from_group',
+                      'add_admins', 'remove_admins',
+                     ]
 
     @require(in_group('administrators'))
     @expose('spam.templates.forms.form')
-    def get_add(self, group_name, **kwargs):
+    def get_add_to_group(self, group_name, **kwargs):
         """Display a ADD users form."""
         tmpl_context.form = f_add_to_group
         group = group_get(group_name)
@@ -142,8 +148,8 @@ class Controller(RestController):
     @require(in_group('administrators'))
     @expose('json')
     @expose('spam.templates.forms.result')
-    @validate(f_add_to_group, error_handler=get_delete)
-    def post_add(self, group_id, userids, **kwargs):
+    @validate(f_add_to_group, error_handler=get_add_to_group)
+    def post_add_to_group(self, group_id, userids, **kwargs):
         """Add users to a group"""
         session = session_get()
         group = group_get(group_id)
@@ -161,7 +167,7 @@ class Controller(RestController):
 
     @expose('json')
     @expose('spam.templates.forms.result')
-    def remove(self, user_name, group_name, **kwargs):
+    def remove_from_group(self, user_name, group_name, **kwargs):
         """Remove a user from a group"""
         user = user_get(user_name)
         group = group_get(group_name)
@@ -171,4 +177,61 @@ class Controller(RestController):
         return dict(msg='user "%s" removed from group "%s"' %
                         (user.user_name, group.group_name), result='success')
         
+    @project_set_active
+    @require(is_project_admin())
+    @expose('spam.templates.forms.form')
+    def get_add_admins(self, proj, **kwargs):
+        """Display a ADD users form."""
+        tmpl_context.form = f_add_admins
+        project = tmpl_context.project
+        users = session_get().query(User)
+        choices = [(u.user_id, '%-16s (%s)' % (u.user_name, u.display_name))
+                                                                for u in users]
+        fargs = dict(_method='ADD_ADMINS', proj=project.id,)
+        fcargs = dict(userids=dict(options=choices))
+        return dict(title='Add users to "%s" administrators' % project.id,
+                                                args=fargs, child_args=fcargs)
+
+    @project_set_active
+    @require(is_project_admin())
+    @expose('json')
+    @expose('spam.templates.forms.result')
+    @validate(f_add_admins, error_handler=get_add_admins)
+    def post_add_admins(self, proj, userids, **kwargs):
+        """Add administrators to a project """
+        session = session_get()
+        project = tmpl_context.project
+        session.refresh(project)
+        added = []
+        for uid in userids:
+            user = user_get(int(uid))
+            if user not in project.admins:
+                project.admins.append(user)
+                added.append(user.user_name)
+                notify.send(user, update_type='added', proj=project.id,
+                                            destination=TOPIC_PROJECT_ADMINS)
+        session.flush()
+            
+        return dict(msg='added user(s) %s to "%s" administrators' %
+                                        (added, project.id), result='success')
+
+    @project_set_active
+    @require(is_project_admin())
+    @expose('json')
+    @expose('spam.templates.forms.result')
+    def remove_admins(self, proj, user_name, **kwargs):
+        """Remove an administrator from a project"""
+        session = session_get()
+        user = user_get(user_name)
+        project = tmpl_context.project
+        session.refresh(project)
+        if user in project.admins:
+            project.admins.remove(user)
+            session.flush()
+            notify.send(user, update_type='deleted', proj=project.id,
+                                            destination=TOPIC_PROJECT_ADMINS)
+            return dict(msg='user "%s" removed from "%s" administrators' %
+                        (user.user_name, project.id), result='success')
+        return dict(msg='user "%s" cannot be removed from "%s" administrators' %
+                        (user.user_name, project.id), result='failed')
 

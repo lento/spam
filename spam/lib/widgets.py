@@ -83,6 +83,22 @@ class TableGroupUsers(LiveTable):
                                                 d['extra_data']['group_name'])
 
 
+class TableProjectAdmins(LiveTable):
+    javascript = [notify_client_js]
+    update_topic = '/topic/project_admins'
+    class fields(WidgetsList):
+        user_name = TextData(sort_default=True)
+        display_name = TextData()
+        actions = IconBox(buttons=[
+            IconButton(id='remove', icon_class='delete',
+              action=url('/user/%(proj)s/%(user_name)s/remove_admins')),
+        ])
+    
+    def update_params(self, d):
+        super(TableProjectAdmins, self).update_params(d)
+        d['update_condition'] = 'msg.proj=="%s"' % d['extra_data']['proj']
+
+
 class TableCategories(LiveTable):
     javascript = [notify_client_js]
     update_topic = '/topic/categories'
@@ -263,8 +279,14 @@ class FormUserConfirm(TableForm):
 
 class FormUserAddToGroup(TableForm):
     class fields(WidgetsList):
-        _method = HiddenField(default='ADD', validator=None)
+        _method = HiddenField(default='ADD_TO_GROUP', validator=None)
         group_id = HiddenField(validator=Int(not_empty=True))
+        userids = MultipleSelectField(label_text='Users', options=[], size=20)
+
+class FormUserAddAdmins(TableForm):
+    class fields(WidgetsList):
+        _method = HiddenField(default='ADD_TO_GROUP', validator=None)
+        proj = HiddenField(validator=NotEmpty)
         userids = MultipleSelectField(label_text='Users', options=[], size=20)
 
 # Category

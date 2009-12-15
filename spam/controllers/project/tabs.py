@@ -6,8 +6,12 @@ from pylons.i18n import ugettext as _, lazy_ugettext as l_
 from repoze.what import predicates
 
 from spam.lib.base import SPAMBaseController
-from spam.model import project_get_eager
-from spam.lib.predicates import is_project_user
+from spam.model import project_get_eager, session_get, AssetCategory
+from spam.lib.predicates import is_project_user, is_project_admin
+from spam.lib.widgets import TableProjectAdmins
+
+# live tables
+t_project_admins = TableProjectAdmins()
 
 class TabController(SPAMBaseController):
     """The controller for project tabs."""
@@ -29,4 +33,13 @@ class TabController(SPAMBaseController):
         #project = tmpl_context.project
         return dict()
 
+    @require(is_project_admin())
+    @expose('spam.templates.project.tabs.users')
+    def users(self):
+        """Handle the 'users' tab."""
+        project = tmpl_context.project
+        tmpl_context.t_project_admins = t_project_admins
+        categories = session_get().query(AssetCategory)
+        return dict(categories=categories)
+    
 

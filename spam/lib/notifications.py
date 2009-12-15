@@ -16,6 +16,8 @@ TOPIC_SCENES = config.get('stomp_topic_scenes', '/topic/scenes')
 TOPIC_SHOTS = config.get('stomp_topic_shots', '/topic/shots')
 TOPIC_ASSETS = config.get('stomp_topic_assets', '/topic/assets')
 TOPIC_LIBGROUPS = config.get('stomp_topic_libgroups', '/topic/libgroups')
+TOPIC_PROJECT_ADMINS = config.get(
+                        'stomp_topic_project_admins', '/topic/project_admins')
 
 
 class StompClient(object):

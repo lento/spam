@@ -57,7 +57,7 @@ def query_chooser(query):
     Can just be all of them, but here we'll search into the Query in order
     to try to narrow down the list of shards to query.
     """
-    #queries['query'].append(query)
+    queries['query'].append(query)
     ids = set()
     
     class FindProject(ClauseVisitor):
