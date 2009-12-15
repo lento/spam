@@ -9,7 +9,7 @@
     <div id="${'toggle_%s' % cat}" class="toggle ${len(assets)==0 and 'hidden' or ''}">
         <div class="toggle_header title">
             <span class="toggle_arrow"/>
-            <span class="toggle_title">${cat}</span>
+            <h2 class="toggle_title">${cat}</h2>
         </div>
         <div class="toggleable">
             ${c.t_assets(id="assets_%s_%s_%s" % (container_type, container_id, cat),

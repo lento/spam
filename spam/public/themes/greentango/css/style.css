@@ -61,7 +61,7 @@ body {
 
 /* Buttons */
 .button {
-    padding: 0 5px;
+    padding: 2px 6px;
     background-color: #3465a4; /* Sky Blue 2 */
     color: #f6f6f4; /* Aluminium 0 */
 	-moz-border-radius: 5px;
@@ -437,8 +437,13 @@ table td.icon {
     color: #2e3436; /* Aluminium 6 */
 }
 
-#content h1 {
+.content h1 {
     margin: 20px 0 5px 0;
+    font-weight: normal;
+}
+
+.content h2, .content h3 {
+    margin: 0;
     font-weight: normal;
 }
 
