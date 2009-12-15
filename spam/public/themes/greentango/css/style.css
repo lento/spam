@@ -437,18 +437,13 @@ table td.icon {
     color: #2e3436; /* Aluminium 6 */
 }
 
-.content h1 {
-    margin: 20px 0 5px 0;
-    font-weight: normal;
-}
-
-.content h2, .content h3 {
+.content h1, .content h2, .content h3 {
     margin: 0;
     font-weight: normal;
 }
 
 .content .toggleable {
-    margin-left: 20px;
+    margin: 0 0 10px 20px;
 }
 
 /**********************************************************************
