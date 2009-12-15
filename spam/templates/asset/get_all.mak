@@ -6,7 +6,7 @@
 <br/>
 <br/>
 % for cat, assets in assets_per_category.iteritems():
-    <div id="temp_toggle" class="toggle ${len(assets)==0 and 'hidden' or ''}">
+    <div id="${'toggle_%s' % cat}" class="toggle ${len(assets)==0 and 'hidden' or ''}">
         <div class="toggle_header title">
             <span class="toggle_arrow"/>
             <span class="toggle_title">${cat}</span>

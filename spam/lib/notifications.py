@@ -9,6 +9,7 @@ import logging
 log = logging.getLogger(__name__)
 
 TOPIC_USERS = config.get('stomp_topic_users', '/topic/users')
+TOPIC_GROUPS = config.get('stomp_topic_groups', '/topic/groups')
 TOPIC_CATEGORIES = config.get('stomp_topic_categories', '/topic/categories')
 TOPIC_PROJECTS = config.get('stomp_topic_projects', '/topic/projects')
 TOPIC_SCENES = config.get('stomp_topic_scenes', '/topic/scenes')
@@ -40,7 +41,7 @@ class StompClient(object):
         self.thread = threading.Thread(None, self._start_connection)
         self.thread.start()
     
-    def send(self, instance, update_type="updated", destination=None):
+    def send(self, instance, update_type="updated", destination=None, **kwargs):
         """Send a message to the stomp server.
         
         The message body is a json object in the form:
@@ -50,7 +51,9 @@ class StompClient(object):
         """
         if not destination:
             destination = self.topics.get(type(instance), None)
-        msg = json_encode(dict(ob=instance, update_type=update_type))
+        content = dict(ob=instance, update_type=update_type)
+        content.update(kwargs)
+        msg = json_encode(content)
         
         try:
             self.connection.send(msg, destination=destination)

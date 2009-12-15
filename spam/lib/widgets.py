@@ -3,7 +3,7 @@ from tg import app_globals as G
 from tw.api import Widget, WidgetsList, JSLink, js_function
 from tw.forms import TableForm, TextField, TextArea, HiddenField, FormField
 from tw.forms import CalendarDatePicker, SingleSelectField, FileField, Spacer
-from tw.forms import PasswordField
+from tw.forms import PasswordField, MultipleSelectField
 from tw.forms.validators import All, Any, Regex, MaxLength, NotEmpty, Int
 from spam.lib.twlib.livetable import LiveTable, IconButton, TextData, ThumbData
 from spam.lib.twlib.livetable import IconBox, LinkData
@@ -64,6 +64,23 @@ class TableUsers(LiveTable):
             IconButton(id='delete', icon_class='delete',
               action=url('/user/%(user_name)s/delete')),
         ])
+
+
+class TableGroupUsers(LiveTable):
+    javascript = [notify_client_js]
+    update_topic = '/topic/groups'
+    class fields(WidgetsList):
+        user_name = TextData(sort_default=True)
+        display_name = TextData()
+        actions = IconBox(buttons=[
+            IconButton(id='remove', icon_class='delete',
+              action=url('/user/%(user_name)s/%(group_name)s/remove')),
+        ])
+    
+    def update_params(self, d):
+        super(TableGroupUsers, self).update_params(d)
+        d['update_condition'] = 'msg.group_name=="%s"' % (
+                                                d['extra_data']['group_name'])
 
 
 class TableCategories(LiveTable):
@@ -243,6 +260,12 @@ class FormUserConfirm(TableForm):
         user_name_ = TextField(disabled=True, validator=None)
         display_name_ = TextField(disabled=True, validator=None)
 
+
+class FormUserAddToGroup(TableForm):
+    class fields(WidgetsList):
+        _method = HiddenField(default='ADD', validator=None)
+        group_id = HiddenField(validator=Int(not_empty=True))
+        userids = MultipleSelectField(label_text='Users', options=[], size=20)
 
 # Category
 class FormCategoryNew(TableForm):

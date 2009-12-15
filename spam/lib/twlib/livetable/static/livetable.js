@@ -27,8 +27,9 @@ livetable.update_sorter = function(table_id, callback) {
     }
 }
 
-livetable.addrow = function(table_id, item, show_update) {
+livetable.addrow = function(table_id, item, show_update, extra_data) {
     var show_update = typeof(show_update) != 'undefined' ? show_update : true;
+    var extra_data = typeof(extra_data) != 'undefined' ? extra_data : {};
 
     var table = $("#" + table_id);
     var row = $('<tr id="' + table_id + '_' + item.id + '"></tr>');
@@ -40,7 +41,9 @@ livetable.addrow = function(table_id, item, show_update) {
                 var id = this.id;
                 var field_class = this.field_class;
                 var field_maker = this.maker;
-                row.append('<td class="' + field_class + '">' + field_maker(item, id) + '</td>');
+                var data = item;
+                $.each(extra_data, function(key, value) {data[key] = value;});
+                row.append('<td class="' + field_class + '">' + field_maker(data, id) + '</td>');
             }
         });
     };

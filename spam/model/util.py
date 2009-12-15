@@ -7,7 +7,7 @@ from sqlalchemy.exceptions import InvalidRequestError
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 from spam.lib.exceptions import SPAMDBError, SPAMDBNotFound
 from spam.model import DBSession, Project, Scene, Shot, LibraryGroup, Asset
-from spam.model import AssetCategory, User
+from spam.model import AssetCategory, User, Group
 from spam.model import sharding
 
 def add_shard(proj):
@@ -45,6 +45,22 @@ def user_get(id_or_name):
         raise SPAMDBNotFound('User "%s" could not be found.' % id_or_name)
     except MultipleResultsFound:
         raise SPAMDBError('Error when searching user "%s".' % id_or_name)
+
+def group_get(id_or_name):
+    """return a group"""
+    query = session_get().query(Group)
+    if isinstance(id_or_name, int):
+        query = query.filter_by(group_id=id_or_name)
+    elif isinstance(id_or_name, str):
+        query = query.filter_by(group_name=id_or_name)
+    else:
+        raise SPAMDBError('Error when searching group "%s".' % id_or_name)
+    try:
+        return query.one()
+    except NoResultFound:
+        raise SPAMDBNotFound('Group "%s" could not be found.' % id_or_name)
+    except MultipleResultsFound:
+        raise SPAMDBError('Error when searching group "%s".' % id_or_name)
 
 def project_get(proj):
     """Return a lazyloaded project"""

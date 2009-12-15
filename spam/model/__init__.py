@@ -49,6 +49,7 @@ sharding.common_tables = set([User.__table__,
 from util import query_projects, query_projects_archived, project_get
 from util import project_get_eager, session_get, scene_get, shot_get, add_shard
 from util import container_get, asset_get, category_get, libgroup_get, user_get
+from util import group_get
 
 # Init model
 def init_model(engine):

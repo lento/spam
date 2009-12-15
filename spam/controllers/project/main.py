@@ -10,7 +10,7 @@ from spam.lib.widgets import ProjectsActive, ProjectsArchived
 from spam.lib import repo
 from spam.lib.notifications import notify
 from spam.lib.decorators import project_set_active
-from spam.lib.predicates import is_project_user
+from spam.lib.predicates import is_project_user, is_project_admin
 from repoze.what.predicates import in_group
 
 from tabs import TabController
@@ -54,6 +54,9 @@ class Controller(RestController):
                 ('Scenes', url('/scene/%s' % project.id)),
                 ('Library', url('/libgroup/%s' % project.id)),
                ]
+        if is_project_admin():
+            tabs.append(('Users', 'tab/users'))
+        
         return dict(page='project/%s' % project.id, tabs=tabs,
                                             sidebar=('projects', project.id))
 

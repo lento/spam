@@ -25,7 +25,7 @@
         $("#${id}").tablesorter({widgets: ['zebra'], headers: ${json_encode(sort_headers)}});
 
         $.each(${json_encode(items) | n}, function() {
-            livetable.addrow("${id}", this, false);
+            livetable.addrow("${id}", this, false, ${json_encode(extra_data)});
         });
         
         % if sort_list and items:
@@ -38,7 +38,7 @@
                     if (${update_condition | n}) {
                         $.each(${update_functions}, function(type, func) {
                             if (msg.update_type==type) {
-                                func("${id}", msg.ob);
+                                func("${id}", msg.ob, true, ${json_encode(extra_data)});
                             }
                         });
                     }

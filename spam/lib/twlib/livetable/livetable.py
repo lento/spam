@@ -19,7 +19,8 @@ def name2label(name):
 
 class LiveTable(Widget):
     params = ['id', 'items', 'show_headers', 'update_listener_adder',
-              'update_topic', 'update_condition', 'update_functions']
+              'update_topic', 'update_condition', 'update_functions',
+              'extra_data']
     template = 'mako:spam.lib.twlib.livetable.templates.livetable'
     
     js_calls = []
@@ -30,6 +31,7 @@ class LiveTable(Widget):
                         ' "deleted": livetable.deleterow,'
                         ' "updated": livetable.updaterow}'
                        )
+    extra_data = {}
     
     def __new__(cls, id=None, parent=None, children=[], **kw):
         # add livetable javascripts to those defined by the subclassed widgets
