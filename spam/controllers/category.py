@@ -1,7 +1,7 @@
 from tg import expose, url, tmpl_context, redirect, validate, require
 from tg.controllers import RestController
 from pylons.i18n import ugettext as _, lazy_ugettext as l_
-from spam.model import session_get, AssetCategory, category_get
+from spam.model import session_get, Category, category_get
 from spam.lib.widgets import FormCategoryNew, FormCategoryEdit
 from spam.lib.widgets import FormCategoryConfirm, TableCategories
 from spam.lib.notifications import notify
@@ -24,7 +24,7 @@ class Controller(RestController):
     @expose('spam.templates.category.get_all')
     def get_all(self):
         tmpl_context.t_categories = t_categories
-        query = session_get().query(AssetCategory)
+        query = session_get().query(Category)
         categories = query.order_by('ordering', 'name')
         return dict(page='admin/categories', sidebar=('admin', 'categories'),
                                                         categories=categories)
@@ -55,7 +55,7 @@ class Controller(RestController):
         session = session_get()
         
         # add category to shared db
-        category = AssetCategory(name=name)
+        category = Category(name=name)
         session.add(category)
         
         # send a stomp message to notify clients

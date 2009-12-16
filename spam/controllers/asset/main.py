@@ -2,9 +2,8 @@ from tg import expose, url, tmpl_context, validate, require
 from tg.controllers import RestController
 from tg.decorators import with_trailing_slash
 from tw.forms import validators
-from spam.model import session_get, Asset, AssetCategory, category_get
+from spam.model import session_get, Asset, AssetVersion, Category, category_get
 from spam.model import project_get_eager, project_get, container_get, asset_get
-from spam.model import AssetVersion
 from spam.lib.widgets import FormAssetNew, FormAssetEdit, FormAssetConfirm
 from spam.lib.widgets import FormAssetPublish
 from spam.lib.widgets import TableAssets, TableAssetHistory, NotifyClientJS
@@ -78,7 +77,7 @@ class Controller(RestController):
                      container_type=container_type, container_id=container_id,
                     )
 
-        query = session_get().query(AssetCategory)
+        query = session_get().query(Category)
         categories = query.order_by('ordering', 'name')
         category_choices = [(0, '')]
         category_choices.extend([(cat.id, cat.name) for cat in categories])

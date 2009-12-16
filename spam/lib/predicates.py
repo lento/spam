@@ -33,7 +33,7 @@ class is_project_admin(Predicate):
     def evaluate(self, environ, credentials):
         if hasattr(tmpl_context, 'user') and hasattr(tmpl_context, 'project'):
             userid = credentials.get('repoze.what.userid')
-            if tmpl_context.project in tmpl_context.user.admin_projects:
+            if tmpl_context.project in tmpl_context.user.projects_as_admin:
                 return
             if in_group('administrators'):
                 return

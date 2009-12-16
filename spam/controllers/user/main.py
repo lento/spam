@@ -5,9 +5,10 @@ from tg.controllers import RestController
 from tg.decorators import with_trailing_slash
 from pylons.i18n import ugettext as _, lazy_ugettext as l_
 from spam.model import session_get, User, user_get, group_get, project_get
+from spam.model import category_get
 from spam.lib.widgets import FormUserNew, FormUserEdit
 from spam.lib.widgets import FormUserConfirm, FormUserAddToGroup
-from spam.lib.widgets import FormUserAddAdmins
+from spam.lib.widgets import FormUserAddAdmins, FormUserAddToCategory
 from spam.lib.notifications import notify, TOPIC_GROUPS, TOPIC_PROJECT_ADMINS
 from spam.lib.decorators import project_set_active
 from spam.lib.predicates import is_project_user, is_project_admin
@@ -24,6 +25,7 @@ f_edit = FormUserEdit(action=url('/user/'))
 f_confirm = FormUserConfirm(action=url('/user/'))
 f_add_to_group = FormUserAddToGroup(action=url('/user/'))
 f_add_admins = FormUserAddAdmins(action=url('/user/'))
+f_add_to_category = FormUserAddToCategory(action=url('/user/'))
 
 class Controller(RestController):
     
@@ -128,7 +130,9 @@ class Controller(RestController):
 
     # Custom REST-like actions
     custom_actions = ['add_to_group', 'remove_from_group',
-                      'add_admins', 'remove_admins',
+                      'add_admins', 'remove_admin',
+                      'add_supervisors', 'remove_supervisor',
+                      'add_artists', 'remove_artist',
                      ]
 
     @require(in_group('administrators'))
@@ -187,7 +191,7 @@ class Controller(RestController):
         users = session_get().query(User)
         choices = [(u.user_id, '%-16s (%s)' % (u.user_name, u.display_name))
                                                                 for u in users]
-        fargs = dict(_method='ADD_ADMINS', proj=project.id,)
+        fargs = dict(proj=project.id)
         fcargs = dict(userids=dict(options=choices))
         return dict(title='Add users to "%s" administrators' % project.id,
                                                 args=fargs, child_args=fcargs)
@@ -198,7 +202,7 @@ class Controller(RestController):
     @expose('spam.templates.forms.result')
     @validate(f_add_admins, error_handler=get_add_admins)
     def post_add_admins(self, proj, userids, **kwargs):
-        """Add administrators to a project """
+        """Add administrators to a project"""
         session = session_get()
         project = tmpl_context.project
         session.refresh(project)
@@ -219,7 +223,7 @@ class Controller(RestController):
     @require(is_project_admin())
     @expose('json')
     @expose('spam.templates.forms.result')
-    def remove_admins(self, proj, user_name, **kwargs):
+    def remove_admin(self, proj, user_name, **kwargs):
         """Remove an administrator from a project"""
         session = session_get()
         user = user_get(user_name)
@@ -234,4 +238,128 @@ class Controller(RestController):
                         (user.user_name, project.id), result='success')
         return dict(msg='user "%s" cannot be removed from "%s" administrators' %
                         (user.user_name, project.id), result='failed')
+
+    @project_set_active
+    @require(is_project_admin())
+    @expose('spam.templates.forms.form')
+    def get_add_supervisors(self, proj, category_id, **kwargs):
+        """Display a ADD supervisors form."""
+        tmpl_context.form = f_add_to_category
+        project = tmpl_context.project
+        category = category_get(category_id)
+        users = session_get().query(User)
+        choices = [(u.user_id, '%-16s (%s)' % (u.user_name, u.display_name))
+                                                                for u in users]
+        fargs = dict(_method='ADD_SUPERVISORS', proj=project.id,
+                                                        category_id=category.id)
+        fcargs = dict(userids=dict(options=choices))
+        return dict(title='Add supervisors for "%s"' % category.name,
+                                                args=fargs, child_args=fcargs)
+
+    @project_set_active
+    @require(is_project_admin())
+    @expose('json')
+    @expose('spam.templates.forms.result')
+    @validate(f_add_to_category, error_handler=get_add_supervisors)
+    def post_add_supervisors(self, proj, category_id, userids, **kwargs):
+        """Add supervisors to a category"""
+        session = session_get()
+        project = tmpl_context.project
+        session.refresh(project)
+        category = category_get(category_id)
+        added = []
+        for uid in userids:
+            user = user_get(int(uid))
+            if user not in category.supervisors:
+                category.supervisors.append(user)
+                added.append(user.user_name)
+                notify.send(user, update_type='added', proj=project.id,
+                            category_id=category.id,
+                            destination=TOPIC_CATEGORY_SUPERVISORS)
+            
+        return dict(msg='added supervisor(s) %s for "%s"' %
+                                    (added, category_name), result='success')
+
+    @project_set_active
+    @require(is_project_admin())
+    @expose('json')
+    @expose('spam.templates.forms.result')
+    def remove_supervisor(self, proj, category_id, user_name, **kwargs):
+        """Remove a supervisor from a category"""
+        session = session_get()
+        project = tmpl_context.project
+        session.refresh(project)
+        category = category_get(category_id)
+        user = user_get(user_name)
+        if user in category.supervisors:
+            category.supervisors.remove(user)
+            notify.send(user, update_type='deleted', proj=project.id,
+                        category_id=category.id,
+                        destination=TOPIC_CATEGORY_SUPERVISORS)
+            return dict(msg='supervisor "%s" removed from "%s"' %
+                        (user.user_name, category.name), result='success')
+        return dict(msg='supervisor "%s" cannot be removed from "%s"' %
+                        (user.user_name, category.name), result='failed')
+
+    @project_set_active
+    @require(is_project_admin())
+    @expose('spam.templates.forms.form')
+    def get_add_artists(self, proj, category_id, **kwargs):
+        """Display a ADD artists form."""
+        tmpl_context.form = f_add_to_category
+        project = tmpl_context.project
+        category = category_get(category_id)
+        users = session_get().query(User)
+        choices = [(u.user_id, '%-16s (%s)' % (u.user_name, u.display_name))
+                                                                for u in users]
+        fargs = dict(_method='ADD_ARTISTS', proj=project.id,
+                                                        category_id=category.id)
+        fcargs = dict(userids=dict(options=choices))
+        return dict(title='Add artists for "%s"' % category.name,
+                                                args=fargs, child_args=fcargs)
+
+    @project_set_active
+    @require(is_project_admin())
+    @expose('json')
+    @expose('spam.templates.forms.result')
+    @validate(f_add_to_category, error_handler=get_add_artists)
+    def post_add_artists(self, proj, category_id, userids, **kwargs):
+        """Add artists to a category"""
+        session = session_get()
+        project = tmpl_context.project
+        session.refresh(project)
+        category = category_get(category_id)
+        added = []
+        for uid in userids:
+            user = user_get(int(uid))
+            if user not in category.artists:
+                category.artists.append(user)
+                added.append(user.user_name)
+                notify.send(user, update_type='added', proj=project.id,
+                            category_id=category.id,
+                            destination=TOPIC_CATEGORY_ARTISTS)
+            
+        return dict(msg='added artist(s) %s for "%s"' %
+                                    (added, category_name), result='success')
+
+    @project_set_active
+    @require(is_project_admin())
+    @expose('json')
+    @expose('spam.templates.forms.result')
+    def remove_artist(self, proj, category_id, user_name, **kwargs):
+        """Remove an artist from a category"""
+        session = session_get()
+        project = tmpl_context.project
+        session.refresh(project)
+        category = category_get(category_id)
+        user = user_get(user_name)
+        if user in category.artists:
+            category.artists.remove(user)
+            notify.send(user, update_type='deleted', proj=project.id,
+                        category_id=category.id,
+                        destination=TOPIC_CATEGORY_ARTIST)
+            return dict(msg='artist "%s" removed from "%s"' %
+                        (user.user_name, category.name), result='success')
+        return dict(msg='artist "%s" cannot be removed from "%s"' %
+                        (user.user_name, category.name), result='failed')
 

@@ -283,11 +283,21 @@ class FormUserAddToGroup(TableForm):
         group_id = HiddenField(validator=Int(not_empty=True))
         userids = MultipleSelectField(label_text='Users', options=[], size=20)
 
+
 class FormUserAddAdmins(TableForm):
     class fields(WidgetsList):
-        _method = HiddenField(default='ADD_TO_GROUP', validator=None)
+        _method = HiddenField(default='ADD_ADMINS', validator=None)
         proj = HiddenField(validator=NotEmpty)
         userids = MultipleSelectField(label_text='Users', options=[], size=20)
+
+
+class FormUserAddToCategory(TableForm):
+    class fields(WidgetsList):
+        _method = HiddenField(default='', validator=None)
+        proj = HiddenField(validator=NotEmpty)
+        category_id = HiddenField(validator=NotEmpty)
+        userids = MultipleSelectField(label_text='Users', options=[], size=20)
+
 
 # Category
 class FormCategoryNew(TableForm):

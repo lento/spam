@@ -158,6 +158,20 @@ class User(DeclarativeBase):
         hashed_pass.update(password + self.password[:40])
         return self.password[40:] == hashed_pass.hexdigest()
 
+    @property
+    def projects_as_supervisor(self):
+        return [s.project for s in self._supervisor_for]
+    
+    @property
+    def projects_as_artist(self):
+        return [a.project for a in self._artist_for]
+    
+    @property
+    def projects(self):
+        return (set(self.projects_as_supervisor) |
+                set(self.projects_as_artist) |
+                set(self.projects_as_admin))
+    
     # Special methods
     def __repr__(self):
         return '<User: email="%s", display name="%s">' % (

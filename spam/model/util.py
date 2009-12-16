@@ -7,7 +7,7 @@ from sqlalchemy.exceptions import InvalidRequestError
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 from spam.lib.exceptions import SPAMDBError, SPAMDBNotFound
 from spam.model import DBSession, Project, Scene, Shot, LibraryGroup, Asset
-from spam.model import AssetCategory, User, Group
+from spam.model import Category, User, Group
 from spam.model import sharding
 
 def add_shard(proj):
@@ -130,7 +130,7 @@ def asset_get(proj, asset_id):
 
 def category_get(id_or_name):
     """return a asset category"""
-    query = session_get().query(AssetCategory)
+    query = session_get().query(Category)
     if isinstance(id_or_name, int):
         query = query.filter_by(id=id_or_name)
     elif isinstance(id_or_name, str):

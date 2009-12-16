@@ -30,7 +30,7 @@ class Asset(DeclarativeBase):
     proj_id = Column(Unicode(10))
     name = Column(Unicode(50))
     parent_id = Column(Integer)
-    category_id = Column(Integer, ForeignKey('asset_categories.id'))
+    category_id = Column(Integer, ForeignKey('categories.id'))
     user_id = Column(Integer, ForeignKey('auth_users.user_id'))
     checkedout = Column(Boolean, default=False)
     submitter_id = Column(Integer, ForeignKey('auth_users.user_id'))
@@ -39,17 +39,6 @@ class Asset(DeclarativeBase):
     approver_id = Column(Integer, ForeignKey('auth_users.user_id'))
     approved = Column(Boolean, default=False)
     approved_date = Column(DateTime)
-
-
-class AssetCategory(DeclarativeBase):
-    """Asset category"""
-    __tablename__ = "asset_categories"
-    
-    # Columns
-    id = Column(Integer, autoincrement=True, primary_key=True)
-    name = Column(Unicode(30), unique=True)
-    ordering = Column(Integer)
-    #naming_convention = Column(Unicode(30))
 
 
 class AssetVersion(DeclarativeBase):
@@ -69,16 +58,53 @@ class AssetVersion(DeclarativeBase):
     #note_id = Column(None, ForeignKey('notes_associations.assoc_id'))
 
 
+class Category(DeclarativeBase):
+    """Asset category"""
+    __tablename__ = "categories"
+    
+    # Columns
+    id = Column(Integer, autoincrement=True, primary_key=True)
+    name = Column(Unicode(30), unique=True)
+    ordering = Column(Integer)
+    #naming_convention = Column(Unicode(30))
+
+
+class Supervisor(DeclarativeBase):
+    """Category supervisor"""
+    __tablename__ = "supervisors"
+    
+    # Columns
+    id = Column(Integer, autoincrement=True, primary_key=True)
+    proj_id = Column(Unicode(10))
+    category_id = Column(Integer)
+    user_id = Column(Integer)
+
+
+class Artist(DeclarativeBase):
+    """Category artist"""
+    __tablename__ = "artists"
+    
+    # Columns
+    id = Column(Integer, autoincrement=True, primary_key=True)
+    proj_id = Column(Unicode(10))
+    category_id = Column(Integer)
+    user_id = Column(Integer)
+
+
 def upgrade():
     # Upgrade operations go here. Don't create your own engine; use the engine
     # named 'migrate_engine' imported from migrate.
     Asset.__table__.create()
-    AssetCategory.__table__.create()
     AssetVersion.__table__.create()
+    Category.__table__.create()
+    Supervisor.__table__.create()
+    Artist.__table__.create()
 
 def downgrade():
     # Operations to reverse the above upgrade go here.
     Asset.__table__.drop()
-    AssetCategory.__table__.drop()
     AssetVersion.__table__.drop()
+    Category.__table__.drop()
+    Supervisor.__table__.drop()
+    Artist.__table__.drop()
 

@@ -2,7 +2,7 @@ import stomp, threading
 from stomp.exception import ConnectionClosedException, NotConnectedException
 from tg import config
 from spam.lib.jsonify import encode as json_encode
-from spam.model import User, AssetCategory
+from spam.model import User, Category
 from spam.model import Project, Scene, Shot, Asset, LibraryGroup
 
 import logging
@@ -24,7 +24,7 @@ class StompClient(object):
     def __init__(self):
         self.connection = None
         self.topics = {User: TOPIC_USERS,
-                       AssetCategory: TOPIC_CATEGORIES,
+                       Category: TOPIC_CATEGORIES,
                        Project: TOPIC_PROJECTS,
                        Scene: TOPIC_SCENES,
                        Shot: TOPIC_SHOTS,

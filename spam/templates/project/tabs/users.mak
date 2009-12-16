@@ -30,7 +30,7 @@
                     <h2 class="toggle_title">${cat.name}</h2>
                 </div>
                 <div class="toggleable">
-                    <a href="${tg.url('/user/%s/add' % cat.name)}"
+                    <a href="${tg.url('/user/%s/%s/add_supervisors' % (c.project.id, cat.name))}"
                        rel="#overlay" class="overlay button">add</a>
                     <br/>
                     <br/>
@@ -57,7 +57,7 @@
                     <h2 class="toggle_title">${cat.name}</h2>
                 </div>
                 <div class="toggleable">
-                    <a href="${tg.url('/user/%s/add' % cat.name)}"
+                    <a href="${tg.url('/user/%s/%s/add_artists' % (c.project.id, cat.name))}"
                        rel="#overlay" class="overlay button">add</a>
                     <br/>
                     <br/>

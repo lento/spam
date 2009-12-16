@@ -60,16 +60,21 @@ class Project(DeclarativeBase):
     archived = Column(Boolean, default=False)
     
     # Relations
-    users = relation('User', secondary=project_user_table,
-        primaryjoin='and_(Project.id==__project_user.c.project_id, '
-                         'Project.archived==False)',
-        secondaryjoin='__project_user.c.user_id==User.user_id',
-        backref='projects')
+    #users = relation('User', secondary=project_user_table,
+    #    primaryjoin='and_(Project.id==__project_user.c.project_id, '
+    #                     'Project.archived==False)',
+    #    secondaryjoin='__project_user.c.user_id==User.user_id',
+    #    backref='projects')
     
     admins = relation('User', secondary=project_admin_table,
-                                                    backref='admin_projects')
+                                                    backref='projects_as_admin')
     
     # Properties
+    @property
+    def users(self):
+        return (set([s.user for s in self.supervisors]) |
+                set([a.user for a in self.artists]))
+    
     @property
     def schema_is_uptodate(self):
         proj_version = db_get_version(self.id)
@@ -351,7 +356,7 @@ class Asset(DeclarativeBase):
     proj_id = Column(Unicode(10))
     name = Column(Unicode(50))
     parent_id = Column(Integer)
-    category_id = Column(Integer, ForeignKey('asset_categories.id'))
+    category_id = Column(Integer, ForeignKey('categories.id'))
     user_id = Column(Integer, ForeignKey('auth_users.user_id'))
     checkedout = Column(Boolean, default=False)
     submitter_id = Column(Integer, ForeignKey('auth_users.user_id'))
@@ -368,7 +373,7 @@ class Asset(DeclarativeBase):
                 viewonly=True,
               )
     
-    category = relation('AssetCategory', backref=backref('assets'))
+    category = relation('Category', backref=backref('assets'))
     
     user = relation('User',
                         primaryjoin=user_id==User.user_id,
@@ -440,40 +445,6 @@ class Asset(DeclarativeBase):
                 }
 
 
-class AssetCategory(DeclarativeBase):
-    """Asset category"""
-    __tablename__ = "asset_categories"
-    
-    # Columns
-    id = Column(Integer, autoincrement=True, primary_key=True)
-    name = Column(Unicode(30), unique=True)
-    ordering = Column(Integer)
-    #naming_convention = Column(Unicode(30))
-    
-    # Relations
-    #users = relation('User', secondary=users_category_table,
-    #                        order_by='User.user_name',
-    #                        backref=backref('categories'))
-
-    #supervisors = relation('User', secondary=supervisors_category_table,
-    #                        order_by='User.user_name',
-    #                        backref=backref('supervised_categories'))
-
-    # Special methods
-    def __init__(self, name, ordering=0):
-        self.name = name
-        self.ordering = ordering
-
-    def __repr__(self):
-        return '<AssetCategory: %s "%s">' % (self.id or 0, self.name)
-
-    def __json__(self):
-        return {'id': self.id,
-                'name': self.name,
-                'ordering': self.ordering,
-                }
-
-
 class AssetVersion(DeclarativeBase):
     """Asset version"""
     __tablename__ = "asset_versions"
@@ -531,4 +502,106 @@ class AssetVersion(DeclarativeBase):
                 }
 
 
+############################################################
+# Categories
+############################################################
+class Category(DeclarativeBase):
+    """Asset category"""
+    __tablename__ = "categories"
+    
+    # Columns
+    id = Column(Integer, autoincrement=True, primary_key=True)
+    name = Column(Unicode(30), unique=True)
+    ordering = Column(Integer)
+    #naming_convention = Column(Unicode(30))
+    
+    # Special methods
+    def __init__(self, name, ordering=0):
+        self.name = name
+        self.ordering = ordering
+
+    def __repr__(self):
+        return '<Category: %s "%s">' % (self.id or 0, self.name)
+
+    def __json__(self):
+        return {'id': self.id,
+                'name': self.name,
+                'ordering': self.ordering,
+                }
+
+
+class Supervisor(DeclarativeBase):
+    """Category supervisor"""
+    __tablename__ = "supervisors"
+    
+    # Columns
+    id = Column(Integer, autoincrement=True, primary_key=True)
+    proj_id = Column(Unicode(10))
+    category_id = Column(Integer)
+    user_id = Column(Integer)
+
+    # Relations
+    project = relation('Project', primaryjoin=proj_id==Project.id,
+                                foreign_keys=[proj_id], backref='supervisors')
+
+    category = relation('Category', primaryjoin=category_id==Category.id,
+                                                    foreign_keys=[category_id])
+
+    user = relation('User', primaryjoin=user_id==User.user_id,
+                    foreign_keys=[user_id], backref='_supervisor_for')
+    
+    # Special methods
+    def __init__(self, proj, category, user):
+        self.proj_id = proj
+        self.category = category
+        self.user = user
+
+    def __repr__(self):
+        return '<Supervisor: (%s) "%s" %s>' % (self.proj_id, self.category.name,
+                                                            self.user.user_name)
+
+    def __json__(self):
+        return dict(id=self.id,
+                    proj_id=self.proj_id,
+                    category_id=self.category_id,
+                    user_id=self.user_id,
+                   )
+
+
+class Artist(DeclarativeBase):
+    """Category artist"""
+    __tablename__ = "artists"
+    
+    # Columns
+    id = Column(Integer, autoincrement=True, primary_key=True)
+    proj_id = Column(Unicode(10))
+    category_id = Column(Integer)
+    user_id = Column(Integer)
+
+    # Relations
+    project = relation('Project', primaryjoin=proj_id==Project.id,
+                                    foreign_keys=[proj_id], backref='artists')
+
+    category = relation('Category', primaryjoin=category_id==Category.id,
+                                                    foreign_keys=[category_id])
+
+    user = relation('User', primaryjoin=user_id==User.user_id,
+                        foreign_keys=[user_id], backref='_artist_for')
+    
+    # Special methods
+    def __init__(self, proj, category, user):
+        self.proj_id = proj
+        self.category = category
+        self.user = user
+
+    def __repr__(self):
+        return '<Artist: (%s) "%s" %s>' % (self.proj_id, self.category.name,
+                                                            self.user.user_name)
+
+    def __json__(self):
+        return dict(id=self.id,
+                    proj_id=self.proj_id,
+                    category_id=self.category_id,
+                    user_id=self.user_id,
+                   )
 

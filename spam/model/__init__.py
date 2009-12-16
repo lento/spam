@@ -29,11 +29,12 @@ from versioning import db_upgrade, db_downgrade
 # Models import
 from auth import User, Group, Permission, group_permission_table
 from auth import user_group_table
-from project import Project, Scene, Shot, LibraryGroup, Asset, AssetCategory
-from project import AssetVersion, project_user_table, project_admin_table
+from project import Project, Scene, Shot, LibraryGroup, Asset, AssetVersion
+from project import project_user_table, project_admin_table
+from project import Category, Supervisor, Artist
 
 # Set which classes and tables belong to the common db
-sharding.common_classes = [User, Group, Permission, Project, AssetCategory]
+sharding.common_classes = [User, Group, Permission, Project, Category]
 sharding.common_tables = set([User.__table__,
                               Group.__table__,
                               Permission.__table__,
@@ -42,7 +43,7 @@ sharding.common_tables = set([User.__table__,
                               Project.__table__,
                               project_user_table,
                               project_admin_table,
-                              AssetCategory.__table__,
+                              Category.__table__,
                              ])
 
 # Caching & helpers
