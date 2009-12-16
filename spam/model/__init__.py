@@ -5,6 +5,28 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import scoped_session, sessionmaker, lazyload, eagerload
 from sqlalchemy.orm.shard import ShardedSession
 
+# Utility classes
+class MappedList(list):
+    """A custom list to map a collection and return lists"""
+    def __init__(self, keyattr, targetattr=None, values=[]):
+        self._keyattr = keyattr
+        self._targetattr = targetattr
+        list.__init__(self, values)
+        
+    def __getitem__(self, key):
+        if isinstance(key, int):
+            return list.__getitem__(self, key)
+        else:
+            result = [x for x in self if getattr(x, self._keyattr)==key]
+            if self._targetattr:
+                result = [getattr(x, self._targetattr) for x in result]
+            return result
+        
+def mapped_list(keyattr, targetattr=None, values=[]):
+    """Factory function for MappedList instances"""
+    return lambda: MappedList(keyattr, targetattr, values)
+
+
 # Base class for all of our model classes (SQLAlchemy's declarative extension)
 DeclarativeBase = declarative_base()
 

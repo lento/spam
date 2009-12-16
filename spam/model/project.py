@@ -13,7 +13,7 @@ from sqlalchemy.types import String
 from sqlalchemy.orm import relation, synonym, backref
 
 from tg import app_globals as G
-from spam.model import DeclarativeBase, metadata
+from spam.model import DeclarativeBase, metadata, mapped_list
 from spam.model import migraterepo_get_version, db_get_version
 from spam.model import db_upgrade, db_downgrade
 from spam.model.auth import User
@@ -544,13 +544,23 @@ class Supervisor(DeclarativeBase):
 
     # Relations
     project = relation('Project', primaryjoin=proj_id==Project.id,
-                                foreign_keys=[proj_id], backref='supervisors')
+                       foreign_keys=[proj_id],
+                       backref=backref('supervisors',
+                                       collection_class=mapped_list('category',
+                                                             targetattr='user')
+                                      )
+                      )
 
     category = relation('Category', primaryjoin=category_id==Category.id,
-                                                    foreign_keys=[category_id])
+                        foreign_keys=[category_id],
+                        backref=backref('supervisors',
+                                        collection_class=mapped_list('project',
+                                                             targetattr='user')
+                                       )
+                       )
 
     user = relation('User', primaryjoin=user_id==User.user_id,
-                    foreign_keys=[user_id], backref='_supervisor_for')
+                            foreign_keys=[user_id], backref='_supervisor_for')
     
     # Special methods
     def __init__(self, proj, category, user):
@@ -582,10 +592,20 @@ class Artist(DeclarativeBase):
 
     # Relations
     project = relation('Project', primaryjoin=proj_id==Project.id,
-                                    foreign_keys=[proj_id], backref='artists')
+                       foreign_keys=[proj_id],
+                       backref=backref('artists',
+                                       collection_class=mapped_list('category',
+                                                             targetattr='user')
+                                      )
+                      )
 
     category = relation('Category', primaryjoin=category_id==Category.id,
-                                                    foreign_keys=[category_id])
+                        foreign_keys=[category_id],
+                        backref=backref('artists',
+                                        collection_class=mapped_list('project',
+                                                             targetattr='user')
+                                       )
+                       )
 
     user = relation('User', primaryjoin=user_id==User.user_id,
                         foreign_keys=[user_id], backref='_artist_for')

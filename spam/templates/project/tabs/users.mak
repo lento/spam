@@ -20,9 +20,6 @@
         <h1 class="toggle_title">${_('supervisors')}</h1>
     </div>
     <div class="toggleable">
-        ##${c.t_group_users(id='users_%s' % group.group_name,
-        ##                  extra_data=dict(group_name=group.group_name),
-        ##                  items=list(group.users)) | n}
         % for cat in categories:
             <div id="${'toggle_supervisors_%s' % cat.name}" class="toggle">
                 <div class="toggle_header title">
@@ -32,9 +29,9 @@
                 <div class="toggleable">
                     <a href="${tg.url('/user/%s/%s/add_supervisors' % (c.project.id, cat.name))}"
                        rel="#overlay" class="overlay button">add</a>
-                    <br/>
-                    <br/>
-                                
+                    ${c.t_project_supervisors(id='supervisors_%s_%s' % (c.project.id, cat.name),
+                                      extra_data=dict(proj=c.project.id, cat=cat.name),
+                                      items=list(supervisors[cat.name])) | n}
                 </div>
             </div>
         % endfor
@@ -47,9 +44,6 @@
         <h1 class="toggle_title">${_('artists')}</h1>
     </div>
     <div class="toggleable">
-        ##${c.t_group_users(id='users_%s' % group.group_name,
-        ##                  extra_data=dict(group_name=group.group_name),
-        ##                  items=list(group.users)) | n}
         % for cat in categories:
             <div id="${'toggle_artists_%s' % cat.name}" class="toggle">
                 <div class="toggle_header title">
@@ -59,9 +53,9 @@
                 <div class="toggleable">
                     <a href="${tg.url('/user/%s/%s/add_artists' % (c.project.id, cat.name))}"
                        rel="#overlay" class="overlay button">add</a>
-                    <br/>
-                    <br/>
-                    
+                    ${c.t_project_artists(id='artists_%s_%s' % (c.project.id, cat.name),
+                                      extra_data=dict(proj=c.project.id, cat=cat.name),
+                                      items=list(artists[cat.name])) | n}
                 </div>
             </div>
         % endfor

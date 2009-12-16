@@ -93,12 +93,46 @@ class TableProjectAdmins(LiveTable):
         display_name = TextData()
         actions = IconBox(buttons=[
             IconButton(id='remove', icon_class='delete',
-              action=url('/user/%(proj)s/%(user_name)s/remove_admins')),
+              action=url('/user/%(proj)s/%(user_name)s/remove_admin')),
         ])
     
     def update_params(self, d):
         super(TableProjectAdmins, self).update_params(d)
         d['update_condition'] = 'msg.proj=="%s"' % d['extra_data']['proj']
+
+
+class TableProjectSupervisors(LiveTable):
+    javascript = [notify_client_js]
+    update_topic = '/topic/project_supervisors'
+    class fields(WidgetsList):
+        user_name = TextData(sort_default=True)
+        display_name = TextData()
+        actions = IconBox(buttons=[
+            IconButton(id='remove', icon_class='delete',
+          action=url('/user/%(proj)s/%(cat)s/%(user_name)s/remove_supervisor')),
+        ])
+    
+    def update_params(self, d):
+        super(TableProjectSupervisors, self).update_params(d)
+        d['update_condition'] = 'msg.proj=="%s" && msg.cat=="%s"' % (
+                            (d['extra_data']['proj'], d['extra_data']['cat']))
+
+
+class TableProjectArtists(LiveTable):
+    javascript = [notify_client_js]
+    update_topic = '/topic/project_artists'
+    class fields(WidgetsList):
+        user_name = TextData(sort_default=True)
+        display_name = TextData()
+        actions = IconBox(buttons=[
+            IconButton(id='remove', icon_class='delete',
+              action=url('/user/%(proj)s/%(cat)s/%(user_name)s/remove_artist')),
+        ])
+    
+    def update_params(self, d):
+        super(TableProjectArtists, self).update_params(d)
+        d['update_condition'] = 'msg.proj=="%s" && msg.cat=="%s"' % (
+                            (d['extra_data']['proj'], d['extra_data']['cat']))
 
 
 class TableCategories(LiveTable):
@@ -298,7 +332,7 @@ class FormUserAddToCategory(TableForm):
     class fields(WidgetsList):
         _method = HiddenField(default='', validator=None)
         proj = HiddenField(validator=NotEmpty)
-        category_id = HiddenField(validator=NotEmpty)
+        category_id = HiddenField(validator=Int(not_empty=True))
         userids = MultipleSelectField(label_text='Users', options=[], size=20)
 
 

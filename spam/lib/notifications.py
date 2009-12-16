@@ -18,6 +18,10 @@ TOPIC_ASSETS = config.get('stomp_topic_assets', '/topic/assets')
 TOPIC_LIBGROUPS = config.get('stomp_topic_libgroups', '/topic/libgroups')
 TOPIC_PROJECT_ADMINS = config.get(
                         'stomp_topic_project_admins', '/topic/project_admins')
+TOPIC_PROJECT_SUPERVISORS = config.get(
+                'stomp_topic_project_supervisors', '/topic/project_supervisors')
+TOPIC_PROJECT_ARTISTS = config.get(
+                'stomp_topic_project_artists', '/topic/project_artists')
 
 
 class StompClient(object):

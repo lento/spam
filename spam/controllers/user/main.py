@@ -5,11 +5,15 @@ from tg.controllers import RestController
 from tg.decorators import with_trailing_slash
 from pylons.i18n import ugettext as _, lazy_ugettext as l_
 from spam.model import session_get, User, user_get, group_get, project_get
-from spam.model import category_get
+from spam.model import category_get, Supervisor, Artist
+from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
+from spam.lib.exceptions import SPAMDBError, SPAMDBNotFound
 from spam.lib.widgets import FormUserNew, FormUserEdit
 from spam.lib.widgets import FormUserConfirm, FormUserAddToGroup
 from spam.lib.widgets import FormUserAddAdmins, FormUserAddToCategory
 from spam.lib.notifications import notify, TOPIC_GROUPS, TOPIC_PROJECT_ADMINS
+from spam.lib.notifications import TOPIC_PROJECT_SUPERVISORS
+from spam.lib.notifications import TOPIC_PROJECT_ARTISTS
 from spam.lib.decorators import project_set_active
 from spam.lib.predicates import is_project_user, is_project_admin
 from repoze.what.predicates import in_group, not_anonymous
@@ -253,8 +257,8 @@ class Controller(RestController):
         fargs = dict(_method='ADD_SUPERVISORS', proj=project.id,
                                                         category_id=category.id)
         fcargs = dict(userids=dict(options=choices))
-        return dict(title='Add supervisors for "%s"' % category.name,
-                                                args=fargs, child_args=fcargs)
+        return dict(title='Add "%s" supervisors for "%s"' %
+                    (category.name, project.id), args=fargs, child_args=fcargs)
 
     @project_set_active
     @require(is_project_admin())
@@ -265,20 +269,19 @@ class Controller(RestController):
         """Add supervisors to a category"""
         session = session_get()
         project = tmpl_context.project
-        session.refresh(project)
         category = category_get(category_id)
+        users = [user_get(int(uid)) for uid in userids]
+        supervisors = [Supervisor(project.id, category, user) for user in users
+                                if user not in project.supervisors[category]]
         added = []
-        for uid in userids:
-            user = user_get(int(uid))
-            if user not in category.supervisors:
-                category.supervisors.append(user)
-                added.append(user.user_name)
-                notify.send(user, update_type='added', proj=project.id,
-                            category_id=category.id,
-                            destination=TOPIC_CATEGORY_SUPERVISORS)
-            
-        return dict(msg='added supervisor(s) %s for "%s"' %
-                                    (added, category_name), result='success')
+        for supervisor in supervisors:
+            added.append(supervisor.user.user_name)
+            notify.send(supervisor.user, update_type='added', proj=project.id,
+                            cat=category.name,
+                            destination=TOPIC_PROJECT_SUPERVISORS)
+        
+        return dict(msg='added "%s" supervisor(s) %s' %
+                            (category.name, ', '.join(added)), result='success')
 
     @project_set_active
     @require(is_project_admin())
@@ -288,18 +291,21 @@ class Controller(RestController):
         """Remove a supervisor from a category"""
         session = session_get()
         project = tmpl_context.project
-        session.refresh(project)
         category = category_get(category_id)
         user = user_get(user_name)
-        if user in category.supervisors:
-            category.supervisors.remove(user)
+        if user in project.supervisors[category]:
+            query = session.query(Supervisor).filter_by(proj_id=project.id)
+            query = query.filter_by(category_id=category.id)
+            query = query.filter_by(user_id=user.id)
+            sup = query.one()
+            session.delete(sup)
             notify.send(user, update_type='deleted', proj=project.id,
-                        category_id=category.id,
-                        destination=TOPIC_CATEGORY_SUPERVISORS)
-            return dict(msg='supervisor "%s" removed from "%s"' %
-                        (user.user_name, category.name), result='success')
-        return dict(msg='supervisor "%s" cannot be removed from "%s"' %
-                        (user.user_name, category.name), result='failed')
+                        cat=category.name,
+                        destination=TOPIC_PROJECT_SUPERVISORS)
+            return dict(msg='removed "%s" supervisor "%s"' %
+                        (category.name, user.user_name), result='success')
+        return dict(msg='"%s" supervisor "%s" cannot be removed' %
+                        (category.name, user.user_name), result='failed')
 
     @project_set_active
     @require(is_project_admin())
@@ -315,8 +321,8 @@ class Controller(RestController):
         fargs = dict(_method='ADD_ARTISTS', proj=project.id,
                                                         category_id=category.id)
         fcargs = dict(userids=dict(options=choices))
-        return dict(title='Add artists for "%s"' % category.name,
-                                                args=fargs, child_args=fcargs)
+        return dict(title='Add "%s" artists for "%s"' %
+                    (category.name, project.id), args=fargs, child_args=fcargs)
 
     @project_set_active
     @require(is_project_admin())
@@ -327,20 +333,19 @@ class Controller(RestController):
         """Add artists to a category"""
         session = session_get()
         project = tmpl_context.project
-        session.refresh(project)
         category = category_get(category_id)
+        users = [user_get(int(uid)) for uid in userids]
+        artists = [Artist(project.id, category, user) for user in users if
+                                        user not in project.artists[category]]
         added = []
-        for uid in userids:
-            user = user_get(int(uid))
-            if user not in category.artists:
-                category.artists.append(user)
-                added.append(user.user_name)
-                notify.send(user, update_type='added', proj=project.id,
-                            category_id=category.id,
-                            destination=TOPIC_CATEGORY_ARTISTS)
-            
-        return dict(msg='added artist(s) %s for "%s"' %
-                                    (added, category_name), result='success')
+        for artist in artists:
+            added.append(artist.user.user_name)
+            notify.send(artist.user, update_type='added', proj=project.id,
+                            cat=category.name,
+                            destination=TOPIC_PROJECT_ARTISTS)
+        
+        return dict(msg='added "%s" artist(s) %s' %
+                            (category.name, ', '.join(added)), result='success')
 
     @project_set_active
     @require(is_project_admin())
@@ -349,17 +354,21 @@ class Controller(RestController):
     def remove_artist(self, proj, category_id, user_name, **kwargs):
         """Remove an artist from a category"""
         session = session_get()
-        project = tmpl_context.project
-        session.refresh(project)
+        project = project_get(proj)
+        #session.refresh(project)
         category = category_get(category_id)
         user = user_get(user_name)
-        if user in category.artists:
-            category.artists.remove(user)
+        if user in project.artists[category]:
+            query = session.query(Artist).filter_by(proj_id=project.id)
+            query = query.filter_by(category_id=category.id)
+            query = query.filter_by(user_id=user.id)
+            artist = query.one()
+            session.delete(artist)
             notify.send(user, update_type='deleted', proj=project.id,
-                        category_id=category.id,
-                        destination=TOPIC_CATEGORY_ARTIST)
-            return dict(msg='artist "%s" removed from "%s"' %
-                        (user.user_name, category.name), result='success')
-        return dict(msg='artist "%s" cannot be removed from "%s"' %
-                        (user.user_name, category.name), result='failed')
+                        cat=category.name,
+                        destination=TOPIC_PROJECT_ARTISTS)
+            return dict(msg='removed "%s" artist "%s"' %
+                        (category.name, user.user_name), result='success')
+        return dict(msg='"%s" artist "%s" cannot be removed' %
+                        (category.name, user.user_name), result='failed')
 
