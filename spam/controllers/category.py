@@ -50,12 +50,12 @@ class Controller(RestController):
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_new, error_handler=new)
-    def post(self, name, **kwargs):
+    def post(self, name, naming_convention='', **kwargs):
         """Create a new category"""
         session = session_get()
         
         # add category to shared db
-        category = Category(name=name)
+        category = Category(name=name, naming_convention=naming_convention)
         session.add(category)
         
         # send a stomp message to notify clients
@@ -68,7 +68,8 @@ class Controller(RestController):
         """Display a EDIT form."""
         tmpl_context.form = f_edit
         category = category_get(name)
-        fargs = dict(category_id=category.id, name=category.name)
+        fargs = dict(category_id=category.id, name=category.name,
+                     naming_convention=category.naming_convention)
         fcargs = dict()
         return dict(title='Edit category "%s"' % category.name, args=fargs,
                                                             child_args=fcargs)
@@ -77,10 +78,11 @@ class Controller(RestController):
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_edit, error_handler=edit)
-    def put(self, category_id, name, **kwargs):
+    def put(self, category_id, name, naming_convention='', **kwargs):
         """Edit a category"""
         category = category_get(category_id)
         category.name = name
+        category.naming_convention = naming_convention
         notify.send(category, update_type='updated')
         return dict(msg='updated category "%s"' % name, result='success')
 
@@ -91,7 +93,8 @@ class Controller(RestController):
         tmpl_context.form = f_confirm
         category = category_get(category_id)
         fargs = dict(_method='DELETE', category_id=category.id,
-                     name_=category.name)
+                     name_=category.name,
+                     naming_convention_=category.naming_convention)
         fcargs = dict()
         warning = ('This will delete the category entry in the database. '
                    'All the assets in this category will be orphaned.')

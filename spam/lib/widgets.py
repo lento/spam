@@ -5,6 +5,8 @@ from tw.forms import TableForm, TextField, TextArea, HiddenField, FormField
 from tw.forms import CalendarDatePicker, SingleSelectField, FileField, Spacer
 from tw.forms import PasswordField, MultipleSelectField
 from tw.forms.validators import All, Any, Regex, MaxLength, NotEmpty, Int
+from tw.forms.validators import Schema
+from spam.lib.validators import CategoryNamingConvention
 from spam.lib.twlib.livetable import LiveTable, IconButton, TextData, ThumbData
 from spam.lib.twlib.livetable import IconBox, LinkData
 
@@ -105,6 +107,7 @@ class TableCategories(LiveTable):
     class fields(WidgetsList):
         ordering = TextData(sort_default=True)
         name = TextData()
+        naming_convention = TextData()
         actions = IconBox(buttons=[
             IconButton(id='edit', icon_class='edit',
               action=url('/category/%(name)s/edit')),
@@ -304,7 +307,7 @@ class FormCategoryNew(TableForm):
     class fields(WidgetsList):
         name = TextField(validator=All(Regex(G.pattern_name, not_empty=True),
                                        MaxLength(30)))
-
+        naming_convention = TextField(validator=MaxLength(255))
 
 class FormCategoryEdit(TableForm):
     class fields(WidgetsList):
@@ -312,6 +315,7 @@ class FormCategoryEdit(TableForm):
         category_id = HiddenField(validator=All(NotEmpty, Int))
         name = TextField(validator=All(Regex(G.pattern_name, not_empty=True),
                                        MaxLength(30)))
+        naming_convention = TextField(validator=MaxLength(255))
 
 
 class FormCategoryConfirm(TableForm):
@@ -319,6 +323,7 @@ class FormCategoryConfirm(TableForm):
         _method = HiddenField(default='', validator=None)
         category_id = HiddenField(validator=All(NotEmpty, Int))
         name_ = TextField(disabled=True, validator=None)
+        naming_convention_ = TextField(disabled=True, validator=None)
 
 
 # Project
@@ -472,6 +477,10 @@ class FormAssetNew(TableForm):
                 validator=Int(min=1,
                               messages={'tooLow': 'Please choose a category'}),
                 default=0)
+    
+    validator = Schema(
+        chained_validators=[CategoryNamingConvention('category_id', 'name')],
+        )
 
 class FormAssetEdit(TableForm):
     class fields(WidgetsList):

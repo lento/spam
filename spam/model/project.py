@@ -513,21 +513,23 @@ class Category(DeclarativeBase):
     id = Column(Integer, autoincrement=True, primary_key=True)
     name = Column(Unicode(30), unique=True)
     ordering = Column(Integer)
-    #naming_convention = Column(Unicode(30))
+    naming_convention = Column(Unicode(255))
     
     # Special methods
-    def __init__(self, name, ordering=0):
+    def __init__(self, name, ordering=0, naming_convention=''):
         self.name = name
         self.ordering = ordering
+        self.naming_convention = naming_convention
 
     def __repr__(self):
         return '<Category: %s "%s">' % (self.id or 0, self.name)
 
     def __json__(self):
-        return {'id': self.id,
-                'name': self.name,
-                'ordering': self.ordering,
-                }
+        return dict(id=self.id,
+                    name=self.name,
+                    ordering=self.ordering,
+                    naming_convention=self.naming_convention,
+                   )
 
 
 class Supervisor(DeclarativeBase):

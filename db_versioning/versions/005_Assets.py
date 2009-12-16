@@ -66,7 +66,7 @@ class Category(DeclarativeBase):
     id = Column(Integer, autoincrement=True, primary_key=True)
     name = Column(Unicode(30), unique=True)
     ordering = Column(Integer)
-    #naming_convention = Column(Unicode(30))
+    naming_convention = Column(Unicode(255))
 
 
 class Supervisor(DeclarativeBase):
