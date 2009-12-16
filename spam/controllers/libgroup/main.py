@@ -48,9 +48,9 @@ class Controller(RestController):
         libgroup = libgroup_get(proj, libgroup_id)
         
         tabs = [('Summary', 'tab/summary'),
-                ('Assets', url('/asset/%s/libgroup/%s' %
-                                        (libgroup.project.id, libgroup.id))),
                 ('Subgroups', url('/libgroup/%s/%s/subgroups' %
+                                        (libgroup.project.id, libgroup.id))),
+                ('Assets', url('/asset/%s/libgroup/%s' %
                                         (libgroup.project.id, libgroup.id))),
                ]
         return dict(page='%s' % libgroup.path, tabs=tabs, 
