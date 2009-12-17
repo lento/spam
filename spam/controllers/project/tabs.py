@@ -6,7 +6,7 @@ from pylons.i18n import ugettext as _, lazy_ugettext as l_
 from repoze.what import predicates
 
 from spam.lib.base import SPAMBaseController
-from spam.model import project_get_eager, session_get, Category, project_get
+from spam.model import session_get, Category, project_get
 from spam.lib.predicates import is_project_user, is_project_admin
 from spam.lib.widgets import TableProjectAdmins, TableProjectSupervisors
 from spam.lib.widgets import TableProjectArtists

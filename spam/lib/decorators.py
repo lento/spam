@@ -17,7 +17,7 @@ def project_set_active(func, *args, **kwargs):
     else:
         raise SPAMError('No project defined')
 
-    tmpl_context.project = project_get_eager(proj)
+    tmpl_context.project = project_get(proj)
     return func(*args, **kwargs)
     
 

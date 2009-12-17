@@ -3,7 +3,7 @@ from tg.controllers import RestController
 from tg.decorators import with_trailing_slash
 from tw.forms import validators
 from spam.model import session_get, Asset, AssetVersion, Category, category_get
-from spam.model import project_get_eager, project_get, container_get, asset_get
+from spam.model import project_get, container_get, asset_get
 from spam.lib.widgets import FormAssetNew, FormAssetEdit, FormAssetConfirm
 from spam.lib.widgets import FormAssetPublish
 from spam.lib.widgets import TableAssets, TableAssetHistory, NotifyClientJS
@@ -278,12 +278,11 @@ class Controller(RestController):
         # create a new version
         newver = AssetVersion(proj, asset, asset.current_ver+1, user, repo_id)
         session.add(newver)
-        #session.flush()
         session.refresh(asset)
         
         # create thumbnail and preview
-        #preview.make_thumb(asset)
-        #preview.make_preview(asset)
+        preview.make_thumb(asset)
+        preview.make_preview(asset)
         
         notify.send(asset)
         return dict(msg='published asset "%s"' % asset.path, result='success')

@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-"""Project tabs controllers"""
+"""Shot tabs controllers"""
 
 from tg import expose, request, tmpl_context, require
 from pylons.i18n import ugettext as _, lazy_ugettext as l_
 from repoze.what import predicates
 
 from spam.lib.base import SPAMBaseController
-from spam.model import project_get_eager, scene_get, shot_get
+from spam.model import scene_get, shot_get
 from spam.lib.predicates import is_project_user
 
 class TabController(SPAMBaseController):

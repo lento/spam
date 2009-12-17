@@ -3,7 +3,7 @@ from tg.controllers import RestController
 from tg.decorators import with_trailing_slash
 from pylons.i18n import ugettext as _, lazy_ugettext as l_
 from spam.model import session_get, Project, User, db_init, add_shard
-from spam.model import project_get_eager, project_get
+from spam.model import project_get
 from spam.model import query_projects, query_projects_archived
 from spam.lib.widgets import FormProjectNew, FormProjectEdit, FormProjectConfirm
 from spam.lib.widgets import ProjectsActive, ProjectsArchived

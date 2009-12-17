@@ -2,7 +2,7 @@ from tg import expose, url, tmpl_context, validate, require
 from tg.controllers import RestController
 from tg.decorators import with_trailing_slash
 from spam.model import session_get, Scene
-from spam.model import project_get_eager, project_get, scene_get
+from spam.model import project_get, scene_get
 from spam.lib.widgets import FormSceneNew, FormSceneEdit, FormSceneConfirm
 from spam.lib.widgets import TableScenes
 from spam.lib import repo
