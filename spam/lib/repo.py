@@ -46,18 +46,22 @@ def commit_single(proj, asset, filename, text, username=None):
     if isinstance(filename, list):
         raise SPAMRepoError('expected a single file for asset %s' % asset.id)
 
+    text = 'asset %s - %s' % (asset.id, text)
+    targets = []
+    
     uploadedfile = os.path.join(G.UPLOAD, filename)
-    target_file_name = os.path.join(repo_path, asset.path)
-    if not os.path.exists(os.path.dirname(target_file_name)):
-        os.makedirs(os.path.dirname(target_file_name))
-    shutil.move(uploadedfile, target_file_name)
+    target_path = asset.path.encode()
+    target_repo_path = os.path.join(repo_path, target_path)
+    if not os.path.exists(os.path.dirname(target_repo_path)):
+        os.makedirs(os.path.dirname(target_repo_path))
+    shutil.move(uploadedfile, target_repo_path)
     
-    path = asset.path.encode()
+    if not target_path in repo['tip']:
+        repo.add([target_path])
+
+    targets.append(target_path)
     
-    if not path in repo['tip']:
-        repo.add([path])
-    
-    matched = match.exact(repo.root, repo.getcwd(), [path])
+    matched = match.exact(repo.root, repo.getcwd(), targets)
     commit_id = repo.commit(text, user=username, match=matched)
     if commit_id:
         return repo[commit_id].hex()
@@ -65,7 +69,36 @@ def commit_single(proj, asset, filename, text, username=None):
         return None
 
 def commit_multi(proj, asset, filenames, text, username=None):
-    return None
+    repo_path = os.path.join(G.REPOSITORY, proj)
+    repo = repo_get(proj)
+    
+    if not isinstance(filenames, list):
+        raise SPAMRepoError('expected a list of files for asset %s' % asset.id)
+
+    text = 'asset %s - %s' % (asset.id, text)
+    target_sequence_path = asset.path.replace('#', '%04d')
+    targets = []
+    
+    for i, filename in enumerate(filenames):
+        n = i + 1
+        uploadedfile = os.path.join(G.UPLOAD, filename)
+        target_path = (target_sequence_path % n).encode()
+        target_repo_path = os.path.join(repo_path, target_path)
+        if not os.path.exists(os.path.dirname(target_repo_path)):
+            os.makedirs(os.path.dirname(target_repo_path))
+        shutil.move(uploadedfile, target_repo_path)
+        
+        if not target_path in repo['tip']:
+            repo.add([target_path])
+    
+        targets.append(target_path)
+        
+    matched = match.exact(repo.root, repo.getcwd(), targets)
+    commit_id = repo.commit(text, user=username, match=matched)
+    if commit_id:
+        return repo[commit_id].hex()
+    else:
+        return None
 
 def commit(proj, asset, filenames, text, username=None):
     if asset.is_sequence:

@@ -404,7 +404,7 @@ class Asset(DeclarativeBase):
     
     @property
     def is_sequence(self):
-        return False
+        return G.pattern_seq.match(self.name) and True or False
     
     # Special methods
     def __init__(self, proj, parent, category, name, user):
