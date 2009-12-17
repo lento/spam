@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 """Main Controller"""
-import os.path, datetime
+import os.path, datetime, shutil, mimetypes
 
 from tg import expose, flash, require, url, request, redirect, override_template
 from tg import response, config, tmpl_context, app_globals as G
 from tg.exceptions import HTTPNotFound
+from tg.controllers import CUSTOM_CONTENT_TYPE
 from pylons.i18n import ugettext as _, lazy_ugettext as l_
 from repoze.what.predicates import not_anonymous
 
@@ -14,6 +15,8 @@ from spam.controllers.error import ErrorController
 from spam.controllers.sandbox import SandboxController
 from spam.controllers import user, category
 from spam.controllers import project, scene, shot, asset, libgroup
+from spam.lib.decorators import project_set_active
+from spam.lib.predicates import is_project_user, is_project_admin
 
 
 __all__ = ['RootController']
@@ -112,4 +115,25 @@ class RootController(SPAMBaseController):
             tmpf.write(uploadedfile.file.read())
             tmpf.close()
         return dict()
+
+    @project_set_active
+    @require(is_project_user())
+    @expose(content_type=CUSTOM_CONTENT_TYPE)
+    def repo(self, *args):
+        path = request.path
+        path = path.replace(url('/'), '')
+        path = path.replace('repo/', '')
+        path = os.path.join(G.REPOSITORY, path)
+        if not os.path.exists(path):
+            raise HTTPNotFound().exception
+        
+        content_type, encoding = mimetypes.guess_type(path)
+        response.headers['Content-Type'] = content_type
+        response.headers['Content-Disposition'] = (
+                ('attachment; filename=%s' % os.path.basename(path)).encode())
+        
+        f = open(path)
+        shutil.copyfileobj(f, response.body_file)
+        f.close()
+        return
 

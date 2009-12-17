@@ -395,6 +395,14 @@ class Asset(DeclarativeBase):
         return os.path.join(self.parent.path, self.category.name, self.name)
     
     @property
+    def thumb_path(self):
+        name, ext = os.path.splitext(self.name)
+        name = name.replace('.#', '')
+        name = '%s-thumb.png' % name
+        return os.path.join(self.proj_id, G.PREVIEWS, self.parent.path,
+                            self.category.name, name)
+    
+    @property
     def current_ver(self):
         return self.versions[0].ver
     
@@ -420,29 +428,30 @@ class Asset(DeclarativeBase):
         return '<Asset: %s>' % (self.id or 0)
 
     def __json__(self):
-        return {'id': self.id,
-                'name': self.name,
-                'proj_id': self.proj_id,
-                'parent_id': self.parent_id,
-                'parent': self.parent,
-                'category': self.category,
-                'checkedout': self.checkedout,
-                'user': self.user,
-                'approved': self.approved,
-                'path': self.path,
-                'current_ver': self.current_ver,
-                'current_fmtver': self.current_fmtver,
-                'is_sequence': self.is_sequence,
-                #'repopath': self.repopath,
-                #'basedir': self.basedir,
-                #'repobasedir': self.repobasedir,
-                #'has_preview': self.has_preview,
-                #'preview_small_repopath': self.preview_small_repopath,
-                #'preview_large_repopath': self.preview_large_repopath,
-                #'status': self.status,
-                #'flow': self.flow,
-                #'waiting_for_approval': self.waiting_for_approval,
-                }
+        return dict(id=self.id,
+                    name=self.name,
+                    proj_id=self.proj_id,
+                    parent_id=self.parent_id,
+                    parent=self.parent,
+                    category=self.category,
+                    checkedout=self.checkedout,
+                    user=self.user,
+                    approved=self.approved,
+                    path=self.path,
+                    current_ver=self.current_ver,
+                    current_fmtver=self.current_fmtver,
+                    is_sequence=self.is_sequence,
+                    thumb_path=self.thumb_path,
+                    #'repopath': self.repopath,
+                    #'basedir': self.basedir,
+                    #'repobasedir': self.repobasedir,
+                    #'has_preview': self.has_preview,
+                    #'preview_small_repopath': self.preview_small_repopath,
+                    #'preview_large_repopath': self.preview_large_repopath,
+                    #'status': self.status,
+                    #'flow': self.flow,
+                    #'waiting_for_approval': self.waiting_for_approval,
+                   )
 
 
 class AssetVersion(DeclarativeBase):

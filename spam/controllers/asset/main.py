@@ -7,7 +7,7 @@ from spam.model import project_get_eager, project_get, container_get, asset_get
 from spam.lib.widgets import FormAssetNew, FormAssetEdit, FormAssetConfirm
 from spam.lib.widgets import FormAssetPublish
 from spam.lib.widgets import TableAssets, TableAssetHistory, NotifyClientJS
-from spam.lib import repo
+from spam.lib import repo, preview
 from spam.lib.notifications import notify
 from spam.lib.decorators import project_set_active
 from spam.lib.predicates import is_project_user, is_project_admin
@@ -278,8 +278,12 @@ class Controller(RestController):
         # create a new version
         newver = AssetVersion(proj, asset, asset.current_ver+1, user, repo_id)
         session.add(newver)
-        session.flush()
+        #session.flush()
         session.refresh(asset)
+        
+        # create thumbnail and preview
+        #preview.make_thumb(asset)
+        #preview.make_preview(asset)
         
         notify.send(asset)
         return dict(msg='published asset "%s"' % asset.path, result='success')

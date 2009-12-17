@@ -255,7 +255,7 @@ class TableAssets(LiveTable):
     update_topic = '/topic/assets'
     class fields(WidgetsList):
         thumbnail = ThumbData(label_text='preview',
-            src=url('/repo/%(proj_id)s/thumb.png'),
+            src=url('/repo/%(thumb_path)s'),
             dest=url('/repo/%(proj_id)s/preview.png')
         )
         name = TextData(sort_default=True)
