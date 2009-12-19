@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# SPAM Spark Project & Asset Manager
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this program; if not, write to the
+# Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# The Original Code is Copyright (c) 2009, Lorenzo Pierfederici
+# Contributor(s): 
+#
+"""Asset controller"""
+
 from tg import expose, url, tmpl_context, validate, require
 from tg.controllers import RestController
 from tg.decorators import with_trailing_slash
@@ -215,7 +239,7 @@ class Controller(RestController):
     def release(self, proj, asset_id, **kwargs):
         """Release an asset.
         
-        The asset will be unblocked and available to project users to checkout.
+        The asset will be unblocked and available for other users to checkout.
         """
         asset = asset_get(proj, asset_id)
         user = tmpl_context.user
@@ -284,6 +308,7 @@ class Controller(RestController):
         preview.make_thumb(asset)
         preview.make_preview(asset)
         
+        # send a stomp message to notify clients
         notify.send(asset)
         return dict(msg='published asset "%s"' % asset.path, result='success')
 

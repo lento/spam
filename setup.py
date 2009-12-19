@@ -30,7 +30,8 @@ setup(
         "stomp.py<2.1",
                 ],
     setup_requires=["PasteScript >= 1.7"],
-    paster_plugins=['PasteScript', 'Pylons', 'TurboGears2', 'tg.devtools'],
+    paster_plugins=['PasteScript', 'Pylons', 'TurboGears2', 'tg.devtools',
+                    'spam'],
     packages=find_packages(exclude=['ez_setup']),
     include_package_data=True,
     test_suite='nose.collector',
@@ -50,5 +51,8 @@ setup(
 
     [paste.app_install]
     main = pylons.util:PylonsInstaller
+
+    [paste.paster_command]
+    build-docs = spam.lib.commands:BuildDocs
     """,
 )

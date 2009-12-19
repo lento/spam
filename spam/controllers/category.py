@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# SPAM Spark Project & Asset Manager
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this program; if not, write to the
+# Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# The Original Code is Copyright (c) 2009, Lorenzo Pierfederici
+# Contributor(s): 
+#
+"""Category controller"""
+
 from tg import expose, url, tmpl_context, redirect, validate, require
 from tg.controllers import RestController
 from pylons.i18n import ugettext as _, lazy_ugettext as l_
@@ -19,10 +43,13 @@ f_confirm = FormCategoryConfirm(action=url('/category/'))
 t_categories = TableCategories()
 
 class Controller(RestController):
+    """REST controller for managing categories"""
     
     @require(in_group('administrators'))
     @expose('spam.templates.category.get_all')
     def get_all(self):
+        """Return a page with a list of all categories and a button to add new
+        categories."""
         tmpl_context.t_categories = t_categories
         query = session_get().query(Category)
         categories = query.order_by('ordering', 'name')
@@ -33,6 +60,8 @@ class Controller(RestController):
     @expose('json')
     @expose('spam.templates.category.get_one')
     def get_one(self, name):
+        """This method is currently unused, but is needed for the 
+        RESTController to work."""
         category = category_get(name)
         return dict(category=category)
 
