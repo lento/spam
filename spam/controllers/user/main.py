@@ -1,5 +1,27 @@
 # -*- coding: utf-8 -*-
-"""User Controller"""
+#
+# SPAM Spark Project & Asset Manager
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this program; if not, write to the
+# Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Copyright (c) 2009, Lorenzo Pierfederici <lpierfederici@gmail.com>
+# Contributor(s): 
+#
+"""User main Controller"""
+
 from tg import expose, url, tmpl_context, redirect, validate, require
 from tg.controllers import RestController
 from tg.decorators import with_trailing_slash
@@ -32,6 +54,19 @@ f_add_admins = FormUserAddAdmins(action=url('/user/'))
 f_add_to_category = FormUserAddToCategory(action=url('/user/'))
 
 class Controller(RestController):
+    """REST controller for managing users.
+    
+    In addition to the standard REST verbs this controller defines the following
+    REST-like methods: 
+        * ``add_to_group``      (:meth:`get_add_to_group`, :meth:`post_add_to_group`)
+        * ``remove_from_group`` (:meth:`remove_from_group`)
+        * ``add_admins``        (:meth:`get_add_admins`, :meth:`post_add_admins`)
+        * ``remove_admin``      (:meth:`remove_admin`)
+        * ``add_supervisors``   (:meth:`get_add_supervisors`, :meth:`post_add_supervisors`)
+        * ``remove_supervisor`` (:meth:`remove_supervisor`)
+        * ``add_artists``       (:meth:`get_add_artists`, :meth:`post_add_artists`)
+        * ``remove_artist``     (:meth:`remove_artist`)
+    """
     
     tab = TabController()
     
@@ -39,6 +74,7 @@ class Controller(RestController):
     @with_trailing_slash
     @expose('spam.templates.tabbed_content')
     def get_all(self):
+        """Return a `tabbed` page for user tabs."""
         tabs = [('Users', 'tab/users'),
                 ('Groups', 'tab/groups'),
                ]
@@ -49,7 +85,7 @@ class Controller(RestController):
     @expose('json')
     @expose('spam.templates.user.get_one')
     def get_one(self, name):
-        """Handle the 'home' page."""
+        """Handle the `home` page."""
         return dict(page="%s's home" % tmpl_context.user.user_name,
                                                     sidebar=('user', 'home'))
 

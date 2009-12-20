@@ -48,8 +48,8 @@ class Controller(RestController):
     @require(in_group('administrators'))
     @expose('spam.templates.category.get_all')
     def get_all(self):
-        """Return a page with a list of all categories and a button to add new
-        categories."""
+        """Return a `full` page with a list of all categories and a button to
+        add new categories."""
         tmpl_context.t_categories = t_categories
         query = session_get().query(Category)
         categories = query.order_by('ordering', 'name')

@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# SPAM Spark Project & Asset Manager
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this program; if not, write to the
+# Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Copyright (c) 2009, Lorenzo Pierfederici <lpierfederici@gmail.com>
+# Contributor(s): 
+#
+"""Project main controller"""
+
 from tg import expose, url, tmpl_context, redirect, validate, require
 from tg.controllers import RestController
 from tg.decorators import with_trailing_slash
@@ -18,8 +42,6 @@ from tabs import TabController
 import logging
 log = logging.getLogger(__name__)
 
-__all__ = ['ProjectsController']
-
 # form widgets
 f_new = FormProjectNew(action=url('/project/'))
 f_edit = FormProjectEdit(action=url('/project/'))
@@ -30,12 +52,25 @@ w_projects_active = ProjectsActive()
 w_projects_archived = ProjectsArchived()
 
 class Controller(RestController):
+    """REST controller for managing projects.
+    
+    In addition to the standard REST verbs this controller defines the following
+    REST-like methods:
+        * ``archive``  (:meth:`get_archive`, :meth:`post_archive`)
+        * ``activate`` (:meth:`get_activate`, :meth:`post_activate`)
+        * ``upgrade``  (:meth:`get_upgrade`, :meth:`post_upgrade`)
+        * ``sidebar``  (:meth:`get_sidebar`)
+    """
     
     tab = TabController()
     
     @require(in_group('administrators'))
     @expose('spam.templates.project.get_all')
     def get_all(self):
+        """Return a `full` page for managing active and archived projects.
+        
+        This page is linked from the `admin` sidebar.
+        """
         tmpl_context.projects_active = w_projects_active
         tmpl_context.projects_archived = w_projects_archived
         active = query_projects()
@@ -49,6 +84,7 @@ class Controller(RestController):
     @expose('json')
     @expose('spam.templates.tabbed_content')
     def get_one(self, proj):
+        """Return a `tabbed` page for project tabs."""
         project = tmpl_context.project
         tabs = [('Summary', 'tab/summary'),
                 ('Scenes', url('/scene/%s' % project.id)),
@@ -257,5 +293,8 @@ class Controller(RestController):
     @require(is_project_user())
     @expose('spam.templates.project.sidebar')
     def get_sidebar(self, proj):
+        """Return a html fragment containing the `project` sidebar. This is used
+        to dynamically reload the sidebar when the project structure changes
+        without reloading the whole page."""
         project = tmpl_context.project
         return dict()

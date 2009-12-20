@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# SPAM Spark Project & Asset Manager
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this program; if not, write to the
+# Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Copyright (c) 2009, Lorenzo Pierfederici <lpierfederici@gmail.com>
+# Contributor(s): 
+#
+"""Scene main controller"""
+
 from tg import expose, url, tmpl_context, validate, require
 from tg.controllers import RestController
 from tg.decorators import with_trailing_slash
@@ -24,6 +48,7 @@ f_confirm = FormSceneConfirm(action=url('/scene/'))
 t_scenes = TableScenes()
 
 class Controller(RestController):
+    """REST controller for managing scenes."""
     
     tab = TabController()
     
@@ -31,6 +56,12 @@ class Controller(RestController):
     @require(is_project_user())
     @expose('spam.templates.project.tabs.scenes')
     def get_all(self, proj):
+        """Return a `tab` page with a list of scenes for a project and a
+        button to add new scenes.
+        
+        This page is used as the `scenes` tab in the project view:
+        :meth:`spam.controllers.project.main.get_one`.
+        """
         project = tmpl_context.project
         tmpl_context.t_scenes = t_scenes
         return dict(page='scenes', sidebar=('projects', project.id),
@@ -38,6 +69,10 @@ class Controller(RestController):
 
     @expose('spam.templates.project.tabs.scenes')
     def default(self, proj, *args, **kwargs):
+        """Catch request to `scene/<something>' and pass them to :meth:`get_all`,
+        because RESTController doesn't dispatch to get_all when there are
+        arguments.
+        """
         return self.get_all(proj)
 
     @project_set_active
@@ -46,6 +81,7 @@ class Controller(RestController):
     @expose('json')
     @expose('spam.templates.tabbed_content')
     def get_one(self, proj, sc):
+        """Return a `tabbed` page for scene tabs."""
         scene = scene_get(proj, sc)
         
         tabs = [('Summary', 'tab/summary'),

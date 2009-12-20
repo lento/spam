@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# SPAM Spark Project & Asset Manager
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this program; if not, write to the
+# Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Copyright (c) 2009, Lorenzo Pierfederici <lpierfederici@gmail.com>
+# Contributor(s): 
+#
+"""Libgroup main controller"""
+
 from tg import expose, url, tmpl_context, validate, require
 from tg.controllers import RestController
 from tg.decorators import with_trailing_slash
@@ -23,13 +47,25 @@ f_confirm = FormLibgroupConfirm(action=url('/libgroup/'))
 t_libgroups = TableLibgroups()
 
 class Controller(RestController):
+    """REST controller for managing library groups.
     
+    In addition to the standard REST verbs this controller defines the following
+    REST-like methods:
+        * ``subgroups``  (:meth:`get_subgroups`)
+    """
+        
     tab = TabController()
     
     @project_set_active
     @require(is_project_user())
     @expose('spam.templates.project.tabs.library')
     def get_all(self, proj):
+        """Return a `tab` page with a list of libgroups for a project and a
+        button to add new libgroups.
+        
+        This page is used as the `library` tab in the project view:
+        :meth:`spam.controllers.project.main.get_one`.
+        """
         project = tmpl_context.project
         tmpl_context.t_libgroups = t_libgroups
         return dict(page='libgroups', sidebar=('projects', project.id),
@@ -37,6 +73,10 @@ class Controller(RestController):
 
     @expose('spam.templates.project.tabs.library')
     def default(self, proj, *args, **kwargs):
+        """Catch request to `libgroup/<something>' and pass them to :meth:`get_all`,
+        because RESTController doesn't dispatch to get_all when there are
+        arguments.
+        """
         return self.get_all(proj)
 
     @project_set_active
@@ -45,6 +85,7 @@ class Controller(RestController):
     @expose('json')
     @expose('spam.templates.tabbed_content')
     def get_one(self, proj, libgroup_id):
+        """Return a `tabbed` page for libgroup tabs."""
         libgroup = libgroup_get(proj, libgroup_id)
         
         tabs = [('Summary', 'tab/summary'),
@@ -188,6 +229,11 @@ class Controller(RestController):
     @require(is_project_user())
     @expose('spam.templates.project.tabs.library')
     def get_subgroups(self, proj, parent_id):
+        """Return a `tab` page with a list of subgroups for a libgroup.
+        
+        This page is used as the `subgroups` tab in the libgroup view:
+        :meth:`spam.controllers.libgroup.main.get_one`.
+        """
         tmpl_context.t_libgroups = t_libgroups
         project = tmpl_context.project
         parent = libgroup_get(proj, parent_id)

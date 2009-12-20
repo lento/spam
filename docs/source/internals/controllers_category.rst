@@ -4,4 +4,3 @@
 .. automodule:: spam.controllers.category
    :members:
 
-

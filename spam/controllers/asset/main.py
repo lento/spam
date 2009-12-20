@@ -53,11 +53,14 @@ t_history = TableAssetHistory()
 j_notify_client = NotifyClientJS()
 
 class Controller(RestController):
+    """REST controller for managing assets"""
     
     @project_set_active
     @require(is_project_user())
     @expose('spam.templates.asset.get_all')
     def get_all(self, proj, container_type, container_id):
+        """Return a `tab` page  with a list of all categories and a button to
+        add new assets."""
         project = tmpl_context.project
         tmpl_context.t_assets = t_assets
         tmpl_context.j_notify_client = j_notify_client
@@ -84,6 +87,7 @@ class Controller(RestController):
     @expose('json')
     @expose('spam.templates.asset.get_one')
     def get_one(self, proj, asset_id):
+        """Return a `standalone` page with the asset history"""
         tmpl_context.t_history = t_history
         asset = asset_get(proj, asset_id)
         return dict(asset=asset)
@@ -284,7 +288,7 @@ class Controller(RestController):
         """Publish a new version of an asset.
         
         This will commit to the repo the file(s) already uploaded in a temporary
-        storage area.
+        storage area, and create a thumbnail and preview if required.
         """
         uploaded = uploaded[1:] # the form send an empty string as first item
         log.debug('post_publish: %s' % uploaded)

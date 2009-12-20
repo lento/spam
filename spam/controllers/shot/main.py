@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# SPAM Spark Project & Asset Manager
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this program; if not, write to the
+# Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Copyright (c) 2009, Lorenzo Pierfederici <lpierfederici@gmail.com>
+# Contributor(s): 
+#
+"""Shot main controller"""
+
 from tg import expose, url, tmpl_context, validate, require
 from tg.controllers import RestController
 from tg.decorators import with_trailing_slash
@@ -24,6 +48,7 @@ f_confirm = FormShotConfirm(action=url('/shot/'))
 t_shots = TableShots()
 
 class Controller(RestController):
+    """REST controller for managing shots."""
     
     tab = TabController()
     
@@ -31,6 +56,12 @@ class Controller(RestController):
     @require(is_project_user())
     @expose('spam.templates.scene.tabs.shots')
     def get_all(self, proj, sc):
+        """Return a `tab` page with a list of shots for a scene and a button to
+        add new shots.
+        
+        This page is used as the `shots` tab in the scene view:
+        :meth:`spam.controllers.scene.main.get_one`.
+        """
         scene = scene_get(proj, sc)
         tmpl_context.scene = scene
         tmpl_context.t_shots = t_shots
@@ -39,6 +70,10 @@ class Controller(RestController):
 
     @expose('spam.templates.scene.tabs.shots')
     def default(self, proj, sc, *args, **kwargs):
+        """Catch request to `shot/<something>' and pass them to :meth:`get_all`,
+        because RESTController doesn't dispatch to get_all when there are
+        arguments.
+        """
         return self.get_all(proj, sc)
 
     @project_set_active
@@ -47,6 +82,7 @@ class Controller(RestController):
     @expose('json')
     @expose('spam.templates.tabbed_content')
     def get_one(self, proj, sc, sh):
+        """Return a `tabbed` page for shot tabs."""
         shot = shot_get(proj, sc, sh)
         
         tabs = [('Summary', 'tab/summary'),
