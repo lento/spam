@@ -18,6 +18,7 @@ from tg.configuration import AppConfig
 import spam
 from spam import model
 from spam.lib import app_globals, helpers 
+from spam.lib.notifications import notify
 
 base_config = AppConfig()
 base_config.renderers = []
@@ -67,3 +68,15 @@ base_config.sa_auth.post_logout_url = '/post_logout'
 
 # Handle custom errors
 base_config.handle_status_codes.append(400)
+
+# Startup and shutdown
+def on_startup():
+    notify.connect()
+
+def on_shutdown():
+    pass
+
+base_config.call_on_startup = [on_startup]
+base_config.call_on_shutdown = [on_shutdown]
+
+

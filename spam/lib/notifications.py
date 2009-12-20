@@ -35,7 +35,6 @@ class StompClient(object):
                        Asset: TOPIC_ASSETS,
                        LibraryGroup: TOPIC_LIBGROUPS,
                       }
-        self.connect()
     
     def _start_connection(self):
         self.connection = stomp.Connection()
