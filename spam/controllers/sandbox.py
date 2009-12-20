@@ -17,7 +17,7 @@
 # Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.
 #
-# The Original Code is Copyright (c) 2009, Lorenzo Pierfederici
+# Copyright (c) 2009, Lorenzo Pierfederici <lpierfederici@gmail.com>
 # Contributor(s): 
 #
 """Sandbox controller"""
