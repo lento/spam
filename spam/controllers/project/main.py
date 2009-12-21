@@ -133,7 +133,6 @@ class Controller(RestController):
         
         # grant project rights to user "admin"
         admin = session.query(User).filter_by(user_name=u'admin').one()
-        project.users.append(admin)
         project.admins.append(admin)
         
         # send a stomp message to notify clients

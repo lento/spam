@@ -38,7 +38,7 @@ class User(DeclarativeBase):
     
     user_id = Column(Integer, autoincrement=True, primary_key=True)
     user_name = Column(Unicode(16), unique=True, nullable=False)
-    email_address = Column(Unicode(255), unique=True, nullable=False)
+    email_address = Column(Unicode(255), unique=True, nullable=True)
     display_name = Column(Unicode(255))
     _password = Column(Unicode(80))
     created = Column(DateTime, default=datetime.now)

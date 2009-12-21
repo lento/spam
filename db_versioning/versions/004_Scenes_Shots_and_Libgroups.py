@@ -13,6 +13,8 @@ DeclarativeBase = declarative_base(bind=migrate_engine,
 
 # Existing classes and tables to be used in relations
 projects = Table('projects', migrate_metadata, autoload=True)
+taggables = Table('taggables', migrate_metadata, autoload=True)
+annotables = Table('annotables', migrate_metadata, autoload=True)
 
 # New classes and tables
 class AssetContainer(DeclarativeBase):
@@ -29,25 +31,31 @@ class Scene(DeclarativeBase):
     """
     The scene container.
     
-    This models a "film scene" that acts as a container for Shot objects.
+    This represents a "film scene" that acts as a container for Shot objects.
     """
     __tablename__ = "scenes"
     __table_args__ = (UniqueConstraint('proj_id', 'name'),
+                      ForeignKeyConstraint(['taggable_id', 'proj_id'],
+                                    ['taggables.id', 'taggables.proj_id']),
+                      ForeignKeyConstraint(['annotable_id', 'proj_id'],
+                                    ['annotables.id', 'annotables.proj_id']),
                       {})
     
+    # Columns
     id = Column(Integer, primary_key=True)
-    proj_id = Column(Unicode(10))
+    proj_id = Column(Unicode(10), ForeignKey('projects.id'))
     name = Column(Unicode(15))
     description = Column(UnicodeText)
-    #group = Column(Unicode(40))
     created = Column(DateTime, default=datetime.now)
+    annotable_id = Column(Integer)
+    taggable_id = Column(Integer)
 
 
 class Shot(AssetContainer):
     """
     The shot container.
 
-    This models a "film shot" that acts as a container for Asset objects.
+    This represents a "film shot" that acts as a container for Asset objects.
     """
     __tablename__ = "shots"
     __table_args__ = (UniqueConstraint('proj_id', 'parent_id', 'name'),
@@ -55,25 +63,52 @@ class Shot(AssetContainer):
                           ['asset_containers.id', 'asset_containers.proj_id']),
                       ForeignKeyConstraint(['parent_id', 'proj_id'],
                           ['scenes.id', 'scenes.proj_id']),
+                      ForeignKeyConstraint(['taggable_id', 'proj_id'],
+                                    ['taggables.id', 'taggables.proj_id']),
+                      ForeignKeyConstraint(['annotable_id', 'proj_id'],
+                                    ['annotables.id', 'annotables.proj_id']),
                       {})
     __mapper_args__ = {'polymorphic_identity': 'shot'}
     
+    # Columns
     id = Column(Integer, primary_key=True)
     proj_id = Column(Unicode(10))
     parent_id = Column(Integer)
     name = Column(Unicode(15))
+    created = Column(DateTime, default=datetime.now)
     description = Column(UnicodeText)
-    #_group = Column(Unicode(40))
     location = Column(Unicode(255))
     action = Column(UnicodeText)
-    #elements = Column(UnicodeText)
-    #characters = Column(UnicodeText)
-    #props = Column(UnicodeText)
-    created = Column(DateTime, default=datetime.now)
     frames = Column(Integer)
     handle_in = Column(Integer)
     handle_out = Column(Integer)
-    #assoc_id = Column(None, ForeignKey('notes_associations.assoc_id'))
+    taggable_id = Column(Integer)
+    annotable_id = Column(Integer)
+
+
+class LibraryGroup(AssetContainer):
+    """Library group"""
+    __tablename__ = "library_groups"
+    __table_args__ = (UniqueConstraint('proj_id', 'parent_id', 'name'),
+                      ForeignKeyConstraint(['id', 'proj_id'],
+                          ['asset_containers.id', 'asset_containers.proj_id']),
+                      ForeignKeyConstraint(['parent_id'],
+                          ['library_groups.id']),
+                      ForeignKeyConstraint(['taggable_id', 'proj_id'],
+                                    ['taggables.id', 'taggables.proj_id']),
+                      ForeignKeyConstraint(['annotable_id', 'proj_id'],
+                                    ['annotables.id', 'annotables.proj_id']),
+                      {})
+    __mapper_args__ = {'polymorphic_identity': 'library_group'}
+    
+    # Columns
+    id = Column(Integer, primary_key=True)
+    proj_id = Column(Unicode(10))
+    parent_id = Column(Integer)
+    name = Column(Unicode(40))
+    description = Column(UnicodeText)
+    taggable_id = Column(Integer)
+    annotable_id = Column(Integer)
 
 
 def upgrade():
@@ -82,10 +117,12 @@ def upgrade():
     AssetContainer.__table__.create()
     Scene.__table__.create()
     Shot.__table__.create()
+    LibraryGroup.__table__.create()
     
 def downgrade():
     # Operations to reverse the above upgrade go here.
     AssetContainer.__table__.drop()
     Scene.__table__.drop()
     Shot.__table__.drop()
+    LibraryGroup.__table__.create()
 

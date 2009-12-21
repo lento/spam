@@ -33,8 +33,10 @@ def shard_chooser(mapper, instance, clause=None):
     id_ = None
     if (type(instance) in common_classes) or (instance is None):
         id_ = u'common'
-    else:
+    elif hasattr(instance, 'proj_id') and instance.proj_id is not None:
         id_ = instance.proj_id
+    else:
+        id_ = u'common'
     log.debug('shard_chooser: %s' % id_)
     return id_
 

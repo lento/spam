@@ -45,6 +45,160 @@ project_admin_table = Table('__project_admin', metadata,
 
 
 ############################################################
+# Tags
+############################################################
+class Taggable(DeclarativeBase):
+    __tablename__ = 'taggables'
+    
+    # Columns
+    id = Column(Integer, autoincrement=True, primary_key=True)
+    proj_id = Column(Unicode(10))
+    association_type = Column(Unicode(50))
+    
+    # Properties
+    @property
+    def tagged(self):
+        return getattr(self, 'tagged_%s' % self.association_type)
+    
+    # Special methods
+    def __init__(self, proj, association_type):
+        self.proj_id = proj
+        self.association_type = association_type
+
+    def __repr__(self):
+        return '<Taggable: (%s.%s) %d>' % (self.proj_id, self.association_type,
+                                                                        self.id)
+
+
+class Tag(DeclarativeBase):
+    __tablename__ = 'tags'
+    __table_args__ = (ForeignKeyConstraint(['taggable_id', 'proj_id'],
+                                        ['taggables.id', 'taggables.proj_id']),
+                      {})
+    
+    # Columns
+    id = Column(Integer, autoincrement=True, primary_key=True)
+    proj_id = Column(Unicode(10))
+    taggable_id = Column(Integer)
+    name = Column(UnicodeText)
+    created = Column(DateTime, default=datetime.now)
+    
+    # Relations
+    taggable = relation(Taggable, backref='tags')
+    
+    # Properties
+    @property
+    def tagged(self):
+        return self.taggable.tagged
+    
+    # Special methods
+    def __init__(self, proj, name):
+        self.proj_id = proj
+        self.name = name
+
+    def __repr__(self):
+        return '<Tag: %s>' % self.name
+
+    def __json__(self):
+        return {'id': self.id,
+                'created': self.created,
+                'name': self.name,
+               }
+
+
+############################################################
+# Notes
+############################################################
+class Annotable(DeclarativeBase):
+    __tablename__ = 'annotables'
+    
+    # Columns
+    id = Column(Integer, autoincrement=True, primary_key=True)
+    proj_id = Column(Unicode(10))
+    association_type = Column(Unicode(50))
+    
+    # Properties
+    @property
+    def annotated(self):
+        return getattr(self, 'annotated_%s' % self.association_type)
+    
+    # Special methods
+    def __init__(self, proj, association_type):
+        self.proj_id = proj
+        self.association_type = association_type
+
+    def __repr__(self):
+        return '<Annotable: (%s.%s) %d>' % (self.proj_id, self.association_type,
+                                                                        self.id)
+
+
+class Note(DeclarativeBase):
+    __tablename__ = 'notes'
+    __table_args__ = (ForeignKeyConstraint(['annotable_id', 'proj_id'],
+                                    ['annotables.id', 'annotables.proj_id']),
+                      {})
+    
+    # Columns
+    id = Column(Integer, autoincrement=True, primary_key=True)
+    proj_id = Column(Unicode(10))
+    annotable_id = Column(Integer)
+    user_id = Column(Integer)
+    text = Column(UnicodeText)
+    created = Column(DateTime, default=datetime.now)
+    sticky = Column(Boolean, default=False)
+
+    user = relation('User', primaryjoin=user_id==User.user_id,
+                            foreign_keys=[user_id],
+                            backref=backref('notes', order_by=desc('created')))
+    
+    # Relations
+    annotable = relation(Annotable, backref='notes')
+    
+    # Properties
+    @property
+    def annotated(self):
+        return self.annotable.annotated
+    
+    @property
+    def strftime(self):
+        return self.created.strftime('%d/%m/%Y %H:%M')
+    
+    @property
+    def summary(self):
+        characters = 75
+        summary = self.text[0:characters]
+        if len(self.text) > characters:
+            summary = '%s[...]' % summary
+        return summary
+    
+    @property
+    def lines(self):
+        return [l for l in self.text.split('\n')]
+    
+    # Special methods
+    def __init__(self, proj, user, text):
+        self.proj_id = proj
+        self.user = user
+        self.text = text
+
+    def __repr__(self):
+        return '<Note: by %s at %s "%s">' % (self.user.user_name,
+                                                self.strftime,
+                                                self.summary)
+
+    def __json__(self):
+        return {'id': self.id,
+                #'owner_id': self.owner_id,
+                'user': self.user,
+                'created': self.created,
+                'text': self.text,
+                'summary': self.summary,
+                'lines': self.lines,
+                'strftime': self.strftime,
+               }
+
+
+############################################################
 # Project
 ############################################################
 class Project(DeclarativeBase):
@@ -60,12 +214,6 @@ class Project(DeclarativeBase):
     archived = Column(Boolean, default=False)
     
     # Relations
-    #users = relation('User', secondary=project_user_table,
-    #    primaryjoin='and_(Project.id==__project_user.c.project_id, '
-    #                     'Project.archived==False)',
-    #    secondaryjoin='__project_user.c.user_id==User.user_id',
-    #    backref='projects')
-    
     admins = relation('User', secondary=project_admin_table,
                                                     backref='projects_as_admin')
     
@@ -141,6 +289,10 @@ class Scene(DeclarativeBase):
     """
     __tablename__ = "scenes"
     __table_args__ = (UniqueConstraint('proj_id', 'name'),
+                      ForeignKeyConstraint(['taggable_id', 'proj_id'],
+                                    ['taggables.id', 'taggables.proj_id']),
+                      ForeignKeyConstraint(['annotable_id', 'proj_id'],
+                                    ['annotables.id', 'annotables.proj_id']),
                       {})
     
     # Columns
@@ -149,11 +301,17 @@ class Scene(DeclarativeBase):
     name = Column(Unicode(15))
     description = Column(UnicodeText)
     created = Column(DateTime, default=datetime.now)
+    annotable_id = Column(Integer)
+    taggable_id = Column(Integer)
 
     # Relations
     project = relation('Project', viewonly=True,
                        backref=backref('scenes', viewonly=True, order_by=name)
                       )
+    
+    taggable = relation(Taggable, backref='tagged_scenes')
+    
+    annotable = relation(Annotable, backref='annotated_scenes')
     
     # Properties
     @property
@@ -163,6 +321,18 @@ class Scene(DeclarativeBase):
     @property
     def thumbnail(self):
         return os.path.join(G.PREVIEWS, self.path, 'thumb.png')
+    
+    @property
+    def tags(self):
+        if self.taggable is None:
+            self.taggable = Taggable(self.proj_id, 'scenes')
+        return self.taggable.tags
+    
+    @property
+    def notes(self):
+        if self.annotable is None:
+            self.annotable = Annotable(self.proj_id, 'scenes')
+        return self.annotable.notes
     
     # Special methods
     def __init__(self, proj, name, description=None):
@@ -194,6 +364,10 @@ class Shot(AssetContainer):
                           ['asset_containers.id', 'asset_containers.proj_id']),
                       ForeignKeyConstraint(['parent_id', 'proj_id'],
                           ['scenes.id', 'scenes.proj_id']),
+                      ForeignKeyConstraint(['taggable_id', 'proj_id'],
+                                    ['taggables.id', 'taggables.proj_id']),
+                      ForeignKeyConstraint(['annotable_id', 'proj_id'],
+                                    ['annotables.id', 'annotables.proj_id']),
                       {})
     __mapper_args__ = {'polymorphic_identity': 'shot'}
     
@@ -209,7 +383,8 @@ class Shot(AssetContainer):
     frames = Column(Integer)
     handle_in = Column(Integer)
     handle_out = Column(Integer)
-    #assoc_id = Column(None, ForeignKey('notes_associations.assoc_id'))
+    taggable_id = Column(Integer)
+    annotable_id = Column(Integer)
     
     # Relations
     project = relation('Project', primaryjoin=proj_id==Project.id,
@@ -219,6 +394,10 @@ class Shot(AssetContainer):
     parent = relation(Scene,
                         backref=backref('shots', order_by=name, lazy=False))
     
+    taggable = relation(Taggable, backref='tagged_shots')
+    
+    annotable = relation(Annotable, backref='annotated_shots')
+    
     # Properties
     @property
     def path(self):
@@ -227,6 +406,18 @@ class Shot(AssetContainer):
     @property
     def parent_name(self):
         return self.parent.name
+    
+    @property
+    def tags(self):
+        if self.taggable is None:
+            self.taggable = Taggable(self.proj_id, 'shots')
+        return self.taggable.tags
+    
+    @property
+    def notes(self):
+        if self.annotable is None:
+            self.annotable = Annotable(self.proj_id, 'shots')
+        return self.annotable.notes
     
     # Special methods
     def __init__(self, proj_id, name, parent=None,
@@ -270,6 +461,10 @@ class LibraryGroup(AssetContainer):
                           ['asset_containers.id', 'asset_containers.proj_id']),
                       ForeignKeyConstraint(['parent_id'],
                           ['library_groups.id']),
+                      ForeignKeyConstraint(['taggable_id', 'proj_id'],
+                                    ['taggables.id', 'taggables.proj_id']),
+                      ForeignKeyConstraint(['annotable_id', 'proj_id'],
+                                    ['annotables.id', 'annotables.proj_id']),
                       {})
     __mapper_args__ = {'polymorphic_identity': 'library_group'}
     
@@ -279,7 +474,8 @@ class LibraryGroup(AssetContainer):
     parent_id = Column(Integer)
     name = Column(Unicode(40))
     description = Column(UnicodeText)
-    #note_id = Column(None, ForeignKey('notes_associations.assoc_id'))
+    taggable_id = Column(Integer)
+    annotable_id = Column(Integer)
     
     # Relations
     project = relation('Project',
@@ -311,6 +507,10 @@ class LibraryGroup(AssetContainer):
                       foreign_keys=[id, proj_id], uselist=False, viewonly=True,
                      )
     
+    taggable = relation(Taggable, backref='tagged_libgroups')
+    
+    annotable = relation(Annotable, backref='annotated_libgroups')
+    
     # Properties
     @property
     def path(self):
@@ -320,6 +520,18 @@ class LibraryGroup(AssetContainer):
             path = G.LIBRARY
         path = os.path.join(path, self.name)
         return path
+    
+    @property
+    def tags(self):
+        if self.taggable is None:
+            self.taggable = Taggable(self.proj_id, 'libgroups')
+        return self.taggable.tags
+    
+    @property
+    def notes(self):
+        if self.annotable is None:
+            self.annotable = Annotable(self.proj_id, 'libgroups')
+        return self.annotable.notes
     
     # Special methods
     def __init__(self, proj, name, parent=None, description=None):
@@ -349,6 +561,8 @@ class Asset(DeclarativeBase):
     __table_args__ = (UniqueConstraint('category_id', 'parent_id', 'name'),
                       ForeignKeyConstraint(['parent_id', 'proj_id'],
                           ['asset_containers.id', 'asset_containers.proj_id']),
+                      ForeignKeyConstraint(['taggable_id', 'proj_id'],
+                                    ['taggables.id', 'taggables.proj_id']),
                       {})
     
     # Columns
@@ -365,6 +579,7 @@ class Asset(DeclarativeBase):
     approver_id = Column(Integer, ForeignKey('auth_users.user_id'))
     approved = Column(Boolean, default=False)
     approved_date = Column(DateTime)
+    taggable_id = Column(Integer)
 
     # Relations
     project = relation('Project',
@@ -388,6 +603,8 @@ class Asset(DeclarativeBase):
     approved_by = relation('User',
                         primaryjoin=approver_id==User.user_id,
                         backref=backref('approved_assets'))
+    
+    taggable = relation(Taggable, backref='tagged_assets')
     
     # Properties
     @property
@@ -413,6 +630,12 @@ class Asset(DeclarativeBase):
     @property
     def is_sequence(self):
         return G.pattern_seq.match(self.name) and True or False
+    
+    @property
+    def tags(self):
+        if self.taggable is None:
+            self.taggable = Taggable(self.proj_id, 'assets')
+        return self.taggable.tags
     
     # Special methods
     def __init__(self, proj, parent, category, name, user):
@@ -457,6 +680,9 @@ class Asset(DeclarativeBase):
 class AssetVersion(DeclarativeBase):
     """Asset version"""
     __tablename__ = "asset_versions"
+    __table_args__ = (ForeignKeyConstraint(['annotable_id', 'proj_id'],
+                                    ['annotables.id', 'annotables.proj_id']),
+                      {})
     
     # Columns
     id = Column(Integer, primary_key=True)
@@ -468,7 +694,7 @@ class AssetVersion(DeclarativeBase):
     #has_preview = Column(Boolean)
     #preview_ext = Column(String(10))
     user_id = Column(Integer, ForeignKey('auth_users.user_id'))
-    #note_id = Column(None, ForeignKey('notes_associations.assoc_id'))
+    annotable_id = Column(Integer)
 
     # Relations
     asset = relation('Asset',
@@ -480,10 +706,18 @@ class AssetVersion(DeclarativeBase):
     
     user = relation('User')
     
+    annotable = relation(Annotable, backref='annotated_asset_versions')
+    
     # Properties
     @property
     def fmtver(self):
         return 'v%03d' % self.ver
+    
+    @property
+    def notes(self):
+        if self.annotable is None:
+            self.annotable = Annotable(self.proj_id, 'asset_versions')
+        return self.annotable.notes
     
     # Special methods
     def __init__(self, proj, asset, ver, user, repoid, has_preview=False,
@@ -635,4 +869,5 @@ class Artist(DeclarativeBase):
                     category_id=self.category_id,
                     user_id=self.user_id,
                    )
+
 

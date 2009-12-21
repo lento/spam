@@ -15,6 +15,8 @@ DeclarativeBase = declarative_base(bind=migrate_engine,
 # Existing classes and tables to be used in relations
 auth_users = Table('auth_users', migrate_metadata, autoload=True)
 asset_containers = Table('asset_containers', migrate_metadata, autoload=True)
+taggables = Table('taggables', migrate_metadata, autoload=True)
+annotables = Table('annotables', migrate_metadata, autoload=True)
 
 # New classes and tables
 class Asset(DeclarativeBase):
@@ -23,6 +25,8 @@ class Asset(DeclarativeBase):
     __table_args__ = (UniqueConstraint('category_id', 'parent_id', 'name'),
                       ForeignKeyConstraint(['parent_id', 'proj_id'],
                           ['asset_containers.id', 'asset_containers.proj_id']),
+                      ForeignKeyConstraint(['taggable_id', 'proj_id'],
+                                    ['taggables.id', 'taggables.proj_id']),
                       {})
     
     # Columns
@@ -39,11 +43,15 @@ class Asset(DeclarativeBase):
     approver_id = Column(Integer, ForeignKey('auth_users.user_id'))
     approved = Column(Boolean, default=False)
     approved_date = Column(DateTime)
+    taggable_id = Column(Integer)
 
 
 class AssetVersion(DeclarativeBase):
     """Asset version"""
     __tablename__ = "asset_versions"
+    __table_args__ = (ForeignKeyConstraint(['annotable_id', 'proj_id'],
+                                    ['annotables.id', 'annotables.proj_id']),
+                      {})
     
     # Columns
     id = Column(Integer, primary_key=True)
@@ -55,7 +63,7 @@ class AssetVersion(DeclarativeBase):
     #has_preview = Column(Boolean)
     #preview_ext = Column(String(10))
     user_id = Column(Integer, ForeignKey('auth_users.user_id'))
-    #note_id = Column(None, ForeignKey('notes_associations.assoc_id'))
+    annotable_id = Column(Integer)
 
 
 class Category(DeclarativeBase):
