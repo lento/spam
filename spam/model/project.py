@@ -324,14 +324,10 @@ class Scene(DeclarativeBase):
     
     @property
     def tags(self):
-        if self.taggable is None:
-            self.taggable = Taggable(self.proj_id, 'scenes')
         return self.taggable.tags
     
     @property
     def notes(self):
-        if self.annotable is None:
-            self.annotable = Annotable(self.proj_id, 'scenes')
         return self.annotable.notes
     
     # Special methods
@@ -339,6 +335,8 @@ class Scene(DeclarativeBase):
         self.proj_id = proj
         self.name = name
         self.description = description
+        self.taggable = Taggable(self.proj_id, 'scenes')
+        self.annotable = Annotable(self.proj_id, 'scenes')
 
     def __repr__(self):
         return '<Scene: (%s) "%s">' % (self.proj_id, self.name)
@@ -409,14 +407,10 @@ class Shot(AssetContainer):
     
     @property
     def tags(self):
-        if self.taggable is None:
-            self.taggable = Taggable(self.proj_id, 'shots')
         return self.taggable.tags
     
     @property
     def notes(self):
-        if self.annotable is None:
-            self.annotable = Annotable(self.proj_id, 'shots')
         return self.annotable.notes
     
     # Special methods
@@ -433,6 +427,8 @@ class Shot(AssetContainer):
         self.handle_out = handle_out
         self.action = action
         self.parent = parent
+        self.taggable = Taggable(self.proj_id, 'shots')
+        self.annotable = Annotable(self.proj_id, 'shots')
 
     def __repr__(self):
         return '<Shot: (%s) "%s">' % (self.proj_id, self.name)
@@ -523,14 +519,10 @@ class LibraryGroup(AssetContainer):
     
     @property
     def tags(self):
-        if self.taggable is None:
-            self.taggable = Taggable(self.proj_id, 'libgroups')
         return self.taggable.tags
     
     @property
     def notes(self):
-        if self.annotable is None:
-            self.annotable = Annotable(self.proj_id, 'libgroups')
         return self.annotable.notes
     
     # Special methods
@@ -539,6 +531,8 @@ class LibraryGroup(AssetContainer):
         self.name = name
         if parent: self.parent_id = parent.id
         self.description = description
+        self.taggable = Taggable(self.proj_id, 'libgroups')
+        self.annotable = Annotable(self.proj_id, 'libgroups')
 
     def __repr__(self):
         return '<LibraryGroup: (%s) "%s">' % (self.proj_id, self.name)
@@ -633,8 +627,6 @@ class Asset(DeclarativeBase):
     
     @property
     def tags(self):
-        if self.taggable is None:
-            self.taggable = Taggable(self.proj_id, 'assets')
         return self.taggable.tags
     
     # Special methods
@@ -643,6 +635,7 @@ class Asset(DeclarativeBase):
         self.parent = parent
         self.category = category
         self.name = name
+        self.taggable = Taggable(self.proj_id, 'assets')
         
         #create version zero
         AssetVersion(proj, self, 0, user, '')
@@ -715,8 +708,6 @@ class AssetVersion(DeclarativeBase):
     
     @property
     def notes(self):
-        if self.annotable is None:
-            self.annotable = Annotable(self.proj_id, 'asset_versions')
         return self.annotable.notes
     
     # Special methods
@@ -729,6 +720,7 @@ class AssetVersion(DeclarativeBase):
         self.repoid = repoid
         #self.has_preview = has_preview
         #self.preview_ext = preview_ext
+        self.annotable = Annotable(self.proj_id, 'asset_versions')
 
     def __repr__(self):
         return '<AssetVersion: "%s" v%03d>' % (self.asset_id, self.ver)
