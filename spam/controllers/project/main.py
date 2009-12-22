@@ -93,7 +93,7 @@ class Controller(RestController):
         if is_project_admin():
             tabs.append(('Users', 'tab/users'))
         
-        return dict(page='project/%s' % project.id, tabs=tabs,
+        return dict(page='project/%s' % project.id, project=project, tabs=tabs,
                                             sidebar=('projects', project.id))
 
 

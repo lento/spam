@@ -89,7 +89,7 @@ class Controller(RestController):
                 ('Assets', url('/asset/%s/shot/%s' %
                                                 (shot.project.id, shot.id))),
                ]
-        return dict(page='%s' % shot.path, tabs=tabs, 
+        return dict(page='%s' % shot.path, shot=shot, tabs=tabs, 
                                         sidebar=('projects', shot.project.id))
 
     @project_set_active
