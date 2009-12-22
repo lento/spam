@@ -60,18 +60,30 @@ class Controller(RestController):
     @expose('spam.templates.asset.get_all')
     def get_all(self, proj, container_type, container_id):
         """Return a `tab` page  with a list of all categories and a button to
-        add new assets."""
+        add new assets.
+        
+        This page is used as the `assets` tab in the shot and libgroup view:
+            * :meth:`spam.controllers.shot.main.get_one`
+            * :meth:`spam.controllers.libgroup.main.get_one`.
+        """
         project = tmpl_context.project
         tmpl_context.t_assets = t_assets
         tmpl_context.j_notify_client = j_notify_client
         container = container_get(proj, container_type, container_id)
+        query = session_get().query(Category)
+        categories = query.order_by('ordering', 'name')
         
-        assets_per_category = {}
+        assets_dict = {}
         for a in container.assets:
             cat = a.category.name
-            if cat not in assets_per_category:
-                assets_per_category[cat] = []
-            assets_per_category[cat].append(a)
+            if cat not in assets_dict:
+                assets_dict[cat] = []
+            assets_dict[cat].append(a)
+        
+        assets_per_category = []
+        for cat in categories:
+            if assets_dict[cat.name]:
+                assets_per_category.append((cat.name, assets_dict[cat.name]))
         
         return dict(page='assets', sidebar=('projects', project.id),
                 container_type=container_type, container_id=container_id,

@@ -5,7 +5,7 @@
 
 <br/>
 <br/>
-% for cat, assets in assets_per_category.iteritems():
+% for cat, assets in assets_per_category:
     <div id="${'toggle_%s' % cat}" class="toggle ${len(assets)==0 and 'hidden' or ''}">
         <div class="toggle_header title">
             <span class="toggle_arrow"/>
@@ -29,7 +29,7 @@ ${c.j_notify_client()}
         $(".pane.ajax").load("${tg.url('/asset/%s/%s/%s/' % (c.project.id, container_type, container_id))}");
     }
     spam.temp.current_categories = [];
-    % for cat in assets_per_category:
+    % for cat, assets in assets_per_category:
         spam.temp.current_categories.push("${cat}");
     % endfor
     console.log('spam.temp.current_categories', $.inArray("uncategorized", spam.temp.current_categories));
