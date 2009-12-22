@@ -82,7 +82,7 @@ class Controller(RestController):
         
         assets_per_category = []
         for cat in categories:
-            if assets_dict[cat.name]:
+            if cat.name in assets_dict:
                 assets_per_category.append((cat.name, assets_dict[cat.name]))
         
         return dict(page='assets', sidebar=('projects', project.id),
