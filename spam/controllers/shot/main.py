@@ -25,10 +25,10 @@
 from tg import expose, url, tmpl_context, validate, require
 from tg.controllers import RestController
 from tg.decorators import with_trailing_slash
-from spam.model import session_get, Project, User, Shot
-from spam.model import scene_get, shot_get
+from spam.model import session_get, Project, User, Shot, Tag
+from spam.model import scene_get, shot_get, tag_get
 from spam.lib.widgets import FormShotNew, FormShotEdit, FormShotConfirm
-from spam.lib.widgets import TableShots
+from spam.lib.widgets import FormShotAddTag, TableShots
 from spam.lib import repo
 from spam.lib.notifications import notify
 from spam.lib.decorators import project_set_active
@@ -43,6 +43,7 @@ log = logging.getLogger(__name__)
 f_new = FormShotNew(action=url('/shot/'))
 f_edit = FormShotEdit(action=url('/shot/'))
 f_confirm = FormShotConfirm(action=url('/shot/'))
+f_add_tag = FormShotAddTag(action=url('/shot/'))
 
 # livetable widgets
 t_shots = TableShots()
@@ -223,5 +224,62 @@ class Controller(RestController):
         return dict(msg='deleted shot "%s"' % shot.path, result='success')
     
     # Custom REST-like actions
-    custom_actions = []
+    custom_actions = ['tags', 'add_tag', 'remove_tag',
+                      'notes', 'add_note', 'remove_note']
+
+    @project_set_active
+    @require(is_project_user())
+    @expose('spam.templates.tags')
+    def tags(self, proj, sc, sh, **kwargs):
+        """Return a html fragment with a list of tags for this shot."""
+        shot = shot_get(proj, sc, sh)
+        return dict(tags=shot.tags)
+
+    @project_set_active
+    @require(is_project_admin())
+    @expose('spam.templates.forms.form')
+    def get_add_tag(self, proj, sc, sh, **kwargs):
+        """Display a ADD_TAG form."""
+        tmpl_context.form = f_add_tag
+        session = session_get()
+        shot = shot_get(proj, sc, sh)
+        
+        fargs = dict(proj=shot.project.id, sc=shot.parent.name, sh=shot.name,
+                     current_tags_=', '.join([t.name for t in shot.tags]),
+                    )
+        
+        tags = session.query(Tag).filter_by(proj_id=proj)
+        choices = [(t.id, t.name) for t in tags if t not in shot.tags]
+        fcargs = dict(tag_ids=dict(options=choices))
+        return dict(title='Add a tag to "%s"' % shot.path,
+                                                args=fargs, child_args=fcargs)
+
+    @project_set_active
+    @require(is_project_admin())
+    @expose('json')
+    @expose('spam.templates.forms.result')
+    @validate(f_add_tag, error_handler=get_add_tag)
+    def post_add_tag(self, proj, sc, sh, tag_ids=[], new_tags=None, **kwargs):
+        """Add a tag to a shot."""
+        log.debug('post_add_tag 1: %s %s' % (tag_ids, new_tags))
+        project = tmpl_context.project
+        session = session_get()
+        shot = shot_get(proj, sc, sh)
+        
+        tags = [tag_get(proj, int(i)) for i in tag_ids]
+        if new_tags:
+            tags.extend([tag_get(proj, name) for name in new_tags.split(', ')])
+        log.debug('post_add_tag 2: %s' % (tags))
+        
+        added_tags = []
+        for tag in tags:
+            if tag not in shot.tags:
+                shot.tags.append(tag)
+                added_tags.append(tag.name)
+        added_tags = ', '.join(added_tags)
+        
+        #notify.send(tag, update_type='added', shot=shot)
+        return dict(msg='added tag(s) "%s" to shot "%s"' % 
+                                   (added_tags, shot.path), result='success')
+    
 

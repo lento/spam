@@ -37,7 +37,7 @@ class Tag(DeclarativeBase):
     id = Column(Integer, autoincrement=True, primary_key=True)
     proj_id = Column(Unicode(10))
     taggable_id = Column(Integer)
-    name = Column(UnicodeText)
+    name = Column(UnicodeText, unique=True)
     created = Column(DateTime, default=datetime.now)
     
 

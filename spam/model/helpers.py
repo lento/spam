@@ -7,8 +7,11 @@ from sqlalchemy.exceptions import InvalidRequestError
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 from spam.lib.exceptions import SPAMDBError, SPAMDBNotFound
 from spam.model import DBSession, Project, Scene, Shot, LibraryGroup, Asset
-from spam.model import Category, User, Group
+from spam.model import Category, User, Group, Tag
 from spam.model import sharding
+
+import logging
+log = logging.getLogger(__name__)
 
 def add_shard(proj):
     db_url_tmpl = config.get('db_url_tmpl', 'sqlite:///spam_%s.sqlite')
@@ -35,7 +38,7 @@ def user_get(id_or_name):
     query = session_get().query(User)
     if isinstance(id_or_name, int):
         query = query.filter_by(user_id=id_or_name)
-    elif isinstance(id_or_name, str):
+    elif isinstance(id_or_name, basestring):
         query = query.filter_by(user_name=id_or_name)
     else:
         raise SPAMDBError('Error when searching user "%s".' % id_or_name)
@@ -51,7 +54,7 @@ def group_get(id_or_name):
     query = session_get().query(Group)
     if isinstance(id_or_name, int):
         query = query.filter_by(group_id=id_or_name)
-    elif isinstance(id_or_name, str):
+    elif isinstance(id_or_name, basestring):
         query = query.filter_by(group_name=id_or_name)
     else:
         raise SPAMDBError('Error when searching group "%s".' % id_or_name)
@@ -133,7 +136,7 @@ def category_get(id_or_name):
     query = session_get().query(Category)
     if isinstance(id_or_name, int):
         query = query.filter_by(id=id_or_name)
-    elif isinstance(id_or_name, str):
+    elif isinstance(id_or_name, basestring):
         query = query.filter_by(name=id_or_name)
     else:
         raise SPAMDBError('Error when searching category "%s".' % id_or_name)
@@ -143,6 +146,24 @@ def category_get(id_or_name):
         raise SPAMDBNotFound('Category "%s" could not be found.' % id_or_name)
     except MultipleResultsFound:
         raise SPAMDBError('Error when searching category "%s".' % id_or_name)
+
+def tag_get(proj, id_or_name):
+    """return an existing tag or creates a new one"""
+    query = session_get().query(Tag).filter_by(proj_id=proj)
+    if isinstance(id_or_name, int):
+        try:
+            return query.filter_by(id=id_or_name).one()
+        except NoResultFound:
+            raise SPAMDBNotFound('Tag "%s" could not be found.' % id_or_name)
+        except MultipleResultsFound:
+            raise SPAMDBError('Error when searching tag "%s".' % id_or_name)
+    elif isinstance(id_or_name, basestring):
+        try:
+            return query.filter_by(name=id_or_name).one()
+        except NoResultFound:
+            return Tag(proj, id_or_name)
+        except MultipleResultsFound:
+            raise SPAMDBError('Error when searching tag "%s".' % id_or_name)
 
 # Cache
 def eagerload_maker(proj):

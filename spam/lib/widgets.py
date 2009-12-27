@@ -9,6 +9,7 @@ from tw.forms.validators import Schema
 from spam.lib.validators import CategoryNamingConvention
 from spam.lib.twlib.livetable import LiveTable, IconButton, TextData, ThumbData
 from spam.lib.twlib.livetable import IconBox, LinkData
+from spam.lib.twlib.livelist import LiveList, TextItem
 
 # Orbited
 orbited_address = config.get('orbited_address', 'http://localhost:9000')
@@ -47,11 +48,15 @@ class StartupJS(Widget):
                   jquery_treeview_js, jquery_sprintf_js, jquery_tablesorter_js,
                   spam_js]
 
+############################################################
 # Custom LiveTable widgets
+############################################################
 class SchemaButton(IconButton):
     template = 'mako:spam.templates.widgets.schema_button'
 
+############################################################
 # Live tables
+############################################################
 class TableUsers(LiveTable):
     javascript = [notify_client_js]
     update_topic = '/topic/users'
@@ -288,7 +293,17 @@ class TableAssetHistory(LiveTable):
         fmtver = TextData(label_text='ver')
 
 
+############################################################
+# Live lists
+############################################################
+class ListTags(LiveList):
+    class fields(WidgetsList):
+        name = TextItem()
+
+
+############################################################
 # Form widgets
+############################################################
 
 # User
 class FormUserNew(TableForm):
@@ -464,6 +479,17 @@ class FormShotConfirm(TableForm):
         frames_ = TextField(validator=None, disabled=True)
         handle_in_ = TextField(validator=None, disabled=True)
         handle_out_ = TextField(validator=None, disabled=True)
+
+
+class FormShotAddTag(TableForm):
+    class fields(WidgetsList):
+        _method = HiddenField(default='ADD_TAG', validator=None)
+        proj = HiddenField(validator=NotEmpty)
+        sc = HiddenField(validator=NotEmpty)
+        sh = HiddenField(validator=NotEmpty)
+        current_tags_ = TextField(validator=None, disabled=True)
+        tag_ids = MultipleSelectField(label_text='Tags', options=[], size=10)
+        new_tags = TextField(validator=Regex(G.pattern_tags))
 
 
 # Libgroups

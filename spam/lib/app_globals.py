@@ -29,5 +29,6 @@ class Globals(object):
         self.pattern_name = re.compile('^[a-zA-Z0-9_\-]+$')
         self.pattern_file = re.compile('^[a-zA-Z0-9_\-]+\.[a-zA-Z0-9]+$')
         self.pattern_seq = re.compile('^[a-zA-Z0-9_\-]+\.#\.[a-zA-Z0-9]+$')
+        self.pattern_tags = re.compile('^([a-zA-Z0-9_\-]+(, )?)+$')
 
 

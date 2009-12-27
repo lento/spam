@@ -28,9 +28,11 @@ from tg import url, expose, validate, tmpl_context
 from spam.lib.base import SPAMBaseController
 from spam.lib.widgets import FormProjectEdit
 from spam.lib.widgets import TableScenes
-from spam.model import project_get
+from spam.lib.widgets import ListTags
+from spam.model import project_get, shot_get
 
 t_scenes = TableScenes()
+l_tags = ListTags()
 
 log = logging.getLogger(__name__)
 f_project_edit = FormProjectEdit(action=url('/test/putvalidation'))
@@ -95,3 +97,9 @@ class SandboxController(SPAMBaseController):
             tmpf.close()
         return dict()
 
+    @expose('spam.templates.sandbox.taglist')
+    def taglist(self, proj, sc, sh):
+        tmpl_context.l_tags = l_tags
+        shot = shot_get(proj, sc, sh)
+        tags = shot.tags
+        return dict(page='sandbox/taglist', shot=shot, tags=tags)
