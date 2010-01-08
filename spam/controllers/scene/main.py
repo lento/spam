@@ -17,7 +17,7 @@
 # Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.
 #
-# Copyright (c) 2009, Lorenzo Pierfederici <lpierfederici@gmail.com>
+# Original Copyright (c) 2010, Lorenzo Pierfederici <lpierfederici@gmail.com>
 # Contributor(s): 
 #
 """Scene main controller"""
