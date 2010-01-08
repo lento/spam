@@ -26,8 +26,7 @@ from tg import expose, url, tmpl_context, redirect, validate, require
 from tg.controllers import RestController
 from tg.decorators import with_trailing_slash
 from pylons.i18n import ugettext as _, lazy_ugettext as l_
-from spam.model import session_get, Project, User, db_init, add_shard
-from spam.model import project_get
+from spam.model import session_get, project_get, Project, User
 from spam.model import query_projects, query_projects_archived
 from spam.lib.widgets import FormProjectNew, FormProjectEdit, FormProjectConfirm
 from spam.lib.widgets import ProjectsActive, ProjectsArchived
@@ -114,18 +113,9 @@ class Controller(RestController):
         """Create a new project"""
         session = session_get()
         
-        # add project to shared db
+        # add project to db
         project = Project(proj, name=name, description=description)
         session.add(project)
-        
-        # shards are dinamically loaded at each request, but for the current
-        # request we have to add it manually
-        add_shard(project.id)
-        
-        # init project db
-        #if core_session.bind.url.drivername=='mysql':
-        #    create_proj_db(project.id)
-        db_init(project.id)
         
         # create directories and init hg repo
         repo.project_create_dirs(project.id)

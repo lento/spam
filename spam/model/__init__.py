@@ -14,15 +14,10 @@ metadata = DeclarativeBase.metadata
 # Utils
 from utils import MappedList, mapped_list
 
-# Sharding
-from sharding import shards, queries, shard_chooser, id_chooser, query_chooser
-
 # Global session manager: DBSession() returns the Thread-local
 # session object appropriate for the current web request.
-maker = sessionmaker(autoflush=True, autocommit=False, class_=ShardedSession,
-                     extension=ZopeTransactionExtension(),
-                     shard_chooser=shard_chooser, id_chooser=id_chooser,
-                     query_chooser=query_chooser)
+maker = sessionmaker(autoflush=True, autocommit=False,
+                     extension=ZopeTransactionExtension())
 DBSession = scoped_session(maker)
 
 # Migrate versioning
@@ -36,29 +31,15 @@ from project import Project, Scene, Shot, LibraryGroup, Asset, AssetVersion
 from project import project_user_table, project_admin_table
 from project import Category, Supervisor, Artist, Tag, Taggable, Note
 
-# Set which classes and tables belong to the common db
-sharding.common_classes = [User, Group, Permission, Project, Category]
-sharding.common_tables = set([User.__table__,
-                              Group.__table__,
-                              Permission.__table__,
-                              group_permission_table,
-                              user_group_table,
-                              Project.__table__,
-                              project_user_table,
-                              project_admin_table,
-                              Category.__table__,
-                             ])
-
 # Caching & helpers
 from helpers import query_projects, query_projects_archived, project_get
-from helpers import project_get_eager, session_get, scene_get, shot_get, add_shard
-from helpers import container_get, asset_get, category_get, libgroup_get, user_get
-from helpers import group_get, tag_get
+from helpers import project_get_eager, session_get, scene_get, shot_get
+from helpers import container_get, asset_get, category_get, libgroup_get
+from helpers import group_get, tag_get, user_get
 
 # Init model
 def init_model(engine):
     """Call me before using any of the tables or classes in the model."""
-    sharding.shards[u'common'] = engine
     
-    DBSession.configure(shards=sharding.shards)
+    DBSession.configure(bind=engine)
 

@@ -16,7 +16,7 @@ def setup_schema(command, conf, vars):
     
     # <websetup.websetup.schema.before.metadata.create_all>
     print "Creating tables"
-    model.versioning.db_init('common')
-    model.versioning.db_upgrade('common')
+    model.versioning.db_init('spam')
+    model.versioning.db_upgrade('spam')
     # <websetup.websetup.schema.after.metadata.create_all>
     transaction.commit()

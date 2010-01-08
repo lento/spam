@@ -8,23 +8,12 @@ from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 from spam.lib.exceptions import SPAMDBError, SPAMDBNotFound
 from spam.model import DBSession, Project, Scene, Shot, LibraryGroup, Asset
 from spam.model import Category, User, Group, Tag
-from spam.model import sharding
 
 import logging
 log = logging.getLogger(__name__)
 
-def add_shard(proj):
-    db_url_tmpl = config.get('db_url_tmpl', 'sqlite:///spam_%s.sqlite')
-    db = create_engine(db_url_tmpl % proj)
-    DBSession().bind_shard(proj, db)
-    sharding.shards[proj] = db
-
 # Helpers
 def session_get():
-    shards = DBSession()._ShardedSession__binds.keys()
-    for project in DBSession.query(Project):
-        if project not in shards:
-            add_shard(project.id)
     return DBSession()
 
 def query_projects():
