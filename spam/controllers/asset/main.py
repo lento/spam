@@ -71,19 +71,19 @@ class Controller(RestController):
         tmpl_context.j_notify_client = j_notify_client
         container = container_get(proj, container_type, container_id)
         query = session_get().query(Category)
-        categories = query.order_by('ordering', 'name')
+        categories = query.order_by('ordering', 'id')
         
         assets_dict = {}
         for a in container.assets:
-            cat = a.category.name
+            cat = a.category.id
             if cat not in assets_dict:
                 assets_dict[cat] = []
             assets_dict[cat].append(a)
         
         assets_per_category = []
         for cat in categories:
-            if cat.name in assets_dict:
-                assets_per_category.append((cat.name, assets_dict[cat.name]))
+            if cat.id in assets_dict:
+                assets_per_category.append((cat.id, assets_dict[cat.id]))
         
         return dict(page='assets', sidebar=('projects', project.id),
                 container_type=container_type, container_id=container_id,
@@ -118,9 +118,9 @@ class Controller(RestController):
                     )
 
         query = session_get().query(Category)
-        categories = query.order_by('ordering', 'name')
-        category_choices = [(0, '')]
-        category_choices.extend([(cat.id, cat.name) for cat in categories])
+        categories = query.order_by('ordering', 'id')
+        category_choices = ['']
+        category_choices.extend([cat.id for cat in categories])
         fcargs = dict(category_id=dict(options=category_choices))
 
         return dict(title='Create a new asset', args=fargs, child_args=fcargs)

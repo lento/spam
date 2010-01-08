@@ -38,7 +38,6 @@ def bootstrap(command, conf, vars):
         
 
     # <websetup.bootstrap.after.auth>
-    '''
     design = model.Category(u'design', ordering=1,
                     naming_convention=u'^[a-zA-Z0-9_]+_DRW\.[a-zA-Z0-9]+$')
     session.add(design)
@@ -58,7 +57,6 @@ def bootstrap(command, conf, vars):
     animation = model.Category(u'animation', ordering=5,
                     naming_convention=u'^[a-zA-Z0-9_]+_ANI\.[a-zA-Z0-9]+$')
     session.add(animation)
-    '''
 
     transaction.commit()
 

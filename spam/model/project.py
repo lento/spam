@@ -640,15 +640,15 @@ class Asset(DeclarativeBase):
     
     @property
     def path(self):
-        return os.path.join(self.parent.path, self.category.name, self.name)
+        return os.path.join(self.parent.path, self.category.id, self.name)
     
     @property
     def thumb_path(self):
         name, ext = os.path.splitext(self.name)
         name = name.replace('.#', '')
         name = '%s-thumb.png' % name
-        return os.path.join(self.proj_id, G.PREVIEWS, self.parent.path,
-                            self.category.name, name)
+        return os.path.join(self.parent.proj_id, G.PREVIEWS, self.parent.path,
+                            self.category.id, name)
     
     @property
     def current_ver(self):
@@ -676,7 +676,7 @@ class Asset(DeclarativeBase):
         self.taggable = Taggable(self.id, 'asset')
         
         #create version zero
-        AssetVersion(proj, self, 0, user, '')
+        AssetVersion(self, 0, user, '')
     
     def __repr__(self):
         return '<Asset: %s>' % self.id
@@ -684,13 +684,11 @@ class Asset(DeclarativeBase):
     def __json__(self):
         return dict(id=self.id,
                     name=self.name,
-                    proj_id=self.proj_id,
                     parent_id=self.parent_id,
                     parent=self.parent,
                     category=self.category,
                     checkedout=self.checkedout,
                     user=self.user,
-                    approved=self.approved,
                     path=self.path,
                     current_ver=self.current_ver,
                     current_fmtver=self.current_fmtver,

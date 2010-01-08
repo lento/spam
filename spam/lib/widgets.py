@@ -139,7 +139,7 @@ class TableCategories(LiveTable):
     update_topic = '/topic/categories'
     class fields(WidgetsList):
         ordering = TextData(sort_default=True)
-        name = TextData()
+        id = TextData()
         naming_convention = TextData()
         actions = IconBox(buttons=[
             IconButton(id='edit', icon_class='edit',
@@ -525,9 +525,9 @@ class FormAssetNew(TableForm):
         name = TextField(validator=Any(Regex(G.pattern_file, not_empty=True),
                                        Regex(G.pattern_seq, not_empty=True)))
         category_id = SingleSelectField(label_text='category', options=[],
-                validator=Int(min=1,
-                              messages={'tooLow': 'Please choose a category'}),
-                default=0)
+                validator=All(Regex(G.pattern_name, not_empty=True),
+                                                                MaxLength(30)),
+                default='')
     
     validator = Schema(
         chained_validators=[CategoryNamingConvention('category_id', 'name')],

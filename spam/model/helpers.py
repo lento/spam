@@ -120,21 +120,15 @@ def asset_get(proj, asset_id):
     except MultipleResultsFound:
         raise SPAMDBError('Error when searching asset "%s".' % asset_id)
 
-def category_get(id_or_name):
+def category_get(category_id):
     """return a asset category"""
-    query = session_get().query(Category)
-    if isinstance(id_or_name, int):
-        query = query.filter_by(id=id_or_name)
-    elif isinstance(id_or_name, basestring):
-        query = query.filter_by(name=id_or_name)
-    else:
-        raise SPAMDBError('Error when searching category "%s".' % id_or_name)
+    query = session_get().query(Category).filter_by(id=category_id)
     try:
         return query.one()
     except NoResultFound:
-        raise SPAMDBNotFound('Category "%s" could not be found.' % id_or_name)
+        raise SPAMDBNotFound('Category "%s" could not be found.' % category_id)
     except MultipleResultsFound:
-        raise SPAMDBError('Error when searching category "%s".' % id_or_name)
+        raise SPAMDBError('Error when searching category "%s".' % category_id)
 
 def tag_get(proj, id_or_name):
     """return an existing tag or creates a new one"""

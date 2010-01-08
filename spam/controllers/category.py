@@ -52,7 +52,7 @@ class Controller(RestController):
         add new categories."""
         tmpl_context.t_categories = t_categories
         query = session_get().query(Category)
-        categories = query.order_by('ordering', 'name')
+        categories = query.order_by('ordering', 'id')
         return dict(page='admin/categories', sidebar=('admin', 'categories'),
                                                         categories=categories)
 
