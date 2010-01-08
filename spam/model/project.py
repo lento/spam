@@ -47,6 +47,18 @@ project_admin_table = Table('__project_admin', metadata,
 ############################################################
 # Tags
 ############################################################
+# Association table for the many-to-many relationship taggables-tags.
+taggables_tags_table = Table('__taggables_tags', metadata,
+    Column('proj_id', Unicode(10)),
+    Column('taggable_id', Integer),
+    Column('tag_id', Integer),
+    ForeignKeyConstraint(['taggable_id', 'proj_id'],
+                         ['taggables.id', 'taggables.proj_id'],
+                         onupdate='CASCADE', ondelete='CASCADE'),
+    ForeignKeyConstraint(['tag_id', 'proj_id'], ['tags.id', 'tags.proj_id'],
+                         onupdate='CASCADE', ondelete='CASCADE'),
+)
+
 class Taggable(DeclarativeBase):
     __tablename__ = 'taggables'
     
@@ -72,9 +84,6 @@ class Taggable(DeclarativeBase):
 
 class Tag(DeclarativeBase):
     __tablename__ = 'tags'
-    __table_args__ = (ForeignKeyConstraint(['taggable_id', 'proj_id'],
-                                        ['taggables.id', 'taggables.proj_id']),
-                      {})
     
     # Columns
     id = Column(Integer, autoincrement=True, primary_key=True)
@@ -84,7 +93,8 @@ class Tag(DeclarativeBase):
     created = Column(DateTime, default=datetime.now)
     
     # Relations
-    taggable = relation(Taggable, backref='tags')
+    taggables = relation(Taggable, secondary=taggables_tags_table,
+                                                                backref='tags')
     
     # Properties
     @property
@@ -392,7 +402,8 @@ class Shot(AssetContainer):
     parent = relation(Scene,
                         backref=backref('shots', order_by=name, lazy=False))
     
-    taggable = relation(Taggable, backref='tagged_shots')
+    taggable = relation(Taggable, backref=backref('tagged_shots',
+                                                                uselist=False))
     
     annotable = relation(Annotable, backref='annotated_shots')
     

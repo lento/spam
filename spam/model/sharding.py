@@ -32,10 +32,13 @@ def shard_chooser(mapper, instance, clause=None):
     """Looks at the given instance and returns a shard id."""
     id_ = None
     if (type(instance) in common_classes) or (instance is None):
+        log.debug('shard_chooser0: %s %s %s' % (mapper, instance, clause))
         id_ = u'common'
     elif hasattr(instance, 'proj_id') and instance.proj_id is not None:
+        log.debug('shard_chooser1: %s %s %s' % (mapper, instance, clause))
         id_ = instance.proj_id
     else:
+        log.debug('shard_chooser2: %s %s %s' % (mapper, instance, clause))
         id_ = u'common'
     log.debug('shard_chooser: %s' % id_)
     return id_
@@ -69,7 +72,11 @@ def query_chooser(query):
             constructs. We'll grab project nicks as we find them
             and convert to shard ids
             """
-            if isinstance(binary.left, Column):
+            if (isinstance(binary.left, Column) and
+                                            isinstance(binary.right, Column)):
+                log.debug('visit_binary: two columns')
+                return
+            elif isinstance(binary.left, Column):
                 if binary.left.name=='proj_id' and binary.right.value:
                     if binary.operator == operators.eq:
                         if callable(binary.right.value):

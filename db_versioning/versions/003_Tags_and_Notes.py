@@ -18,6 +18,18 @@ DeclarativeBase = declarative_base(bind=migrate_engine,
 
 
 # New classes and tables
+# Association table for the many-to-many relationship taggables-tags.
+taggables_tags_table = Table('__taggables_tags', migrate_metadata,
+    Column('proj_id', Unicode(10)),
+    Column('taggable_id', Integer),
+    Column('tag_id', Integer),
+    ForeignKeyConstraint(['taggable_id', 'proj_id'],
+                         ['taggables.id', 'taggables.proj_id'],
+                         onupdate='CASCADE', ondelete='CASCADE'),
+    ForeignKeyConstraint(['tag_id', 'proj_id'], ['tags.id', 'tags.proj_id'],
+                         onupdate='CASCADE', ondelete='CASCADE'),
+)
+
 class Taggable(DeclarativeBase):
     __tablename__ = 'taggables'
     
@@ -69,6 +81,7 @@ class Note(DeclarativeBase):
 def upgrade():
     # Upgrade operations go here. Don't create your own engine; use the engine
     # named 'migrate_engine' imported from migrate.
+    taggables_tags_table.create()
     Taggable.__table__.create()
     Tag.__table__.create()
     Annotable.__table__.create()
@@ -76,6 +89,7 @@ def upgrade():
 
 def downgrade():
     # Operations to reverse the above upgrade go here.
+    taggables_tags_table.drop()
     Taggable.__table__.drop()
     Tag.__table__.drop()
     Annotable.__table__.drop()

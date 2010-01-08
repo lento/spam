@@ -34,7 +34,7 @@ from auth import User, Group, Permission, group_permission_table
 from auth import user_group_table
 from project import Project, Scene, Shot, LibraryGroup, Asset, AssetVersion
 from project import project_user_table, project_admin_table
-from project import Category, Supervisor, Artist, Tag, Note
+from project import Category, Supervisor, Artist, Tag, Taggable, Note
 
 # Set which classes and tables belong to the common db
 sharding.common_classes = [User, Group, Permission, Project, Category]

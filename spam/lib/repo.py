@@ -113,7 +113,7 @@ def project_create_dirs(proj):
         os.makedirs(repo_path)
         for d in G.DEFAULT_PROJ_DIRS:
             os.makedirs(os.path.join(repo_path, d))
-    except (OSError):
+    except OSError as error:
         # error 17 is "file exists", in that case we just skip the exception
         if not error.errno==17:
             raise SPAMRepoError("Couldn't create directories for project %s" %

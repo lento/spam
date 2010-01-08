@@ -261,7 +261,6 @@ class Controller(RestController):
     @validate(f_add_tag, error_handler=get_add_tag)
     def post_add_tag(self, proj, sc, sh, tag_ids=[], new_tags=None, **kwargs):
         """Add a tag to a shot."""
-        log.debug('post_add_tag 1: %s %s' % (tag_ids, new_tags))
         project = tmpl_context.project
         session = session_get()
         shot = shot_get(proj, sc, sh)
@@ -269,7 +268,6 @@ class Controller(RestController):
         tags = [tag_get(proj, int(i)) for i in tag_ids]
         if new_tags:
             tags.extend([tag_get(proj, name) for name in new_tags.split(', ')])
-        log.debug('post_add_tag 2: %s' % (tags))
         
         added_tags = []
         for tag in tags:
