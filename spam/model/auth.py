@@ -45,11 +45,13 @@ from spam.model import DeclarativeBase, metadata
 __all__ = ['User', 'Group', 'Permission']
 
 
+############################################################
 # Association tables
+############################################################
 
 # This is the association table for the many-to-many relationship between
 # groups and permissions. This is required by repoze.what.
-group_permission_table = Table('__groups_permissions', metadata,
+groups_permissions_table = Table('__groups_permissions', metadata,
     Column('group_id', Integer, ForeignKey('groups.group_id',
         onupdate="CASCADE", ondelete="CASCADE")),
     Column('permission_id', Integer, ForeignKey('permissions.permission_id',
@@ -58,13 +60,17 @@ group_permission_table = Table('__groups_permissions', metadata,
 
 # This is the association table for the many-to-many relationship between
 # groups and members - this is, the memberships. It's required by repoze.what.
-user_group_table = Table('__users_groups', metadata,
+users_groups_table = Table('__users_groups', metadata,
     Column('user_id', Integer, ForeignKey('users.user_id',
         onupdate="CASCADE", ondelete="CASCADE")),
     Column('group_id', Integer, ForeignKey('groups.group_id',
         onupdate="CASCADE", ondelete="CASCADE"))
 )
 
+
+############################################################
+# Auth
+############################################################
 
 class Group(DeclarativeBase):
     """
@@ -81,7 +87,7 @@ class Group(DeclarativeBase):
     created = Column(DateTime, default=datetime.now)
     
     # Relations
-    users = relation('User', secondary=user_group_table,
+    users = relation('User', secondary=users_groups_table,
                                         backref=backref('groups', lazy=False))
     
     # Special methods
@@ -219,7 +225,7 @@ class Permission(DeclarativeBase):
     description = Column(Unicode(255))
     
     # Relations
-    groups = relation(Group, secondary=group_permission_table,
+    groups = relation(Group, secondary=groups_permissions_table,
                                     backref=backref('permissions', lazy=False))
     
     # Special methods

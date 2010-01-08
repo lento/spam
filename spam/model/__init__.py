@@ -25,10 +25,8 @@ from versioning import db_init, migraterepo_get_version, db_get_version
 from versioning import db_upgrade, db_downgrade
 
 # Models import
-from auth import User, Group, Permission, group_permission_table
-from auth import user_group_table
+from auth import User, Group, Permission
 from project import Project, Scene, Shot, LibraryGroup, Asset, AssetVersion
-from project import project_user_table, project_admin_table
 from project import Category, Supervisor, Artist, Tag, Taggable, Note
 
 # Caching & helpers
