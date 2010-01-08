@@ -635,6 +635,10 @@ class Asset(DeclarativeBase):
     
     # Properties
     @property
+    def proj_id(self):
+        return self.parent.project.id
+    
+    @property
     def project(self):
         return self.parent.project
     
@@ -647,7 +651,7 @@ class Asset(DeclarativeBase):
         name, ext = os.path.splitext(self.name)
         name = name.replace('.#', '')
         name = '%s-thumb.png' % name
-        return os.path.join(self.parent.proj_id, G.PREVIEWS, self.parent.path,
+        return os.path.join(self.proj_id, G.PREVIEWS, self.parent.path,
                             self.category.id, name)
     
     @property
@@ -679,11 +683,12 @@ class Asset(DeclarativeBase):
         AssetVersion(self, 0, user, '')
     
     def __repr__(self):
-        return '<Asset: %s>' % self.id
+        return '<Asset: %s (%s)>' % (self.id, self.name)
 
     def __json__(self):
         return dict(id=self.id,
                     name=self.name,
+                    proj_id=self.proj_id,
                     parent_id=self.parent_id,
                     parent=self.parent,
                     category=self.category,
@@ -753,7 +758,8 @@ class AssetVersion(DeclarativeBase):
         self.annotable = Annotable(self.id, 'asset_version')
 
     def __repr__(self):
-        return '<AssetVersion: %s_v%03d>' % (self.asset_id, self.ver)
+        return '<AssetVersion: %s (%s_v%03d)>' % (self.asset_id,
+                                                    self.asset.name, self.ver)
 
     def __json__(self):
         return dict(id=self.id,

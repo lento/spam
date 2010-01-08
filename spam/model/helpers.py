@@ -112,7 +112,7 @@ def container_get(proj, container_type, container_id):
 
 def asset_get(proj, asset_id):
     """return an asset"""
-    query = session_get().query(Asset).filter_by(proj_id=proj)
+    query = session_get().query(Asset)
     try:
         return query.filter_by(id=asset_id).one()
     except NoResultFound:
