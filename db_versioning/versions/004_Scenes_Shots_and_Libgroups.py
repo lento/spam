@@ -1,31 +1,29 @@
 from datetime import datetime
 from sqlalchemy import Table, Column, MetaData
 from sqlalchemy import UniqueConstraint, ForeignKeyConstraint, ForeignKey
-from sqlalchemy.types import Unicode, UnicodeText, DateTime, Integer
+from sqlalchemy.types import Unicode, UnicodeText, DateTime, Integer, String
 from sqlalchemy.orm import relation, backref
 from migrate import *
 from sqlalchemy.ext.declarative import declarative_base
 
-migrate_metadata = MetaData()
-DeclarativeBase = declarative_base(bind=migrate_engine,
-                                                    metadata=migrate_metadata)
+metadata = MetaData()
+DeclarativeBase = declarative_base(bind=migrate_engine, metadata=metadata)
 
 
 # Existing classes and tables to be used in relations
-projects = Table('projects', migrate_metadata, autoload=True)
-taggables = Table('taggables', migrate_metadata, autoload=True)
-annotables = Table('annotables', migrate_metadata, autoload=True)
+projects = Table('projects', metadata, autoload=True)
+taggables = Table('taggables', metadata, autoload=True)
+annotables = Table('annotables', metadata, autoload=True)
 
 # New classes and tables
 class AssetContainer(DeclarativeBase):
     """Base class for object containers"""
     __tablename__ = 'asset_containers'
         
-    id = Column(Integer, primary_key=True)
-    proj_id = Column(Unicode(10))
-    type = Column(Unicode(20))
-    __mapper_args__ = {'polymorphic_on': type}
-
+    # Columns
+    id = Column(String(40), primary_key=True)
+    discriminator = Column('type', Unicode(20))
+    __mapper_args__ = {'polymorphic_on': discriminator}
 
 class Scene(DeclarativeBase):
     """
@@ -35,21 +33,16 @@ class Scene(DeclarativeBase):
     """
     __tablename__ = "scenes"
     __table_args__ = (UniqueConstraint('proj_id', 'name'),
-                      ForeignKeyConstraint(['taggable_id', 'proj_id'],
-                                    ['taggables.id', 'taggables.proj_id']),
-                      ForeignKeyConstraint(['annotable_id', 'proj_id'],
-                                    ['annotables.id', 'annotables.proj_id']),
+                      ForeignKeyConstraint(['id'], ['taggables.id']),
+                      ForeignKeyConstraint(['id'], ['annotables.id']),
                       {})
     
     # Columns
-    id = Column(Integer, primary_key=True)
+    id = Column(String(40), primary_key=True)
     proj_id = Column(Unicode(10), ForeignKey('projects.id'))
     name = Column(Unicode(15))
     description = Column(UnicodeText)
     created = Column(DateTime, default=datetime.now)
-    annotable_id = Column(Integer)
-    taggable_id = Column(Integer)
-
 
 class Shot(AssetContainer):
     """
@@ -58,22 +51,15 @@ class Shot(AssetContainer):
     This represents a "film shot" that acts as a container for Asset objects.
     """
     __tablename__ = "shots"
-    __table_args__ = (UniqueConstraint('proj_id', 'parent_id', 'name'),
-                      ForeignKeyConstraint(['id', 'proj_id'],
-                          ['asset_containers.id', 'asset_containers.proj_id']),
-                      ForeignKeyConstraint(['parent_id', 'proj_id'],
-                          ['scenes.id', 'scenes.proj_id']),
-                      ForeignKeyConstraint(['taggable_id', 'proj_id'],
-                                    ['taggables.id', 'taggables.proj_id']),
-                      ForeignKeyConstraint(['annotable_id', 'proj_id'],
-                                    ['annotables.id', 'annotables.proj_id']),
+    __table_args__ = (UniqueConstraint('parent_id', 'name'),
+                      ForeignKeyConstraint(['id'], ['taggables.id']),
+                      ForeignKeyConstraint(['id'], ['annotables.id']),
                       {})
     __mapper_args__ = {'polymorphic_identity': 'shot'}
     
     # Columns
-    id = Column(Integer, primary_key=True)
-    proj_id = Column(Unicode(10))
-    parent_id = Column(Integer)
+    id = Column(String(40), ForeignKey('asset_containers.id'), primary_key=True)
+    parent_id = Column(String(40), ForeignKey('scenes.id'))
     name = Column(Unicode(15))
     created = Column(DateTime, default=datetime.now)
     description = Column(UnicodeText)
@@ -85,31 +71,21 @@ class Shot(AssetContainer):
     taggable_id = Column(Integer)
     annotable_id = Column(Integer)
 
-
 class LibraryGroup(AssetContainer):
     """Library group"""
     __tablename__ = "library_groups"
-    __table_args__ = (UniqueConstraint('proj_id', 'parent_id', 'name'),
-                      ForeignKeyConstraint(['id', 'proj_id'],
-                          ['asset_containers.id', 'asset_containers.proj_id']),
-                      ForeignKeyConstraint(['parent_id'],
-                          ['library_groups.id']),
-                      ForeignKeyConstraint(['taggable_id', 'proj_id'],
-                                    ['taggables.id', 'taggables.proj_id']),
-                      ForeignKeyConstraint(['annotable_id', 'proj_id'],
-                                    ['annotables.id', 'annotables.proj_id']),
+    __table_args__ = (UniqueConstraint('parent_id', 'name'),
+                      ForeignKeyConstraint(['id'], ['taggables.id']),
+                      ForeignKeyConstraint(['id'], ['annotables.id']),
                       {})
     __mapper_args__ = {'polymorphic_identity': 'library_group'}
     
     # Columns
-    id = Column(Integer, primary_key=True)
-    proj_id = Column(Unicode(10))
-    parent_id = Column(Integer)
+    id = Column(String(40), ForeignKey('asset_containers.id'), primary_key=True)
+    proj_id = Column(Unicode(10), ForeignKey('projects.id'))
+    parent_id = Column(String(40), ForeignKey('library_groups.id'))
     name = Column(Unicode(40))
     description = Column(UnicodeText)
-    taggable_id = Column(Integer)
-    annotable_id = Column(Integer)
-
 
 def upgrade():
     # Upgrade operations go here. Don't create your own engine; use the engine

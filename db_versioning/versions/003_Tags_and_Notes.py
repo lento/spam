@@ -9,74 +9,55 @@ from migrate.changeset import schema
 from migrate.changeset.constraint import ForeignKeyConstraint
 from sqlalchemy.ext.declarative import declarative_base
 
-migrate_metadata = MetaData()
-DeclarativeBase = declarative_base(bind=migrate_engine,
-                                                    metadata=migrate_metadata)
+metadata = MetaData()
+DeclarativeBase = declarative_base(bind=migrate_engine, metadata=metadata)
 
 
 # Existing classes and tables to be used in relations
-
+users = Table('users', metadata, autoload=True)
 
 # New classes and tables
 # Association table for the many-to-many relationship taggables-tags.
-taggables_tags_table = Table('__taggables_tags', migrate_metadata,
-    Column('proj_id', Unicode(10)),
-    Column('taggable_id', Integer),
-    Column('tag_id', Integer),
-    ForeignKeyConstraint(['taggable_id', 'proj_id'],
-                         ['taggables.id', 'taggables.proj_id'],
-                         onupdate='CASCADE', ondelete='CASCADE'),
-    ForeignKeyConstraint(['tag_id', 'proj_id'], ['tags.id', 'tags.proj_id'],
-                         onupdate='CASCADE', ondelete='CASCADE'),
+taggables_tags_table = Table('__taggables_tags', metadata,
+    Column('taggable_id', String(40), ForeignKey('taggables.id',
+                                    onupdate='CASCADE', ondelete='CASCADE')),
+    Column('tag_id', Unicode(40), ForeignKey('tags.id',
+                                    onupdate='CASCADE', ondelete='CASCADE')),
 )
 
 class Taggable(DeclarativeBase):
     __tablename__ = 'taggables'
     
     # Columns
-    id = Column(Integer, autoincrement=True, primary_key=True)
-    proj_id = Column(Unicode(10))
+    id = Column(String(40), primary_key=True)
     association_type = Column(Unicode(50))
 
 
 class Tag(DeclarativeBase):
     __tablename__ = 'tags'
-    __table_args__ = (ForeignKeyConstraint(['taggable_id', 'proj_id'],
-                                        ['taggables.id', 'taggables.proj_id']),
-                      {})
     
     # Columns
-    id = Column(Integer, autoincrement=True, primary_key=True)
-    proj_id = Column(Unicode(10))
-    taggable_id = Column(Integer)
-    name = Column(UnicodeText, unique=True)
+    id = Column(Unicode(40), primary_key=True)
     created = Column(DateTime, default=datetime.now)
     
-
 class Annotable(DeclarativeBase):
     __tablename__ = 'annotables'
     
     # Columns
-    id = Column(Integer, autoincrement=True, primary_key=True)
-    proj_id = Column(Unicode(10))
+    id = Column(String(40), primary_key=True)
     association_type = Column(Unicode(50))
 
 
 class Note(DeclarativeBase):
     __tablename__ = 'notes'
-    __table_args__ = (ForeignKeyConstraint(['annotable_id', 'proj_id'],
-                                    ['annotables.id', 'annotables.proj_id']),
-                      {})
     
     # Columns
-    id = Column(Integer, autoincrement=True, primary_key=True)
-    proj_id = Column(Unicode(10))
-    annotable_id = Column(Integer)
-    user_id = Column(Integer)
+    id = Column(String(40), primary_key=True)
+    annotable_id = Column(String(40), ForeignKey('annotables.id'))
+    user_id = Column(Unicode(40), ForeignKey('users.user_id'))
     text = Column(UnicodeText)
     created = Column(DateTime, default=datetime.now)
     sticky = Column(Boolean, default=False)
-
 
 def upgrade():
     # Upgrade operations go here. Don't create your own engine; use the engine
@@ -94,5 +75,4 @@ def downgrade():
     Tag.__table__.drop()
     Annotable.__table__.drop()
     Note.__table__.drop()
-    
 

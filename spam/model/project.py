@@ -5,6 +5,7 @@ This is where the model for project data is defined.
 """
 import os.path
 from datetime import datetime
+from hashlib import sha1
 
 from sqlalchemy import Table, ForeignKey, Column, UniqueConstraint
 from sqlalchemy import ForeignKeyConstraint, and_, desc
@@ -27,20 +28,12 @@ __all__ = ['Project']
 # Association tables
 ############################################################
 
-# Association table for the many-to-many relationship projects-users.
-project_user_table = Table('__project_user', metadata,
-    Column('project_id', Unicode(10), ForeignKey('projects.id',
-        onupdate="CASCADE", ondelete="CASCADE")),
-    Column('user_id', Integer, ForeignKey('auth_users.user_id',
-        onupdate="CASCADE", ondelete="CASCADE"))
-)
-
 # Association table for the many-to-many relationship projects-admins.
-project_admin_table = Table('__project_admin', metadata,
+projects_admins_table = Table('__projects_admins', metadata,
     Column('project_id', Unicode(10), ForeignKey('projects.id',
-        onupdate="CASCADE", ondelete="CASCADE")),
-    Column('user_id', Integer, ForeignKey('auth_users.user_id',
-        onupdate="CASCADE", ondelete="CASCADE"))
+                                    onupdate="CASCADE", ondelete="CASCADE")),
+    Column('user_id', Unicode(40), ForeignKey('users.user_id',
+                                    onupdate="CASCADE", ondelete="CASCADE")),
 )
 
 
@@ -49,22 +42,17 @@ project_admin_table = Table('__project_admin', metadata,
 ############################################################
 # Association table for the many-to-many relationship taggables-tags.
 taggables_tags_table = Table('__taggables_tags', metadata,
-    Column('proj_id', Unicode(10)),
-    Column('taggable_id', Integer),
-    Column('tag_id', Integer),
-    ForeignKeyConstraint(['taggable_id', 'proj_id'],
-                         ['taggables.id', 'taggables.proj_id'],
-                         onupdate='CASCADE', ondelete='CASCADE'),
-    ForeignKeyConstraint(['tag_id', 'proj_id'], ['tags.id', 'tags.proj_id'],
-                         onupdate='CASCADE', ondelete='CASCADE'),
+    Column('taggable_id', String(40), ForeignKey('taggables.id',
+                                    onupdate='CASCADE', ondelete='CASCADE')),
+    Column('tag_id', Unicode(40), ForeignKey('tags.id',
+                                    onupdate='CASCADE', ondelete='CASCADE')),
 )
 
 class Taggable(DeclarativeBase):
     __tablename__ = 'taggables'
     
     # Columns
-    id = Column(Integer, autoincrement=True, primary_key=True)
-    proj_id = Column(Unicode(10))
+    id = Column(String(40), primary_key=True)
     association_type = Column(Unicode(50))
     
     # Properties
@@ -73,48 +61,41 @@ class Taggable(DeclarativeBase):
         return getattr(self, 'tagged_%s' % self.association_type)
     
     # Special methods
-    def __init__(self, proj, association_type):
-        self.proj_id = proj
+    def __init__(self, id, association_type):
+        self.id = id
         self.association_type = association_type
 
     def __repr__(self):
-        return '<Taggable: (%s.%s) %d>' % (self.proj_id, self.association_type,
-                                                                        self.id)
+        return '<Taggable: %s (%s)>' % (self.id, self.association_type)
 
 
 class Tag(DeclarativeBase):
     __tablename__ = 'tags'
     
     # Columns
-    id = Column(Integer, autoincrement=True, primary_key=True)
-    proj_id = Column(Unicode(10))
-    taggable_id = Column(Integer)
-    name = Column(UnicodeText, unique=True)
+    id = Column(Unicode(40), primary_key=True)
     created = Column(DateTime, default=datetime.now)
     
     # Relations
     taggables = relation(Taggable, secondary=taggables_tags_table,
-                                                                backref='tags')
+                                backref=backref('tags', order_by='Tag.id'))
     
     # Properties
     @property
     def tagged(self):
-        return self.taggable.tagged
+        return [t.tagged for t in self.taggables]
     
     # Special methods
-    def __init__(self, proj, name):
-        self.proj_id = proj
-        self.name = name
+    def __init__(self, id):
+        self.id = id
 
     def __repr__(self):
-        return '<Tag: %s>' % self.name
+        return '<Tag: %s>' % self.id
 
     def __json__(self):
         return {'id': self.id,
                 'created': self.created,
-                'name': self.name,
                }
-
 
 ############################################################
 # Notes
@@ -123,8 +104,7 @@ class Annotable(DeclarativeBase):
     __tablename__ = 'annotables'
     
     # Columns
-    id = Column(Integer, autoincrement=True, primary_key=True)
-    proj_id = Column(Unicode(10))
+    id = Column(String(40), primary_key=True)
     association_type = Column(Unicode(50))
     
     # Properties
@@ -133,36 +113,30 @@ class Annotable(DeclarativeBase):
         return getattr(self, 'annotated_%s' % self.association_type)
     
     # Special methods
-    def __init__(self, proj, association_type):
-        self.proj_id = proj
+    def __init__(self, id, association_type):
+        self.id = id
         self.association_type = association_type
 
     def __repr__(self):
-        return '<Annotable: (%s.%s) %d>' % (self.proj_id, self.association_type,
-                                                                        self.id)
+        return '<Annotable: %s (%s)>' % (self.id, self.association_type)
 
 
 class Note(DeclarativeBase):
     __tablename__ = 'notes'
-    __table_args__ = (ForeignKeyConstraint(['annotable_id', 'proj_id'],
-                                    ['annotables.id', 'annotables.proj_id']),
-                      {})
     
     # Columns
-    id = Column(Integer, autoincrement=True, primary_key=True)
-    proj_id = Column(Unicode(10))
-    annotable_id = Column(Integer)
-    user_id = Column(Integer)
+    id = Column(String(40), primary_key=True)
+    annotable_id = Column(String(40), ForeignKey('annotables.id'))
+    user_id = Column(Unicode(40), ForeignKey('users.user_id'))
     text = Column(UnicodeText)
     created = Column(DateTime, default=datetime.now)
     sticky = Column(Boolean, default=False)
 
-    user = relation('User', primaryjoin=user_id==User.user_id,
-                            foreign_keys=[user_id],
-                            backref=backref('notes', order_by=desc('created')))
-    
     # Relations
-    annotable = relation(Annotable, backref='notes')
+    user = relation('User', backref=backref('notes', order_by=desc('created')))
+    
+    annotable = relation(Annotable,
+                            backref=backref('notes', order_by=desc('created')))
     
     # Properties
     @property
@@ -186,10 +160,12 @@ class Note(DeclarativeBase):
         return [l for l in self.text.split('\n')]
     
     # Special methods
-    def __init__(self, proj, user, text):
-        self.proj_id = proj
+    def __init__(self, user, text):
+        self.created = datetime.now()
         self.user = user
         self.text = text
+        hashable = '%s-%s-%s' % (self.user_id, self.created, self.text)
+        self.id = sha1(hashable).hexdigest()
 
     def __repr__(self):
         return '<Note: by %s at %s "%s">' % (self.user.user_name,
@@ -198,7 +174,6 @@ class Note(DeclarativeBase):
 
     def __json__(self):
         return {'id': self.id,
-                #'owner_id': self.owner_id,
                 'user': self.user,
                 'created': self.created,
                 'text': self.text,
@@ -206,7 +181,6 @@ class Note(DeclarativeBase):
                 'lines': self.lines,
                 'strftime': self.strftime,
                }
-
 
 ############################################################
 # Project
@@ -217,21 +191,22 @@ class Project(DeclarativeBase):
     
     # Columns
     id = Column(Unicode(10), primary_key=True)
-    name = Column(Unicode(40))
+    name = Column(Unicode(40), unique=True)
     description = Column(Unicode)
     created = Column(DateTime, default=datetime.now)
     modified = Column(DateTime, default=datetime.now)
     archived = Column(Boolean, default=False)
     
     # Relations
-    admins = relation('User', secondary=project_admin_table,
+    admins = relation('User', secondary=projects_admins_table,
                                                     backref='projects_as_admin')
     
     # Properties
     @property
     def users(self):
         return (set([s.user for s in self.supervisors]) |
-                set([a.user for a in self.artists]))
+                set([a.user for a in self.artists]) |
+                set(self.admins))
     
     @property
     def schema_is_uptodate(self):
@@ -256,11 +231,11 @@ class Project(DeclarativeBase):
     # Special methods
     def __init__(self, id, name=None, description=None):
         self.id = id
-        self.name = name
+        self.name = name or id
         self.description = description
 
     def __repr__(self):
-        return '<Project: %s "%s">' % (self.id, self.name)
+        return '<Project: %s (%s)>' % (self.id, self.name)
     
     def __json__(self):
         return dict(id=self.id,
@@ -281,15 +256,13 @@ class AssetContainer(DeclarativeBase):
     __tablename__ = 'asset_containers'
         
     # Columns
-    id = Column(Integer, primary_key=True)
-    proj_id = Column(Unicode(10))
+    id = Column(String(40), primary_key=True)
     discriminator = Column('type', Unicode(20))
     __mapper_args__ = {'polymorphic_on': discriminator}
 
     # Special methods
     def __repr__(self):
-        return '<AssetContainer: (%s) %d>' % (self.proj_id, self.id)
-
+        return '<AssetContainer: %s (%s)>' % (self.id, self.discriminator)
 
 class Scene(DeclarativeBase):
     """
@@ -299,29 +272,27 @@ class Scene(DeclarativeBase):
     """
     __tablename__ = "scenes"
     __table_args__ = (UniqueConstraint('proj_id', 'name'),
-                      ForeignKeyConstraint(['taggable_id', 'proj_id'],
-                                    ['taggables.id', 'taggables.proj_id']),
-                      ForeignKeyConstraint(['annotable_id', 'proj_id'],
-                                    ['annotables.id', 'annotables.proj_id']),
+                      ForeignKeyConstraint(['id'], ['taggables.id']),
+                      ForeignKeyConstraint(['id'], ['annotables.id']),
                       {})
     
     # Columns
-    id = Column(Integer, primary_key=True)
-    proj_id = Column(Unicode(10), ForeignKey(Project.id))
+    id = Column(String(40), primary_key=True)
+    proj_id = Column(Unicode(10), ForeignKey('projects.id'))
     name = Column(Unicode(15))
     description = Column(UnicodeText)
     created = Column(DateTime, default=datetime.now)
-    annotable_id = Column(Integer)
-    taggable_id = Column(Integer)
 
     # Relations
     project = relation('Project', viewonly=True,
                        backref=backref('scenes', viewonly=True, order_by=name)
                       )
     
-    taggable = relation(Taggable, backref='tagged_scenes')
+    taggable = relation(Taggable,
+                            backref=backref('tagged_scene', uselist=False))
     
-    annotable = relation(Annotable, backref='annotated_scenes')
+    annotable = relation(Annotable,
+                            backref=backref('annotated_scene', uselist=False))
     
     # Properties
     @property
@@ -344,12 +315,13 @@ class Scene(DeclarativeBase):
     def __init__(self, proj, name, description=None):
         self.proj_id = proj
         self.name = name
+        self.id = sha1('%s-%s' % (self.proj_id, self.name)).hexdigest()
         self.description = description
-        self.taggable = Taggable(self.proj_id, 'scenes')
-        self.annotable = Annotable(self.proj_id, 'scenes')
+        self.taggable = Taggable(self.id, 'scene')
+        self.annotable = Annotable(self.id, 'scene')
 
     def __repr__(self):
-        return '<Scene: (%s) "%s">' % (self.proj_id, self.name)
+        return '<Scene: %s (%s)>' % (self.id, self.name)
 
     def __json__(self):
         return dict(id=self.id,
@@ -359,7 +331,6 @@ class Scene(DeclarativeBase):
                     created=self.created.strftime('%Y/%m/%d %H:%M'),
                     thumbnail=self.thumbnail,
                    )
-
 class Shot(AssetContainer):
     """
     The shot container.
@@ -367,22 +338,15 @@ class Shot(AssetContainer):
     This represents a "film shot" that acts as a container for Asset objects.
     """
     __tablename__ = "shots"
-    __table_args__ = (UniqueConstraint('proj_id', 'parent_id', 'name'),
-                      ForeignKeyConstraint(['id', 'proj_id'],
-                          ['asset_containers.id', 'asset_containers.proj_id']),
-                      ForeignKeyConstraint(['parent_id', 'proj_id'],
-                          ['scenes.id', 'scenes.proj_id']),
-                      ForeignKeyConstraint(['taggable_id', 'proj_id'],
-                                    ['taggables.id', 'taggables.proj_id']),
-                      ForeignKeyConstraint(['annotable_id', 'proj_id'],
-                                    ['annotables.id', 'annotables.proj_id']),
+    __table_args__ = (UniqueConstraint('parent_id', 'name'),
+                      ForeignKeyConstraint(['id'], ['taggables.id']),
+                      ForeignKeyConstraint(['id'], ['annotables.id']),
                       {})
     __mapper_args__ = {'polymorphic_identity': 'shot'}
     
     # Columns
-    id = Column(Integer, primary_key=True)
-    proj_id = Column(Unicode(10))
-    parent_id = Column(Integer)
+    id = Column(String(40), ForeignKey('asset_containers.id'), primary_key=True)
+    parent_id = Column(String(40), ForeignKey('scenes.id'))
     name = Column(Unicode(15))
     created = Column(DateTime, default=datetime.now)
     description = Column(UnicodeText)
@@ -395,19 +359,19 @@ class Shot(AssetContainer):
     annotable_id = Column(Integer)
     
     # Relations
-    project = relation('Project', primaryjoin=proj_id==Project.id,
-                       foreign_keys=[proj_id], viewonly=True,
-                      )
-    
     parent = relation(Scene,
                         backref=backref('shots', order_by=name, lazy=False))
     
-    taggable = relation(Taggable, backref=backref('tagged_shots',
+    taggable = relation(Taggable, backref=backref('tagged_shot', uselist=False))
+    
+    annotable = relation(Annotable, backref=backref('annotated_shot',
                                                                 uselist=False))
     
-    annotable = relation(Annotable, backref='annotated_shots')
-    
     # Properties
+    @property
+    def project(self):
+        return self.parent.project
+    
     @property
     def path(self):
         return os.path.join(self.parent.path, self.name)
@@ -425,11 +389,9 @@ class Shot(AssetContainer):
         return self.annotable.notes
     
     # Special methods
-    def __init__(self, proj_id, name, parent=None,
-                       description=None, action=None, location=None,
-                       frames=0, handle_in=0, handle_out=0,
-                ):
-        self.proj_id = proj_id
+    def __init__(self, parent, name, description=None, action=None,
+                       location=None, frames=0, handle_in=0, handle_out=0):
+        self.parent = parent
         self.name = name
         self.description = description
         self.location = location
@@ -437,16 +399,17 @@ class Shot(AssetContainer):
         self.handle_in = handle_in
         self.handle_out = handle_out
         self.action = action
-        self.parent = parent
-        self.taggable = Taggable(self.proj_id, 'shots')
-        self.annotable = Annotable(self.proj_id, 'shots')
+        hashable = '%s-%s' % (parent.id, self.name)
+        log.debug('Shot.__init__: %s' % hashable)
+        self.id = sha1(hashable).hexdigest()
+        self.taggable = Taggable(self.id, 'shot')
+        self.annotable = Annotable(self.id, 'shot')
 
     def __repr__(self):
-        return '<Shot: (%s) "%s">' % (self.proj_id, self.name)
+        return '<Shot: %s (%s)>' % (self.id, self.name)
 
     def __json__(self):
         return dict(id=self.id,
-                    proj_id=self.proj_id,
                     parent_id=self.parent_id,
                     parent_name=self.parent_name,
                     name=self.name,
@@ -463,60 +426,33 @@ class Shot(AssetContainer):
 class LibraryGroup(AssetContainer):
     """Library group"""
     __tablename__ = "library_groups"
-    __table_args__ = (UniqueConstraint('proj_id', 'parent_id', 'name'),
-                      ForeignKeyConstraint(['id', 'proj_id'],
-                          ['asset_containers.id', 'asset_containers.proj_id']),
-                      ForeignKeyConstraint(['parent_id'],
-                          ['library_groups.id']),
-                      ForeignKeyConstraint(['taggable_id', 'proj_id'],
-                                    ['taggables.id', 'taggables.proj_id']),
-                      ForeignKeyConstraint(['annotable_id', 'proj_id'],
-                                    ['annotables.id', 'annotables.proj_id']),
+    __table_args__ = (UniqueConstraint('parent_id', 'name'),
+                      ForeignKeyConstraint(['id'], ['taggables.id']),
+                      ForeignKeyConstraint(['id'], ['annotables.id']),
                       {})
     __mapper_args__ = {'polymorphic_identity': 'library_group'}
     
     # Columns
-    id = Column(Integer, primary_key=True)
-    proj_id = Column(Unicode(10))
-    parent_id = Column(Integer)
+    id = Column(String(40), ForeignKey('asset_containers.id'), primary_key=True)
+    proj_id = Column(Unicode(10), ForeignKey('projects.id'))
+    parent_id = Column(String(40), ForeignKey('library_groups.id'))
     name = Column(Unicode(40))
     description = Column(UnicodeText)
-    taggable_id = Column(Integer)
-    annotable_id = Column(Integer)
     
     # Relations
-    project = relation('Project',
-                primaryjoin='AssetContainer.proj_id==Project.id',
-                foreign_keys=[AssetContainer.proj_id],
-                viewonly=True,
-                backref=backref('libgroups',
-                                primaryjoin=
-                                    'and_(Project.id==LibraryGroup.proj_id, '
-                                    'LibraryGroup.parent_id==None)',
-                                viewonly=True, order_by=name
-                               )
-              )
+    project = relation('Project',  backref=backref('libgroups', primaryjoin=
+        'and_(Project.id==LibraryGroup.proj_id, LibraryGroup.parent_id==None)',
+        viewonly=True, order_by=name))
     
-    subgroups = relation('LibraryGroup',
-                         primaryjoin=and_(parent_id==id, proj_id==proj_id),
-                         foreign_keys=[parent_id, proj_id],
-                         lazy=False, join_depth=5,
-                         # this backref doesn't work...
-                         #backref=backref('parent',
-                         #                primaryjoin=and_(id==parent_id, proj_id==proj_id),
-                         #                foreign_keys=[id, proj_id],
-                         #                remote_side=[parent_id, proj_id]
-                         #               )
-                        )
+    subgroups = relation('LibraryGroup', primaryjoin=parent_id==id,
+                             foreign_keys=[parent_id], lazy=False, join_depth=5,
+                             backref=backref('parent', remote_side=[id]))
     
-    parent = relation('LibraryGroup',
-                      primaryjoin=and_(id==parent_id, proj_id==proj_id),
-                      foreign_keys=[id, proj_id], uselist=False, viewonly=True,
-                     )
+    taggable = relation(Taggable, backref=backref('tagged_libgroup',
+                                                                uselist=False))
     
-    taggable = relation(Taggable, backref='tagged_libgroups')
-    
-    annotable = relation(Annotable, backref='annotated_libgroups')
+    annotable = relation(Annotable, backref=backref('annotated_libgroup',
+                                                                uselist=False))
     
     # Properties
     @property
@@ -542,11 +478,13 @@ class LibraryGroup(AssetContainer):
         self.name = name
         if parent: self.parent_id = parent.id
         self.description = description
-        self.taggable = Taggable(self.proj_id, 'libgroups')
-        self.annotable = Annotable(self.proj_id, 'libgroups')
+        hashable = '%s-%s' % (self.parent_id, self.name)
+        self.id = sha1(hashable).hexdigest()
+        self.taggable = Taggable(self.id, 'libgroups')
+        self.annotable = Annotable(self.id, 'libgroups')
 
     def __repr__(self):
-        return '<LibraryGroup: (%s) "%s">' % (self.proj_id, self.name)
+        return '<LibraryGroup: %s (%s)>' % (self.id, self.name)
 
     def __json__(self):
         return dict(id=self.id,
@@ -558,41 +496,133 @@ class LibraryGroup(AssetContainer):
                    )
 
 ############################################################
+# Categories
+############################################################
+class Category(DeclarativeBase):
+    """Asset category"""
+    __tablename__ = "categories"
+    
+    # Columns
+    id = Column(Unicode(40), primary_key=True)
+    ordering = Column(Integer)
+    naming_convention = Column(Unicode(255))
+    
+    # Special methods
+    def __init__(self, id, ordering=0, naming_convention=''):
+        self.id = id
+        self.ordering = ordering
+        self.naming_convention = naming_convention
+
+    def __repr__(self):
+        return '<Category: %s>' % self.id
+
+    def __json__(self):
+        return dict(id=self.id,
+                    ordering=self.ordering,
+                    naming_convention=self.naming_convention,
+                   )
+
+
+class Supervisor(DeclarativeBase):
+    """Category supervisor"""
+    __tablename__ = "supervisors"
+    __table_args__ = (UniqueConstraint('proj_id', 'category_id', 'user_id'),
+                      {})
+    
+    # Columns
+    id = Column(String(40), primary_key=True)
+    proj_id = Column(Unicode(10), ForeignKey('projects.id'))
+    category_id = Column(Unicode(40), ForeignKey('categories.id'))
+    user_id = Column(Unicode(40), ForeignKey('users.user_id'))
+
+    # Relations
+    project = relation('Project', backref=backref('supervisors',
+                collection_class=mapped_list('category', targetattr='user')))
+
+    category = relation('Category', backref=backref('supervisors',
+                collection_class=mapped_list('project', targetattr='user')))
+
+    user = relation('User', backref='_supervisor_for')
+    
+    # Special methods
+    def __init__(self, proj, category, user):
+        self.proj_id = proj
+        self.category = category
+        self.user = user
+        hashable = '%s-%s-%s' % (proj, category.id, user.user_id)
+        self.id = sha1(hashable).hexdigest()
+
+    def __repr__(self):
+        return '<Supervisor: (%s) "%s" %s>' % (self.proj_id, self.category.id,
+                                                            self.user.user_name)
+
+    def __json__(self):
+        return dict(id=self.id,
+                    proj_id=self.proj_id,
+                    category_id=self.category_id,
+                    user_id=self.user_id,
+                   )
+
+
+class Artist(DeclarativeBase):
+    """Category artist"""
+    __tablename__ = "artists"
+    __table_args__ = (UniqueConstraint('proj_id', 'category_id', 'user_id'),
+                      {})
+    
+    # Columns
+    id = Column(String(40), primary_key=True)
+    proj_id = Column(Unicode(10), ForeignKey('projects.id'))
+    category_id = Column(Unicode(40), ForeignKey('categories.id'))
+    user_id = Column(Unicode(40), ForeignKey('users.user_id'))
+
+    # Relations
+    project = relation('Project', backref=backref('artists',
+                collection_class=mapped_list('category', targetattr='user')))
+
+    category = relation('Category', backref=backref('artists',
+                collection_class=mapped_list('project', targetattr='user')))
+
+    user = relation('User', backref='_artist_for')
+    
+    # Special methods
+    def __init__(self, proj, category, user):
+        self.proj_id = proj
+        self.category = category
+        self.user = user
+        hashable = '%s-%s-%s' % (proj, category.id, user.user_id)
+        self.id = sha1(hashable).hexdigest()
+
+    def __repr__(self):
+        return '<Artist: (%s) "%s" %s>' % (self.proj_id, self.category.id,
+                                                            self.user.user_name)
+
+    def __json__(self):
+        return dict(id=self.id,
+                    proj_id=self.proj_id,
+                    category_id=self.category_id,
+                    user_id=self.user_id,
+                   )
+
+############################################################
 # Assets
 ############################################################
 class Asset(DeclarativeBase):
     """Asset"""
     __tablename__ = "assets"
-    __table_args__ = (UniqueConstraint('category_id', 'parent_id', 'name'),
-                      ForeignKeyConstraint(['parent_id', 'proj_id'],
-                          ['asset_containers.id', 'asset_containers.proj_id']),
-                      ForeignKeyConstraint(['taggable_id', 'proj_id'],
-                                    ['taggables.id', 'taggables.proj_id']),
+    __table_args__ = (UniqueConstraint('parent_id', 'category_id', 'name'),
+                      ForeignKeyConstraint(['id'], ['taggables.id']),
                       {})
     
     # Columns
-    id = Column(Integer, autoincrement=True, primary_key=True)
-    proj_id = Column(Unicode(10))
+    id = Column(String(40), primary_key=True)
     name = Column(Unicode(50))
-    parent_id = Column(Integer)
+    parent_id = Column(String(40), ForeignKey('asset_containers.id'))
     category_id = Column(Integer, ForeignKey('categories.id'))
-    user_id = Column(Integer, ForeignKey('auth_users.user_id'))
     checkedout = Column(Boolean, default=False)
-    submitter_id = Column(Integer, ForeignKey('auth_users.user_id'))
-    submitted = Column(Boolean, default=False)
-    submitted_date = Column(DateTime)
-    approver_id = Column(Integer, ForeignKey('auth_users.user_id'))
-    approved = Column(Boolean, default=False)
-    approved_date = Column(DateTime)
-    taggable_id = Column(Integer)
+    user_id = Column(Integer, ForeignKey('users.user_id'))
 
     # Relations
-    project = relation('Project',
-                primaryjoin=proj_id==Project.id,
-                foreign_keys=[proj_id],
-                viewonly=True,
-              )
-    
     category = relation('Category', backref=backref('assets'))
     
     user = relation('User',
@@ -601,17 +631,13 @@ class Asset(DeclarativeBase):
 
     parent = relation('AssetContainer', backref=backref('assets'))
 
-    submitted_by = relation('User',
-                        primaryjoin=submitter_id==User.user_id,
-                        backref=backref('submitted_assets'))
-
-    approved_by = relation('User',
-                        primaryjoin=approver_id==User.user_id,
-                        backref=backref('approved_assets'))
-    
-    taggable = relation(Taggable, backref='tagged_assets')
+    taggable = relation(Taggable, backref='tagged_asset')
     
     # Properties
+    @property
+    def project(self):
+        return self.parent.project
+    
     @property
     def path(self):
         return os.path.join(self.parent.path, self.category.name, self.name)
@@ -641,18 +667,19 @@ class Asset(DeclarativeBase):
         return self.taggable.tags
     
     # Special methods
-    def __init__(self, proj, parent, category, name, user):
-        self.proj_id = proj
+    def __init__(self, parent, category, name, user):
         self.parent = parent
         self.category = category
         self.name = name
-        self.taggable = Taggable(self.proj_id, 'assets')
+        hashable = '%s-%s-%s' % (parent.id, category.id, name)
+        self.id = sha1(hashable).hexdigest()
+        self.taggable = Taggable(self.id, 'asset')
         
         #create version zero
         AssetVersion(proj, self, 0, user, '')
     
     def __repr__(self):
-        return '<Asset: %s>' % (self.id or 0)
+        return '<Asset: %s>' % self.id
 
     def __json__(self):
         return dict(id=self.id,
@@ -680,37 +707,30 @@ class Asset(DeclarativeBase):
                     #'waiting_for_approval': self.waiting_for_approval,
                    )
 
-
 class AssetVersion(DeclarativeBase):
     """Asset version"""
     __tablename__ = "asset_versions"
-    __table_args__ = (ForeignKeyConstraint(['annotable_id', 'proj_id'],
-                                    ['annotables.id', 'annotables.proj_id']),
+    __table_args__ = (UniqueConstraint('asset_id', 'ver'),
+                      ForeignKeyConstraint(['id'], ['annotables.id']),
                       {})
     
     # Columns
-    id = Column(Integer, primary_key=True)
-    proj_id = Column(Unicode(10))
-    asset_id = Column(Integer, ForeignKey('assets.id'))
+    id = Column(String(40), primary_key=True)
+    asset_id = Column(String(40), ForeignKey('assets.id'))
     ver = Column(Integer)
     created = Column(DateTime, default=datetime.now)
     repoid = Column(String(50))
     #has_preview = Column(Boolean)
     #preview_ext = Column(String(10))
-    user_id = Column(Integer, ForeignKey('auth_users.user_id'))
-    annotable_id = Column(Integer)
+    user_id = Column(Integer, ForeignKey('users.user_id'))
 
     # Relations
-    asset = relation('Asset',
-                         primaryjoin=and_(asset_id==Asset.id,
-                                          proj_id==Asset.proj_id),
-                         foreign_keys=[asset_id, proj_id],
-                         backref=backref('versions', order_by=desc(ver),
+    asset = relation('Asset', backref=backref('versions', order_by=desc(ver),
                                          cascade="all, delete, delete-orphan"))
     
     user = relation('User')
     
-    annotable = relation(Annotable, backref='annotated_asset_versions')
+    annotable = relation(Annotable, backref='annotated_asset_version')
     
     # Properties
     @property
@@ -722,155 +742,30 @@ class AssetVersion(DeclarativeBase):
         return self.annotable.notes
     
     # Special methods
-    def __init__(self, proj, asset, ver, user, repoid, has_preview=False,
+    def __init__(self, asset, ver, user, repoid, has_preview=False,
                                                             preview_ext=None):
-        self.proj_id = proj
         self.asset = asset
         self.ver = ver
         self.user = user
         self.repoid = repoid
         #self.has_preview = has_preview
         #self.preview_ext = preview_ext
-        self.annotable = Annotable(self.proj_id, 'asset_versions')
+        hashable = '%s-%s' % (asset.id, ver)
+        self.id = sha1(hashable).hexdigest()
+        self.annotable = Annotable(self.id, 'asset_version')
 
     def __repr__(self):
-        return '<AssetVersion: "%s" v%03d>' % (self.asset_id, self.ver)
-
-    def __json__(self):
-        return {'asset_id': self.asset_id,
-                'ver': self.ver,
-                'fmtver': self.fmtver,
-                'created': self.created.strftime('%Y/%m/%d %H:%M'),
-                #'has_preview': self.has_preview,
-                #'preview_small_repopath': self.preview_small_repopath,
-                #'preview_large_repopath': self.preview_large_repopath,
-                #'strftime': self.strftime,
-                }
-
-
-############################################################
-# Categories
-############################################################
-class Category(DeclarativeBase):
-    """Asset category"""
-    __tablename__ = "categories"
-    
-    # Columns
-    id = Column(Integer, autoincrement=True, primary_key=True)
-    name = Column(Unicode(30), unique=True)
-    ordering = Column(Integer)
-    naming_convention = Column(Unicode(255))
-    
-    # Special methods
-    def __init__(self, name, ordering=0, naming_convention=''):
-        self.name = name
-        self.ordering = ordering
-        self.naming_convention = naming_convention
-
-    def __repr__(self):
-        return '<Category: %s "%s">' % (self.id or 0, self.name)
+        return '<AssetVersion: %s_v%03d>' % (self.asset_id, self.ver)
 
     def __json__(self):
         return dict(id=self.id,
-                    name=self.name,
-                    ordering=self.ordering,
-                    naming_convention=self.naming_convention,
+                    asset_id=self.asset_id,
+                    ver=self.ver,
+                    fmtver=self.fmtver,
+                    created=self.created.strftime('%Y/%m/%d %H:%M'),
+                    #'has_preview': self.has_preview,
+                    #'preview_small_repopath': self.preview_small_repopath,
+                    #'preview_large_repopath': self.preview_large_repopath,
+                    #'strftime': self.strftime,
                    )
-
-
-class Supervisor(DeclarativeBase):
-    """Category supervisor"""
-    __tablename__ = "supervisors"
-    
-    # Columns
-    id = Column(Integer, autoincrement=True, primary_key=True)
-    proj_id = Column(Unicode(10))
-    category_id = Column(Integer)
-    user_id = Column(Integer)
-
-    # Relations
-    project = relation('Project', primaryjoin=proj_id==Project.id,
-                       foreign_keys=[proj_id],
-                       backref=backref('supervisors',
-                                       collection_class=mapped_list('category',
-                                                             targetattr='user')
-                                      )
-                      )
-
-    category = relation('Category', primaryjoin=category_id==Category.id,
-                        foreign_keys=[category_id],
-                        backref=backref('supervisors',
-                                        collection_class=mapped_list('project',
-                                                             targetattr='user')
-                                       )
-                       )
-
-    user = relation('User', primaryjoin=user_id==User.user_id,
-                            foreign_keys=[user_id], backref='_supervisor_for')
-    
-    # Special methods
-    def __init__(self, proj, category, user):
-        self.proj_id = proj
-        self.category = category
-        self.user = user
-
-    def __repr__(self):
-        return '<Supervisor: (%s) "%s" %s>' % (self.proj_id, self.category.name,
-                                                            self.user.user_name)
-
-    def __json__(self):
-        return dict(id=self.id,
-                    proj_id=self.proj_id,
-                    category_id=self.category_id,
-                    user_id=self.user_id,
-                   )
-
-
-class Artist(DeclarativeBase):
-    """Category artist"""
-    __tablename__ = "artists"
-    
-    # Columns
-    id = Column(Integer, autoincrement=True, primary_key=True)
-    proj_id = Column(Unicode(10))
-    category_id = Column(Integer)
-    user_id = Column(Integer)
-
-    # Relations
-    project = relation('Project', primaryjoin=proj_id==Project.id,
-                       foreign_keys=[proj_id],
-                       backref=backref('artists',
-                                       collection_class=mapped_list('category',
-                                                             targetattr='user')
-                                      )
-                      )
-
-    category = relation('Category', primaryjoin=category_id==Category.id,
-                        foreign_keys=[category_id],
-                        backref=backref('artists',
-                                        collection_class=mapped_list('project',
-                                                             targetattr='user')
-                                       )
-                       )
-
-    user = relation('User', primaryjoin=user_id==User.user_id,
-                        foreign_keys=[user_id], backref='_artist_for')
-    
-    # Special methods
-    def __init__(self, proj, category, user):
-        self.proj_id = proj
-        self.category = category
-        self.user = user
-
-    def __repr__(self):
-        return '<Artist: (%s) "%s" %s>' % (self.proj_id, self.category.name,
-                                                            self.user.user_name)
-
-    def __json__(self):
-        return dict(id=self.id,
-                    proj_id=self.proj_id,
-                    category_id=self.category_id,
-                    user_id=self.user_id,
-                   )
-
 

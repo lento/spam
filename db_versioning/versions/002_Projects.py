@@ -4,26 +4,18 @@ from migrate import *
 from sqlalchemy.orm import sessionmaker, relation
 from sqlalchemy.ext.declarative import declarative_base
 
-migrate_metadata = MetaData()
-DeclarativeBase = declarative_base(bind=migrate_engine,
-                                                    metadata=migrate_metadata)
+metadata = MetaData()
+DeclarativeBase = declarative_base(bind=migrate_engine, metadata=metadata)
 
 # Existing classes and tables to be used in relations
-auth_users = Table('auth_users', migrate_metadata, autoload=True)
+users = Table('users', metadata, autoload=True)
 
 # New classes and tables
-project_user_table = Table('__project_user', migrate_metadata,
+projects_admins_table = Table('__projects_admins', metadata,
     Column('project_id', Unicode(10), ForeignKey('projects.id',
-        onupdate="CASCADE", ondelete="CASCADE")),
-    Column('user_id', Integer, ForeignKey('auth_users.user_id',
-        onupdate="CASCADE", ondelete="CASCADE"))
-)
-
-project_admin_table = Table('__project_admin', migrate_metadata,
-    Column('project_id', Unicode(10), ForeignKey('projects.id',
-        onupdate="CASCADE", ondelete="CASCADE")),
-    Column('user_id', Integer, ForeignKey('auth_users.user_id',
-        onupdate="CASCADE", ondelete="CASCADE"))
+                                    onupdate="CASCADE", ondelete="CASCADE")),
+    Column('user_id', Integer, ForeignKey('users.user_id',
+                                    onupdate="CASCADE", ondelete="CASCADE"))
 )
 
 class Project(DeclarativeBase):
@@ -40,13 +32,11 @@ class Project(DeclarativeBase):
 def upgrade():
     # Upgrade operations go here. Don't create your own engine; use the engine
     # named 'migrate_engine' imported from migrate.
-    project_user_table.create()
-    project_admin_table.create()
+    projects_admins_table.create()
     Project.__table__.create()
 
 def downgrade():
     # Operations to reverse the above upgrade go here.
-    project_user_table.drop()
-    project_admin_table.drop()
+    projects_admins_table.drop()
     Project.__table__.drop()
 

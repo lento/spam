@@ -26,8 +26,9 @@ from versioning import db_upgrade, db_downgrade
 
 # Models import
 from auth import User, Group, Permission
-from project import Project, Scene, Shot, LibraryGroup, Asset, AssetVersion
-from project import Category, Supervisor, Artist, Tag, Taggable, Note
+from project import Taggable, Tag, Annotable, Note
+from project import Project, Scene, Shot, LibraryGroup
+from project import Category, Supervisor, Artist, Asset, AssetVersion
 
 # Caching & helpers
 from helpers import query_projects, query_projects_archived, project_get

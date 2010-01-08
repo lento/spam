@@ -5,9 +5,8 @@ from migrate import *
 from sqlalchemy.orm import sessionmaker, relation
 from sqlalchemy.ext.declarative import declarative_base
 
-migrate_metadata = MetaData()
-DeclarativeBase = declarative_base(bind=migrate_engine,
-                                                    metadata=migrate_metadata)
+metadata = MetaData()
+DeclarativeBase = declarative_base(bind=migrate_engine, metadata=metadata)
 
 # This is the association table for the many-to-many relationship between
 # groups and permissions. This is required by repoze.what.

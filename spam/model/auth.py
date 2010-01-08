@@ -29,12 +29,7 @@ defined.
 import os
 from datetime import datetime
 import sys
-try:
-    from hashlib import sha1
-except ImportError:
-    sys.exit('ImportError: No module named hashlib\n'
-             'If you are on python2.4 this library is not part of python. '
-             'Please install it. Example: easy_install hashlib')
+from hashlib import sha1
 
 from tg import config
 from sqlalchemy import Table, ForeignKey, Column

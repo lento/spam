@@ -49,12 +49,6 @@ class StartupJS(Widget):
                   spam_js]
 
 ############################################################
-# Custom LiveTable widgets
-############################################################
-class SchemaButton(IconButton):
-    template = 'mako:spam.templates.widgets.schema_button'
-
-############################################################
 # Live tables
 ############################################################
 class TableUsers(LiveTable):
@@ -169,8 +163,6 @@ class ProjectsActive(LiveTable):
         archive = IconButton(icon_class='archive', action='%(id)s/archive')
         edit = IconButton(icon_class='edit', action='%(id)s/edit')
         delete = IconButton(icon_class='delete', action='%(id)s/delete')
-        schema = SchemaButton(action={'uptodate': '',
-                                      'outdated': '%(id)s/upgrade'})
         id = TextData()
         name = TextData()
         description = TextData()
@@ -354,16 +346,15 @@ class FormUserAddToCategory(TableForm):
 # Category
 class FormCategoryNew(TableForm):
     class fields(WidgetsList):
-        name = TextField(validator=All(Regex(G.pattern_name, not_empty=True),
-                                       MaxLength(30)))
+        category_id = TextField(validator=All(
+                          Regex(G.pattern_name, not_empty=True), MaxLength(30)))
         naming_convention = TextField(validator=MaxLength(255))
 
 class FormCategoryEdit(TableForm):
     class fields(WidgetsList):
         _method = HiddenField(default='PUT', validator=None)
         category_id = HiddenField(validator=All(NotEmpty, Int))
-        name = TextField(validator=All(Regex(G.pattern_name, not_empty=True),
-                                       MaxLength(30)))
+        id_ = TextField(disabled=True, validator=None)
         naming_convention = TextField(validator=MaxLength(255))
 
 
@@ -371,7 +362,7 @@ class FormCategoryConfirm(TableForm):
     class fields(WidgetsList):
         _method = HiddenField(default='', validator=None)
         category_id = HiddenField(validator=All(NotEmpty, Int))
-        name_ = TextField(disabled=True, validator=None)
+        id_ = TextField(disabled=True, validator=None)
         naming_convention_ = TextField(disabled=True, validator=None)
 
 

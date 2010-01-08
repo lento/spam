@@ -76,7 +76,7 @@ def scene_get(proj, sc):
 def shot_get(proj, sc, sh):
     """Return a lazyloaded shot"""
     scene = scene_get(proj, sc)
-    query = session_get().query(Shot).filter_by(proj_id=proj)
+    query = session_get().query(Shot)
     try:
         return query.filter_by(parent_id=scene.id).filter_by(name=sh).one()
     except NoResultFound:

@@ -119,9 +119,8 @@ class Controller(RestController):
         scene = scene_get(proj, sc)
         
         # add shot to db
-        shot = Shot(scene.project.id, sh, parent=scene, description=description,
-                    action=action, frames=frames, handle_in=handle_in,
-                    handle_out=handle_out)
+        shot = Shot(scene, sh, description=description, action=action,
+                    frames=frames, handle_in=handle_in, handle_out=handle_out)
         session.add(shot)
         session.flush()
         

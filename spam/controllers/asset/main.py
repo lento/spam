@@ -140,7 +140,7 @@ class Controller(RestController):
         category = category_get(category_id)
         
         # add asset to db
-        asset = Asset(project.id, container, category, name, user)
+        asset = Asset(container, category, name, user)
         session.add(asset)
         session.flush()
         
@@ -316,7 +316,7 @@ class Controller(RestController):
                                                     uploaded, result='failed')
         
         # create a new version
-        newver = AssetVersion(proj, asset, asset.current_ver+1, user, repo_id)
+        newver = AssetVersion(asset, asset.current_ver+1, user, repo_id)
         session.add(newver)
         session.refresh(asset)
         

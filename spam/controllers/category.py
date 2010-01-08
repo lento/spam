@@ -79,41 +79,40 @@ class Controller(RestController):
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_new, error_handler=new)
-    def post(self, name, naming_convention='', **kwargs):
+    def post(self, category_id, naming_convention='', **kwargs):
         """Create a new category"""
         session = session_get()
         
         # add category to shared db
-        category = Category(name=name, naming_convention=naming_convention)
+        category = Category(category_id, naming_convention=naming_convention)
         session.add(category)
         
         # send a stomp message to notify clients
         notify.send(category, update_type='added')
-        return dict(msg='created category "%s"' % name, result='success')
+        return dict(msg='created category "%s"' % category_id, result='success')
     
     @require(in_group('administrators'))
     @expose('spam.templates.forms.form')
-    def edit(self, name, **kwargs):
+    def edit(self, category_id, **kwargs):
         """Display a EDIT form."""
         tmpl_context.form = f_edit
-        category = category_get(name)
-        fargs = dict(category_id=category.id, name=category.name,
+        category = category_get(category_id)
+        fargs = dict(category_id=category.id,
                      naming_convention=category.naming_convention)
         fcargs = dict()
-        return dict(title='Edit category "%s"' % category.name, args=fargs,
+        return dict(title='Edit category "%s"' % category.id, args=fargs,
                                                             child_args=fcargs)
         
     @require(in_group('administrators'))
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_edit, error_handler=edit)
-    def put(self, category_id, name, naming_convention='', **kwargs):
+    def put(self, category_id, naming_convention='', **kwargs):
         """Edit a category"""
         category = category_get(category_id)
-        category.name = name
         category.naming_convention = naming_convention
         notify.send(category, update_type='updated')
-        return dict(msg='updated category "%s"' % name, result='success')
+        return dict(msg='updated category "%s"' % category_id, result='success')
 
     @require(in_group('administrators'))
     @expose('spam.templates.forms.form')
@@ -122,13 +121,12 @@ class Controller(RestController):
         tmpl_context.form = f_confirm
         category = category_get(category_id)
         fargs = dict(_method='DELETE', category_id=category.id,
-                     name_=category.name,
                      naming_convention_=category.naming_convention)
         fcargs = dict()
         warning = ('This will delete the category entry in the database. '
                    'All the assets in this category will be orphaned.')
         return dict(
-                title='Are you sure you want to delete "%s"?' % category.name,
+                title='Are you sure you want to delete "%s"?' % category.id,
                 warning=warning, args=fargs, child_args=fcargs)
 
     @require(in_group('administrators'))
@@ -145,7 +143,7 @@ class Controller(RestController):
         category = category_get(category_id)
         session.delete(category)
         notify.send(category, update_type='deleted')
-        return dict(msg='deleted category "%s"' % category.name,
+        return dict(msg='deleted category "%s"' % category.id,
                                                             result='success')
     
     # Custom REST-like actions
