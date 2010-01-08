@@ -1,10 +1,30 @@
 # -*- coding: utf-8 -*-
+#
+# SPAM Spark Project & Asset Manager
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this program; if not, write to the
+# Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Original Copyright (c) 2010, Lorenzo Pierfederici <lpierfederici@gmail.com>
+# Contributor(s): 
+#
 """
 Auth* related model.
 
 This is where the models used by :mod:`repoze.who` and :mod:`repoze.what` are
 defined.
-
 """
 import os
 from datetime import datetime
@@ -16,38 +36,34 @@ except ImportError:
              'If you are on python2.4 this library is not part of python. '
              'Please install it. Example: easy_install hashlib')
 
+from tg import config
 from sqlalchemy import Table, ForeignKey, Column
 from sqlalchemy.types import Unicode, Integer, DateTime
 from sqlalchemy.orm import relation, synonym, backref
-
 from spam.model import DeclarativeBase, metadata
 
 __all__ = ['User', 'Group', 'Permission']
 
 
-#{ Association tables
-
+# Association tables
 
 # This is the association table for the many-to-many relationship between
 # groups and permissions. This is required by repoze.what.
-group_permission_table = Table('auth_group_permission', metadata,
-    Column('group_id', Integer, ForeignKey('auth_groups.group_id',
+group_permission_table = Table('__groups_permissions', metadata,
+    Column('group_id', Integer, ForeignKey('groups.group_id',
         onupdate="CASCADE", ondelete="CASCADE")),
-    Column('permission_id', Integer, ForeignKey('auth_permissions.permission_id',
+    Column('permission_id', Integer, ForeignKey('permissions.permission_id',
         onupdate="CASCADE", ondelete="CASCADE"))
 )
 
 # This is the association table for the many-to-many relationship between
 # groups and members - this is, the memberships. It's required by repoze.what.
-user_group_table = Table('auth_user_group', metadata,
-    Column('user_id', Integer, ForeignKey('auth_users.user_id',
+user_group_table = Table('__users_groups', metadata,
+    Column('user_id', Integer, ForeignKey('users.user_id',
         onupdate="CASCADE", ondelete="CASCADE")),
-    Column('group_id', Integer, ForeignKey('auth_groups.group_id',
+    Column('group_id', Integer, ForeignKey('groups.group_id',
         onupdate="CASCADE", ondelete="CASCADE"))
 )
-
-
-#{ The auth* model itself
 
 
 class Group(DeclarativeBase):
@@ -55,33 +71,33 @@ class Group(DeclarativeBase):
     Group definition for :mod:`repoze.what`.
     
     Only the ``group_name`` column is required by :mod:`repoze.what`.
-    
     """
+    __tablename__ = 'groups'
     
-    __tablename__ = 'auth_groups'
-    
-    #{ Columns
-    group_id = Column(Integer, autoincrement=True, primary_key=True)
+    # Columns
+    group_id = Column(Unicode(40), primary_key=True)
     group_name = Column(Unicode(16), unique=True, nullable=False)
     display_name = Column(Unicode(255))
     created = Column(DateTime, default=datetime.now)
     
-    #{ Relations
+    # Relations
     users = relation('User', secondary=user_group_table,
                                         backref=backref('groups', lazy=False))
     
-    #{ Special methods
+    # Special methods
+    def __init__(self, group_name, display_name):
+        domain = config.auth_domain
+        self.group_id = '%s-%s' % (domain, group_name)
+        self.group_name = group_name
+        self.display_name = display_name
+    
     def __repr__(self):
-        return '<Group: name=%s>' % self.group_name
+        return '<Group: %s (%s)>' % (self.group_name, self.display_name)
     
     def __unicode__(self):
         return self.group_name
-    #}
 
 
-# The 'info' argument we're passing to the email_address and password columns
-# contain metadata that Rum (http://python-rum.org/) can use generate an
-# admin interface for your models.
 class User(DeclarativeBase):
     """
     User definition.
@@ -89,21 +105,17 @@ class User(DeclarativeBase):
     This is the user definition used by :mod:`repoze.who`, which requires at
     least the ``user_name`` column.
     """
-    __tablename__ = 'auth_users'
+    __tablename__ = 'users'
     
     # Columns
-    user_id = Column(Integer, autoincrement=True, primary_key=True)
+    user_id = Column(Unicode(40), primary_key=True)
     user_name = Column(Unicode(16), unique=True, nullable=False)
-    email_address = Column(Unicode(255), unique=True, nullable=True)
+    email_address = Column(Unicode(255), unique=True)
     display_name = Column(Unicode(255))
     _password = Column(Unicode(80))
     created = Column(DateTime, default=datetime.now)
     
     # Properties
-    @property
-    def id(self):
-        return self.user_id
-    
     @property
     def permissions(self):
         """Return a set of strings for the permissions granted."""
@@ -152,7 +164,6 @@ class User(DeclarativeBase):
         :type password: unicode object.
         :return: Whether the password is valid.
         :rtype: bool
-
         """
         hashed_pass = sha1()
         hashed_pass.update(password + self.password[:40])
@@ -173,16 +184,22 @@ class User(DeclarativeBase):
                 set(self.projects_as_admin))
     
     # Special methods
+    def __init__(self, user_name, display_name=None, email=None):
+        domain = config.auth_domain
+        self.user_id = '%s-%s' % (domain, user_name)
+        self.user_name = user_name
+        self.display_name = display_name
+        self.email_address = email
+    
     def __repr__(self):
-        return '<User: email="%s", display name="%s">' % (
-                self.email_address, self.display_name)
+        return '<User: %s (%s)>' % (
+                self.user_name, self.display_name)
 
     def __unicode__(self):
         return self.display_name or self.user_name
     
     def __json__(self):
         return dict(user_id=self.user_id,
-                    id=self.id,
                     user_name=self.user_name,
                     display_name=self.display_name,
                    )
@@ -194,25 +211,28 @@ class Permission(DeclarativeBase):
     
     Only the ``permission_name`` column is required by :mod:`repoze.what`.
     """
+    __tablename__ = 'permissions'
     
-    __tablename__ = 'auth_permissions'
-    
-    #{ Columns
-    permission_id = Column(Integer, autoincrement=True, primary_key=True)
+    # Columns
+    permission_id = Column(Unicode(40), primary_key=True)
     permission_name = Column(Unicode(16), unique=True, nullable=False)
     description = Column(Unicode(255))
     
-    #{ Relations
+    # Relations
     groups = relation(Group, secondary=group_permission_table,
                                     backref=backref('permissions', lazy=False))
     
-    #{ Special methods
+    # Special methods
+    def __init__(self, permission_name, description):
+        domain = config.auth_domain
+        self.permission_id = '%s-%s' % (domain, permission_name)
+        self.permission_name = permission_name
+        self.description = description
+    
     def __repr__(self):
-        return '<Permission: name=%s>' % self.permission_name
+        return '<Permission: %s (%s)>' % (self.permission_name,
+                                                            self.description)
 
     def __unicode__(self):
         return self.permission_name
-    #}
 
-
-#}
