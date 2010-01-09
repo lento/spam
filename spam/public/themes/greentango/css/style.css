@@ -65,7 +65,9 @@ body {
     background-color: #3465a4; /* Sky Blue 2 */
     color: #f6f6f4; /* Aluminium 0 */
 	-moz-border-radius: 5px;
+    -webkit-border-radius: 5px; 
     -moz-box-shadow: 4px 4px 10px #888a85; /* Aluminium 4 */
+    -webkit-box-shadow: 4px 4px 10px #f00; /* Aluminium 4 */
 }
 
 .button:active {
@@ -195,6 +197,7 @@ table td.icon {
 	height: 450px;
     border: 2px solid #73d216; /* Chameleon 2 */
 	-moz-border-radius: 10px;
+	-webkit-border-radius: 10px;
     -moz-box-shadow: 0 0 25px 5px #333;
     background-color: #f6f6f4; /* Aluminium 0 */
 }
@@ -208,6 +211,7 @@ table td.icon {
 	padding: 5px 20px;
 	background-color: #73d216; /* Chameleon 2 */
 	-moz-border-radius: 10px;
+	-webkit-border-radius: 10px;
 	color: #f6f6f4; /* Aluminium 0 */
 }
 
@@ -262,21 +266,25 @@ table td.icon {
 #flash .ok {
     background: #729fcf url(../images/ok.png) no-repeat scroll 10px center; /* Sky Blue 1 */
 	-moz-border-radius: 0 0 10px 10px;
+	-webkit-border-radius: 0 0 10px 10px;
 }
 
 #flash .warning {
     background: #edd400 url(../images/warning.png) no-repeat scroll 10px center; /* Butter 1 */
 	-moz-border-radius: 0 0 10px 10px;
+	-webkit-border-radius: 0 0 10px 10px;
 }
 
 #flash .error {
     background:#ef2929 url(../images/error.png) no-repeat scroll 10px center; /* Scarlet Red 1 */
 	-moz-border-radius: 0 0 10px 10px;
+	-webkit-border-radius: 0 0 10px 10px;
 }
 
 #flash .alert, #flash .info, .notice {
     background:#babdb6 url(../images/info.png) no-repeat scroll 10px center; /* Aluminium 3 */
 	-moz-border-radius: 0 0 10px 10px;
+	-webkit-border-radius: 0 0 10px 10px;
 }
 
 
@@ -293,6 +301,7 @@ table td.icon {
     width: 180px;
     background-color: #eeeeec; /* Aluminium 1 */
 	-moz-border-radius: 10px;
+	-webkit-border-radius: 10px;
 	border: 2px solid #73d216; /* Chameleon 2 */
     font-size: 0.9em;
 }    
@@ -433,6 +442,7 @@ table td.icon {
 	padding: 15px 20px;
 	border: 2px solid #73d216; /* Chameleon 2 */
 	-moz-border-radius: 10px;
+	-webkit-border-radius: 10px;
 	background-color: #eeeeec; /* Aluminium 1 */
     color: #2e3436; /* Aluminium 6 */
 }
@@ -474,6 +484,8 @@ ul.tabs a {
 	margin-right: 2px;
 	-moz-border-radius-topleft: 10px;
 	-moz-border-radius-topright: 10px;
+	-webkit-border-top-left-radius: 10px;
+	-webkit-border-top-right-radius: 10px;
 }
 
 ul.tabs a:hover {
@@ -505,6 +517,7 @@ ul.tabs a.current {
 	padding: 5px 20px;
 	background-color: #73d216; /* Chameleon 2 */
 	-moz-border-radius: 10px;
+	-webkit-border-radius: 10px;
 	color: #f6f6f4; /* Aluminium 0 */
 }
 
