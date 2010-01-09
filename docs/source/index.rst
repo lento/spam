@@ -17,6 +17,8 @@ production workflow of a 3d animation or VFX pipeline.
    
    internals
    
+   spamclient
+   
 Indices and tables
 ==================
 
