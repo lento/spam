@@ -32,8 +32,9 @@ log = logging.getLogger(__name__)
 class MappedList(list):
     """A custom list to map a collection of objects.
     
-    A ``MappedList` can be filtered by an attribute of the contained objects, so
+    A ``MappedList`` can be filtered by an attribute of the contained objects, so
     if we have instances of the ``Box`` class::
+
         >>> class Box(object):
         ...     def __init__(self, size, content):
         ...             self.content = content
@@ -43,6 +44,7 @@ class MappedList(list):
         ... 
     
     we can build a ``MappedList`` that filters on ``size``::
+
         >>> ml = MappedList('size', values=[Box('big', 'bicycle'), Box('small', 'candy')])
         >>> ml
         [<A big box containing a bicycle>, <A small box containing a candy>]
@@ -54,6 +56,7 @@ class MappedList(list):
     If we specify an attribute as ``targetattr``, the returned list will contain
     this attribute extracted from the contained objects  instead of the
     objects themselves::
+
         >>> ml = MappedList('size', targetattr='content', values=[Box('big', 'bicycle'), Box('small', 'candy')])
         >>> ml['big']
         ['bicycle']
@@ -61,12 +64,14 @@ class MappedList(list):
         ['candy']
     
     Since ``MappedList`` is a subclass of ``list`` it can be used as a normal list::
+
         >>> ml.append(Box('small', 'book'))
         >>> ml['small']
         ['candy', 'book']
         >>> ml[2]
         <A small box containing a book>
     """
+
     def __init__(self, keyattr, targetattr=None, values=[]):
         self._keyattr = keyattr
         self._targetattr = targetattr

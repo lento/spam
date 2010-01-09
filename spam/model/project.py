@@ -25,6 +25,7 @@ Project data model.
 
 This is where the model for project data is defined.
 """
+
 import os.path
 from datetime import datetime
 from hashlib import sha1
@@ -44,7 +45,6 @@ from spam.model.auth import User
 import logging
 log = logging.getLogger(__name__)
 
-__all__ = ['Project']
 
 ############################################################
 # Association tables

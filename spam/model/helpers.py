@@ -21,6 +21,7 @@
 # Contributor(s): 
 #
 """Caching & helpers"""
+
 from datetime import datetime
 from pylons import cache
 from tg import config
@@ -86,7 +87,7 @@ def project_get(proj):
         raise SPAMDBError('Error when searching project "%s".' % proj)
 
 def scene_get(proj, sc):
-    """Return a lazyloaded scene"""
+    """Return a scene"""
     query = session_get().query(Scene)
     try:
         return query.filter_by(proj_id=proj).filter_by(name=sc).one()
@@ -96,7 +97,7 @@ def scene_get(proj, sc):
         raise SPAMDBError('Error when searching scene "%s".' % sc)
 
 def shot_get(proj, sc, sh):
-    """Return a lazyloaded shot"""
+    """Return a shot"""
     scene = scene_get(proj, sc)
     query = session_get().query(Shot)
     try:
@@ -107,7 +108,7 @@ def shot_get(proj, sc, sh):
         raise SPAMDBError('Error when searching shot "%s".' % sh)
 
 def libgroup_get(proj, libgroup_id):
-    """Return a lazyloaded libgroup"""
+    """Return a libgroup"""
     query = session_get().query(LibraryGroup).filter_by(proj_id=proj)
     try:
         return query.filter_by(id=libgroup_id).one()
