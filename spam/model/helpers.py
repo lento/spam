@@ -114,7 +114,6 @@ def container_get(proj, container_type, container_id):
         query = session_get().query(Shot)
     elif container_type=='libgroup':
         query = session_get().query(LibraryGroup)
-    query = query.filter_by(proj_id=proj)
     try:
         return query.filter_by(id=container_id).one()
     except NoResultFound:
@@ -144,13 +143,13 @@ def category_get(category_id):
     except MultipleResultsFound:
         raise SPAMDBError('Error when searching category "%s".' % category_id)
 
-def tag_get(proj, tag_id):
+def tag_get(tag_id):
     """Return an existing tag or creates a new one."""
     query = session_get().query(Tag).filter_by(id=tag_id)
     try:
         return query.one()
     except NoResultFound:
-        return Tag(proj, tag_id)
+        return Tag(tag_id)
     except MultipleResultsFound:
         raise SPAMDBError('Error when searching tag "%s".' % tag_id)
 
