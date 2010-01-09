@@ -37,48 +37,39 @@ log = logging.getLogger(__name__)
 
 # Helpers
 def session_get():
+    """Return a session for the current thread."""
     return DBSession()
 
 def query_projects():
+    """Return a ``query`` object filtering `active` projects."""
     return session_get().query(Project).filter_by(archived=False)
 
 def query_projects_archived():
+    """Return a ``query`` object filtering `archived` projects."""
     return session_get().query(Project).filter_by(archived=True)
 
-def user_get(id_or_name):
-    """return a user"""
-    query = session_get().query(User)
-    if isinstance(id_or_name, int):
-        query = query.filter_by(user_id=id_or_name)
-    elif isinstance(id_or_name, basestring):
-        query = query.filter_by(user_name=id_or_name)
-    else:
-        raise SPAMDBError('Error when searching user "%s".' % id_or_name)
+def user_get(user_id):
+    """Return a user."""
+    query = session_get().query(User).filter_by(user_id=user_id)
     try:
         return query.one()
     except NoResultFound:
-        raise SPAMDBNotFound('User "%s" could not be found.' % id_or_name)
+        raise SPAMDBNotFound('User "%s" could not be found.' % user_id)
     except MultipleResultsFound:
-        raise SPAMDBError('Error when searching user "%s".' % id_or_name)
+        raise SPAMDBError('Error when searching user "%s".' % user_id)
 
-def group_get(id_or_name):
-    """return a group"""
-    query = session_get().query(Group)
-    if isinstance(id_or_name, int):
-        query = query.filter_by(group_id=id_or_name)
-    elif isinstance(id_or_name, basestring):
-        query = query.filter_by(group_name=id_or_name)
-    else:
-        raise SPAMDBError('Error when searching group "%s".' % id_or_name)
+def group_get(group_id):
+    """Return a group."""
+    query = session_get().query(Group).filter_by(group_id=group_id)
     try:
         return query.one()
     except NoResultFound:
-        raise SPAMDBNotFound('Group "%s" could not be found.' % id_or_name)
+        raise SPAMDBNotFound('Group "%s" could not be found.' % group_id)
     except MultipleResultsFound:
-        raise SPAMDBError('Error when searching group "%s".' % id_or_name)
+        raise SPAMDBError('Error when searching group "%s".' % group_id)
 
 def project_get(proj):
-    """Return a lazyloaded project"""
+    """Return a lazyloaded project."""
     try:
         return query_projects().filter_by(id=proj).one()
     except NoResultFound:
@@ -87,7 +78,7 @@ def project_get(proj):
         raise SPAMDBError('Error when searching project "%s".' % proj)
 
 def scene_get(proj, sc):
-    """Return a scene"""
+    """Return a scene."""
     query = session_get().query(Scene)
     try:
         return query.filter_by(proj_id=proj).filter_by(name=sc).one()
@@ -97,7 +88,7 @@ def scene_get(proj, sc):
         raise SPAMDBError('Error when searching scene "%s".' % sc)
 
 def shot_get(proj, sc, sh):
-    """Return a shot"""
+    """Return a shot."""
     scene = scene_get(proj, sc)
     query = session_get().query(Shot)
     try:
@@ -108,7 +99,7 @@ def shot_get(proj, sc, sh):
         raise SPAMDBError('Error when searching shot "%s".' % sh)
 
 def libgroup_get(proj, libgroup_id):
-    """Return a libgroup"""
+    """Return a libgroup."""
     query = session_get().query(LibraryGroup).filter_by(proj_id=proj)
     try:
         return query.filter_by(id=libgroup_id).one()
@@ -118,7 +109,7 @@ def libgroup_get(proj, libgroup_id):
         raise SPAMDBError('Error when searching Librarygroup "%s".' % libgroup_id)
 
 def container_get(proj, container_type, container_id):
-    """return a container"""
+    """Return a container."""
     if container_type=='shot':
         query = session_get().query(Shot)
     elif container_type=='libgroup':
@@ -134,7 +125,7 @@ def container_get(proj, container_type, container_id):
                                                 (container_type, container_id))
 
 def asset_get(proj, asset_id):
-    """return an asset"""
+    """Return an asset."""
     query = session_get().query(Asset)
     try:
         return query.filter_by(id=asset_id).one()
@@ -144,7 +135,7 @@ def asset_get(proj, asset_id):
         raise SPAMDBError('Error when searching asset "%s".' % asset_id)
 
 def category_get(category_id):
-    """return a asset category"""
+    """Return a asset category."""
     query = session_get().query(Category).filter_by(id=category_id)
     try:
         return query.one()
@@ -153,30 +144,22 @@ def category_get(category_id):
     except MultipleResultsFound:
         raise SPAMDBError('Error when searching category "%s".' % category_id)
 
-def tag_get(proj, id_or_name):
-    """return an existing tag or creates a new one"""
-    query = session_get().query(Tag).filter_by(proj_id=proj)
-    if isinstance(id_or_name, int):
-        try:
-            return query.filter_by(id=id_or_name).one()
-        except NoResultFound:
-            raise SPAMDBNotFound('Tag "%s" could not be found.' % id_or_name)
-        except MultipleResultsFound:
-            raise SPAMDBError('Error when searching tag "%s".' % id_or_name)
-    elif isinstance(id_or_name, basestring):
-        try:
-            return query.filter_by(name=id_or_name).one()
-        except NoResultFound:
-            return Tag(proj, id_or_name)
-        except MultipleResultsFound:
-            raise SPAMDBError('Error when searching tag "%s".' % id_or_name)
+def tag_get(proj, tag_id):
+    """Return an existing tag or creates a new one."""
+    query = session_get().query(Tag).filter_by(id=tag_id)
+    try:
+        return query.one()
+    except NoResultFound:
+        return Tag(proj, tag_id)
+    except MultipleResultsFound:
+        raise SPAMDBError('Error when searching tag "%s".' % tag_id)
 
 # Cache
 def eagerload_maker(proj):
     """Factory for project eagerloaders.
     
-    Return a argument-less function suitable for the "createfunc" parameter of
-    "Cache.get_value"
+    Return a argument-less function suitable for the ``createfunc`` parameter of
+    ``Cache.get_value``
     """
     def eagerload_project():
         try:
@@ -191,7 +174,7 @@ def eagerload_maker(proj):
 def project_get_eager(proj):
     """Return a project eagerloaded with its scenes and libgroups
     
-    "project_get_eager" keeps a (thread-local) cache of loaded projects,
+    ``project_get_eager`` keeps a (thread-local) cache of loaded projects,
     reloading instances from the db if the "modified" field is newer then the
     cache.
     """
