@@ -294,7 +294,7 @@ class Controller(RestController):
                                                         category_id=category.id)
         fcargs = dict(userids=dict(options=choices))
         return dict(title='Add "%s" supervisors for "%s"' %
-                    (category.name, project.id), args=fargs, child_args=fcargs)
+                    (category.id, project.id), args=fargs, child_args=fcargs)
 
     @project_set_active
     @require(is_project_admin())
@@ -313,11 +313,11 @@ class Controller(RestController):
         for supervisor in supervisors:
             added.append(supervisor.user.user_name)
             notify.send(supervisor.user, update_type='added', proj=project.id,
-                            cat=category.name,
+                            cat=category.id,
                             destination=TOPIC_PROJECT_SUPERVISORS)
         
         return dict(msg='added "%s" supervisor(s) %s' %
-                            (category.name, ', '.join(added)), result='success')
+                            (category.id, ', '.join(added)), result='success')
 
     @project_set_active
     @require(is_project_admin())
@@ -336,12 +336,12 @@ class Controller(RestController):
             sup = query.one()
             session.delete(sup)
             notify.send(user, update_type='deleted', proj=project.id,
-                        cat=category.name,
+                        cat=category.id,
                         destination=TOPIC_PROJECT_SUPERVISORS)
             return dict(msg='removed "%s" supervisor "%s"' %
-                        (category.name, user.user_name), result='success')
+                        (category.id, user.user_name), result='success')
         return dict(msg='"%s" supervisor "%s" cannot be removed' %
-                        (category.name, user.user_name), result='failed')
+                        (category.id, user.user_name), result='failed')
 
     @project_set_active
     @require(is_project_admin())
@@ -358,7 +358,7 @@ class Controller(RestController):
                                                         category_id=category.id)
         fcargs = dict(userids=dict(options=choices))
         return dict(title='Add "%s" artists for "%s"' %
-                    (category.name, project.id), args=fargs, child_args=fcargs)
+                    (category.id, project.id), args=fargs, child_args=fcargs)
 
     @project_set_active
     @require(is_project_admin())
@@ -377,11 +377,11 @@ class Controller(RestController):
         for artist in artists:
             added.append(artist.user.user_name)
             notify.send(artist.user, update_type='added', proj=project.id,
-                            cat=category.name,
+                            cat=category.id,
                             destination=TOPIC_PROJECT_ARTISTS)
         
         return dict(msg='added "%s" artist(s) %s' %
-                            (category.name, ', '.join(added)), result='success')
+                            (category.id, ', '.join(added)), result='success')
 
     @project_set_active
     @require(is_project_admin())
@@ -401,10 +401,10 @@ class Controller(RestController):
             artist = query.one()
             session.delete(artist)
             notify.send(user, update_type='deleted', proj=project.id,
-                        cat=category.name,
+                        cat=category.id,
                         destination=TOPIC_PROJECT_ARTISTS)
             return dict(msg='removed "%s" artist "%s"' %
-                        (category.name, user.user_name), result='success')
+                        (category.id, user.user_name), result='success')
         return dict(msg='"%s" artist "%s" cannot be removed' %
-                        (category.name, user.user_name), result='failed')
+                        (category.id, user.user_name), result='failed')
 

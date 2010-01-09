@@ -273,7 +273,7 @@ class TableAssets(LiveTable):
     
     def update_params(self, d):
         super(TableAssets, self).update_params(d)
-        d['update_condition'] = 'msg.ob.category.name=="%s"' % d['category']
+        d['update_condition'] = 'msg.ob.category.id=="%s"' % d['category']
 
 
 class TableAssetHistory(LiveTable):

@@ -190,7 +190,7 @@ class Controller(RestController):
                      proj=asset.project.id, project_=asset.project.name,
                      asset_id=asset.id, name_=asset.name,
                      container_=asset.parent.path,
-                     category_=asset.category.name,
+                     category_=asset.category.id,
                     )
                      
         fcargs = dict()
@@ -284,7 +284,7 @@ class Controller(RestController):
                      proj=asset.project.id, project_=asset.project.name,
                      asset_id=asset.id, name_=asset.name,
                      container_=asset.parent.path,
-                     category_=asset.category.name,
+                     category_=asset.category.id,
                     )
                      
         fcargs = dict()

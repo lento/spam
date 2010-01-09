@@ -70,10 +70,10 @@ class TabController(SPAMBaseController):
         categories = session_get().query(Category)
         supervisors = {}
         for cat in categories:
-            supervisors[cat.name] = project.supervisors[cat]
+            supervisors[cat.id] = project.supervisors[cat]
         artists = {}
         for cat in categories:
-            artists[cat.name] = project.artists[cat]
+            artists[cat.id] = project.artists[cat]
         
         return dict(categories=categories, supervisors=supervisors,
                                                                 artists=artists)

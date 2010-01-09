@@ -26,13 +26,13 @@ class CategoryNamingConvention(FormValidator):
 
     def validate_python(self, field_dict, state):
         try:
-            category_name = field_dict[self.category_field]
+            category_id = field_dict[self.category_field]
             asset_name = field_dict[self.name_field]
         except TypeError:
             # Generally because field_dict isn't a dict
             raise Invalid(self.message('notDict', state), field_dict, state)
 
-        category = category_get(category_name)
+        category = category_get(category_id)
         if not re.match(category.naming_convention, asset_name):
             errors = dict(name='name does not follow naming convention for '
                             'this category (%s)' % category.naming_convention)

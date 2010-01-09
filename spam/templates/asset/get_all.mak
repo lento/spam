@@ -36,7 +36,7 @@ ${c.j_notify_client()}
     
     $(function() {
         notify.add_listener("/topic/assets", function(msg) {
-            if ($.inArray(msg.ob.category.name, spam.temp.current_categories)<0) {
+            if ($.inArray(msg.ob.category.id, spam.temp.current_categories)<0) {
                 spam.temp.reload_tab();
             }
         })
