@@ -395,6 +395,10 @@ class Shot(AssetContainer):
         return self.parent.project
     
     @property
+    def proj_id(self):
+        return self.parent.proj_id
+    
+    @property
     def path(self):
         return os.path.join(self.parent.path, self.name)
     
@@ -432,6 +436,7 @@ class Shot(AssetContainer):
 
     def __json__(self):
         return dict(id=self.id,
+                    proj_id=self.proj_id,
                     parent_id=self.parent_id,
                     parent_name=self.parent_name,
                     name=self.name,
