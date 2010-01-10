@@ -25,9 +25,9 @@
 from tg import expose, url, tmpl_context, redirect, validate, require
 from tg.controllers import RestController
 from pylons.i18n import ugettext as _, lazy_ugettext as l_
-from spam.model import session_get, Tag, tag_get
-from spam.lib.widgets import FormTagNew, FormTagEdit
-from spam.lib.widgets import FormTagConfirm, ListTags
+from spam.model import session_get, taggable_get, tag_get, Tag
+from spam.lib.widgets import FormTagNew, FormTagConfirm, FormTagRemove
+from spam.lib.widgets import ListTags
 from spam.lib.notifications import notify
 from repoze.what.predicates import in_group
 
@@ -35,9 +35,9 @@ import logging
 log = logging.getLogger(__name__)
 
 # form widgets
-f_new = FormTagNew(action=url('/category/'))
-f_edit = FormTagEdit(action=url('/category/'))
-f_confirm = FormTagConfirm(action=url('/category/'))
+f_new = FormTagNew(action=url('/tag/'))
+f_confirm = FormTagConfirm(action=url('/tag/'))
+f_remove = FormTagRemove(action=url('/tag/'))
 
 # live widgets
 l_tags = ListTags()
@@ -47,108 +47,127 @@ class Controller(RestController):
     
     @require(in_group('administrators'))
     @expose('spam.templates.tags.get_all')
-    def get_all(self, proj, taggable_id):
+    def get_all(self, taggable_id):
         """Return a html fragment with a list of tags for this object."""
         tmpl_context.l_tags = l_tags
-        #query = session_get().query(Category)
-        #categories = query.order_by('ordering', 'name')
-        tags = []
-        return dict(tags=tags)
+        taggable = taggable_get(taggable_id)
+        return dict(tags=taggable.tags)
 
-    '''
+    @expose('spam.templates.tags.get_all')
+    def default(self, taggable_id, *args, **kwargs):
+        """Catch request to `tag/<something>' and pass them to :meth:`get_all`,
+        because RESTController doesn't dispatch to get_all when there are
+        arguments.
+        """
+        return self.get_all(taggable_id)
+
     @require(in_group('administrators'))
     @expose('json')
-    @expose('spam.templates.category.get_one')
-    def get_one(self, name):
+    @expose('spam.templates.tags.get_one')
+    def get_one(self, taggable_id, tag_id):
         """This method is currently unused, but is needed for the 
         RESTController to work."""
-        category = category_get(name)
-        return dict(category=category)
+        tag = tag_get(tag_id)
+        return dict(tag=tag)
 
     @require(in_group('administrators'))
     @expose('spam.templates.forms.form')
-    def new(self, **kwargs):
+    def new(self, taggable_id, **kwargs):
         """Display a NEW form."""
         tmpl_context.form = f_new
-        fargs = dict()
-        fcargs = dict()
-        return dict(title='Create a new category', args=fargs,
-                                                            child_args=fcargs)
-
+        session = session_get()
+        taggable = taggable_get(taggable_id)
+        
+        fargs = dict(taggable_id=taggable.id,
+                     current_tags_=', '.join([t.id for t in taggable.tags]),
+                    )
+        
+        tags = session.query(Tag).order_by('id')
+        choices = [t.id for t in tags if t not in taggable.tags]
+        fcargs = dict(tag_ids=dict(options=choices))
+        return dict(title='Add a tag to "%s"' % taggable.tagged.path,
+                                                args=fargs, child_args=fcargs)
+    
     @require(in_group('administrators'))
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_new, error_handler=new)
-    def post(self, name, naming_convention='', **kwargs):
-        """Create a new category"""
-        session = session_get()
+    def post(self, taggable_id, tag_ids=[], new_tags=None, **kwargs):
+        """Add tags to a ``taggable`` obect."""
+        taggable = taggable_get(taggable_id)
         
-        # add category to shared db
-        category = Category(name=name, naming_convention=naming_convention)
-        session.add(category)
+        tags = [tag_get(i) for i in tag_ids]
+        if new_tags:
+            tags.extend([tag_get(name) for name in new_tags.split(', ')])
         
-        # send a stomp message to notify clients
-        notify.send(category, update_type='added')
-        return dict(msg='created category "%s"' % name, result='success')
+        added_tags = []
+        for tag in tags:
+            if tag not in taggable.tags:
+                taggable.tags.append(tag)
+                added_tags.append(tag.id)
+        added_tags = ', '.join(added_tags)
+        
+        #notify.send(tag, update_type='added', shot=shot)
+        return dict(msg='added tag(s) "%s" to "%s"' % 
+                       (added_tags, taggable.tagged.path), result='success')
     
     @require(in_group('administrators'))
     @expose('spam.templates.forms.form')
-    def edit(self, name, **kwargs):
-        """Display a EDIT form."""
-        tmpl_context.form = f_edit
-        category = category_get(name)
-        fargs = dict(category_id=category.id, name=category.name,
-                     naming_convention=category.naming_convention)
-        fcargs = dict()
-        return dict(title='Edit category "%s"' % category.name, args=fargs,
-                                                            child_args=fcargs)
-        
-    @require(in_group('administrators'))
-    @expose('json')
-    @expose('spam.templates.forms.result')
-    @validate(f_edit, error_handler=edit)
-    def put(self, category_id, name, naming_convention='', **kwargs):
-        """Edit a category"""
-        category = category_get(category_id)
-        category.name = name
-        category.naming_convention = naming_convention
-        notify.send(category, update_type='updated')
-        return dict(msg='updated category "%s"' % name, result='success')
-
-    @require(in_group('administrators'))
-    @expose('spam.templates.forms.form')
-    def get_delete(self, category_id, **kwargs):
+    def get_delete(self, tag_id, **kwargs):
         """Display a DELETE confirmation form."""
         tmpl_context.form = f_confirm
-        category = category_get(category_id)
-        fargs = dict(_method='DELETE', category_id=category.id,
-                     name_=category.name,
-                     naming_convention_=category.naming_convention)
+        tag = tag_get(tag_id)
+        fargs = dict(_method='DELETE', tag_id=tag.id)
         fcargs = dict()
-        warning = ('This will delete the category entry in the database. '
-                   'All the assets in this category will be orphaned.')
+        #warning = ('This will delete the category entry in the database. '
+        #           'All the assets in this category will be orphaned.')
         return dict(
-                title='Are you sure you want to delete "%s"?' % category.name,
+                title='Are you sure you want to delete tag "%s"?' % tag.id,
                 warning=warning, args=fargs, child_args=fcargs)
 
     @require(in_group('administrators'))
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_confirm, error_handler=get_delete)
-    def post_delete(self, category_id, **kwargs):
-        """Delete a category.
-        
-        Only delete the category record from the common db, all the assets
-        in this category will be orphaned, and must be removed manually.
-        """
+    def post_delete(self, tag_id, **kwargs):
+        """Delete a tag."""
         session = session_get()
-        category = category_get(category_id)
-        session.delete(category)
-        notify.send(category, update_type='deleted')
-        return dict(msg='deleted category "%s"' % category.name,
-                                                            result='success')
+        tag = tag_get(tag_id)
+        session.delete(tag)
+        #notify.send(tag, update_type='deleted')
+        return dict(msg='deleted tag "%s"' % tag.id, result='success')
     
     # Custom REST-like actions
-    custom_actions = []
-    '''
+    custom_actions = ['remove']
+    
+    @require(in_group('administrators'))
+    @expose('spam.templates.forms.form')
+    def get_remove(self, taggable_id, **kwargs):
+        """Display a REMOVE tag form."""
+        tmpl_context.form = f_remove
+        taggable = taggable_get(taggable_id)
+        fargs = dict(taggable_id=taggable.id)
+        choices = [t.id for t in taggable.tags]
+        fcargs = dict(tag_ids=dict(options=choices))
+        return dict(title='Remove tags from "%s"' % taggable.tagged.path,
+                                                args=fargs, child_args=fcargs)
+
+    @require(in_group('administrators'))
+    @expose('json')
+    @expose('spam.templates.forms.result')
+    @validate(f_remove, error_handler=get_remove)
+    def post_remove(self, taggable_id, tag_ids=[], **kwargs):
+        """Delete a tag."""
+        taggable = taggable_get(taggable_id)
+        
+        tags = [tag_get(i) for i in tag_ids]
+        removed_tags = []
+        for tag in tags:
+            if tag in taggable.tags:
+                taggable.tags.remove(tag)
+                removed_tags.append(tag.id)
+        removed_tags = ', '.join(removed_tags)
+        
+        #notify.send(tag, update_type='removed', taggable=taggable)
+        return dict(msg='removed tag(s) "%s"' % removed_tags, result='success')
 

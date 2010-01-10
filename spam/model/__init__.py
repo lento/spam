@@ -56,7 +56,7 @@ from project import Category, Supervisor, Artist, Asset, AssetVersion
 from helpers import query_projects, query_projects_archived, project_get
 from helpers import project_get_eager, session_get, scene_get, shot_get
 from helpers import container_get, asset_get, category_get, libgroup_get
-from helpers import group_get, tag_get, user_get
+from helpers import group_get, taggable_get, tag_get, user_get
 
 # Init model
 def init_model(engine):

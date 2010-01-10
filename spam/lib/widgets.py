@@ -366,6 +366,28 @@ class FormCategoryConfirm(TableForm):
         naming_convention_ = TextField(disabled=True, validator=None)
 
 
+# Tags
+class FormTagNew(TableForm):
+    class fields(WidgetsList):
+        taggable_id = HiddenField(validator=NotEmpty)
+        current_tags_ = TextField(validator=None, disabled=True)
+        tag_ids = MultipleSelectField(label_text='Tags', options=[], size=10)
+        new_tags = TextField(validator=Regex(G.pattern_tags))
+
+
+class FormTagConfirm(TableForm):
+    class fields(WidgetsList):
+        _method = HiddenField(default='', validator=None)
+        tag_id = HiddenField(validator=NotEmpty)
+
+
+class FormTagRemove(TableForm):
+    class fields(WidgetsList):
+        _method = HiddenField(default='REMOVE', validator=None)
+        taggable_id = HiddenField(validator=NotEmpty)
+        tag_ids = MultipleSelectField(label_text='Tags', options=[], size=10)
+
+
 # Project
 class FormProjectNew(TableForm):
     class fields(WidgetsList):

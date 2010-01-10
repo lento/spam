@@ -30,7 +30,7 @@ from sqlalchemy.exceptions import InvalidRequestError
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 from spam.lib.exceptions import SPAMDBError, SPAMDBNotFound
 from spam.model import DBSession, Project, Scene, Shot, LibraryGroup, Asset
-from spam.model import Category, User, Group, Tag
+from spam.model import Category, User, Group, Taggable, Tag
 
 import logging
 log = logging.getLogger(__name__)
@@ -142,6 +142,16 @@ def category_get(category_id):
         raise SPAMDBNotFound('Category "%s" could not be found.' % category_id)
     except MultipleResultsFound:
         raise SPAMDBError('Error when searching category "%s".' % category_id)
+
+def taggable_get(taggable_id):
+    """Return an existing taggable."""
+    query = session_get().query(Taggable).filter_by(id=taggable_id)
+    try:
+        return query.one()
+    except NoResultFound:
+        return SPAMDBNotFound('Taggable "%s" could not be found.' % taggable_id)
+    except MultipleResultsFound:
+        raise SPAMDBError('Error when searching taggable "%s".' % taggable_id)
 
 def tag_get(tag_id):
     """Return an existing tag or creates a new one."""
