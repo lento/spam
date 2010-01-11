@@ -97,7 +97,8 @@ class Controller(RestController):
         """Display a EDIT form."""
         tmpl_context.form = f_edit
         category = category_get(category_id)
-        fargs = dict(category_id=category.id,
+        fargs = dict(category_id=category.id, id_=category.id,
+                     oredering=category.ordering,
                      naming_convention=category.naming_convention)
         fcargs = dict()
         return dict(title='Edit category "%s"' % category.id, args=fargs,
@@ -107,9 +108,10 @@ class Controller(RestController):
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_edit, error_handler=edit)
-    def put(self, category_id, naming_convention='', **kwargs):
+    def put(self, category_id, ordering=0, naming_convention='', **kwargs):
         """Edit a category"""
         category = category_get(category_id)
+        category.ordering = ordering
         category.naming_convention = naming_convention
         notify.send(category, update_type='updated')
         return dict(msg='updated category "%s"' % category_id, result='success')
@@ -121,6 +123,8 @@ class Controller(RestController):
         tmpl_context.form = f_confirm
         category = category_get(category_id)
         fargs = dict(_method='DELETE', category_id=category.id,
+                     id_=category.id,
+                     ordering_=category.ordering,
                      naming_convention_=category.naming_convention)
         fcargs = dict()
         warning = ('This will delete the category entry in the database. '

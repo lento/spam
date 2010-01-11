@@ -144,9 +144,9 @@ class TableCategories(LiveTable):
         naming_convention = TextData()
         actions = IconBox(buttons=[
             IconButton(id='edit', icon_class='edit',
-              action=url('/category/%(name)s/edit')),
+              action=url('/category/%(id)s/edit')),
             IconButton(id='delete', icon_class='delete',
-              action=url('/category/%(name)s/delete')),
+              action=url('/category/%(id)s/delete')),
         ])
 
 
@@ -354,16 +354,18 @@ class FormCategoryNew(TableForm):
 class FormCategoryEdit(TableForm):
     class fields(WidgetsList):
         _method = HiddenField(default='PUT', validator=None)
-        category_id = HiddenField(validator=All(NotEmpty, Int))
+        category_id = HiddenField(validator=NotEmpty)
         id_ = TextField(disabled=True, validator=None)
+        ordering = TextField(validator=Int)
         naming_convention = TextField(validator=MaxLength(255))
 
 
 class FormCategoryConfirm(TableForm):
     class fields(WidgetsList):
         _method = HiddenField(default='', validator=None)
-        category_id = HiddenField(validator=All(NotEmpty, Int))
+        category_id = HiddenField(validator=NotEmpty)
         id_ = TextField(disabled=True, validator=None)
+        ordering_ = TextField(disabled=True, validator=None)
         naming_convention_ = TextField(disabled=True, validator=None)
 
 
