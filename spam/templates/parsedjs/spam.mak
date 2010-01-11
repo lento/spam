@@ -93,7 +93,7 @@ $(function() {
     $("#flash div").hide().slideDown(function() {
         setTimeout(function() {
             $("#flash div").slideUp();
-        }, 4000);
+        }, 2500);
     });
 
     // setup tabs 
