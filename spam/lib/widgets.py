@@ -55,7 +55,7 @@ class TableUsers(LiveTable):
     javascript = [notify_client_js]
     update_topic = '/topic/users'
     class fields(WidgetsList):
-        user_id = TextData()
+        domain = TextData()
         user_name = TextData(sort_default=True)
         display_name = TextData()
         created = TextData()
@@ -75,7 +75,8 @@ class TableGroupUsers(LiveTable):
         display_name = TextData()
         actions = IconBox(buttons=[
             IconButton(id='remove', icon_class='delete',
-              action=url('/user/%(user_name)s/%(group_name)s/remove')),
+              action=url(
+                    '/user/%(user_name)s/%(group_name)s/remove_from_group')),
         ])
     
     def update_params(self, d):
@@ -308,15 +309,15 @@ class FormUserNew(TableForm):
 class FormUserEdit(TableForm):
     class fields(WidgetsList):
         _method = HiddenField(default='PUT', validator=None)
-        user_id = HiddenField(validator=All(NotEmpty, Int))
-        user_name = TextField(validator=MaxLength(16, not_empty=True))
+        user_id = HiddenField(validator=NotEmpty)
+        user_name_ = TextField(disabled=True, validator=None)
         display_name = TextField(validator=MaxLength(255, not_empty=True))
 
 
 class FormUserConfirm(TableForm):
     class fields(WidgetsList):
         _method = HiddenField(default='', validator=None)
-        user_id = HiddenField(validator=Int(not_empty=True))
+        user_id = HiddenField(validator=NotEmpty)
         user_name_ = TextField(disabled=True, validator=None)
         display_name_ = TextField(disabled=True, validator=None)
 
@@ -324,7 +325,7 @@ class FormUserConfirm(TableForm):
 class FormUserAddToGroup(TableForm):
     class fields(WidgetsList):
         _method = HiddenField(default='ADD_TO_GROUP', validator=None)
-        group_id = HiddenField(validator=Int(not_empty=True))
+        group_id = HiddenField(validator=NotEmpty)
         userids = MultipleSelectField(label_text='Users', options=[], size=20)
 
 
@@ -339,7 +340,7 @@ class FormUserAddToCategory(TableForm):
     class fields(WidgetsList):
         _method = HiddenField(default='', validator=None)
         proj = HiddenField(validator=NotEmpty)
-        category_id = HiddenField(validator=Int(not_empty=True))
+        category_id = HiddenField(validator=NotEmpty)
         userids = MultipleSelectField(label_text='Users', options=[], size=20)
 
 

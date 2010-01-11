@@ -110,7 +110,7 @@ class User(DeclarativeBase):
     
     # Columns
     user_id = Column(Unicode(40), primary_key=True)
-    user_name = Column(Unicode(16), unique=True, nullable=False)
+    user_name = Column(Unicode(16), nullable=False)
     email_address = Column(Unicode(255), unique=True)
     display_name = Column(Unicode(255))
     _password = Column(Unicode(80))
@@ -184,6 +184,14 @@ class User(DeclarativeBase):
                 set(self.projects_as_artist) |
                 set(self.projects_as_admin))
     
+    @property
+    def id(self):
+        return self.user_id
+    
+    @property
+    def domain(self):
+        return (self.user_id.split('-')[0])
+    
     # Special methods
     def __init__(self, user_name, display_name=None, email=None):
         domain = config.auth_domain
@@ -201,8 +209,10 @@ class User(DeclarativeBase):
     
     def __json__(self):
         return dict(user_id=self.user_id,
+                    id=self.id,
                     user_name=self.user_name,
                     display_name=self.display_name,
+                    domain=self.domain,
                    )
     
 

@@ -50,21 +50,35 @@ def query_projects_archived():
 
 def user_get(user_id):
     """Return a user."""
-    query = session_get().query(User).filter_by(user_id=user_id)
+    query = session_get().query(User)
     try:
-        return query.one()
+        return query.filter_by(user_id=user_id).one()
     except NoResultFound:
-        raise SPAMDBNotFound('User "%s" could not be found.' % user_id)
+        try:
+            domain = config.auth_domain
+            user_id = '%s-%s' % (domain, user_id)
+            return query.filter_by(user_id=user_id).one()
+        except NoResultFound:
+            raise SPAMDBNotFound('User "%s" could not be found.' % user_id)
+        except MultipleResultsFound:
+            raise SPAMDBError('Error when searching user "%s".' % user_id)
     except MultipleResultsFound:
         raise SPAMDBError('Error when searching user "%s".' % user_id)
 
 def group_get(group_id):
     """Return a group."""
-    query = session_get().query(Group).filter_by(group_id=group_id)
+    query = session_get().query(Group)
     try:
-        return query.one()
+        return query.filter_by(group_id=group_id).one()
     except NoResultFound:
-        raise SPAMDBNotFound('Group "%s" could not be found.' % group_id)
+        try:
+            domain = config.auth_domain
+            group_id = '%s-%s' % (domain, group_id)
+            return query.filter_by(group_id=group_id).one()
+        except NoResultFound:
+            raise SPAMDBNotFound('Group "%s" could not be found.' % group_id)
+        except MultipleResultsFound:
+            raise SPAMDBError('Error when searching group "%s".' % group_id)
     except MultipleResultsFound:
         raise SPAMDBError('Error when searching group "%s".' % group_id)
 

@@ -108,9 +108,7 @@ class Controller(RestController):
         session = session_get()
         
         # add user to shared db
-        user = User()
-        user.user_name = user_name
-        user.display_name = display_name
+        user = User(user_name, display_name=display_name)
         user.password = password
         session.add(user)
         session.flush()
@@ -121,27 +119,27 @@ class Controller(RestController):
     
     @require(in_group('administrators'))
     @expose('spam.templates.forms.form')
-    def edit(self, user_name, **kwargs):
+    def edit(self, user_id, **kwargs):
         """Display a EDIT form."""
         tmpl_context.form = f_edit
-        user = user_get(user_name)
-        fargs = dict(user_id=user.user_id, user_name=user.user_name,
+        user = user_get(user_id)
+        fargs = dict(user_id=user.user_id, user_name_=user.user_name,
                      display_name=user.display_name)
         fcargs = dict()
-        return dict(title='Edit user "%s"' % user.user_name, args=fargs,
+        return dict(title='Edit user "%s"' % user.user_id, args=fargs,
                                                             child_args=fcargs)
         
     @require(in_group('administrators'))
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_edit, error_handler=edit)
-    def put(self, user_id, user_name, display_name, **kwargs):
+    def put(self, user_id, display_name=None, **kwargs):
         """Edit a user"""
         user = user_get(user_id)
-        user.user_name = user_name
-        user.display_name = display_name
+        if display_name:
+            user.display_name = display_name
         notify.send(user)
-        return dict(msg='updated user "%s"' % user_name, result='success')
+        return dict(msg='updated user "%s"' % user_id, result='success')
 
     @require(in_group('administrators'))
     @expose('spam.templates.forms.form')
@@ -153,7 +151,7 @@ class Controller(RestController):
                      user_name_=user.user_name, display_name_=user.display_name)
         fcargs = dict()
         return dict(
-                title='Are you sure you want to delete "%s"?' % user.user_name,
+                title='Are you sure you want to delete "%s"?' % user.user_id,
                 args=fargs, child_args=fcargs)
 
     @require(in_group('administrators'))
@@ -166,7 +164,7 @@ class Controller(RestController):
         user = user_get(user_id)
         session.delete(user)
         notify.send(user, update_type='deleted')
-        return dict(msg='deleted user "%s"' % user.user_name, result='success')
+        return dict(msg='deleted user "%s"' % user.user_id, result='success')
 
     # Custom REST-like actions
     custom_actions = ['add_to_group', 'remove_from_group',
@@ -177,16 +175,16 @@ class Controller(RestController):
 
     @require(in_group('administrators'))
     @expose('spam.templates.forms.form')
-    def get_add_to_group(self, group_name, **kwargs):
+    def get_add_to_group(self, group_id, **kwargs):
         """Display a ADD users form."""
         tmpl_context.form = f_add_to_group
-        group = group_get(group_name)
+        group = group_get(group_id)
         users = session_get().query(User)
-        choices = [(u.user_id, '%-16s (%s)' % (u.user_name, u.display_name))
+        choices = [(u.user_id, '%-16s (%s)' % (u.user_id, u.display_name))
                                                                 for u in users]
         fargs = dict(group_id=group.group_id,)
         fcargs = dict(userids=dict(options=choices))
-        return dict(title='Add users to group "%s"' % group_name,
+        return dict(title='Add users to group "%s"' % group.group_id,
                                                 args=fargs, child_args=fcargs)
 
     @require(in_group('administrators'))
@@ -199,7 +197,7 @@ class Controller(RestController):
         group = group_get(group_id)
         added = []
         for uid in userids:
-            user = user_get(int(uid))
+            user = user_get(uid)
             if user not in group.users:
                 group.users.append(user)
                 added.append(user.user_name)
@@ -207,19 +205,19 @@ class Controller(RestController):
                                                     group_name=group.group_name)
             
         return dict(msg='added user(s) %s to group "%s"' %
-                                    (added, group.group_name), result='success')
+                                    (added, group.group_id), result='success')
 
     @expose('json')
     @expose('spam.templates.forms.result')
-    def remove_from_group(self, user_name, group_name, **kwargs):
+    def remove_from_group(self, user_id, group_id, **kwargs):
         """Remove a user from a group"""
-        user = user_get(user_name)
-        group = group_get(group_name)
+        user = user_get(user_id)
+        group = group_get(group_id)
         group.users.remove(user)
         notify.send(user, update_type='deleted', destination=TOPIC_GROUPS,
                                                     group_name=group.group_name)
         return dict(msg='user "%s" removed from group "%s"' %
-                        (user.user_name, group.group_name), result='success')
+                        (user.user_id, group.group_id), result='success')
         
     @project_set_active
     @require(is_project_admin())
@@ -229,7 +227,7 @@ class Controller(RestController):
         tmpl_context.form = f_add_admins
         project = tmpl_context.project
         users = session_get().query(User)
-        choices = [(u.user_id, '%-16s (%s)' % (u.user_name, u.display_name))
+        choices = [(u.user_id, '%-16s (%s)' % (u.user_id, u.display_name))
                                                                 for u in users]
         fargs = dict(proj=project.id)
         fcargs = dict(userids=dict(options=choices))
@@ -248,7 +246,7 @@ class Controller(RestController):
         session.refresh(project)
         added = []
         for uid in userids:
-            user = user_get(int(uid))
+            user = user_get(uid)
             if user not in project.admins:
                 project.admins.append(user)
                 added.append(user.user_name)
@@ -263,10 +261,10 @@ class Controller(RestController):
     @require(is_project_admin())
     @expose('json')
     @expose('spam.templates.forms.result')
-    def remove_admin(self, proj, user_name, **kwargs):
+    def remove_admin(self, proj, user_id, **kwargs):
         """Remove an administrator from a project"""
         session = session_get()
-        user = user_get(user_name)
+        user = user_get(user_id)
         project = tmpl_context.project
         session.refresh(project)
         if user in project.admins:
@@ -275,9 +273,9 @@ class Controller(RestController):
             notify.send(user, update_type='deleted', proj=project.id,
                                             destination=TOPIC_PROJECT_ADMINS)
             return dict(msg='user "%s" removed from "%s" administrators' %
-                        (user.user_name, project.id), result='success')
+                        (user.user_id, project.id), result='success')
         return dict(msg='user "%s" cannot be removed from "%s" administrators' %
-                        (user.user_name, project.id), result='failed')
+                        (user.user_id, project.id), result='failed')
 
     @project_set_active
     @require(is_project_admin())
@@ -288,7 +286,7 @@ class Controller(RestController):
         project = tmpl_context.project
         category = category_get(category_id)
         users = session_get().query(User)
-        choices = [(u.user_id, '%-16s (%s)' % (u.user_name, u.display_name))
+        choices = [(u.user_id, '%-16s (%s)' % (u.user_id, u.display_name))
                                                                 for u in users]
         fargs = dict(_method='ADD_SUPERVISORS', proj=project.id,
                                                         category_id=category.id)
@@ -306,7 +304,7 @@ class Controller(RestController):
         session = session_get()
         project = tmpl_context.project
         category = category_get(category_id)
-        users = [user_get(int(uid)) for uid in userids]
+        users = [user_get(uid) for uid in userids]
         supervisors = [Supervisor(project.id, category, user) for user in users
                                 if user not in project.supervisors[category]]
         added = []
@@ -323,12 +321,12 @@ class Controller(RestController):
     @require(is_project_admin())
     @expose('json')
     @expose('spam.templates.forms.result')
-    def remove_supervisor(self, proj, category_id, user_name, **kwargs):
+    def remove_supervisor(self, proj, category_id, user_id, **kwargs):
         """Remove a supervisor from a category"""
         session = session_get()
         project = tmpl_context.project
         category = category_get(category_id)
-        user = user_get(user_name)
+        user = user_get(user_id)
         if user in project.supervisors[category]:
             query = session.query(Supervisor).filter_by(proj_id=project.id)
             query = query.filter_by(category_id=category.id)
@@ -339,9 +337,9 @@ class Controller(RestController):
                         cat=category.id,
                         destination=TOPIC_PROJECT_SUPERVISORS)
             return dict(msg='removed "%s" supervisor "%s"' %
-                        (category.id, user.user_name), result='success')
+                        (category.id, user.user_id), result='success')
         return dict(msg='"%s" supervisor "%s" cannot be removed' %
-                        (category.id, user.user_name), result='failed')
+                        (category.id, user.user_id), result='failed')
 
     @project_set_active
     @require(is_project_admin())
@@ -352,7 +350,7 @@ class Controller(RestController):
         project = tmpl_context.project
         category = category_get(category_id)
         users = session_get().query(User)
-        choices = [(u.user_id, '%-16s (%s)' % (u.user_name, u.display_name))
+        choices = [(u.user_id, '%-16s (%s)' % (u.user_id, u.display_name))
                                                                 for u in users]
         fargs = dict(_method='ADD_ARTISTS', proj=project.id,
                                                         category_id=category.id)
@@ -370,7 +368,7 @@ class Controller(RestController):
         session = session_get()
         project = tmpl_context.project
         category = category_get(category_id)
-        users = [user_get(int(uid)) for uid in userids]
+        users = [user_get(uid) for uid in userids]
         artists = [Artist(project.id, category, user) for user in users if
                                         user not in project.artists[category]]
         added = []
@@ -387,13 +385,13 @@ class Controller(RestController):
     @require(is_project_admin())
     @expose('json')
     @expose('spam.templates.forms.result')
-    def remove_artist(self, proj, category_id, user_name, **kwargs):
+    def remove_artist(self, proj, category_id, user_id, **kwargs):
         """Remove an artist from a category"""
         session = session_get()
         project = project_get(proj)
         #session.refresh(project)
         category = category_get(category_id)
-        user = user_get(user_name)
+        user = user_get(user_id)
         if user in project.artists[category]:
             query = session.query(Artist).filter_by(proj_id=project.id)
             query = query.filter_by(category_id=category.id)
@@ -404,7 +402,7 @@ class Controller(RestController):
                         cat=category.id,
                         destination=TOPIC_PROJECT_ARTISTS)
             return dict(msg='removed "%s" artist "%s"' %
-                        (category.id, user.user_name), result='success')
+                        (category.id, user.user_id), result='success')
         return dict(msg='"%s" artist "%s" cannot be removed' %
-                        (category.id, user.user_name), result='failed')
+                        (category.id, user.user_id), result='failed')
 

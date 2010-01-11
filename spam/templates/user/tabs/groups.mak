@@ -7,7 +7,7 @@
             <h2 class="toggle_title">${group.group_name}</h2>
         </div>
         <div class="toggleable">
-            <a href="${tg.url('/user/%s/add' % group.group_name)}"
+            <a href="${tg.url('/user/%s/add_to_group' % group.group_name)}"
                rel="#overlay" class="overlay button">add to group</a>
             <br/>
             <br/>
