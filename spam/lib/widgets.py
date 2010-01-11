@@ -291,7 +291,7 @@ class TableAssetHistory(LiveTable):
 ############################################################
 class ListTags(LiveList):
     class fields(WidgetsList):
-        name = TextItem()
+        id = TextItem()
 
 
 ############################################################

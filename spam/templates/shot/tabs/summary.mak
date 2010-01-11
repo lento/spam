@@ -5,7 +5,7 @@ Summary tab for shot ${c.shot.path}
 <br/>
 
 <h2>tags</h2>
-<a href="${tg.url('/shot/%s/%s/%s/add_tag' % (c.project.id, c.shot.parent.name, c.shot.name))}"
+<a href="${tg.url('/tag/%s/new' % c.shot.id)}"
    rel="#overlay" class="overlay button">add tag</a>
 ${c.l_tags(id="taglist", items=tags) | n}
 
