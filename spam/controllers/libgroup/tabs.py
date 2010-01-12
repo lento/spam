@@ -29,6 +29,9 @@ from repoze.what import predicates
 from spam.lib.base import SPAMBaseController
 from spam.model import libgroup_get
 from spam.lib.predicates import is_project_user
+from spam.lib.widgets import ListTags
+
+l_tags = ListTags()
 
 class TabController(SPAMBaseController):
     """The controller for libgroup tabs."""
@@ -45,6 +48,8 @@ class TabController(SPAMBaseController):
         
         This tab offers a quick view on the current status of the libgroup.
         """
-        return dict()
+        tmpl_context.l_tags = l_tags
+        libgroup = tmpl_context.libgroup
+        return dict(tags=libgroup.tags)
 
 

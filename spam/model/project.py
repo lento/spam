@@ -377,8 +377,6 @@ class Shot(AssetContainer):
     frames = Column(Integer)
     handle_in = Column(Integer)
     handle_out = Column(Integer)
-    taggable_id = Column(Integer)
-    annotable_id = Column(Integer)
     
     # Relations
     parent = relation(Scene,
@@ -507,8 +505,8 @@ class LibraryGroup(AssetContainer):
         self.description = description
         hashable = '%s-%s' % (self.parent_id, self.name)
         self.id = sha1(hashable).hexdigest()
-        self.taggable = Taggable(self.id, 'libgroups')
-        self.annotable = Annotable(self.id, 'libgroups')
+        self.taggable = Taggable(self.id, 'libgroup')
+        self.annotable = Annotable(self.id, 'libgroup')
 
     def __repr__(self):
         return '<LibraryGroup: %s (%s)>' % (self.id, self.name)
