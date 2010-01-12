@@ -12,6 +12,8 @@ Controllers
    controllers_scene
    controllers_shot
    controllers_asset
+   controllers_tag
+   controllers_note
    controllers_error
    controllers_template
    controllers_sandbox

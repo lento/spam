@@ -30,7 +30,7 @@ from sqlalchemy.exceptions import InvalidRequestError
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 from spam.lib.exceptions import SPAMDBError, SPAMDBNotFound
 from spam.model import DBSession, Project, Scene, Shot, LibraryGroup, Asset
-from spam.model import Category, User, Group, Taggable, Tag
+from spam.model import Category, User, Group, Taggable, Tag, Annotable, Note
 
 import logging
 log = logging.getLogger(__name__)
@@ -176,6 +176,28 @@ def tag_get(tag_id):
         return Tag(tag_id)
     except MultipleResultsFound:
         raise SPAMDBError('Error when searching tag "%s".' % tag_id)
+
+def annotable_get(annotable_id):
+    """Return an existing annotable."""
+    query = session_get().query(Annotable).filter_by(id=annotable_id)
+    try:
+        return query.one()
+    except NoResultFound:
+        return SPAMDBNotFound(
+                        'Annotable "%s" could not be found.' % annotable_id)
+    except MultipleResultsFound:
+        raise SPAMDBError(
+                        'Error when searching annotable "%s".' % annotable_id)
+
+def note_get(note_id):
+    """Return an existing note."""
+    query = session_get().query(Note).filter_by(id=note_id)
+    try:
+        return query.one()
+    except NoResultFound:
+        return SPAMDBNotFound('Note "%s" could not be found.' % note_id)
+    except MultipleResultsFound:
+        raise SPAMDBError('Error when searching note "%s".' % note_id)
 
 # Cache
 def eagerload_maker(proj):

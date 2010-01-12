@@ -294,6 +294,11 @@ class ListTags(LiveList):
         id = TextItem()
 
 
+class ListNotes(LiveList):
+    class fields(WidgetsList):
+        text = TextItem()
+
+
 ############################################################
 # Form widgets
 ############################################################
@@ -389,6 +394,20 @@ class FormTagRemove(TableForm):
         _method = HiddenField(default='REMOVE', validator=None)
         taggable_id = HiddenField(validator=NotEmpty)
         tag_ids = MultipleSelectField(label_text='Tags', options=[], size=10)
+
+
+# Notes
+class FormNoteNew(TableForm):
+    class fields(WidgetsList):
+        annotable_id = HiddenField(validator=NotEmpty)
+        text = TextArea(cols=30, rows=3)
+        
+
+class FormNoteConfirm(TableForm):
+    class fields(WidgetsList):
+        _method = HiddenField(default='', validator=None)
+        note_id = HiddenField(validator=NotEmpty)
+        text_ = TextArea(cols=30, rows=3, disabled=True, validator=None)
 
 
 # Project

@@ -29,9 +29,10 @@ from repoze.what import predicates
 from spam.lib.base import SPAMBaseController
 from spam.model import scene_get, shot_get
 from spam.lib.predicates import is_project_user
-from spam.lib.widgets import ListTags
+from spam.lib.widgets import ListTags, ListNotes
 
 l_tags = ListTags()
+l_notes = ListNotes()
 
 class TabController(SPAMBaseController):
     """The controller for shot tabs."""
@@ -50,6 +51,7 @@ class TabController(SPAMBaseController):
         This tab offers a quick view on the current status of the shot.
         """
         tmpl_context.l_tags = l_tags
+        tmpl_context.l_notes = l_notes
         shot = tmpl_context.shot
-        return dict(tags=shot.tags)
+        return dict()
 
