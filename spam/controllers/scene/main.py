@@ -25,8 +25,8 @@
 from tg import expose, url, tmpl_context, validate, require
 from tg.controllers import RestController
 from tg.decorators import with_trailing_slash
-from spam.model import session_get, Scene
-from spam.model import project_get, scene_get
+from spam.model import session_get, project_get, scene_get, Scene
+from spam.model import Journal, diff_dicts
 from spam.lib.widgets import FormSceneNew, FormSceneEdit, FormSceneConfirm
 from spam.lib.widgets import TableScenes
 from spam.lib import repo
@@ -110,6 +110,7 @@ class Controller(RestController):
     def post(self, proj, sc, description=None, **kwargs):
         """Create a new scene"""
         session = session_get()
+        user = tmpl_context.user
         project = tmpl_context.project
         
         # add scene to db
@@ -122,6 +123,9 @@ class Controller(RestController):
         
         # invalidate project cache
         project.touch()
+        
+        # log into Journal
+        session.add(Journal(user, 'created %s' % scene))
         
         # send a stomp message to notify clients
         notify.send(scene, update_type='added')
@@ -150,11 +154,27 @@ class Controller(RestController):
     @validate(f_edit, error_handler=edit)
     def put(self, proj, sc, description=None, **kwargs):
         """Edit a scene"""
+        session = session_get()
+        user = tmpl_context.user
         scene = scene_get(proj, sc)
+        old = scene.__dict__.copy()
 
-        if description: scene.description = description
-        notify.send(scene)
-        return dict(msg='updated scene "%s"' % scene.path, result='success')
+        modified = False
+        if description:
+            scene.description = description
+            modified = True
+        
+        if modified:
+            new = scene.__dict__.copy()
+        
+            # log into Journal
+            session.add(Journal(user, 'modified %s: %s' %
+                                                (scene, diff_dicts(old, new))))
+            
+            # send a stomp message to notify clients
+            notify.send(scene)
+            return dict(msg='updated scene "%s"' % scene.path, result='success')
+        return dict(msg='scene "%s" unchanged' % scene.path, result='success')
 
     @project_set_active
     @require(is_project_admin())
@@ -189,7 +209,9 @@ class Controller(RestController):
         """
         project = tmpl_context.project
         session = session_get()
+        user = tmpl_context.user
         scene = scene_get(proj, sc)
+        
         if scene.shots:
             return dict(msg='cannot delete scene "%s" because it contains '
                             'shots' % scene.path,
@@ -200,6 +222,10 @@ class Controller(RestController):
         # invalidate project cache
         project.touch()
         
+        # log into Journal
+        session.add(Journal(user, 'deleted %s' % scene))
+        
+        # send a stomp message to notify clients
         notify.send(scene, update_type='deleted')
         notify.send(project)
         return dict(msg='deleted scene "%s"' % scene.path, result='success')

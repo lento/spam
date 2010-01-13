@@ -78,7 +78,7 @@ class Journal(DeclarativeBase):
     
     # Special methods
     def __init__(self, user, text):
-        self.doamin = config.auth_domain
+        self.domain = config.auth_domain
         self.user = user
         self.text = text
         self.created = datetime.now()
@@ -89,6 +89,13 @@ class Journal(DeclarativeBase):
         return '<Journal: (%s) %s: "%s">' % (self.created, self.user_id,
                                                                     self.text)
 
+    def __json__(self):
+        return dict(id=self.id,
+                    domain=self.domain,
+                    user=self.user,
+                    test=self.text,
+                    created=self.created,
+                   )
 
 ############################################################
 # Tags
@@ -119,7 +126,8 @@ class Taggable(DeclarativeBase):
         self.association_type = association_type
 
     def __repr__(self):
-        return '<Taggable: %s (%s)>' % (self.id, self.association_type)
+        return '<Taggable %s: %s>' % (self.id,
+            dict(association_type=self.association_type))
 
 
 class Tag(DeclarativeBase):
@@ -288,7 +296,11 @@ class Project(DeclarativeBase):
         self.description = description
 
     def __repr__(self):
-        return '<Project: %s (%s)>' % (self.id, self.name)
+        return '<Project %s: %s>' % (self.id,
+            dict(name=self.name,
+                 description=self.description,
+                 archived=self.archived,
+                ))
     
     def __json__(self):
         return dict(id=self.id,
@@ -374,7 +386,11 @@ class Scene(DeclarativeBase):
         self.annotable = Annotable(self.id, 'scene')
 
     def __repr__(self):
-        return '<Scene: %s (%s)>' % (self.id, self.name)
+        return '<Scene %s (%s): %s>' % (self.id, self.path,
+            dict(proj_id=self.proj_id,
+                 name=self.name,
+                 description=self.description,
+                ))
 
     def __json__(self):
         return dict(id=self.id,
@@ -461,7 +477,17 @@ class Shot(AssetContainer):
         self.annotable = Annotable(self.id, 'shot')
 
     def __repr__(self):
-        return '<Shot: %s (%s)>' % (self.id, self.name)
+        return '<Shot %s (%s): %s>' % (self.id, self.name,
+            dict(proj_id=self.proj_id,
+                 parent_id=self.parent_id,
+                 name=self.name,
+                 description=self.description,
+                 location=self.location,
+                 action=self.action,
+                 frames=self.frames,
+                 handle_in=self.handle_in,
+                 handle_out=self.handle_out,
+                ))
 
     def __json__(self):
         return dict(id=self.id,
@@ -540,7 +566,12 @@ class LibraryGroup(AssetContainer):
         self.annotable = Annotable(self.id, 'libgroup')
 
     def __repr__(self):
-        return '<LibraryGroup: %s (%s)>' % (self.id, self.name)
+        return '<LibraryGroup %s (%s): %s>' % (self.id, self.path,
+                dict(proj_id=self.proj_id,
+                     parent_id=self.parent_id,
+                     name=self.name,
+                     description=self.description,
+                    ))
 
     def __json__(self):
         return dict(id=self.id,
@@ -570,7 +601,10 @@ class Category(DeclarativeBase):
         self.naming_convention = naming_convention
 
     def __repr__(self):
-        return '<Category: %s>' % self.id
+        return '<Category %s: %s>' % (self.id,
+            dict(ordering=self.ordering,
+                 naming_convention=self.naming_convention
+                ))
 
     def __json__(self):
         return dict(id=self.id,

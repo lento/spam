@@ -26,7 +26,7 @@ from tg import expose, url, tmpl_context, validate, require
 from tg.controllers import RestController
 from tg.decorators import with_trailing_slash
 from spam.model import session_get, Project, User, Shot, Tag
-from spam.model import scene_get, shot_get, tag_get
+from spam.model import scene_get, shot_get, tag_get, Journal, diff_dicts
 from spam.lib.widgets import FormShotNew, FormShotEdit, FormShotConfirm
 from spam.lib.widgets import FormShotAddTag, TableShots
 from spam.lib import repo
@@ -116,6 +116,7 @@ class Controller(RestController):
         """Create a new shot"""
         project = tmpl_context.project
         session = session_get()
+        user = tmpl_context.user
         scene = scene_get(proj, sc)
         
         # add shot to db
@@ -129,6 +130,9 @@ class Controller(RestController):
         
         # invalidate project cache
         project.touch()
+        
+        # log into Journal
+        session.add(Journal(user, 'created %s' % shot))
         
         # send a stomp message to notify clients
         notify.send(shot, update_type='added')
@@ -161,16 +165,43 @@ class Controller(RestController):
     def put(self, proj, sc, sh, description=None, action=None,
                   frames=0, handle_in=0, handle_out=0, **kwargs):
         """Edit a shot"""
+        session = session_get()
+        user = tmpl_context.user
         shot = shot_get(proj, sc, sh)
+        old = shot.__dict__.copy()
         
-        if description: shot.description = description
-        if action: shot.action = action
-        if frames: shot.frames = frames
-        if handle_in: shot.handle_in = handle_in
-        if handle_out: shot.handle_out = handle_out
+        modified = False
+        if description:
+            shot.description = description
+            modified = True
         
-        notify.send(shot)
-        return dict(msg='updated shot "%s"' % shot.path, result='success')
+        if action:
+            shot.action = action
+            modified = True
+        
+        if frames:
+            shot.frames = frames
+            modified = True
+        
+        if handle_in:
+            shot.handle_in = handle_in
+            modified = True
+        
+        if handle_out:
+            shot.handle_out = handle_out
+            modified = True
+        
+        if modified:
+            new = shot.__dict__.copy()
+        
+            # log into Journal
+            session.add(Journal(user, 'modified %s: %s' %
+                                                (shot, diff_dicts(old, new))))
+            
+            # send a stomp message to notify clients
+            notify.send(shot)
+            return dict(msg='updated shot "%s"' % shot.path, result='success')
+        return dict(msg='shot "%s" unchanged' % shot.path, result='success')
 
     @project_set_active
     @require(is_project_admin())
@@ -207,7 +238,9 @@ class Controller(RestController):
         """
         project = tmpl_context.project
         session = session_get()
+        user = tmpl_context.user
         shot = shot_get(proj, sc, sh)
+        
         if shot.assets:
             return dict(msg='cannot delete shot "%s" because it contains '
                             'assets' % shot.path,
@@ -218,6 +251,11 @@ class Controller(RestController):
         # invalidate project cache
         project.touch()
         
+        
+        # log into Journal
+        session.add(Journal(user, 'deleted %s' % shot))
+        
+        # send a stomp message to notify clients
         notify.send(shot, update_type='deleted')
         notify.send(project)
         return dict(msg='deleted shot "%s"' % shot.path, result='success')

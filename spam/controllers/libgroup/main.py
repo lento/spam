@@ -26,6 +26,7 @@ from tg import expose, url, tmpl_context, validate, require
 from tg.controllers import RestController
 from tg.decorators import with_trailing_slash
 from spam.model import session_get, Project, User, LibraryGroup, libgroup_get
+from spam.model import Journal, diff_dicts
 from spam.lib.widgets import FormLibgroupNew, FormLibgroupEdit
 from spam.lib.widgets import FormLibgroupConfirm, TableLibgroups
 from spam.lib import repo
@@ -121,6 +122,7 @@ class Controller(RestController):
         """Create a new libgroup"""
         session = session_get()
         project = tmpl_context.project
+        user = tmpl_context.user
         parent = parent_id and libgroup_get(proj, parent_id) or None
         
         # add libgroup to db
@@ -133,6 +135,9 @@ class Controller(RestController):
         
         # invalidate project cache
         project.touch()
+        
+        # log into Journal
+        session.add(Journal(user, 'created %s' % libgroup))
         
         # send a stomp message to notify clients
         notify.send(libgroup, update_type='added')
@@ -162,11 +167,22 @@ class Controller(RestController):
     @validate(f_edit, error_handler=edit)
     def put(self, proj, libgroup_id, description=None, **kwargs):
         """Edit a libgroup"""
+        session = session_get()
+        user = tmpl_context.user
         libgroup = libgroup_get(proj, libgroup_id)
+        old = libgroup.__dict__.copy()
 
-        if description: libgroup.description = description
+        libgroup.description = description
+        new = libgroup.__dict__.copy()
+        
+        # log into Journal
+        session.add(Journal(user, 'modified %s: %s' %
+                                            (libgroup, diff_dicts(old, new))))
+        
+        # send a stomp message to notify clients
         notify.send(libgroup)
-        return dict(msg='updated scene "%s"' % libgroup.path, result='success')
+        return dict(msg='updated libgroup "%s"' %
+                                                libgroup.path, result='success')
 
     @project_set_active
     @require(is_project_admin())
@@ -201,6 +217,7 @@ class Controller(RestController):
         """
         project = tmpl_context.project
         session = session_get()
+        user = tmpl_context.user
         libgroup = libgroup_get(proj, libgroup_id)
         if libgroup.subgroups:
             return dict(msg='cannot delete libgroup "%s" because it contains '
@@ -216,9 +233,13 @@ class Controller(RestController):
         # invalidate project cache
         project.touch()
         
+        # log into Journal
+        session.add(Journal(user, 'deleted %s' % libgroup))
+        
+        # send a stomp message to notify clients
         notify.send(libgroup, update_type='deleted')
         notify.send(project)
-        return dict(msg='deleted libgroup "%s"' % libgroup_id,
+        return dict(msg='deleted libgroup "%s"' % libgroup.path,
                                                             result='success')
     
 

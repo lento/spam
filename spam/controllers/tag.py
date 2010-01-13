@@ -25,7 +25,7 @@
 from tg import expose, url, tmpl_context, redirect, validate, require
 from tg.controllers import RestController
 from pylons.i18n import ugettext as _, lazy_ugettext as l_
-from spam.model import session_get, taggable_get, tag_get, Tag
+from spam.model import session_get, taggable_get, tag_get, Tag, Journal
 from spam.lib.widgets import FormTagNew, FormTagConfirm, FormTagRemove
 from spam.lib.widgets import ListTags
 from spam.lib.notifications import notify
@@ -94,6 +94,8 @@ class Controller(RestController):
     @validate(f_new, error_handler=new)
     def post(self, taggable_id, tag_ids=[], new_tags=None, **kwargs):
         """Add tags to a ``taggable`` obect."""
+        session = session_get()
+        user = tmpl_context.user
         taggable = taggable_get(taggable_id)
         
         tags = [tag_get(i) for i in tag_ids]
@@ -107,8 +109,13 @@ class Controller(RestController):
                 added_tags.append(tag.id)
         added_tags = ', '.join(added_tags)
         
+        # log into Journal
+        session.add(Journal(user, 'added tag(s) "%s" to %s' %
+                                            (added_tags, taggable.tagged)))
+        
+        # send a stomp message to notify clients
         #notify.send(tag, update_type='added', shot=shot)
-        return dict(msg='added tag(s) "%s" to "%s"' % 
+        return dict(msg='added tag(s) "%s" to %s' % 
                        (added_tags, taggable.tagged.path), result='success')
     
     @require(in_group('administrators'))
@@ -132,8 +139,15 @@ class Controller(RestController):
     def post_delete(self, tag_id, **kwargs):
         """Delete a tag."""
         session = session_get()
+        user = tmpl_context.user
         tag = tag_get(tag_id)
+        
         session.delete(tag)
+        
+        # log into Journal
+        session.add(Journal(user, 'deleted %s' % tag))
+        
+        # send a stomp message to notify clients
         #notify.send(tag, update_type='deleted')
         return dict(msg='deleted tag "%s"' % tag.id, result='success')
     
@@ -158,6 +172,8 @@ class Controller(RestController):
     @validate(f_remove, error_handler=get_remove)
     def post_remove(self, taggable_id, tag_ids=[], **kwargs):
         """Delete a tag."""
+        session = session_get()
+        user = tmpl_context.user
         taggable = taggable_get(taggable_id)
         
         tags = [tag_get(i) for i in tag_ids]
@@ -168,6 +184,12 @@ class Controller(RestController):
                 removed_tags.append(tag.id)
         removed_tags = ', '.join(removed_tags)
         
+        # log into Journal
+        session.add(Journal(user, 'removed tag(s) "%s" from %s' %
+                                        (removed_tags, taggable.tagged)))
+        
+        # send a stomp message to notify clients
         #notify.send(tag, update_type='removed', taggable=taggable)
-        return dict(msg='removed tag(s) "%s"' % removed_tags, result='success')
+        return dict(msg='removed tag(s) "%s" from %s' %
+                        (removed_tags, taggable.tagged.path), result='success')
 

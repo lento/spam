@@ -26,8 +26,8 @@ from tg import expose, url, tmpl_context, redirect, validate, require
 from tg.controllers import RestController
 from tg.decorators import with_trailing_slash
 from pylons.i18n import ugettext as _, lazy_ugettext as l_
-from spam.model import session_get, project_get, Project, User
-from spam.model import query_projects, query_projects_archived
+from spam.model import session_get, project_get, Project, User, Journal
+from spam.model import query_projects, query_projects_archived, diff_dicts
 from spam.lib.widgets import FormProjectNew, FormProjectEdit, FormProjectConfirm
 from spam.lib.widgets import ProjectsActive, ProjectsArchived
 from spam.lib import repo
@@ -112,6 +112,7 @@ class Controller(RestController):
     def post(self, proj, name=None, description=None, **kwargs):
         """Create a new project"""
         session = session_get()
+        user = tmpl_context.user
         
         # add project to db
         project = Project(proj, name=name, description=description)
@@ -124,6 +125,9 @@ class Controller(RestController):
         # grant project rights to user "admin"
         admin = session.query(User).filter_by(user_name=u'admin').one()
         project.admins.append(admin)
+        
+        # log into Journal
+        session.add(Journal(user, 'created %s' % project))
         
         # send a stomp message to notify clients
         notify.send(project, update_type='added')
@@ -150,11 +154,33 @@ class Controller(RestController):
     def put(self, proj, name=None, description=None, **kwargs):
         """Edit a project"""
         project = tmpl_context.project
-        if name: project.name = name
-        if description: project.description = description
-        project.touch()
-        notify.send(project, update_type='updated')
-        return dict(msg='updated project "%s"' % proj, result='success')
+        old = project.__dict__.copy()
+        session = session_get()
+        user = tmpl_context.user
+        
+        modified = False
+        if name:
+            project.name = name
+            modified = True
+            
+        if description:
+            project.description = description
+            modified = True
+        
+        if modified:
+            new = project.__dict__.copy()
+        
+            # invalidate cache
+            project.touch()
+
+            # log into Journal
+            session.add(Journal(user, 'modified %s: %s' %
+                                            (project, diff_dicts(old, new))))
+        
+            # send a stomp message to notify clients
+            notify.send(project, update_type='updated')
+            return dict(msg='updated project "%s"' % proj, result='success')
+        return dict(msg='project "%s" unchanged' % proj, result='success')
 
     @project_set_active
     @require(in_group('administrators'))
@@ -188,8 +214,15 @@ class Controller(RestController):
         (This should help prevent awful accidents) ;)
         """
         session = session_get()
+        user = tmpl_context.user
         project = tmpl_context.project
+        
         session.delete(project)
+        
+        # log into Journal
+        session.add(Journal(user, 'deleted %s' % project))
+        
+        # send a stomp message to notify clients
         notify.send(project, update_type='deleted')
         return dict(msg='deleted project "%s"' % proj, result='success')
     
@@ -218,8 +251,18 @@ class Controller(RestController):
     def post_archive(self, proj, **kwargs):
         """Archive a project"""
         project = tmpl_context.project
+        session = session_get()
+        user = tmpl_context.user
+
         project.archived = True
+
+        # invalidate cache
         project.touch()
+
+        # log into Journal
+        session.add(Journal(user, 'archived %s' % project))
+        
+        # send a stomp message to notify clients
         notify.send(project, update_type='archived')
         return dict(msg='archived project "%s"' % proj, result='success')
 
@@ -245,8 +288,18 @@ class Controller(RestController):
     def post_activate(self, proj, **kwargs):
         """Activate a project"""
         project = query_projects_archived().filter_by(id=proj).one()
+        session = session_get()
+        user = tmpl_context.user
+
         project.archived = False
+
+        # invalidate cache
         project.touch()
+
+        # log into Journal
+        session.add(Journal(user, 'activated %s' % project))
+        
+        # send a stomp message to notify clients
         notify.send(project, update_type='activated')
         return dict(msg='activated project "%s"' % proj, result='success')
 

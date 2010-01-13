@@ -34,7 +34,7 @@ DeclarativeBase = declarative_base()
 metadata = DeclarativeBase.metadata
 
 # Utils
-from utils import MappedList, mapped_list
+from utils import MappedList, mapped_list, diff_dicts
 
 # Global session manager: DBSession() returns the Thread-local
 # session object appropriate for the current web request.
@@ -48,7 +48,7 @@ from versioning import db_upgrade, db_downgrade
 
 # Models import
 from auth import User, Group, Permission
-from project import Taggable, Tag, Annotable, Note
+from project import Taggable, Tag, Annotable, Note, Journal
 from project import Project, Scene, Shot, LibraryGroup
 from project import Category, Supervisor, Artist, Asset, AssetVersion
 

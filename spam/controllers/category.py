@@ -25,7 +25,7 @@
 from tg import expose, url, tmpl_context, redirect, validate, require
 from tg.controllers import RestController
 from pylons.i18n import ugettext as _, lazy_ugettext as l_
-from spam.model import session_get, Category, category_get
+from spam.model import session_get, Category, category_get, Journal, diff_dicts
 from spam.lib.widgets import FormCategoryNew, FormCategoryEdit
 from spam.lib.widgets import FormCategoryConfirm, TableCategories
 from spam.lib.notifications import notify
@@ -82,10 +82,14 @@ class Controller(RestController):
     def post(self, category_id, naming_convention='', **kwargs):
         """Create a new category"""
         session = session_get()
+        user = tmpl_context.user
         
         # add category to shared db
         category = Category(category_id, naming_convention=naming_convention)
         session.add(category)
+        
+        # log into Journal
+        session.add(Journal(user, 'created %s' % category))
         
         # send a stomp message to notify clients
         notify.send(category, update_type='added')
@@ -110,11 +114,33 @@ class Controller(RestController):
     @validate(f_edit, error_handler=edit)
     def put(self, category_id, ordering=0, naming_convention='', **kwargs):
         """Edit a category"""
+        session = session_get()
+        user = tmpl_context.user
         category = category_get(category_id)
-        category.ordering = ordering
-        category.naming_convention = naming_convention
-        notify.send(category, update_type='updated')
-        return dict(msg='updated category "%s"' % category_id, result='success')
+        old = category.__dict__.copy()
+        
+        modified = False
+        if ordering:
+            category.ordering = ordering
+            modified = True
+        
+        if naming_convention:
+            category.naming_convention = naming_convention
+            modified = True
+        
+        if modified:
+            new = category.__dict__.copy()
+            
+            # log into Journal
+            session.add(Journal(user, 'modified %s: %s' %
+                                            (category, diff_dicts(old, new))))
+        
+            # send a stomp message to notify clients
+            notify.send(category, update_type='updated')
+            return dict(msg='updated category "%s"' %
+                                                category_id, result='success')
+        return dict(msg='category "%s" unchanged' %
+                                                category_id, result='success')
 
     @require(in_group('administrators'))
     @expose('spam.templates.forms.form')
@@ -144,8 +170,14 @@ class Controller(RestController):
         in this category will be orphaned, and must be removed manually.
         """
         session = session_get()
+        user = tmpl_context.user
         category = category_get(category_id)
         session.delete(category)
+
+        # log into Journal
+        session.add(Journal(user, 'deleted %s' % category))
+        
+        # send a stomp message to notify clients
         notify.send(category, update_type='deleted')
         return dict(msg='deleted category "%s"' % category.id,
                                                             result='success')

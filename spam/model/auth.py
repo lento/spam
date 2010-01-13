@@ -93,10 +93,7 @@ class Group(DeclarativeBase):
         self.display_name = display_name
     
     def __repr__(self):
-        return '<Group: %s (%s)>' % (self.group_name, self.display_name)
-    
-    def __unicode__(self):
-        return self.group_name
+        return '<Group: %s (%s)>' % (self.group_id, self.display_name)
 
 
 class User(DeclarativeBase):
@@ -201,12 +198,8 @@ class User(DeclarativeBase):
         self.email_address = email
     
     def __repr__(self):
-        return '<User: %s (%s)>' % (
-                self.user_name, self.display_name)
+        return '<User %s (%s)>' % (self.user_id, self.display_name)
 
-    def __unicode__(self):
-        return self.display_name or self.user_name
-    
     def __json__(self):
         return dict(user_id=self.user_id,
                     id=self.id,
@@ -243,7 +236,4 @@ class Permission(DeclarativeBase):
     def __repr__(self):
         return '<Permission: %s (%s)>' % (self.permission_name,
                                                             self.description)
-
-    def __unicode__(self):
-        return self.permission_name
 

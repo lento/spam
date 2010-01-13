@@ -90,3 +90,22 @@ def mapped_list(keyattr, targetattr=None, values=[]):
     """Factory function for MappedList instances."""
     return lambda: MappedList(keyattr, targetattr, values)
 
+def diff_dicts(a, b):
+    diff = []
+    old = a.copy()
+    old.pop('_sa_instance_state', None)
+    new = b.copy()
+    new.pop('_sa_instance_state', None)
+
+    for key, val in old.iteritems():
+        if key in new:
+            newval = new.pop(key)
+            if not val==newval:
+                diff.append('changed "%s" (%s -> %s)' % (key, val, newval))
+        else:
+            diff.append('removed "%s" (%s)' % (key, val))
+    
+    for key, val in new.iteritems():
+        diff.append('added "%s" (%s)' % (key, val))
+    
+    return ', '.join(diff)

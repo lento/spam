@@ -27,7 +27,7 @@ from tg.controllers import RestController
 from tg.decorators import with_trailing_slash
 from tw.forms import validators
 from spam.model import session_get, Asset, AssetVersion, Category, category_get
-from spam.model import project_get, container_get, asset_get
+from spam.model import project_get, container_get, asset_get, Journal
 from spam.lib.widgets import FormAssetNew, FormAssetEdit, FormAssetConfirm
 from spam.lib.widgets import FormAssetPublish
 from spam.lib.widgets import TableAssets, TableAssetHistory, NotifyClientJS
@@ -144,6 +144,12 @@ class Controller(RestController):
         session.add(asset)
         session.flush()
         
+        # log into Journal
+        new = asset.__dict__.copy()
+        new.pop('_sa_instance_state', None)
+        session.add(Journal(user, 'created asset %s (%s): %s' %
+                                                (asset.id, asset.path, new)))
+
         # send a stomp message to notify clients
         notify.send(asset, update_type='added')
         return dict(msg='created asset "%s"' % asset.name, result='success')
@@ -213,9 +219,16 @@ class Controller(RestController):
         (This should help prevent awful accidents) ;)
         """
         session = session_get()
+        user = tmpl_context.user
         asset = asset_get(proj, asset_id)
         
         session.delete(asset)
+
+        # log into Journal
+        session.add(Journal(user, 'deleted asset %s (%s)' %
+                                                        (asset.id, asset.path)))
+        
+        # send a stomp message to notify clients
         notify.send(asset, update_type='deleted')
         return dict(msg='deleted asset "%s"' % asset.path, result='success')
     
@@ -323,6 +336,10 @@ class Controller(RestController):
         # create thumbnail and preview
         preview.make_thumb(asset)
         preview.make_preview(asset)
+        
+        # log into Journal
+        session.add(Journal(user, 'published asset %s (%s): v%03d' %
+                                            (asset.id, asset.path, newver.ver)))
         
         # send a stomp message to notify clients
         notify.send(asset)
