@@ -103,7 +103,7 @@ class Controller(RestController):
         tmpl_context.form = f_edit
         category = category_get(category_id)
         fargs = dict(category_id=category.id, id_=category.id,
-                     oredering=category.ordering,
+                     ordering=category.ordering,
                      naming_convention=category.naming_convention)
         fcargs = dict()
         return dict(title='Edit category "%s"' % category.id, args=fargs,
