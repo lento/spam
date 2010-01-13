@@ -38,7 +38,6 @@ class Tag(DeclarativeBase):
     
     # Columns
     id = Column(Unicode(40), primary_key=True)
-    created = Column(DateTime, default=datetime.now)
     
 class Annotable(DeclarativeBase):
     __tablename__ = 'annotables'

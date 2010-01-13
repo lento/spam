@@ -81,7 +81,6 @@ class AssetVersion(DeclarativeBase):
     id = Column(String(40), primary_key=True)
     asset_id = Column(String(40), ForeignKey('assets.id'))
     ver = Column(Integer)
-    created = Column(DateTime, default=datetime.now)
     repoid = Column(String(50))
     #has_preview = Column(Boolean)
     #preview_ext = Column(String(10))

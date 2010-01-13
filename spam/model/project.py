@@ -135,7 +135,6 @@ class Tag(DeclarativeBase):
     
     # Columns
     id = Column(Unicode(40), primary_key=True)
-    created = Column(DateTime, default=datetime.now)
     
     # Relations
     taggables = relation(Taggable, secondary=taggables_tags_table,
@@ -154,9 +153,7 @@ class Tag(DeclarativeBase):
         return '<Tag: %s>' % self.id
 
     def __json__(self):
-        return {'id': self.id,
-                'created': self.created,
-               }
+        return dict(id=self.id)
 
 ############################################################
 # Notes
@@ -234,14 +231,14 @@ class Note(DeclarativeBase):
                                                 self.summary)
 
     def __json__(self):
-        return {'id': self.id,
-                'user': self.user,
-                'created': self.created,
-                'text': self.text,
-                'summary': self.summary,
-                'lines': self.lines,
-                'strftime': self.strftime,
-               }
+        return dict(id=self.id,
+                    user=self.user,
+                    created=self.created,
+                    text=self.text,
+                    summary=self.summary,
+                    lines=self.lines,
+                    strftime=self.strftime,
+                   )
 
 ############################################################
 # Project
@@ -254,7 +251,6 @@ class Project(DeclarativeBase):
     id = Column(Unicode(10), primary_key=True)
     name = Column(Unicode(40), unique=True)
     description = Column(Unicode)
-    created = Column(DateTime, default=datetime.now)
     modified = Column(DateTime, default=datetime.now)
     archived = Column(Boolean, default=False)
     
@@ -306,7 +302,6 @@ class Project(DeclarativeBase):
         return dict(id=self.id,
                     name=self.name,
                     description=self.description,
-                    created=self.created.strftime('%Y/%m/%d %H:%M'),
                     modified=self.modified.strftime('%Y/%m/%d %H:%M'),
                     archived=self.archived,
                     schema_is_uptodate=self.schema_is_uptodate,
@@ -329,6 +324,7 @@ class AssetContainer(DeclarativeBase):
     def __repr__(self):
         return '<AssetContainer: %s (%s)>' % (self.id, self.discriminator)
 
+
 class Scene(DeclarativeBase):
     """
     The scene container.
@@ -346,7 +342,6 @@ class Scene(DeclarativeBase):
     proj_id = Column(Unicode(10), ForeignKey('projects.id'))
     name = Column(Unicode(15))
     description = Column(UnicodeText)
-    created = Column(DateTime, default=datetime.now)
 
     # Relations
     project = relation('Project', viewonly=True,
@@ -397,9 +392,10 @@ class Scene(DeclarativeBase):
                     proj_id=self.proj_id,
                     name=self.name,
                     description=self.description,
-                    created=self.created.strftime('%Y/%m/%d %H:%M'),
                     thumbnail=self.thumbnail,
                    )
+
+
 class Shot(AssetContainer):
     """
     The shot container.
@@ -417,7 +413,6 @@ class Shot(AssetContainer):
     id = Column(String(40), ForeignKey('asset_containers.id'), primary_key=True)
     parent_id = Column(String(40), ForeignKey('scenes.id'))
     name = Column(Unicode(15))
-    created = Column(DateTime, default=datetime.now)
     description = Column(UnicodeText)
     location = Column(Unicode(255))
     action = Column(UnicodeText)
@@ -496,7 +491,6 @@ class Shot(AssetContainer):
                     parent_name=self.parent_name,
                     name=self.name,
                     description=self.description,
-                    created=self.created.strftime('%Y/%m/%d %H:%M'),
                     location=self.location,
                     action=self.action,
                     frames=self.frames,
@@ -579,8 +573,8 @@ class LibraryGroup(AssetContainer):
                     parent_id=self.parent_id,
                     name=self.name,
                     description=self.description,
-                    #created=self.created.strftime('%Y/%m/%d %H:%M'),
                    )
+
 
 ############################################################
 # Categories
@@ -811,7 +805,6 @@ class AssetVersion(DeclarativeBase):
     id = Column(String(40), primary_key=True)
     asset_id = Column(String(40), ForeignKey('assets.id'))
     ver = Column(Integer)
-    created = Column(DateTime, default=datetime.now)
     repoid = Column(String(50))
     #has_preview = Column(Boolean)
     #preview_ext = Column(String(10))
@@ -856,7 +849,6 @@ class AssetVersion(DeclarativeBase):
                     asset_id=self.asset_id,
                     ver=self.ver,
                     fmtver=self.fmtver,
-                    created=self.created.strftime('%Y/%m/%d %H:%M'),
                     #'has_preview': self.has_preview,
                     #'preview_small_repopath': self.preview_small_repopath,
                     #'preview_large_repopath': self.preview_large_repopath,

@@ -24,7 +24,6 @@ class Project(DeclarativeBase):
     id = Column(Unicode(10), primary_key=True)
     name = Column(Unicode(40))
     description = Column(Unicode)
-    created = Column(DateTime, default=datetime.now)
     modified = Column(DateTime, default=datetime.now)
     archived = Column(Boolean, default=False)
 

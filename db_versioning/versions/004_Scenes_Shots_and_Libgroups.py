@@ -42,7 +42,7 @@ class Scene(DeclarativeBase):
     proj_id = Column(Unicode(10), ForeignKey('projects.id'))
     name = Column(Unicode(15))
     description = Column(UnicodeText)
-    created = Column(DateTime, default=datetime.now)
+
 
 class Shot(AssetContainer):
     """
@@ -61,7 +61,6 @@ class Shot(AssetContainer):
     id = Column(String(40), ForeignKey('asset_containers.id'), primary_key=True)
     parent_id = Column(String(40), ForeignKey('scenes.id'))
     name = Column(Unicode(15))
-    created = Column(DateTime, default=datetime.now)
     description = Column(UnicodeText)
     location = Column(Unicode(255))
     action = Column(UnicodeText)
@@ -70,6 +69,7 @@ class Shot(AssetContainer):
     handle_out = Column(Integer)
     taggable_id = Column(Integer)
     annotable_id = Column(Integer)
+
 
 class LibraryGroup(AssetContainer):
     """Library group"""

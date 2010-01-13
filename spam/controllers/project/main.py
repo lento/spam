@@ -192,7 +192,7 @@ class Controller(RestController):
         fargs = dict(_method='DELETE', proj=project.id, id_=project.id,
                      name_=project.name,
                      description_=project.description,
-                     created_=project.created)
+                    )
         fcargs = dict()
         warning = ('This will only delete the project entry in the database. '
                    'The data and history of the project must be deleted '
@@ -239,7 +239,7 @@ class Controller(RestController):
         fargs = dict(_method='ARCHIVE', proj=project.id, id_=project.id,
                      name_=project.name,
                      description_=project.description,
-                     created_=project.created)
+                    )
         fcargs = dict()
         return dict(title='Are you sure you want to archive "%s"' % proj,
                                                 args=fargs, child_args=fcargs)
@@ -277,7 +277,7 @@ class Controller(RestController):
         fargs = dict(_method='ACTIVATE', proj=project.id, id_=project.id,
                      name_=project.name,
                      description_=project.description,
-                     created_=project.created)
+                    )
         fcargs = dict()
         return dict(title='Are you sure you want to activate "%s"' % proj,
                                                 args=fargs, child_args=fcargs)
@@ -314,7 +314,7 @@ class Controller(RestController):
         fargs = dict(_method='UPGRADE', proj=project.id, id_=project.id,
                      name_=project.name,
                      description_=project.description,
-                     created_=project.created)
+                    )
         fcargs = dict()
         return dict(title='Are you sure you want to upgrade "%s" schema?' %
                                             proj, args=fargs, child_args=fcargs)

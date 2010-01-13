@@ -58,7 +58,6 @@ class TableUsers(LiveTable):
         domain = TextData()
         user_name = TextData(sort_default=True)
         display_name = TextData()
-        created = TextData()
         actions = IconBox(buttons=[
             IconButton(id='edit', icon_class='edit',
               action=url('/user/%(user_name)s/edit')),
@@ -167,7 +166,6 @@ class ProjectsActive(LiveTable):
         id = TextData()
         name = TextData()
         description = TextData()
-        created = TextData(sort_default=True)
 
 
 class ProjectsArchived(LiveTable):
@@ -185,7 +183,6 @@ class ProjectsArchived(LiveTable):
         id = TextData()
         name = TextData()
         description = TextData()
-        created = TextData(sort_default=True)
 
 
 class TableScenes(LiveTable):
@@ -435,7 +432,6 @@ class FormProjectConfirm(TableForm):
         id_ = TextField(disabled=True, validator=None)
         name_ = TextField(disabled=True, validator=None)
         description_ = TextArea(cols=30, rows=3, disabled=True, validator=None)
-        created_ = CalendarDatePicker(disabled=True, validator=None)
 
 
 # Scene
