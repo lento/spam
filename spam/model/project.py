@@ -30,7 +30,7 @@ import os.path
 from datetime import datetime
 from hashlib import sha1
 
-from sqlalchemy import Table, ForeignKey, Column, UniqueConstraint
+from sqlalchemy import Table, ForeignKey, Column, UniqueConstraint, DDL
 from sqlalchemy import ForeignKeyConstraint, and_, desc
 from sqlalchemy.types import Unicode, UnicodeText, Integer, DateTime, Boolean
 from sqlalchemy.types import String
@@ -129,6 +129,12 @@ class Taggable(DeclarativeBase):
         return '<Taggable %s: %s>' % (self.id,
             dict(association_type=self.association_type))
 
+taggable_delete_trigger = (
+    'CREATE TRIGGER delete_orphaned_%(table)s_taggable DELETE ON %(table)s '
+    'BEGIN '
+        'DELETE FROM taggables WHERE id=old.id; '
+    'END;')
+
 
 class Tag(DeclarativeBase):
     __tablename__ = 'tags'
@@ -177,6 +183,12 @@ class Annotable(DeclarativeBase):
 
     def __repr__(self):
         return '<Annotable: %s (%s)>' % (self.id, self.association_type)
+
+annotable_delete_trigger = (
+    'CREATE TRIGGER delete_orphaned_%(table)s_annotable DELETE ON %(table)s '
+    'BEGIN '
+        'DELETE FROM annotables WHERE id=old.id; '
+    'END;')
 
 
 class Note(DeclarativeBase):
@@ -336,7 +348,7 @@ class Scene(DeclarativeBase):
                       ForeignKeyConstraint(['id'], ['taggables.id']),
                       ForeignKeyConstraint(['id'], ['annotables.id']),
                       {})
-    
+
     # Columns
     id = Column(String(40), primary_key=True)
     proj_id = Column(Unicode(10), ForeignKey('projects.id'))
@@ -394,6 +406,9 @@ class Scene(DeclarativeBase):
                     description=self.description,
                     thumbnail=self.thumbnail,
                    )
+
+DDL(taggable_delete_trigger).execute_at('after-create', Scene.__table__)
+DDL(annotable_delete_trigger).execute_at('after-create', Scene.__table__)
 
 
 class Shot(AssetContainer):
@@ -497,6 +512,9 @@ class Shot(AssetContainer):
                     handle_in=self.handle_in,
                     handle_out=self.handle_out,
                    )
+
+DDL(taggable_delete_trigger).execute_at('after-create', Shot.__table__)
+DDL(annotable_delete_trigger).execute_at('after-create', Shot.__table__)
                     
 
 class LibraryGroup(AssetContainer):
@@ -574,6 +592,9 @@ class LibraryGroup(AssetContainer):
                     name=self.name,
                     description=self.description,
                    )
+
+DDL(taggable_delete_trigger).execute_at('after-create', LibraryGroup.__table__)
+DDL(annotable_delete_trigger).execute_at('after-create', LibraryGroup.__table__)
 
 
 ############################################################
@@ -794,6 +815,9 @@ class Asset(DeclarativeBase):
                     #'waiting_for_approval': self.waiting_for_approval,
                    )
 
+DDL(taggable_delete_trigger).execute_at('after-create', Asset.__table__)
+
+
 class AssetVersion(DeclarativeBase):
     """Asset version"""
     __tablename__ = "asset_versions"
@@ -854,4 +878,6 @@ class AssetVersion(DeclarativeBase):
                     #'preview_large_repopath': self.preview_large_repopath,
                     #'strftime': self.strftime,
                    )
+
+DDL(annotable_delete_trigger).execute_at('after-create', AssetVersion.__table__)
 

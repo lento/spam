@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import Table, Column, MetaData, and_
+from sqlalchemy import Table, Column, MetaData, and_, DDL
 from sqlalchemy import UniqueConstraint, ForeignKeyConstraint, ForeignKey
 from sqlalchemy.types import Unicode, UnicodeText, DateTime, Integer, Boolean
 from sqlalchemy.types import String
@@ -16,6 +16,18 @@ users = Table('users', metadata, autoload=True)
 asset_containers = Table('asset_containers', metadata, autoload=True)
 taggables = Table('taggables', metadata, autoload=True)
 annotables = Table('annotables', metadata, autoload=True)
+
+taggable_delete_trigger = (
+    'CREATE TRIGGER delete_orphaned_%(table)s_taggable DELETE ON %(table)s '
+    'BEGIN '
+        'DELETE FROM taggables WHERE id=old.id; '
+    'END;')
+
+annotable_delete_trigger = (
+    'CREATE TRIGGER delete_orphaned_%(table)s_annotable DELETE ON %(table)s '
+    'BEGIN '
+        'DELETE FROM annotables WHERE id=old.id; '
+    'END;')
 
 # New classes and tables
 class Category(DeclarativeBase):
@@ -69,6 +81,8 @@ class Asset(DeclarativeBase):
     checkedout = Column(Boolean, default=False)
     user_id = Column(Integer, ForeignKey('users.user_id'))
 
+DDL(taggable_delete_trigger).execute_at('after-create', Asset.__table__)
+
 
 class AssetVersion(DeclarativeBase):
     """Asset version"""
@@ -86,6 +100,7 @@ class AssetVersion(DeclarativeBase):
     #preview_ext = Column(String(10))
     user_id = Column(Integer, ForeignKey('users.user_id'))
 
+DDL(annotable_delete_trigger).execute_at('after-create', AssetVersion.__table__)
 
 def upgrade():
     # Upgrade operations go here. Don't create your own engine; use the engine

@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import Table, Column, MetaData
+from sqlalchemy import Table, Column, MetaData, DDL
 from sqlalchemy import UniqueConstraint, ForeignKeyConstraint, ForeignKey
 from sqlalchemy.types import Unicode, UnicodeText, DateTime, Integer, String
 from sqlalchemy.orm import relation, backref
@@ -14,6 +14,19 @@ DeclarativeBase = declarative_base(bind=migrate_engine, metadata=metadata)
 projects = Table('projects', metadata, autoload=True)
 taggables = Table('taggables', metadata, autoload=True)
 annotables = Table('annotables', metadata, autoload=True)
+
+taggable_delete_trigger = (
+    'CREATE TRIGGER delete_orphaned_%(table)s_taggable DELETE ON %(table)s '
+    'BEGIN '
+        'DELETE FROM taggables WHERE id=old.id; '
+    'END;')
+
+annotable_delete_trigger = (
+    'CREATE TRIGGER delete_orphaned_%(table)s_annotable DELETE ON %(table)s '
+    'BEGIN '
+        'DELETE FROM annotables WHERE id=old.id; '
+    'END;')
+
 
 # New classes and tables
 class AssetContainer(DeclarativeBase):
@@ -43,6 +56,9 @@ class Scene(DeclarativeBase):
     name = Column(Unicode(15))
     description = Column(UnicodeText)
 
+DDL(taggable_delete_trigger).execute_at('after-create', Scene.__table__)
+DDL(annotable_delete_trigger).execute_at('after-create', Scene.__table__)
+
 
 class Shot(AssetContainer):
     """
@@ -69,6 +85,9 @@ class Shot(AssetContainer):
     handle_out = Column(Integer)
     taggable_id = Column(Integer)
     annotable_id = Column(Integer)
+
+DDL(taggable_delete_trigger).execute_at('after-create', Shot.__table__)
+DDL(annotable_delete_trigger).execute_at('after-create', Shot.__table__)
 
 
 class LibraryGroup(AssetContainer):
@@ -101,4 +120,7 @@ def downgrade():
     Scene.__table__.drop()
     Shot.__table__.drop()
     LibraryGroup.__table__.create()
+
+DDL(taggable_delete_trigger).execute_at('after-create', LibraryGroup.__table__)
+DDL(annotable_delete_trigger).execute_at('after-create', LibraryGroup.__table__)
 
