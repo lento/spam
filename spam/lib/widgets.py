@@ -351,6 +351,7 @@ class FormCategoryNew(TableForm):
     class fields(WidgetsList):
         category_id = TextField(validator=All(
                           Regex(G.pattern_name, not_empty=True), MaxLength(30)))
+        ordering = TextField(validator=Int)
         naming_convention = TextField(validator=MaxLength(255))
 
 class FormCategoryEdit(TableForm):

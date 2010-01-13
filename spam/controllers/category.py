@@ -79,13 +79,14 @@ class Controller(RestController):
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_new, error_handler=new)
-    def post(self, category_id, naming_convention='', **kwargs):
+    def post(self, category_id, ordering=0, naming_convention='', **kwargs):
         """Create a new category"""
         session = session_get()
         user = tmpl_context.user
         
         # add category to shared db
-        category = Category(category_id, naming_convention=naming_convention)
+        category = Category(category_id, ordering=ordering,
+                                            naming_convention=naming_convention)
         session.add(category)
         
         # log into Journal
