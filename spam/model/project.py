@@ -36,7 +36,7 @@ from sqlalchemy.types import Unicode, UnicodeText, Integer, DateTime, Boolean
 from sqlalchemy.types import String
 from sqlalchemy.orm import relation, synonym, backref
 
-from tg import app_globals as G
+from tg import app_globals as G, config
 from spam.model import DeclarativeBase, metadata, mapped_list
 from spam.model import migraterepo_get_version, db_get_version
 from spam.model import db_upgrade, db_downgrade
@@ -57,6 +57,37 @@ projects_admins_table = Table('__projects_admins', metadata,
     Column('user_id', Unicode(40), ForeignKey('users.user_id',
                                     onupdate="CASCADE", ondelete="CASCADE")),
 )
+
+
+############################################################
+# Journal
+############################################################
+class Journal(DeclarativeBase):
+    __tablename__ = 'journal'
+    
+    # Columns
+    id = Column(String(40), primary_key=True)
+    domain = Column(Unicode(24))
+    user_id = Column(Unicode(40), ForeignKey('users.user_id'))
+    text = Column(UnicodeText)
+    created = Column(DateTime, default=datetime.now)
+    
+    # Relations
+    user = relation('User', backref=backref('journal',
+                                                    order_by=desc('created')))
+    
+    # Special methods
+    def __init__(self, user, text):
+        self.doamin = config.auth_domain
+        self.user = user
+        self.text = text
+        self.created = datetime.now()
+        hashable = '%s-%s-%s' % (self.created, self.user_id, self.text)
+        self.id = sha1(hashable).hexdigest()
+
+    def __repr__(self):
+        return '<Journal: (%s) %s: "%s">' % (self.created, self.user_id,
+                                                                    self.text)
 
 
 ############################################################
