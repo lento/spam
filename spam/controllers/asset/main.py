@@ -232,13 +232,14 @@ class Controller(RestController):
         return dict(msg='deleted asset "%s"' % asset.path, result='success')
     
     # Custom REST-like actions
-    custom_actions = ['checkout', 'release', 'publish']
+    custom_actions = ['checkout', 'release', 'publish', 'submit', 'approve',
+                      'revoke']
 
     @project_set_active
     @require(is_project_user())
     @expose('json')
     @expose('spam.templates.forms.result')
-    @validate(f_confirm, error_handler=get_delete)
+    @validate(f_confirm)
     def checkout(self, proj, asset_id, **kwargs):
         """Checkout an asset.
         
@@ -263,7 +264,7 @@ class Controller(RestController):
     @require(is_project_user())
     @expose('json')
     @expose('spam.templates.forms.result')
-    @validate(f_confirm, error_handler=get_delete)
+    @validate(f_confirm)
     def release(self, proj, asset_id, **kwargs):
         """Release an asset.
         
@@ -342,4 +343,133 @@ class Controller(RestController):
         # send a stomp message to notify clients
         notify.send(asset)
         return dict(msg='published asset "%s"' % asset.path, result='success')
+
+    @project_set_active
+    @require(is_project_admin())
+    @expose('spam.templates.forms.form')
+    def get_submit(self, proj, asset_id, **kwargs):
+        """Display a SUBMIT confirmation form."""
+        tmpl_context.form = f_confirm
+        asset = asset_get(proj, asset_id)
+
+        fargs = dict(_method='SUBMIT',
+                     proj=asset.project.id, project_=asset.project.name,
+                     asset_id=asset.id, name_=asset.name,
+                     container_=asset.parent.path,
+                     category_=asset.category.id,
+                    )
+                     
+        fcargs = dict()
+        return dict(title='Are you sure you want to submit "%s"?' % asset.path,
+                                                args=fargs, child_args=fcargs)
+
+    @project_set_active
+    @require(is_project_admin())
+    @expose('json')
+    @expose('spam.templates.forms.result')
+    @validate(f_confirm, error_handler=get_submit)
+    def post_submit(self, proj, asset_id, **kwargs):
+        """Submit an asset to supervisors for approval."""
+        session = session_get()
+        user = tmpl_context.user
+        asset = asset_get(proj, asset_id)
+        
+        if not asset.submitted and not asset.approved:
+            asset.submit(user)
+
+            # log into Journal
+            journal.add(user, 'submitted %s' % asset)
+            
+            # send a stomp message to notify clients
+            notify.send(asset)
+            return dict(msg='submitted asset "%s"' % asset.path,
+                                                            result='success')
+        return dict(msg='asset "%s" cannot be submitted' % asset.path,
+                                                            result='failed')
+    
+    @project_set_active
+    @require(is_project_admin())
+    @expose('spam.templates.forms.form')
+    def get_approve(self, proj, asset_id, **kwargs):
+        """Display a APPROVE confirmation form."""
+        tmpl_context.form = f_confirm
+        asset = asset_get(proj, asset_id)
+
+        fargs = dict(_method='APPROVE',
+                     proj=asset.project.id, project_=asset.project.name,
+                     asset_id=asset.id, name_=asset.name,
+                     container_=asset.parent.path,
+                     category_=asset.category.id,
+                    )
+                     
+        fcargs = dict()
+        return dict(title='Are you sure you want to approve "%s"?' % asset.path,
+                                                args=fargs, child_args=fcargs)
+
+    @project_set_active
+    @require(is_project_admin())
+    @expose('json')
+    @expose('spam.templates.forms.result')
+    @validate(f_confirm, error_handler=get_submit)
+    def post_approve(self, proj, asset_id, **kwargs):
+        """Approve an asset submitted for approval."""
+        session = session_get()
+        user = tmpl_context.user
+        asset = asset_get(proj, asset_id)
+        
+        if asset.submitted and not asset.approved:
+            asset.approve(user)
+
+            # log into Journal
+            journal.add(user, 'approved %s' % asset)
+        
+            # send a stomp message to notify clients
+            notify.send(asset)
+            return dict(msg='approved asset "%s"' % asset.path,
+                                                            result='success')
+        return dict(msg='asset "%s" cannot be approved' % asset.path,
+                                                            result='failed')
+
+    @project_set_active
+    @require(is_project_admin())
+    @expose('spam.templates.forms.form')
+    def get_revoke(self, proj, asset_id, **kwargs):
+        """Display a REVOKE confirmation form."""
+        tmpl_context.form = f_confirm
+        asset = asset_get(proj, asset_id)
+
+        fargs = dict(_method='REVOKE',
+                     proj=asset.project.id, project_=asset.project.name,
+                     asset_id=asset.id, name_=asset.name,
+                     container_=asset.parent.path,
+                     category_=asset.category.id,
+                    )
+                     
+        fcargs = dict()
+        return dict(title='Are you sure you want to revoke "%s"?' % asset.path,
+                                                args=fargs, child_args=fcargs)
+
+    @project_set_active
+    @require(is_project_admin())
+    @expose('json')
+    @expose('spam.templates.forms.result')
+    @validate(f_confirm, error_handler=get_submit)
+    def post_revoke(self, proj, asset_id, **kwargs):
+        """Revoke approval for an asset."""
+        session = session_get()
+        user = tmpl_context.user
+        asset = asset_get(proj, asset_id)
+        
+        if asset.approved:
+            asset.revoke(user)
+
+            # log into Journal
+            journal.add(user, 'revoked approval for %s' % asset)
+        
+            # send a stomp message to notify clients
+            notify.send(asset)
+            return dict(msg='revoked approval for asset "%s"' % asset.path,
+                                                            result='success')
+        return dict(msg='approval for asset "%s" cannot be revoked' %
+                                                    asset.path, result='failed')
 

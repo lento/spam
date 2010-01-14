@@ -79,7 +79,13 @@ class Asset(DeclarativeBase):
     parent_id = Column(String(40), ForeignKey('asset_containers.id'))
     category_id = Column(Integer, ForeignKey('categories.id'))
     checkedout = Column(Boolean, default=False)
-    user_id = Column(Integer, ForeignKey('users.user_id'))
+    owner_id = Column(Integer, ForeignKey('users.user_id'))
+    submitted = Column(Boolean, default=False)
+    submitter_id = Column(Integer, ForeignKey('users.user_id'))
+    submitted_date =  Column(DateTime, default=datetime.now)
+    approved = Column(Boolean, default=False)
+    approver_id = Column(Integer, ForeignKey('users.user_id'))
+    approved_date =  Column(DateTime, default=datetime.now)
 
 DDL(taggable_delete_trigger).execute_at('after-create', Asset.__table__)
 

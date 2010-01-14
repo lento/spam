@@ -99,6 +99,9 @@ body {
 .iconbutton.checkout {background: url(../images/icons/16x16/checkout.png) left center no-repeat;}
 .iconbutton.release {background: url(../images/icons/16x16/release.png) left center no-repeat;}
 .iconbutton.publish {background: url(../images/icons/16x16/new.png) left center no-repeat;}
+.iconbutton.submit {background: url(../images/icons/16x16/submit.png) left center no-repeat;}
+.iconbutton.approve {background: url(../images/icons/16x16/approve.png) left center no-repeat;}
+.iconbutton.revoke {background: url(../images/icons/16x16/revoke.png) left center no-repeat;}
 
 .thumbnail {
     width: 120px;

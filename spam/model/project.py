@@ -704,19 +704,30 @@ class Asset(DeclarativeBase):
     parent_id = Column(String(40), ForeignKey('asset_containers.id'))
     category_id = Column(Integer, ForeignKey('categories.id'))
     checkedout = Column(Boolean, default=False)
-    user_id = Column(Integer, ForeignKey('users.user_id'))
+    owner_id = Column(Integer, ForeignKey('users.user_id'))
+    submitted = Column(Boolean, default=False)
+    submitter_id = Column(Integer, ForeignKey('users.user_id'))
+    submitted_date =  Column(DateTime)
+    approved = Column(Boolean, default=False)
+    approver_id = Column(Integer, ForeignKey('users.user_id'))
+    approved_date =  Column(DateTime)
 
     # Relations
     category = relation('Category', backref=backref('assets'))
     
-    user = relation('User',
-                        primaryjoin=user_id==User.user_id,
-                        backref=backref('assets'))
+    owner = relation('User', primaryjoin=owner_id==User.user_id,
+                                        backref=backref('checkedout_assets'))
 
     parent = relation('AssetContainer', backref=backref('assets'))
 
     taggable = relation(Taggable, backref='tagged_asset')
     
+    submitted_by = relation('User', primaryjoin=submitter_id==User.user_id,
+                                        backref=backref('submitted_assets'))
+    
+    approved_by = relation('User', primaryjoin=approver_id==User.user_id,
+                                        backref=backref('approved_assets'))
+
     # Properties
     @property
     def proj_id(self):
@@ -754,6 +765,38 @@ class Asset(DeclarativeBase):
     def tags(self):
         return self.taggable.tags
     
+    @property
+    def status(self):
+        if self.approved:
+            return 'approved'
+        elif self.submitted:
+            return 'submitted'
+        elif self.checkedout:
+            return 'wip'
+        elif self.current_ver == 0:
+            return 'new'
+        else:
+            return 'idle'
+    
+    # Methods
+    def submit(self, user):
+        self.submitted = True
+        self.submitted_by = user
+        self.submitted_date = datetime.now()
+    
+    def approve(self, user):
+        self.approved = True
+        self.approved_by = user
+        self.approved_date = datetime.now()
+    
+    def revoke(self, user):
+        self.approved = False
+        self.approved_by = None
+        self.approved_date = None
+        self.submitted = False
+        self.submitted_by = None
+        self.submitted_date = None
+    
     # Special methods
     def __init__(self, parent, category, name, user):
         self.parent = parent
@@ -776,8 +819,11 @@ class Asset(DeclarativeBase):
                     parent_id=self.parent_id,
                     parent=self.parent,
                     category=self.category,
+                    status=self.status,
                     checkedout=self.checkedout,
-                    user=self.user,
+                    submitted=self.submitted,
+                    approved=self.approved,
+                    owner=self.owner,
                     path=self.path,
                     current_ver=self.current_ver,
                     current_fmtver=self.current_fmtver,
@@ -789,7 +835,6 @@ class Asset(DeclarativeBase):
                     #'has_preview': self.has_preview,
                     #'preview_small_repopath': self.preview_small_repopath,
                     #'preview_large_repopath': self.preview_large_repopath,
-                    #'status': self.status,
                     #'flow': self.flow,
                     #'waiting_for_approval': self.waiting_for_approval,
                    )

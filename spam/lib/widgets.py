@@ -256,6 +256,7 @@ class TableAssets(LiveTable):
         )
         name = TextData(sort_default=True)
         current_fmtver = TextData(label_text='ver')
+        status = TextData()
         actions = IconBox(buttons=[
             IconButton(id='checkout', icon_class='checkout',
               action=url('/asset/%(proj_id)s/%(id)s/checkout'),
@@ -266,6 +267,16 @@ class TableAssets(LiveTable):
             IconButton(id='publish', icon_class='publish',
               action=url('/asset/%(proj_id)s/%(id)s/publish'),
               condition='data.checkedout'),
+            IconButton(id='submit', icon_class='submit',
+              action=url('/asset/%(proj_id)s/%(id)s/submit'),
+              condition='data.checkedout && !(data.submitted) '
+                        '&& !(data.approved)'),
+            IconButton(id='approve', icon_class='approve',
+              action=url('/asset/%(proj_id)s/%(id)s/approve'),
+              condition='data.submitted && !(data.approved)'),
+            IconButton(id='revoke', icon_class='revoke',
+              action=url('/asset/%(proj_id)s/%(id)s/revoke'),
+              condition='data.approved'),
             IconButton(id='delete', icon_class='delete',
               action=url('/asset/%(proj_id)s/%(id)s/delete')),
         ])
