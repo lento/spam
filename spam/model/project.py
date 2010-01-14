@@ -76,6 +76,11 @@ class Journal(DeclarativeBase):
     user = relation('User', backref=backref('journal',
                                                     order_by=desc('created')))
     
+    # Properties
+    @property
+    def strftime(self):
+        return self.created.strftime('%d/%m/%Y-%H:%M')
+    
     # Special methods
     def __init__(self, user, text):
         self.domain = config.auth_domain
@@ -92,9 +97,10 @@ class Journal(DeclarativeBase):
     def __json__(self):
         return dict(id=self.id,
                     domain=self.domain,
-                    user=self.user,
-                    test=self.text,
+                    user_id=self.user_id,
+                    text=self.text,
                     created=self.created,
+                    strftime=self.strftime,
                    )
 
 ############################################################

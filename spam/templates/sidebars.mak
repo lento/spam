@@ -9,6 +9,7 @@
                 <div class="toggleable">
                     <ul class="links">
                         <li class="home"><a href="${tg.url('/user/home')}">${_('home')}</a></li>
+                        <li class="journal"><a href="${tg.url('/journal')}">${_('journal')}</a></li>
                     </ul>
                 </div>
             </div>

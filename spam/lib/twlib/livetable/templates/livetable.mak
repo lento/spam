@@ -1,4 +1,5 @@
 <%
+    import cgi
     from spam.lib.jsonify import encode as json_encode
     sort_list = []
     sort_headers = {}
@@ -24,7 +25,7 @@
         
         $("#${id}").tablesorter({widgets: ['zebra'], headers: ${json_encode(sort_headers)}});
 
-        $.each(${json_encode(items) | n}, function() {
+        $.each(${cgi.escape(json_encode(items)) | n}, function() {
             livetable.addrow("${id}", this, false, ${json_encode(extra_data)});
         });
         

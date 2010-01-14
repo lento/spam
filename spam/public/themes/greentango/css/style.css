@@ -169,6 +169,23 @@ table td.icon {
     width: 18px;
 }
 
+/* Paginate */
+.pager_curpage {
+    padding: 0 5px;
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+    background-color: #8ae234; /* Chameleon 1 */
+    color: #ef2929; /* Scarlet Red 1 */
+}
+
+.pager_link {
+    padding: 0 5px;
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+    background-color: #3465a4; /* Sky Blue 2 */
+    color: #f6f6f4; /* Aluminium 0 */
+}
+
 /**********************************************************************
  * Overlay
  **********************************************************************/

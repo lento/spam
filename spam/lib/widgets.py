@@ -10,6 +10,7 @@ from spam.lib.validators import CategoryNamingConvention
 from spam.lib.twlib.livetable import LiveTable, IconButton, TextData, ThumbData
 from spam.lib.twlib.livetable import IconBox, LinkData
 from spam.lib.twlib.livelist import LiveList, TextItem
+from spam.lib.notifications import TOPIC_JOURNAL
 
 # Orbited
 orbited_address = config.get('orbited_address', 'http://localhost:9000')
@@ -281,6 +282,21 @@ class TableAssetHistory(LiveTable):
             dest=url('/repo/%(proj_id)s/preview.png')
         )
         fmtver = TextData(label_text='ver')
+
+
+class TableJournal(LiveTable):
+    params = ['curpage']
+    javascript = [notify_client_js]
+    update_topic = TOPIC_JOURNAL
+    class fields(WidgetsList):
+        strftime = TextData(label_text='date', sort_default=True,
+                                                        sort_direction = 'desc')
+        user_id = TextData(label_text='user')
+        text = TextData()
+    
+    def update_params(self, d):
+        super(TableJournal, self).update_params(d)
+        d['update_condition'] = '%s==1' % d['curpage']
 
 
 ############################################################
