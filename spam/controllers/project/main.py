@@ -26,12 +26,13 @@ from tg import expose, url, tmpl_context, redirect, validate, require
 from tg.controllers import RestController
 from tg.decorators import with_trailing_slash
 from pylons.i18n import ugettext as _, lazy_ugettext as l_
-from spam.model import session_get, project_get, Project, User, Journal
+from spam.model import session_get, project_get, Project, User
 from spam.model import query_projects, query_projects_archived, diff_dicts
 from spam.lib.widgets import FormProjectNew, FormProjectEdit, FormProjectConfirm
 from spam.lib.widgets import ProjectsActive, ProjectsArchived
 from spam.lib import repo
 from spam.lib.notifications import notify
+from spam.lib.journaling import journal
 from spam.lib.decorators import project_set_active
 from spam.lib.predicates import is_project_user, is_project_admin
 from repoze.what.predicates import in_group
@@ -127,7 +128,7 @@ class Controller(RestController):
         project.admins.append(admin)
         
         # log into Journal
-        session.add(Journal(user, 'created %s' % project))
+        journal.add(user, 'created %s' % project)
         
         # send a stomp message to notify clients
         notify.send(project, update_type='added')
@@ -174,8 +175,8 @@ class Controller(RestController):
             project.touch()
 
             # log into Journal
-            session.add(Journal(user, 'modified %s: %s' %
-                                            (project, diff_dicts(old, new))))
+            journal.add(user, 'modified %s: %s' %
+                                            (project, diff_dicts(old, new)))
         
             # send a stomp message to notify clients
             notify.send(project, update_type='updated')
@@ -220,7 +221,7 @@ class Controller(RestController):
         session.delete(project)
         
         # log into Journal
-        session.add(Journal(user, 'deleted %s' % project))
+        journal.add(user, 'deleted %s' % project)
         
         # send a stomp message to notify clients
         notify.send(project, update_type='deleted')
@@ -260,7 +261,7 @@ class Controller(RestController):
         project.touch()
 
         # log into Journal
-        session.add(Journal(user, 'archived %s' % project))
+        journal.add(user, 'archived %s' % project)
         
         # send a stomp message to notify clients
         notify.send(project, update_type='archived')
@@ -297,7 +298,7 @@ class Controller(RestController):
         project.touch()
 
         # log into Journal
-        session.add(Journal(user, 'activated %s' % project))
+        journal.add(user, 'activated %s' % project)
         
         # send a stomp message to notify clients
         notify.send(project, update_type='activated')

@@ -25,10 +25,11 @@
 from tg import expose, url, tmpl_context, redirect, validate, require
 from tg.controllers import RestController
 from pylons.i18n import ugettext as _, lazy_ugettext as l_
-from spam.model import session_get, taggable_get, tag_get, Tag, Journal
+from spam.model import session_get, taggable_get, tag_get, Tag
 from spam.lib.widgets import FormTagNew, FormTagConfirm, FormTagRemove
 from spam.lib.widgets import ListTags
 from spam.lib.notifications import notify
+from spam.lib.journaling import journal
 from repoze.what.predicates import in_group
 
 import logging
@@ -110,8 +111,8 @@ class Controller(RestController):
         added_tags = ', '.join(added_tags)
         
         # log into Journal
-        session.add(Journal(user, 'added tag(s) "%s" to %s' %
-                                            (added_tags, taggable.tagged)))
+        journal.add(user, 'added tag(s) "%s" to %s' %
+                                            (added_tags, taggable.tagged))
         
         # send a stomp message to notify clients
         #notify.send(tag, update_type='added', shot=shot)
@@ -145,7 +146,7 @@ class Controller(RestController):
         session.delete(tag)
         
         # log into Journal
-        session.add(Journal(user, 'deleted %s' % tag))
+        journal.add(user, 'deleted %s' % tag)
         
         # send a stomp message to notify clients
         #notify.send(tag, update_type='deleted')
@@ -185,8 +186,8 @@ class Controller(RestController):
         removed_tags = ', '.join(removed_tags)
         
         # log into Journal
-        session.add(Journal(user, 'removed tag(s) "%s" from %s' %
-                                        (removed_tags, taggable.tagged)))
+        journal.add(user, 'removed tag(s) "%s" from %s' %
+                                        (removed_tags, taggable.tagged))
         
         # send a stomp message to notify clients
         #notify.send(tag, update_type='removed', taggable=taggable)

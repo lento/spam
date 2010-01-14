@@ -25,10 +25,11 @@
 from tg import expose, url, tmpl_context, redirect, validate, require
 from tg.controllers import RestController
 from pylons.i18n import ugettext as _, lazy_ugettext as l_
-from spam.model import session_get, Category, category_get, Journal, diff_dicts
+from spam.model import session_get, Category, category_get, diff_dicts
 from spam.lib.widgets import FormCategoryNew, FormCategoryEdit
 from spam.lib.widgets import FormCategoryConfirm, TableCategories
 from spam.lib.notifications import notify
+from spam.lib.journaling import journal
 from repoze.what.predicates import in_group
 
 import logging
@@ -90,7 +91,7 @@ class Controller(RestController):
         session.add(category)
         
         # log into Journal
-        session.add(Journal(user, 'created %s' % category))
+        journal.add(user, 'created %s' % category)
         
         # send a stomp message to notify clients
         notify.send(category, update_type='added')
@@ -133,8 +134,8 @@ class Controller(RestController):
             new = category.__dict__.copy()
             
             # log into Journal
-            session.add(Journal(user, 'modified %s: %s' %
-                                            (category, diff_dicts(old, new))))
+            journal.add(user, 'modified %s: %s' %
+                                            (category, diff_dicts(old, new)))
         
             # send a stomp message to notify clients
             notify.send(category, update_type='updated')
@@ -176,7 +177,7 @@ class Controller(RestController):
         session.delete(category)
 
         # log into Journal
-        session.add(Journal(user, 'deleted %s' % category))
+        journal.add(user, 'deleted %s' % category)
         
         # send a stomp message to notify clients
         notify.send(category, update_type='deleted')

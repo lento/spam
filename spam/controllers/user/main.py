@@ -27,7 +27,7 @@ from tg.controllers import RestController
 from tg.decorators import with_trailing_slash
 from pylons.i18n import ugettext as _, lazy_ugettext as l_
 from spam.model import session_get, User, user_get, group_get, project_get
-from spam.model import category_get, Supervisor, Artist, Journal, diff_dicts
+from spam.model import category_get, Supervisor, Artist, diff_dicts
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 from spam.lib.exceptions import SPAMDBError, SPAMDBNotFound
 from spam.lib.widgets import FormUserNew, FormUserEdit
@@ -36,6 +36,7 @@ from spam.lib.widgets import FormUserAddAdmins, FormUserAddToCategory
 from spam.lib.notifications import notify, TOPIC_GROUPS, TOPIC_PROJECT_ADMINS
 from spam.lib.notifications import TOPIC_PROJECT_SUPERVISORS
 from spam.lib.notifications import TOPIC_PROJECT_ARTISTS
+from spam.lib.journaling import journal
 from spam.lib.decorators import project_set_active
 from spam.lib.predicates import is_project_user, is_project_admin
 from repoze.what.predicates import in_group, not_anonymous
@@ -115,7 +116,7 @@ class Controller(RestController):
         session.flush()
         
         # log into Journal
-        session.add(Journal(user, 'created %s' % newuser))
+        journal.add(user, 'created %s' % newuser)
         
         # send a stomp message to notify clients
         notify.send(newuser, update_type='added')
@@ -153,8 +154,8 @@ class Controller(RestController):
             new = edituser.__dict__.copy()
 
             # log into Journal
-            session.add(Journal(user, 'modified %s: %s' %
-                                            (edituser, diff_dicts(old, new))))
+            journal.add(user, 'modified %s: %s' %
+                                            (edituser, diff_dicts(old, new)))
             
             # send a stomp message to notify clients
             notify.send(edituser)
@@ -189,7 +190,7 @@ class Controller(RestController):
         session.delete(deluser)
 
         # log into Journal
-        session.add(Journal(user, 'deleted %s' % deluser))
+        journal.add(user, 'deleted %s' % deluser)
         
         # send a stomp message to notify clients
         notify.send(deluser, update_type='deleted')
@@ -240,8 +241,7 @@ class Controller(RestController):
         added = ', '.join(added)
         
         # log into Journal
-        session.add(Journal(user, 'added user(s) "%s" to %s' %
-                                                        (added, group.group)))
+        journal.add(user, 'added user(s) "%s" to %s' % (added, group))
         
         return dict(msg='added user(s) %s to group "%s"' %
                                     (added, group.group_id), result='success')
@@ -258,8 +258,7 @@ class Controller(RestController):
         group.users.remove(remuser)
         
         # log into Journal
-        session.add(Journal(user, 'removed user "%s" from %s' %
-                                                        (remuser, group.group)))
+        journal.add(user, 'removed user "%s" from %s' % (remuser, group))
         
         # send a stomp message to notify clients
         notify.send(remuser, update_type='deleted', destination=TOPIC_GROUPS,
@@ -307,8 +306,8 @@ class Controller(RestController):
         added = ', '.join(added)
         
         # log into Journal
-        session.add(Journal(user, 'added user(s) "%s" to "%s" administrators' %
-                                                        (added, project.id)))
+        journal.add(user, 'added user(s) "%s" to "%s" administrators' %
+                                                        (added, project.id))
         
         return dict(msg='added user(s) %s to "%s" administrators' %
                                         (added, project.id), result='success')
@@ -328,9 +327,8 @@ class Controller(RestController):
             project.admins.remove(remuser)
             
             # log into Journal
-            session.add(Journal(user,
-                                'removed %s from "%s" administrators' %
-                                                        (remuser, project.id)))
+            journal.add(user, 'removed %s from "%s" administrators' %
+                                                        (remuser, project.id))
             
             # send a stomp message to notify clients
             notify.send(user, update_type='deleted', proj=project.id,
@@ -374,7 +372,7 @@ class Controller(RestController):
         supervisors = [Supervisor(project.id, category, adduser) for adduser in
                         users if adduser not in project.supervisors[category]]
         for supervisor in supervisors:
-            added.append(supervisor.user.user_name)
+            added.append(supervisor.user.user_id)
 
             # send a stomp message to notify clients
             notify.send(supervisor.user, update_type='added', proj=project.id,
@@ -384,8 +382,8 @@ class Controller(RestController):
         added = ', '.join(added)
         
         # log into Journal
-        session.add(Journal(user, 'added %s "%s" supervisor(s) %s' %
-                                            (project.id, category.id, added)))
+        journal.add(user, 'added %s "%s" supervisor(s) %s' %
+                                            (project.id, category.id, added))
         
         return dict(msg='added %s "%s" supervisor(s) %s' %
                             (project.id, category.id, added), result='success')
@@ -410,8 +408,8 @@ class Controller(RestController):
             session.delete(sup)
 
             # log into Journal
-            session.add(Journal(user, 'removed %s "%s" supervisor %s' %
-                                            (project.id, category.id, remuser)))
+            journal.add(user, 'removed %s "%s" supervisor %s' %
+                                            (project.id, category.id, remuser))
             
             # send a stomp message to notify clients
             notify.send(remuser, update_type='deleted', proj=project.id,
@@ -466,8 +464,8 @@ class Controller(RestController):
         added = ', '.join(added)
         
         # log into Journal
-        session.add(Journal(user, 'added %s "%s" artist(s) %s' %
-                                            (project.id, category.id, added)))
+        journal.add(user, 'added %s "%s" artist(s) %s' %
+                                            (project.id, category.id, added))
         
         return dict(msg='added %s "%s" artist(s) %s' %
                             (project.id, category.id, added), result='success')
@@ -492,8 +490,8 @@ class Controller(RestController):
             session.delete(artist)
 
             # log into Journal
-            session.add(Journal(user, 'removed %s "%s" artist %s' %
-                                            (project.id, category.id, remuser)))
+            journal.add(user, 'removed %s "%s" artist %s' %
+                                            (project.id, category.id, remuser))
             
             # send a stomp message to notify clients
             notify.send(remuser, update_type='deleted', proj=project.id,

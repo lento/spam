@@ -26,11 +26,12 @@ from tg import expose, url, tmpl_context, validate, require
 from tg.controllers import RestController
 from tg.decorators import with_trailing_slash
 from spam.model import session_get, Project, User, Shot, Tag
-from spam.model import scene_get, shot_get, tag_get, Journal, diff_dicts
+from spam.model import scene_get, shot_get, tag_get, diff_dicts
 from spam.lib.widgets import FormShotNew, FormShotEdit, FormShotConfirm
 from spam.lib.widgets import FormShotAddTag, TableShots
 from spam.lib import repo
 from spam.lib.notifications import notify
+from spam.lib.journaling import journal
 from spam.lib.decorators import project_set_active
 from spam.lib.predicates import is_project_user, is_project_admin
 
@@ -132,7 +133,7 @@ class Controller(RestController):
         project.touch()
         
         # log into Journal
-        session.add(Journal(user, 'created %s' % shot))
+        journal.add(user, 'created %s' % shot)
         
         # send a stomp message to notify clients
         notify.send(shot, update_type='added')
@@ -195,8 +196,7 @@ class Controller(RestController):
             new = shot.__dict__.copy()
         
             # log into Journal
-            session.add(Journal(user, 'modified %s: %s' %
-                                                (shot, diff_dicts(old, new))))
+            journal.add(user, 'modified %s: %s' % (shot, diff_dicts(old, new)))
             
             # send a stomp message to notify clients
             notify.send(shot)
@@ -253,7 +253,7 @@ class Controller(RestController):
         
         
         # log into Journal
-        session.add(Journal(user, 'deleted %s' % shot))
+        journal.add(user, 'deleted %s' % shot)
         
         # send a stomp message to notify clients
         notify.send(shot, update_type='deleted')

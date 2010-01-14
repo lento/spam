@@ -26,11 +26,12 @@ from tg import expose, url, tmpl_context, validate, require
 from tg.controllers import RestController
 from tg.decorators import with_trailing_slash
 from spam.model import session_get, Project, User, LibraryGroup, libgroup_get
-from spam.model import Journal, diff_dicts
+from spam.model import diff_dicts
 from spam.lib.widgets import FormLibgroupNew, FormLibgroupEdit
 from spam.lib.widgets import FormLibgroupConfirm, TableLibgroups
 from spam.lib import repo
 from spam.lib.notifications import notify
+from spam.lib.journaling import journal
 from spam.lib.decorators import project_set_active
 from spam.lib.predicates import is_project_user, is_project_admin
 
@@ -137,7 +138,7 @@ class Controller(RestController):
         project.touch()
         
         # log into Journal
-        session.add(Journal(user, 'created %s' % libgroup))
+        journal.add(user, 'created %s' % libgroup)
         
         # send a stomp message to notify clients
         notify.send(libgroup, update_type='added')
@@ -172,16 +173,23 @@ class Controller(RestController):
         libgroup = libgroup_get(proj, libgroup_id)
         old = libgroup.__dict__.copy()
 
-        libgroup.description = description
-        new = libgroup.__dict__.copy()
+        modified = False
+        if description:
+            libgroup.description = description
+            modified = True
         
-        # log into Journal
-        session.add(Journal(user, 'modified %s: %s' %
-                                            (libgroup, diff_dicts(old, new))))
-        
-        # send a stomp message to notify clients
-        notify.send(libgroup)
-        return dict(msg='updated libgroup "%s"' %
+        if modified:
+            new = libgroup.__dict__.copy()
+            
+            # log into Journal
+            journal.add(user, 'modified %s: %s' %
+                                            (libgroup, diff_dicts(old, new)))
+            
+            # send a stomp message to notify clients
+            notify.send(libgroup)
+            return dict(msg='updated libgroup "%s"' %
+                                                libgroup.path, result='success')
+        return dict(msg='libgroup "%s" unchanged' %
                                                 libgroup.path, result='success')
 
     @project_set_active
@@ -234,7 +242,7 @@ class Controller(RestController):
         project.touch()
         
         # log into Journal
-        session.add(Journal(user, 'deleted %s' % libgroup))
+        journal.add(user, 'deleted %s' % libgroup)
         
         # send a stomp message to notify clients
         notify.send(libgroup, update_type='deleted')

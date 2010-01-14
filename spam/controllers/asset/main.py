@@ -27,12 +27,13 @@ from tg.controllers import RestController
 from tg.decorators import with_trailing_slash
 from tw.forms import validators
 from spam.model import session_get, Asset, AssetVersion, Category, category_get
-from spam.model import project_get, container_get, asset_get, Journal
+from spam.model import project_get, container_get, asset_get
 from spam.lib.widgets import FormAssetNew, FormAssetEdit, FormAssetConfirm
 from spam.lib.widgets import FormAssetPublish
 from spam.lib.widgets import TableAssets, TableAssetHistory, NotifyClientJS
 from spam.lib import repo, preview
 from spam.lib.notifications import notify
+from spam.lib.journaling import journal
 from spam.lib.decorators import project_set_active
 from spam.lib.predicates import is_project_user, is_project_admin
 
@@ -147,8 +148,7 @@ class Controller(RestController):
         # log into Journal
         new = asset.__dict__.copy()
         new.pop('_sa_instance_state', None)
-        session.add(Journal(user, 'created asset %s (%s): %s' %
-                                                (asset.id, asset.path, new)))
+        journal.add(user, 'created %s' % asset)
 
         # send a stomp message to notify clients
         notify.send(asset, update_type='added')
@@ -225,8 +225,7 @@ class Controller(RestController):
         session.delete(asset)
 
         # log into Journal
-        session.add(Journal(user, 'deleted asset %s (%s)' %
-                                                        (asset.id, asset.path)))
+        journal.add(user, 'deleted %s' % asset)
         
         # send a stomp message to notify clients
         notify.send(asset, update_type='deleted')
@@ -338,8 +337,7 @@ class Controller(RestController):
         preview.make_preview(asset)
         
         # log into Journal
-        session.add(Journal(user, 'published asset %s (%s): v%03d' %
-                                            (asset.id, asset.path, newver.ver)))
+        journal.add(user, 'published %s: v%03d' % (asset, newver.ver))
         
         # send a stomp message to notify clients
         notify.send(asset)
