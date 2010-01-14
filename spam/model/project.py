@@ -126,8 +126,7 @@ class Taggable(DeclarativeBase):
         self.association_type = association_type
 
     def __repr__(self):
-        return '<Taggable %s: %s>' % (self.id,
-            dict(association_type=self.association_type))
+        return '<Taggable: %s (%s)>' % (self.id, self.association_type)
 
 taggable_delete_trigger = (
     'CREATE TRIGGER delete_orphaned_%(table)s_taggable DELETE ON %(table)s '
@@ -304,11 +303,7 @@ class Project(DeclarativeBase):
         self.description = description
 
     def __repr__(self):
-        return '<Project %s: %s>' % (self.id,
-            dict(name=self.name,
-                 description=self.description,
-                 archived=self.archived,
-                ))
+        return '<Project: %s (%s)>' % (self.id, self.name)
     
     def __json__(self):
         return dict(id=self.id,
@@ -393,11 +388,7 @@ class Scene(DeclarativeBase):
         self.annotable = Annotable(self.id, 'scene')
 
     def __repr__(self):
-        return '<Scene %s (%s): %s>' % (self.id, self.path,
-            dict(proj_id=self.proj_id,
-                 name=self.name,
-                 description=self.description,
-                ))
+        return '<Scene: %s (%s)>' % (self.id, self.path)
 
     def __json__(self):
         return dict(id=self.id,
@@ -487,17 +478,7 @@ class Shot(AssetContainer):
         self.annotable = Annotable(self.id, 'shot')
 
     def __repr__(self):
-        return '<Shot %s (%s): %s>' % (self.id, self.name,
-            dict(proj_id=self.proj_id,
-                 parent_id=self.parent_id,
-                 name=self.name,
-                 description=self.description,
-                 location=self.location,
-                 action=self.action,
-                 frames=self.frames,
-                 handle_in=self.handle_in,
-                 handle_out=self.handle_out,
-                ))
+        return '<Shot: %s (%s)>' % (self.id, self.path)
 
     def __json__(self):
         return dict(id=self.id,
@@ -578,12 +559,7 @@ class LibraryGroup(AssetContainer):
         self.annotable = Annotable(self.id, 'libgroup')
 
     def __repr__(self):
-        return '<LibraryGroup %s (%s): %s>' % (self.id, self.path,
-                dict(proj_id=self.proj_id,
-                     parent_id=self.parent_id,
-                     name=self.name,
-                     description=self.description,
-                    ))
+        return '<LibraryGroup: %s (%s)>' % (self.id, self.path)
 
     def __json__(self):
         return dict(id=self.id,
@@ -616,11 +592,8 @@ class Category(DeclarativeBase):
         self.naming_convention = naming_convention
 
     def __repr__(self):
-        return '<Category %s: %s>' % (self.id,
-            dict(ordering=self.ordering,
-                 naming_convention=self.naming_convention
-                ))
-
+        return '<Category: %s (%s)>' % (self.id, self.ordering)
+    
     def __json__(self):
         return dict(id=self.id,
                     ordering=self.ordering,
@@ -788,7 +761,7 @@ class Asset(DeclarativeBase):
         AssetVersion(self, 0, user, '')
     
     def __repr__(self):
-        return '<Asset: %s (%s)>' % (self.id, self.name)
+        return '<Asset: %s (%s)>' % (self.id, self.path)
 
     def __json__(self):
         return dict(id=self.id,
@@ -866,7 +839,7 @@ class AssetVersion(DeclarativeBase):
 
     def __repr__(self):
         return '<AssetVersion: %s (%s_v%03d)>' % (self.asset_id,
-                                                    self.asset.name, self.ver)
+                                                    self.asset.path, self.ver)
 
     def __json__(self):
         return dict(id=self.id,
