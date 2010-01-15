@@ -191,6 +191,37 @@ table td.icon {
     color: #f6f6f4; /* Aluminium 0 */
 }
 
+/* Status */
+.statusicon {
+    display: block;
+    float: left;
+    padding: 1px;
+    height: 16px;
+    width: 16px;
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+}
+
+.statusicon.new {
+    background-color: #babdb6; /* Aluminium 3 */
+}
+
+.statusicon.idle {
+    background-color: #729fcf; /* Sky Blue 1 */
+}
+
+.statusicon.wip {
+    background-color: #fce94f; /* Butter 1 */
+}
+
+.statusicon.submitted {
+    background-color: #f57900; /* Orange 2 */
+}
+
+.statusicon.approved {
+    background-color: #73d216; /* Chameleon 2 */
+}
+
 /**********************************************************************
  * Overlay
  **********************************************************************/

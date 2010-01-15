@@ -8,8 +8,8 @@ from tw.forms import PasswordField, MultipleSelectField
 from tw.forms.validators import All, Any, Regex, MaxLength, NotEmpty, Int
 from tw.forms.validators import Schema
 from spam.lib.validators import CategoryNamingConvention
-from spam.lib.twlib.livetable import LiveTable, IconButton, TextData, ThumbData
-from spam.lib.twlib.livetable import IconBox, LinkData
+from spam.lib.twlib.livetable import LiveTable, TableData, IconButton, TextData
+from spam.lib.twlib.livetable import IconBox, LinkData, ThumbData
 from spam.lib.twlib.livelist import LiveList, TextItem
 from spam.lib.notifications import TOPIC_JOURNAL
 
@@ -49,6 +49,17 @@ class StartupJS(Widget):
     javascript = [jquery_js, jquery_ui_js, jquery_tools_js, jquery_cookie_js,
                   jquery_treeview_js, jquery_sprintf_js, jquery_tablesorter_js,
                   spam_js]
+
+############################################################
+# Custom Live widgets
+############################################################
+class StatusIcon(TableData):
+    params = ['icon_class']
+    template = 'mako:spam.templates.widgets.status_icon'
+    
+    field_class = 'statusicon'
+    show_header = False
+    sortable = False
 
 ############################################################
 # Live tables
@@ -257,7 +268,7 @@ class TableAssets(LiveTable):
         )
         name = TextData(sort_default=True)
         current_fmtver = TextData(label_text='ver')
-        status = TextData()
+        status = StatusIcon(icon_class='asset')
         actions = IconBox(buttons=[
             IconButton(id='checkout', icon_class='checkout',
               label_text=_('checkout'),
