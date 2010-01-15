@@ -66,28 +66,28 @@ class LiveTable(Widget):
 
 
 class TableData(Widget):
-    params = ['field_class', 'show_header', 'sortable', 'sort_default',
-              'sort_direction', 'condition']
+    params = ['field_class', 'label_text', 'show_header', 'sortable',
+              'sort_default', 'sort_direction', 'condition']
     
     show_header = True
     sortable = True
     sort_default = False
     sort_direction = 'asc'
     condition = 'true'
+    
+    def __init__(self, id=None, parent=None, children=[], **kw):
+        super(TableData, self).__init__(id,parent,children, **kw)
+        if self.label_text is None and self.id is not None:
+            self.label_text = name2label(id)
 
 
 class IconButton(TableData):
-    params = ['label_text', 'icon_class', 'action']
+    params = ['icon_class', 'action']
     template = 'mako:spam.lib.twlib.livetable.templates.icon_button'
     
     field_class = 'icon'
     show_header = False
     sortable = False
-    
-    def __init__(self, id=None, parent=None, children=[], **kw):
-        super(IconButton, self).__init__(id,parent,children, **kw)
-        if self.label_text is None and self.id is not None:
-            self.label_text = name2label(id)
 
 
 class IconBox(TableData):
