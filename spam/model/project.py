@@ -784,6 +784,16 @@ class Asset(DeclarativeBase):
         self.submitted_by = user
         self.submitted_date = datetime.now()
     
+    def recall(self, user):
+        self.submitted = False
+        self.submitted_by = None
+        self.submitted_date = None
+    
+    def sendback(self, user):
+        self.submitted = False
+        self.submitted_by = None
+        self.submitted_date = None
+    
     def approve(self, user):
         self.approved = True
         self.approved_by = user

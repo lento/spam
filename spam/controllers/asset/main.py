@@ -232,8 +232,8 @@ class Controller(RestController):
         return dict(msg='deleted asset "%s"' % asset.path, result='success')
     
     # Custom REST-like actions
-    custom_actions = ['checkout', 'release', 'publish', 'submit', 'approve',
-                      'revoke']
+    custom_actions = ['checkout', 'release', 'publish', 'submit', 'recall',
+                      'sendback', 'approve', 'revoke']
 
     @project_set_active
     @require(is_project_user())
@@ -390,6 +390,92 @@ class Controller(RestController):
     @project_set_active
     @require(is_project_admin())
     @expose('spam.templates.forms.form')
+    def get_recall(self, proj, asset_id, **kwargs):
+        """Display a RECALL confirmation form."""
+        tmpl_context.form = f_confirm
+        asset = asset_get(proj, asset_id)
+
+        fargs = dict(_method='RECALL',
+                     proj=asset.project.id, project_=asset.project.name,
+                     asset_id=asset.id, name_=asset.name,
+                     container_=asset.parent.path,
+                     category_=asset.category.id,
+                    )
+                     
+        fcargs = dict()
+        return dict(title='Are you sure you want to recall "%s"?' % asset.path,
+                                                args=fargs, child_args=fcargs)
+
+    @project_set_active
+    @require(is_project_admin())
+    @expose('json')
+    @expose('spam.templates.forms.result')
+    @validate(f_confirm, error_handler=get_submit)
+    def post_recall(self, proj, asset_id, **kwargs):
+        """Recall an asset submitted for approval."""
+        session = session_get()
+        user = tmpl_context.user
+        asset = asset_get(proj, asset_id)
+        
+        if asset.submitted and not asset.approved:
+            asset.recall(user)
+
+            # log into Journal
+            journal.add(user, 'recall submission for %s' % asset)
+        
+            # send a stomp message to notify clients
+            notify.send(asset)
+            return dict(msg='recalled submission for asset "%s"' % asset.path,
+                                                            result='success')
+        return dict(msg='submission for asset "%s" cannot be recalled' %
+                                                    asset.path, result='failed')
+
+    @project_set_active
+    @require(is_project_admin())
+    @expose('spam.templates.forms.form')
+    def get_sendback(self, proj, asset_id, **kwargs):
+        """Display a SENDBACK confirmation form."""
+        tmpl_context.form = f_confirm
+        asset = asset_get(proj, asset_id)
+
+        fargs = dict(_method='SENDBACK',
+                     proj=asset.project.id, project_=asset.project.name,
+                     asset_id=asset.id, name_=asset.name,
+                     container_=asset.parent.path,
+                     category_=asset.category.id,
+                    )
+                     
+        fcargs = dict()
+        return dict(title='Are you sure you want to send back "%s"?' %
+                                    asset.path, args=fargs, child_args=fcargs)
+
+    @project_set_active
+    @require(is_project_admin())
+    @expose('json')
+    @expose('spam.templates.forms.result')
+    @validate(f_confirm, error_handler=get_submit)
+    def post_sendback(self, proj, asset_id, **kwargs):
+        """Send back an asset for revision."""
+        session = session_get()
+        user = tmpl_context.user
+        asset = asset_get(proj, asset_id)
+        
+        if asset.submitted and not asset.approved:
+            asset.sendback(user)
+
+            # log into Journal
+            journal.add(user, 'send back for revisions %s' % asset)
+        
+            # send a stomp message to notify clients
+            notify.send(asset)
+            return dict(msg='asset "%s" sent back for revisions' % asset.path,
+                                                            result='success')
+        return dict(msg='asset "%s" cannot be sent back for revisions' %
+                                                    asset.path, result='failed')
+
+    @project_set_active
+    @require(is_project_admin())
+    @expose('spam.templates.forms.form')
     def get_approve(self, proj, asset_id, **kwargs):
         """Display a APPROVE confirmation form."""
         tmpl_context.form = f_confirm
@@ -472,4 +558,5 @@ class Controller(RestController):
                                                             result='success')
         return dict(msg='approval for asset "%s" cannot be revoked' %
                                                     asset.path, result='failed')
+
 

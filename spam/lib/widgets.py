@@ -1,5 +1,6 @@
 from tg import config, url
 from tg import app_globals as G
+from pylons.i18n import ugettext as _, lazy_ugettext as l_
 from tw.api import Widget, WidgetsList, JSLink, js_function
 from tw.forms import TableForm, TextField, TextArea, HiddenField, FormField
 from tw.forms import CalendarDatePicker, SingleSelectField, FileField, Spacer
@@ -259,25 +260,40 @@ class TableAssets(LiveTable):
         status = TextData()
         actions = IconBox(buttons=[
             IconButton(id='checkout', icon_class='checkout',
+              label_text=_('checkout'),
               action=url('/asset/%(proj_id)s/%(id)s/checkout'),
               condition='!data.checkedout'),
             IconButton(id='release', icon_class='release',
+              label_text=_('release'),
               action=url('/asset/%(proj_id)s/%(id)s/release'),
               condition='data.checkedout'),
             IconButton(id='publish', icon_class='publish',
+              label_text=_('publish a new version'),
               action=url('/asset/%(proj_id)s/%(id)s/publish'),
               condition='data.checkedout'),
             IconButton(id='submit', icon_class='submit',
+              label_text=_('submit for approval'),
               action=url('/asset/%(proj_id)s/%(id)s/submit'),
               condition='data.checkedout && !(data.submitted) '
                         '&& !(data.approved)'),
+            IconButton(id='recall', icon_class='recall',
+              label_text=_('recall submission'),
+              action=url('/asset/%(proj_id)s/%(id)s/recall'),
+              condition='data.submitted && !(data.approved)'),
+            IconButton(id='sendback', icon_class='sendback',
+              label_text=_('send back for revisions'),
+              action=url('/asset/%(proj_id)s/%(id)s/sendback'),
+              condition='data.submitted && !(data.approved)'),
             IconButton(id='approve', icon_class='approve',
+              label_text=_('approve'),
               action=url('/asset/%(proj_id)s/%(id)s/approve'),
               condition='data.submitted && !(data.approved)'),
             IconButton(id='revoke', icon_class='revoke',
+              label_text=_('revoke approval'),
               action=url('/asset/%(proj_id)s/%(id)s/revoke'),
               condition='data.approved'),
             IconButton(id='delete', icon_class='delete',
+              label_text=_('delete'),
               action=url('/asset/%(proj_id)s/%(id)s/delete')),
         ])
     

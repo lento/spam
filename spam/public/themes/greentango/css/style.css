@@ -90,16 +90,18 @@ body {
 .iconbutton.edit {background: url(../images/icons/16x16/edit.png) left center no-repeat;}
 .iconbutton.archive {background: url(../images/icons/16x16/undo.png) left center no-repeat;}
 .iconbutton.activate {background: url(../images/icons/16x16/redo.png) left center no-repeat;}
-.iconbutton.delete {background: url(../images/icons/16x16/trash.png) left center no-repeat;}
+.iconbutton.delete {background: url(../images/icons/16x16/delete.png) left center no-repeat;}
 .iconbutton.schema_uptodate {
     background: url(../images/icons/16x16/green.png) left center no-repeat;
     cursor: default;
 }
-.iconbutton.schema_outdated {background: url(../images/icons/16x16/update-urgent.png) left center no-repeat;}
+.iconbutton.schema_outdated {background: url(../images/icons/16x16/urgent.png) left center no-repeat;}
 .iconbutton.checkout {background: url(../images/icons/16x16/checkout.png) left center no-repeat;}
 .iconbutton.release {background: url(../images/icons/16x16/release.png) left center no-repeat;}
-.iconbutton.publish {background: url(../images/icons/16x16/new.png) left center no-repeat;}
-.iconbutton.submit {background: url(../images/icons/16x16/submit.png) left center no-repeat;}
+.iconbutton.publish {background: url(../images/icons/16x16/publish.png) left center no-repeat;}
+.iconbutton.submit {background: url(../images/icons/16x16/redo.png) left center no-repeat;}
+.iconbutton.sendback {background: url(../images/icons/16x16/sendback.png) left center no-repeat;}
+.iconbutton.recall {background: url(../images/icons/16x16/undo.png) left center no-repeat;}
 .iconbutton.approve {background: url(../images/icons/16x16/approve.png) left center no-repeat;}
 .iconbutton.revoke {background: url(../images/icons/16x16/revoke.png) left center no-repeat;}
 
