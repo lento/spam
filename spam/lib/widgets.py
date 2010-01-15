@@ -8,8 +8,8 @@ from tw.forms import PasswordField, MultipleSelectField
 from tw.forms.validators import All, Any, Regex, MaxLength, NotEmpty, Int
 from tw.forms.validators import Schema
 from spam.lib.validators import CategoryNamingConvention
-from livewidgets import LiveTable, LiveBox, Box, LiveWidget, IconButton, Text
-from livewidgets import Link, Thumb
+from livewidgets import LiveTable, LiveBox, LiveList
+from livewidgets import LiveWidget, Box, IconButton, Text, Link, Thumb
 from spam.lib.notifications import TOPIC_JOURNAL
 
 # Orbited
@@ -383,16 +383,14 @@ class TableJournal(LiveTable):
 ############################################################
 # Live lists
 ############################################################
-class ListTags(LiveTable):
-    pass
-    #class fields(WidgetsList):
-    #    id = TextItem()
+class ListTags(LiveList):
+    class fields(WidgetsList):
+        id = Text()
 
 
-class ListNotes(LiveTable):
-    pass
-    #class fields(WidgetsList):
-    #    text = TextItem()
+class ListNotes(LiveList):
+    class fields(WidgetsList):
+        text = Text()
 
 
 ############################################################
