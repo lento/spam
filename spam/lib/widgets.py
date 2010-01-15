@@ -8,9 +8,8 @@ from tw.forms import PasswordField, MultipleSelectField
 from tw.forms.validators import All, Any, Regex, MaxLength, NotEmpty, Int
 from tw.forms.validators import Schema
 from spam.lib.validators import CategoryNamingConvention
-from spam.lib.twlib.livetable import LiveTable, TableData, IconButton, TextData
-from spam.lib.twlib.livetable import IconBox, LinkData, ThumbData
-from spam.lib.twlib.livelist import LiveList, TextItem
+from livewidgets import LiveTable, LiveBox, Box, LiveWidget, IconButton, Text
+from livewidgets import Link, Thumb
 from spam.lib.notifications import TOPIC_JOURNAL
 
 # Orbited
@@ -53,9 +52,9 @@ class StartupJS(Widget):
 ############################################################
 # Custom Live widgets
 ############################################################
-class StatusIcon(TableData):
+class StatusIcon(LiveWidget):
     params = ['icon_class']
-    template = 'mako:spam.templates.widgets.status_icon'
+    template = 'mako:spam.templates.widgets.statusicon'
     
     field_class = 'statusicon'
     show_header = False
@@ -64,17 +63,36 @@ class StatusIcon(TableData):
 ############################################################
 # Live tables
 ############################################################
+class TableTest(LiveTable):
+    show_headers = True
+    class fields(WidgetsList):
+        a = Text(sort_default=True, sort_direction='desc')
+        b = Link()
+        thumb = Thumb(label_text='preview',
+            src=url('/repo/%(proj_id)s/%(name)s/thumb.png'),
+            dest=url('/repo/%(proj_id)s/%(name)s/preview.png')
+        )
+        actions = Box(fields=[
+            IconButton(id='edit', icon_class='edit',
+              action=url('/user/%(user_name)s/edit')),
+            IconButton(id='delete', icon_class='delete',
+              action=url('/user/%(user_name)s/delete')),
+        ])
+
+
 class TableUsers(LiveTable):
     javascript = [notify_client_js]
     update_topic = '/topic/users'
     class fields(WidgetsList):
-        domain = TextData()
-        user_name = TextData(sort_default=True)
-        display_name = TextData()
-        actions = IconBox(buttons=[
+        domain = Text()
+        user_name = Text(sort_default=True)
+        display_name = Text()
+        actions = Box(fields=[
             IconButton(id='edit', icon_class='edit',
+              label_text=_('edit'),
               action=url('/user/%(user_name)s/edit')),
             IconButton(id='delete', icon_class='delete',
+              label_text=_('delete'),
               action=url('/user/%(user_name)s/delete')),
         ])
 
@@ -83,10 +101,11 @@ class TableGroupUsers(LiveTable):
     javascript = [notify_client_js]
     update_topic = '/topic/groups'
     class fields(WidgetsList):
-        user_name = TextData(sort_default=True)
-        display_name = TextData()
-        actions = IconBox(buttons=[
+        user_name = Text(sort_default=True)
+        display_name = Text()
+        actions = Box(fields=[
             IconButton(id='remove', icon_class='delete',
+              label_text=_('remove'),
               action=url(
                     '/user/%(user_name)s/%(group_name)s/remove_from_group')),
         ])
@@ -101,10 +120,11 @@ class TableProjectAdmins(LiveTable):
     javascript = [notify_client_js]
     update_topic = '/topic/project_admins'
     class fields(WidgetsList):
-        user_name = TextData(sort_default=True)
-        display_name = TextData()
-        actions = IconBox(buttons=[
+        user_name = Text(sort_default=True)
+        display_name = Text()
+        actions = Box(fields=[
             IconButton(id='remove', icon_class='delete',
+              label_text=_('remove'),
               action=url('/user/%(proj)s/%(user_name)s/remove_admin')),
         ])
     
@@ -117,11 +137,13 @@ class TableProjectSupervisors(LiveTable):
     javascript = [notify_client_js]
     update_topic = '/topic/project_supervisors'
     class fields(WidgetsList):
-        user_name = TextData(sort_default=True)
-        display_name = TextData()
-        actions = IconBox(buttons=[
+        user_name = Text(sort_default=True)
+        display_name = Text()
+        actions = Box(fields=[
             IconButton(id='remove', icon_class='delete',
-          action=url('/user/%(proj)s/%(cat)s/%(user_name)s/remove_supervisor')),
+              label_text=_('remove'),
+              action=url(
+                    '/user/%(proj)s/%(cat)s/%(user_name)s/remove_supervisor')),
         ])
     
     def update_params(self, d):
@@ -134,10 +156,11 @@ class TableProjectArtists(LiveTable):
     javascript = [notify_client_js]
     update_topic = '/topic/project_artists'
     class fields(WidgetsList):
-        user_name = TextData(sort_default=True)
-        display_name = TextData()
-        actions = IconBox(buttons=[
+        user_name = Text(sort_default=True)
+        display_name = Text()
+        actions = Box(fields=[
             IconButton(id='remove', icon_class='delete',
+              label_text=_('remove'),
               action=url('/user/%(proj)s/%(cat)s/%(user_name)s/remove_artist')),
         ])
     
@@ -151,13 +174,15 @@ class TableCategories(LiveTable):
     javascript = [notify_client_js]
     update_topic = '/topic/categories'
     class fields(WidgetsList):
-        ordering = TextData(sort_default=True)
-        id = TextData()
-        naming_convention = TextData()
-        actions = IconBox(buttons=[
+        ordering = Text(sort_default=True)
+        id = Text()
+        naming_convention = Text()
+        actions = Box(fields=[
             IconButton(id='edit', icon_class='edit',
+              label_text=_('edit'),
               action=url('/category/%(id)s/edit')),
             IconButton(id='delete', icon_class='delete',
+              label_text=_('delete'),
               action=url('/category/%(id)s/delete')),
         ])
 
@@ -166,53 +191,67 @@ class ProjectsActive(LiveTable):
     javascript = [notify_client_js]
     update_topic = '/topic/projects'
     update_condition = '!msg.ob.archived || msg.update_type=="archived"'
-    update_functions = ('{"added": livetable.addrow,'
-                        ' "deleted": livetable.deleterow,'
-                        ' "updated": livetable.updaterow,'
-                        ' "archived": livetable.deleterow,'
-                        ' "activated": livetable.addrow}')
+    update_functions = ('{"added": lw.livetable.addrow,'
+                        ' "deleted": lw.livetable.deleterow,'
+                        ' "updated": lw.livetable.updaterow,'
+                        ' "archived": lw.livetable.deleterow,'
+                        ' "activated": lw.livetable.addrow}')
 
     class fields(WidgetsList):
-        archive = IconButton(icon_class='archive', action='%(id)s/archive')
-        edit = IconButton(icon_class='edit', action='%(id)s/edit')
-        delete = IconButton(icon_class='delete', action='%(id)s/delete')
-        id = TextData()
-        name = TextData()
-        description = TextData()
+        id = Text()
+        name = Text()
+        description = Text()
+        actions = Box(fields=[
+            IconButton(id='archive', icon_class='archive',
+              label_text=_('archive'),
+              action='%(id)s/archive'),
+            IconButton(id='edit', icon_class='edit',
+              label_text=_('edit'),
+              action='%(id)s/edit'),
+            IconButton(id='delete', icon_class='delete',
+              label_text=_('delete'),
+              action='%(id)s/delete'),
+        ])
 
 
 class ProjectsArchived(LiveTable):
     javascript = [notify_client_js]
     update_topic = '/topic/projects'
     update_condition = 'msg.ob.archived || msg.update_type=="activated"'
-    update_functions = ('{"added": livetable.addrow,'
-                        ' "deleted": livetable.deleterow,'
-                        ' "updated": livetable.updaterow,'
-                        ' "archived": livetable.addrow,'
-                        ' "activated": livetable.deleterow}')
+    update_functions = ('{"added": lw.livetable.addrow,'
+                        ' "deleted": lw.livetable.deleterow,'
+                        ' "updated": lw.livetable.updaterow,'
+                        ' "archived": lw.livetable.addrow,'
+                        ' "activated": lw.livetable.deleterow}')
 
     class fields(WidgetsList):
-        reactivate = IconButton(icon_class='activate', action='%(id)s/activate')
-        id = TextData()
-        name = TextData()
-        description = TextData()
+        id = Text()
+        name = Text()
+        description = Text()
+        actions = Box(fields=[
+            IconButton(id='activate', icon_class='activate',
+              label_text=_('activate'),
+              action='%(id)s/activate'),
+        ])
 
 
 class TableScenes(LiveTable):
     javascript = [notify_client_js]
     update_topic = '/topic/scenes'
     class fields(WidgetsList):
-        thumbnail = ThumbData(label_text='preview',
+        thumbnail = Thumb(label_text='preview',
             src=url('/repo/%(proj_id)s/%(name)s/thumb.png'),
             dest=url('/repo/%(proj_id)s/%(name)s/preview.png')
         )
-        name = LinkData(dest=url('/scene/%(proj_id)s/%(name)s/'),
+        name = Link(dest=url('/scene/%(proj_id)s/%(name)s/'),
                         sort_default=True)
-        description = TextData()
-        actions = IconBox(buttons=[
+        description = Text()
+        actions = Box(fields=[
             IconButton(id='edit', icon_class='edit',
+              label_text=_('edit'),
               action=url('/scene/%(proj_id)s/%(name)s/edit')),
             IconButton(id='delete', icon_class='delete',
+              label_text=_('delete'),
               action=url('/scene/%(proj_id)s/%(name)s/delete')),
         ])
 
@@ -221,18 +260,20 @@ class TableShots(LiveTable):
     javascript = [notify_client_js]
     update_topic = '/topic/shots'
     class fields(WidgetsList):
-        thumbnail = ThumbData(label_text='preview',
+        thumbnail = Thumb(label_text='preview',
             src=url('/repo/%(proj_id)s/%(parent_name)s/%(name)s/thumb.png'),
             dest=url('/repo/%(proj_id)s/%(parent_name)s/%(name)s/preview.png')
         )
-        name = LinkData(dest=url('/shot/%(proj_id)s/%(parent_name)s/%(name)s/'),
+        name = Link(dest=url('/shot/%(proj_id)s/%(parent_name)s/%(name)s/'),
                         sort_default=True)
-        description = TextData()
-        frames = TextData()
-        actions = IconBox(buttons=[
+        description = Text()
+        frames = Text()
+        actions = Box(fields=[
             IconButton(id='edit', icon_class='edit',
+              label_text=_('edit'),
               action=url('/shot/%(proj_id)s/%(parent_name)s/%(name)s/edit')),
             IconButton(id='delete', icon_class='delete',
+              label_text=_('delete'),
               action=url('/shot/%(proj_id)s/%(parent_name)s/%(name)s/delete')),
         ])
 
@@ -241,17 +282,19 @@ class TableLibgroups(LiveTable):
     javascript = [notify_client_js]
     update_topic = '/topic/libgroups'
     class fields(WidgetsList):
-        thumbnail = ThumbData(label_text='preview',
+        thumbnail = Thumb(label_text='preview',
             src=url('/repo/%(proj_id)s/%(id)s/thumb.png'),
             dest=url('/repo/%(proj_id)s/%(id)s/preview.png')
         )
-        name = LinkData(dest=url('/libgroup/%(proj_id)s/%(id)s/'),
+        name = Link(dest=url('/libgroup/%(proj_id)s/%(id)s/'),
                         sort_default=True)
-        description = TextData()
-        actions = IconBox(buttons=[
+        description = Text()
+        actions = Box(fields=[
             IconButton(id='edit', icon_class='edit',
+              label_text=_('edit'),
               action=url('/libgroup/%(proj_id)s/%(id)s/edit')),
             IconButton(id='delete', icon_class='delete',
+              label_text=_('delete'),
               action=url('/libgroup/%(proj_id)s/%(id)s/delete')),
         ])
 
@@ -262,14 +305,14 @@ class TableAssets(LiveTable):
     javascript = [notify_client_js]
     update_topic = '/topic/assets'
     class fields(WidgetsList):
-        thumbnail = ThumbData(label_text='preview',
+        thumbnail = Thumb(label_text='preview',
             src=url('/repo/%(thumb_path)s'),
             dest=url('/repo/%(proj_id)s/preview.png')
         )
-        name = TextData(sort_default=True)
-        current_fmtver = TextData(label_text='ver')
+        name = Text(sort_default=True)
+        current_fmtver = Text(label_text='ver')
         status = StatusIcon(icon_class='asset')
-        actions = IconBox(buttons=[
+        actions = Box(fields=[
             IconButton(id='checkout', icon_class='checkout',
               label_text=_('checkout'),
               action=url('/asset/%(proj_id)s/%(id)s/checkout'),
@@ -315,11 +358,11 @@ class TableAssets(LiveTable):
 
 class TableAssetHistory(LiveTable):
     class fields(WidgetsList):
-        thumbnail = ThumbData(label_text='preview',
+        thumbnail = Thumb(label_text='preview',
             src=url('/repo/%(proj_id)s/thumb.png'),
             dest=url('/repo/%(proj_id)s/preview.png')
         )
-        fmtver = TextData(label_text='ver')
+        fmtver = Text(label_text='ver')
 
 
 class TableJournal(LiveTable):
@@ -327,10 +370,10 @@ class TableJournal(LiveTable):
     javascript = [notify_client_js]
     update_topic = TOPIC_JOURNAL
     class fields(WidgetsList):
-        strftime = TextData(label_text='date', sort_default=True,
+        strftime = Text(label_text='date', sort_default=True,
                                                         sort_direction = 'desc')
-        user_id = TextData(label_text='user')
-        text = TextData()
+        user_id = Text(label_text='user')
+        text = Text()
     
     def update_params(self, d):
         super(TableJournal, self).update_params(d)
@@ -340,14 +383,16 @@ class TableJournal(LiveTable):
 ############################################################
 # Live lists
 ############################################################
-class ListTags(LiveList):
-    class fields(WidgetsList):
-        id = TextItem()
+class ListTags(LiveTable):
+    pass
+    #class fields(WidgetsList):
+    #    id = TextItem()
 
 
-class ListNotes(LiveList):
-    class fields(WidgetsList):
-        text = TextItem()
+class ListNotes(LiveTable):
+    pass
+    #class fields(WidgetsList):
+    #    text = TextItem()
 
 
 ############################################################
