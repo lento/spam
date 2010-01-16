@@ -29,7 +29,7 @@ from tw.forms import validators
 from spam.model import session_get, Asset, AssetVersion, Category, category_get
 from spam.model import project_get, container_get, asset_get
 from spam.lib.widgets import FormAssetNew, FormAssetEdit, FormAssetConfirm
-from spam.lib.widgets import FormAssetPublish
+from spam.lib.widgets import FormAssetPublish, BoxStatus
 from spam.lib.widgets import TableAssets, TableAssetHistory, NotifyClientJS
 from spam.lib import repo, preview
 from spam.lib.notifications import notify
@@ -46,9 +46,10 @@ f_edit = FormAssetEdit(action=url('/asset/'))
 f_confirm = FormAssetConfirm(action=url('/asset/'))
 f_publish = FormAssetPublish(action=url('/asset/'))
 
-# livetable widgets
+# livewidgets
 t_assets = TableAssets()
 t_history = TableAssetHistory()
+b_status = BoxStatus()
 
 # javascripts
 j_notify_client = NotifyClientJS()
@@ -69,6 +70,7 @@ class Controller(RestController):
         """
         project = tmpl_context.project
         tmpl_context.t_assets = t_assets
+        tmpl_context.b_status = b_status
         tmpl_context.j_notify_client = j_notify_client
         container = container_get(proj, container_type, container_id)
         query = session_get().query(Category)

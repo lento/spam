@@ -311,7 +311,7 @@ class TableAssets(LiveTable):
         )
         name = Text(sort_default=True)
         current_fmtver = Text(label_text='ver')
-        status = StatusIcon(icon_class='asset')
+        status = StatusIcon(icon_class='asset', label_text=_('status: '))
         actions = Box(fields=[
             IconButton(id='checkout', icon_class='checkout',
               label_text=_('checkout'),
@@ -391,6 +391,16 @@ class ListTags(LiveList):
 class ListNotes(LiveList):
     class fields(WidgetsList):
         text = Text()
+
+
+############################################################
+# Live boxes
+############################################################
+class BoxStatus(LiveBox):
+    container_class = 'statusbox'
+    
+    class fields(WidgetsList):
+        status = StatusIcon(label_text='')
 
 
 ############################################################
