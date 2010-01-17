@@ -337,9 +337,28 @@ class AssetContainer(DeclarativeBase):
     @property
     def categories(self):
         categories = []
+        count = {}
         for asset in self.assets:
             if asset.category not in categories:
                 categories.append(asset.category)
+                count[asset.category.id] = dict(new=0, idle=0, wip=0,
+                                                        submitted=0, approved=0)
+            count[asset.category.id][asset.status] += 1
+        
+        for cat in categories:
+            if count[cat.id]['submitted']:
+                cat.status = 'submitted'
+            elif count[cat.id]['wip']:
+                cat.status = 'wip'
+            elif count[cat.id]['idle']:
+                cat.status = 'idle'
+            elif count[cat.id]['new']:
+                cat.status = 'new'
+            elif count[cat.id]['approved']:
+                cat.status = 'approved'
+            else:
+                cat.status = None
+        
         categories.sort(cmp=lambda x, y: cmp(x.ordering, y.ordering))
         return categories
     
