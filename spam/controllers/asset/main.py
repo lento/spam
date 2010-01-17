@@ -74,23 +74,10 @@ class Controller(RestController):
         tmpl_context.j_notify_client = j_notify_client
         container = container_get(proj, container_type, container_id)
         query = session_get().query(Category)
-        categories = query.order_by('ordering', 'id')
-        
-        assets_dict = {}
-        for a in container.assets:
-            cat = a.category.id
-            if cat not in assets_dict:
-                assets_dict[cat] = []
-            assets_dict[cat].append(a)
-        
-        assets_per_category = []
-        for cat in categories:
-            if cat.id in assets_dict:
-                assets_per_category.append((cat.id, assets_dict[cat.id]))
         
         return dict(page='assets', sidebar=('projects', project.id),
                 container_type=container_type, container_id=container_id,
-                container=container, assets_per_category=assets_per_category)
+                container=container)
 
     @expose('spam.templates.asset.get_all')
     def default(self, proj, container_type, container_id, *args, **kwargs):

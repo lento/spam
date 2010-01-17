@@ -5,17 +5,17 @@
 
 <br/>
 <br/>
-% for cat, assets in assets_per_category:
-    <div id="${'toggle_%s' % cat}" class="toggle ${len(assets)==0 and 'hidden' or ''}">
+% for cat in container.categories:
+    <div id="${'toggle_%s' % cat.id}" class="toggle ${len(container.assets[cat])==0 and 'hidden' or ''}">
         <div class="toggle_header title">
             <span class="toggle_arrow"/>
-            <h2 class="toggle_title">${cat}</h2>
-            ${c.b_status(id="status_%s_%s_%s" % (container_type, container_id, cat),
-                         items=assets) | n}
+            <h2 class="toggle_title">${cat.id}</h2>
+            ${c.b_status(id="status_%s_%s_%s" % (container_type, container_id, cat.id),
+                         items=container.assets[cat]) | n}
         </div>
         <div class="toggleable">
-            ${c.t_assets(id="assets_%s_%s_%s" % (container_type, container_id, cat),
-                         items=assets, category=cat,
+            ${c.t_assets(id="assets_%s_%s_%s" % (container_type, container_id, cat.id),
+                         items=container.assets[cat], category=cat.id,
                          update_listener_adder="notify.add_listener_tab") | n}
         </div>
     </div>
@@ -31,13 +31,14 @@ ${c.j_notify_client()}
         $(".pane.ajax").load("${tg.url('/asset/%s/%s/%s/' % (c.project.id, container_type, container_id))}");
     }
     spam.temp.current_categories = [];
-    % for cat, assets in assets_per_category:
-        spam.temp.current_categories.push("${cat}");
+    % for cat in container.categories:
+        spam.temp.current_categories.push("${cat.id}");
     % endfor
-    console.log('spam.temp.current_categories', $.inArray("uncategorized", spam.temp.current_categories));
+    console.log('spam.temp.current_categories', spam.temp.current_categories);
     
     $(function() {
         notify.add_listener("/topic/assets", function(msg) {
+            console.log('update categories', msg)
             if ($.inArray(msg.ob.category.id, spam.temp.current_categories)<0) {
                 spam.temp.reload_tab();
             }

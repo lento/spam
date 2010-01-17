@@ -333,6 +333,16 @@ class AssetContainer(DeclarativeBase):
     discriminator = Column('type', Unicode(20))
     __mapper_args__ = {'polymorphic_on': discriminator}
 
+    # Properties
+    @property
+    def categories(self):
+        categories = []
+        for asset in self.assets:
+            if asset.category not in categories:
+                categories.append(asset.category)
+        categories.sort(cmp=lambda x, y: cmp(x.ordering, y.ordering))
+        return categories
+    
     # Special methods
     def __repr__(self):
         return '<AssetContainer: %s (%s)>' % (self.id, self.discriminator)
@@ -718,7 +728,8 @@ class Asset(DeclarativeBase):
     owner = relation('User', primaryjoin=owner_id==User.user_id,
                                         backref=backref('checkedout_assets'))
 
-    parent = relation('AssetContainer', backref=backref('assets'))
+    parent = relation('AssetContainer', backref=backref('assets',
+                                    collection_class=mapped_list('category')))
 
     taggable = relation(Taggable, backref='tagged_asset')
     
