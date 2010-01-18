@@ -223,6 +223,10 @@ class Note(DeclarativeBase):
         return self.created.strftime('%d/%m/%Y %H:%M')
     
     @property
+    def header(self):
+        return '%s at %s' %(self.user.user_name, self.strftime)
+    
+    @property
     def summary(self):
         characters = 75
         summary = self.text[0:characters]
@@ -252,9 +256,10 @@ class Note(DeclarativeBase):
                     user=self.user,
                     created=self.created,
                     text=self.text,
+                    strftime=self.strftime,
+                    header=self.header,
                     summary=self.summary,
                     lines=self.lines,
-                    strftime=self.strftime,
                    )
 
 ############################################################
@@ -789,12 +794,8 @@ class Asset(DeclarativeBase):
                             self.category.id, name)
     
     @property
-    def current_ver(self):
-        return self.versions[0].ver
-    
-    @property
-    def current_fmtver(self):
-        return self.versions[0].fmtver
+    def current(self):
+        return self.versions[0]
     
     @property
     def is_sequence(self):
@@ -812,7 +813,7 @@ class Asset(DeclarativeBase):
             return 'submitted'
         elif self.checkedout:
             return 'wip'
-        elif self.current_ver == 0:
+        elif self.current.ver == 0:
             return 'new'
         else:
             return 'idle'
@@ -874,8 +875,14 @@ class Asset(DeclarativeBase):
                     approved=self.approved,
                     owner=self.owner,
                     path=self.path,
-                    current_ver=self.current_ver,
-                    current_fmtver=self.current_fmtver,
+                    current=self.current,
+                    current_id=self.current.id,
+                    current_ver=self.current.ver,
+                    current_fmtver=self.current.fmtver,
+                    current_header=(self.current.notes and
+                                        self.current.notes[0].header or ''),
+                    current_summary=(self.current.notes and
+                                        self.current.notes[0].summary or ''),
                     is_sequence=self.is_sequence,
                     thumb_path=self.thumb_path,
                     #'repopath': self.repopath,
@@ -913,9 +920,15 @@ class AssetVersion(DeclarativeBase):
     
     user = relation('User')
     
-    annotable = relation(Annotable, backref='annotated_asset_version')
+    annotable = relation(Annotable, backref=backref('annotated_asset_version',
+                                                                uselist=False))
     
     # Properties
+    @property
+    def path(self):
+        base, ext = os.path.splitext(self.asset.path)
+        return '%s_v%03d%s' % (base, self.ver, ext)
+    
     @property
     def fmtver(self):
         return 'v%03d' % self.ver
@@ -946,6 +959,7 @@ class AssetVersion(DeclarativeBase):
                     asset_id=self.asset_id,
                     ver=self.ver,
                     fmtver=self.fmtver,
+                    path=self.path,
                     #'has_preview': self.has_preview,
                     #'preview_small_repopath': self.preview_small_repopath,
                     #'preview_large_repopath': self.preview_large_repopath,

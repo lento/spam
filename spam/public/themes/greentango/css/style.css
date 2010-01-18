@@ -104,6 +104,7 @@ body {
 .lw_iconbutton.recall {background: url(../images/icons/16x16/undo.png) left center no-repeat;}
 .lw_iconbutton.approve {background: url(../images/icons/16x16/approve.png) left center no-repeat;}
 .lw_iconbutton.revoke {background: url(../images/icons/16x16/revoke.png) left center no-repeat;}
+.lw_iconbutton.history {background: url(../images/icons/16x16/history.png) left center no-repeat;}
 
 .thumbnail {
     width: 120px;
@@ -229,6 +230,13 @@ table td.icon {
 
 .statusbox > div {
     float: left;
+}
+
+/* Notes */
+.note_header {
+    font-size: 0.7em;
+    font-style: italic;
+    font-weight: bold;
 }
 
 /**********************************************************************

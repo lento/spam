@@ -327,22 +327,33 @@ class TableAssets(LiveTable):
     javascript = [notify_client_js]
     update_topic = '/topic/assets'
     class fields(WidgetsList):
-        thumbnail = Thumb(label_text='preview',
+        thumbnail = Thumb(label_text='preview', field_class='thumbnail',
             src=url('/repo/%(thumb_path)s'),
             dest=url('/repo/%(proj_id)s/preview.png')
         )
         name = Text(sort_default=True)
-        current_fmtver = Text(label_text='ver')
+        current_fmtver = Text(label_text=_('version'))
         status = StatusIcon(icon_class='asset', label_text=_('status: '))
+        note = Box(fields=[
+            Text(id='current_header', field_class='note_header',
+              label_text=_('latest comment')),
+            Text(id='current_summary', label_text=_('latest comment')),
+        ])
         actions = Box(fields=[
+            IconButton(id='history', icon_class='history',
+              label_text=_('asset history'),
+              action=url('/asset/%(proj_id)s/%(id)s')),
+            IconButton(id='addnote', icon_class='edit',
+              label_text=_('add note'),
+              action=url('/note/%(current_id)s/new')),
             IconButton(id='checkout', icon_class='checkout',
               label_text=_('checkout'),
               action=url('/asset/%(proj_id)s/%(id)s/checkout'),
-              condition='!data.checkedout'),
+              condition='!data.checkedout && !data.approved'),
             IconButton(id='release', icon_class='release',
               label_text=_('release'),
               action=url('/asset/%(proj_id)s/%(id)s/release'),
-              condition='data.checkedout'),
+              condition='data.checkedout && !data.submitted && !data.approved'),
             IconButton(id='publish', icon_class='publish',
               label_text=_('publish a new version'),
               action=url('/asset/%(proj_id)s/%(id)s/publish'),
@@ -350,8 +361,8 @@ class TableAssets(LiveTable):
             IconButton(id='submit', icon_class='submit',
               label_text=_('submit for approval'),
               action=url('/asset/%(proj_id)s/%(id)s/submit'),
-              condition='data.checkedout && !(data.submitted) '
-                        '&& !(data.approved)'),
+              condition='data.checkedout && data.current_ver>0 '
+                        '&& !data.submitted && !data.approved'),
             IconButton(id='recall', icon_class='recall',
               label_text=_('recall submission'),
               action=url('/asset/%(proj_id)s/%(id)s/recall'),
@@ -380,7 +391,7 @@ class TableAssets(LiveTable):
 
 class TableAssetHistory(LiveTable):
     class fields(WidgetsList):
-        thumbnail = Thumb(label_text='preview',
+        thumbnail = Thumb(label_text='preview', field_class='thumbnail',
             src=url('/repo/%(proj_id)s/thumb.png'),
             dest=url('/repo/%(proj_id)s/preview.png')
         )

@@ -152,7 +152,7 @@ class RootController(SPAMBaseController):
 
     @project_set_active
     @require(is_project_user())
-    @expose(content_type=CUSTOM_CONTENT_TYPE)
+    @expose()
     def repo(self, *args):
         """
         Return a file from the repository. We retrive file like that instead of
