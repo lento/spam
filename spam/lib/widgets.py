@@ -709,6 +709,7 @@ class FormAssetNew(TableForm):
                 validator=All(Regex(G.pattern_name, not_empty=True),
                                                                 MaxLength(30)),
                 default='')
+        comment = TextArea(cols=30, rows=3)
     
     validator = Schema(
         chained_validators=[CategoryNamingConvention('category_id', 'name')],
@@ -747,5 +748,17 @@ class FormAssetPublish(TableForm):
                     messages={'empty': 'Please choose the file(s) to upload'}))
         uploader = Upload(label_text='File(s) to Upload')
         spacer = Spacer(label_text='')
+        comment = TextArea(cols=30, rows=3)
+
+
+class FormAssetStatus(TableForm):
+    class fields(WidgetsList):
+        _method = HiddenField(default='', validator=None)
+        proj = HiddenField(validator=NotEmpty)
+        project_ = TextField(validator=None, disabled=True)
+        asset_id = HiddenField(validator=NotEmpty)
+        container_ = TextField(validator=None, disabled=True)
+        category_ = TextField(validator=None, disabled=True)
+        name_ = TextField(validator=None, disabled=True)
         comment = TextArea(cols=30, rows=3)
 

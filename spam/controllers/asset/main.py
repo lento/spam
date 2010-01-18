@@ -25,11 +25,12 @@
 from tg import expose, url, tmpl_context, validate, require
 from tg.controllers import RestController
 from tg.decorators import with_trailing_slash
+from pylons.i18n import ugettext as _, lazy_ugettext as l_
 from tw.forms import validators
-from spam.model import session_get, Asset, AssetVersion, Category, category_get
-from spam.model import project_get, container_get, asset_get
+from spam.model import session_get, Asset, AssetVersion, Category, Note
+from spam.model import project_get, container_get, asset_get, category_get
 from spam.lib.widgets import FormAssetNew, FormAssetEdit, FormAssetConfirm
-from spam.lib.widgets import FormAssetPublish, BoxStatus
+from spam.lib.widgets import FormAssetPublish, FormAssetStatus, BoxStatus
 from spam.lib.widgets import TableAssets, TableAssetHistory, NotifyClientJS
 from spam.lib import repo, preview
 from spam.lib.notifications import notify
@@ -45,6 +46,7 @@ f_new = FormAssetNew(action=url('/asset/'))
 f_edit = FormAssetEdit(action=url('/asset/'))
 f_confirm = FormAssetConfirm(action=url('/asset/'))
 f_publish = FormAssetPublish(action=url('/asset/'))
+f_status = FormAssetStatus(action=url('/asset/'))
 
 # livewidgets
 t_assets = TableAssets()
@@ -121,7 +123,7 @@ class Controller(RestController):
     @expose('spam.templates.forms.result')
     @validate(f_new, error_handler=new)
     def post(self, proj, container_type, container_id, category_id, name,
-             **kwargs):
+             comment='', **kwargs):
         """Create a new asset"""
         session = session_get()
         project = tmpl_context.project
@@ -133,6 +135,8 @@ class Controller(RestController):
         asset = Asset(container, category, name, user)
         session.add(asset)
         session.flush()
+        text = '[%s v000]\n%s' % (_('created'), comment or '')
+        asset.current.notes.append(Note(user, text))
         
         # log into Journal
         new = asset.__dict__.copy()
@@ -313,14 +317,17 @@ class Controller(RestController):
         user = tmpl_context.user
         
         # commit file to repo
-        text = u'[published v%03d]\n%s' % (asset.current_ver+1, comment)
+        text = u'[published %s v%03d]\n%s' % (asset.path, asset.current.ver+1,
+                                                                comment or '')
         repo_id = repo.commit(proj, asset, uploaded, text, user.user_name)
         if not repo_id:
             return dict(msg='%s is already the latest version' %
                                                     uploaded, result='failed')
         
         # create a new version
-        newver = AssetVersion(asset, asset.current_ver+1, user, repo_id)
+        newver = AssetVersion(asset, asset.current.ver+1, user, repo_id)
+        text = u'[published v%03d]\n%s' % (asset.current.ver+1, comment)
+        newver.notes.append(Note(user, text))
         session.add(newver)
         session.refresh(asset)
         
@@ -339,8 +346,8 @@ class Controller(RestController):
     @require(is_project_admin())
     @expose('spam.templates.forms.form')
     def get_submit(self, proj, asset_id, **kwargs):
-        """Display a SUBMIT confirmation form."""
-        tmpl_context.form = f_confirm
+        """Display a SUBMIT form."""
+        tmpl_context.form = f_status
         asset = asset_get(proj, asset_id)
 
         fargs = dict(_method='SUBMIT',
@@ -351,15 +358,15 @@ class Controller(RestController):
                     )
                      
         fcargs = dict()
-        return dict(title='Are you sure you want to submit "%s"?' % asset.path,
+        return dict(title='Submit "%s" for approval' % asset.path,
                                                 args=fargs, child_args=fcargs)
 
     @project_set_active
     @require(is_project_admin())
     @expose('json')
     @expose('spam.templates.forms.result')
-    @validate(f_confirm, error_handler=get_submit)
-    def post_submit(self, proj, asset_id, **kwargs):
+    @validate(f_status, error_handler=get_submit)
+    def post_submit(self, proj, asset_id, comment='', **kwargs):
         """Submit an asset to supervisors for approval."""
         session = session_get()
         user = tmpl_context.user
@@ -367,7 +374,11 @@ class Controller(RestController):
         
         if not asset.submitted and not asset.approved:
             asset.submit(user)
-
+            text = u'[%s v%03d]\n%s' % (_('submitted'), asset.current.ver,
+                                                                comment or '')
+            asset.current.notes.append(Note(user, text))
+            session.refresh(asset.current.annotable)
+            
             # log into Journal
             journal.add(user, 'submitted %s' % asset)
             
@@ -383,8 +394,8 @@ class Controller(RestController):
     @require(is_project_admin())
     @expose('spam.templates.forms.form')
     def get_recall(self, proj, asset_id, **kwargs):
-        """Display a RECALL confirmation form."""
-        tmpl_context.form = f_confirm
+        """Display a RECALL form."""
+        tmpl_context.form = f_status
         asset = asset_get(proj, asset_id)
 
         fargs = dict(_method='RECALL',
@@ -395,15 +406,15 @@ class Controller(RestController):
                     )
                      
         fcargs = dict()
-        return dict(title='Are you sure you want to recall "%s"?' % asset.path,
+        return dict(title='Recall submission for "%s"' % asset.path,
                                                 args=fargs, child_args=fcargs)
 
     @project_set_active
     @require(is_project_admin())
     @expose('json')
     @expose('spam.templates.forms.result')
-    @validate(f_confirm, error_handler=get_submit)
-    def post_recall(self, proj, asset_id, **kwargs):
+    @validate(f_status, error_handler=get_submit)
+    def post_recall(self, proj, asset_id, comment='', **kwargs):
         """Recall an asset submitted for approval."""
         session = session_get()
         user = tmpl_context.user
@@ -411,6 +422,10 @@ class Controller(RestController):
         
         if asset.submitted and not asset.approved:
             asset.recall(user)
+            text = u'[%s v%03d]\n%s' % (_('recalled'), asset.current.ver,
+                                                                comment or '')
+            asset.current.notes.append(Note(user, text))
+            session.refresh(asset.current.annotable)
 
             # log into Journal
             journal.add(user, 'recall submission for %s' % asset)
@@ -427,8 +442,8 @@ class Controller(RestController):
     @require(is_project_admin())
     @expose('spam.templates.forms.form')
     def get_sendback(self, proj, asset_id, **kwargs):
-        """Display a SENDBACK confirmation form."""
-        tmpl_context.form = f_confirm
+        """Display a SENDBACK form."""
+        tmpl_context.form = f_status
         asset = asset_get(proj, asset_id)
 
         fargs = dict(_method='SENDBACK',
@@ -439,15 +454,15 @@ class Controller(RestController):
                     )
                      
         fcargs = dict()
-        return dict(title='Are you sure you want to send back "%s"?' %
+        return dict(title='Send back "%s" for revisions' %
                                     asset.path, args=fargs, child_args=fcargs)
 
     @project_set_active
     @require(is_project_admin())
     @expose('json')
     @expose('spam.templates.forms.result')
-    @validate(f_confirm, error_handler=get_submit)
-    def post_sendback(self, proj, asset_id, **kwargs):
+    @validate(f_status, error_handler=get_submit)
+    def post_sendback(self, proj, asset_id, comment='', **kwargs):
         """Send back an asset for revision."""
         session = session_get()
         user = tmpl_context.user
@@ -455,6 +470,10 @@ class Controller(RestController):
         
         if asset.submitted and not asset.approved:
             asset.sendback(user)
+            text = u'[%s v%03d]\n%s' % (_('sent back for revisions'),
+                                            asset.current.ver, comment or '')
+            asset.current.notes.append(Note(user, text))
+            session.refresh(asset.current.annotable)
 
             # log into Journal
             journal.add(user, 'send back for revisions %s' % asset)
@@ -471,8 +490,8 @@ class Controller(RestController):
     @require(is_project_admin())
     @expose('spam.templates.forms.form')
     def get_approve(self, proj, asset_id, **kwargs):
-        """Display a APPROVE confirmation form."""
-        tmpl_context.form = f_confirm
+        """Display a APPROVE form."""
+        tmpl_context.form = f_status
         asset = asset_get(proj, asset_id)
 
         fargs = dict(_method='APPROVE',
@@ -483,15 +502,15 @@ class Controller(RestController):
                     )
                      
         fcargs = dict()
-        return dict(title='Are you sure you want to approve "%s"?' % asset.path,
+        return dict(title='Approve "%s"' % asset.path,
                                                 args=fargs, child_args=fcargs)
 
     @project_set_active
     @require(is_project_admin())
     @expose('json')
     @expose('spam.templates.forms.result')
-    @validate(f_confirm, error_handler=get_submit)
-    def post_approve(self, proj, asset_id, **kwargs):
+    @validate(f_status, error_handler=get_submit)
+    def post_approve(self, proj, asset_id, comment='', **kwargs):
         """Approve an asset submitted for approval."""
         session = session_get()
         user = tmpl_context.user
@@ -499,6 +518,10 @@ class Controller(RestController):
         
         if asset.submitted and not asset.approved:
             asset.approve(user)
+            text = u'[%s v%03d]\n%s' % (_('approved'), asset.current.ver,
+                                                                comment or '')
+            asset.current.notes.append(Note(user, text))
+            session.refresh(asset.current.annotable)
 
             # log into Journal
             journal.add(user, 'approved %s' % asset)
@@ -515,8 +538,8 @@ class Controller(RestController):
     @require(is_project_admin())
     @expose('spam.templates.forms.form')
     def get_revoke(self, proj, asset_id, **kwargs):
-        """Display a REVOKE confirmation form."""
-        tmpl_context.form = f_confirm
+        """Display a REVOKE form."""
+        tmpl_context.form = f_status
         asset = asset_get(proj, asset_id)
 
         fargs = dict(_method='REVOKE',
@@ -527,15 +550,15 @@ class Controller(RestController):
                     )
                      
         fcargs = dict()
-        return dict(title='Are you sure you want to revoke "%s"?' % asset.path,
+        return dict(title='Revoke approval for "%s"' % asset.path,
                                                 args=fargs, child_args=fcargs)
 
     @project_set_active
     @require(is_project_admin())
     @expose('json')
     @expose('spam.templates.forms.result')
-    @validate(f_confirm, error_handler=get_submit)
-    def post_revoke(self, proj, asset_id, **kwargs):
+    @validate(f_status, error_handler=get_submit)
+    def post_revoke(self, proj, asset_id, comment='', **kwargs):
         """Revoke approval for an asset."""
         session = session_get()
         user = tmpl_context.user
@@ -543,6 +566,10 @@ class Controller(RestController):
         
         if asset.approved:
             asset.revoke(user)
+            text = u'[%s v%03d]\n%s' % (_('revoked approval'),
+                                            asset.current.ver, comment or '')
+            asset.current.notes.append(Note(user, text))
+            session.refresh(asset.current.annotable)
 
             # log into Journal
             journal.add(user, 'revoked approval for %s' % asset)
