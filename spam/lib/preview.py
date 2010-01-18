@@ -68,7 +68,7 @@ def make_thumb(asset):
             dest_name = '%s_%s-thumb.png' % (name, asset.current_fmtver)
             dest = os.path.join(previews_path, dirname, dest_name)
             if not os.path.exists(os.path.dirname(dest)):
-                os.mkdirs(os.path.dirname(dest))
+                os.makedirs(os.path.dirname(dest))
             pipeline_run(PIPELINE_THUMB_FROM_IMAGE, width=THUMB_WIDTH,
                          height=THUMB_HEIGHT, src=src, dest=dest)
 
