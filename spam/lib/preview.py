@@ -65,7 +65,7 @@ def make_thumb(asset):
     if not asset.is_sequence:
         if ext in image_types:
             src = os.path.join(repo_path, asset.path)
-            dest_name = '%s_%s-thumb.png' % (name, asset.current_fmtver)
+            dest_name = '%s_%s-thumb.png' % (name, asset.current.fmtver)
             dest = os.path.join(previews_path, dirname, dest_name)
             if not os.path.exists(os.path.dirname(dest)):
                 os.makedirs(os.path.dirname(dest))
