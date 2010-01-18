@@ -163,7 +163,7 @@ def taggable_get(taggable_id):
     try:
         return query.one()
     except NoResultFound:
-        return SPAMDBNotFound('Taggable "%s" could not be found.' % taggable_id)
+        raise SPAMDBNotFound('Taggable "%s" could not be found.' % taggable_id)
     except MultipleResultsFound:
         raise SPAMDBError('Error when searching taggable "%s".' % taggable_id)
 
@@ -183,7 +183,7 @@ def annotable_get(annotable_id):
     try:
         return query.one()
     except NoResultFound:
-        return SPAMDBNotFound(
+        raise SPAMDBNotFound(
                         'Annotable "%s" could not be found.' % annotable_id)
     except MultipleResultsFound:
         raise SPAMDBError(
@@ -195,7 +195,7 @@ def note_get(note_id):
     try:
         return query.one()
     except NoResultFound:
-        return SPAMDBNotFound('Note "%s" could not be found.' % note_id)
+        raise SPAMDBNotFound('Note "%s" could not be found.' % note_id)
     except MultipleResultsFound:
         raise SPAMDBError('Error when searching note "%s".' % note_id)
 
