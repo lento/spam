@@ -68,5 +68,15 @@ class StompClient(object):
                                                         NotConnectedException):
             log.debug('STOMP not connected')
 
+    def ancestors(self, instance, update_type="updated", **kwargs):
+        """Recursively send notifications to an instance's ancestors.
+        
+        This is mainly useful when updating the status of an asset, so that the
+        status of its containers can be updated too."""
+        if hasattr(instance, 'parent') and instance.parent is not None:
+            self.send(instance.parent, update_type, **kwargs)
+            self.ancestors(instance.parent)
+
 
 notify = StompClient()
+

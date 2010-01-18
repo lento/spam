@@ -54,12 +54,6 @@ b_status = BoxStatus()
 # javascripts
 j_notify_client = NotifyClientJS()
 
-def notify_ancestors(item):
-    if hasattr(item, 'parent') and item.parent is not None:
-        notify.send(item.parent)
-        notify_ancestors(item.parent)
-
-
 class Controller(RestController):
     """REST controller for managing assets"""
     
@@ -248,7 +242,7 @@ class Controller(RestController):
             asset.user = user
             asset.checkedout = True
             notify.send(asset)
-            notify_ancestors(asset)
+            notify.ancestors(asset)
             return dict(msg='checkedout asset "%s"' % asset.path,
                                                             result='success')
         else:
@@ -273,7 +267,7 @@ class Controller(RestController):
             asset.user = None
             asset.checkedout = False
             notify.send(asset)
-            notify_ancestors(asset)
+            notify.ancestors(asset)
             return dict(msg='released asset "%s"' % asset.path,
                                                             result='success')
         else:
@@ -379,7 +373,7 @@ class Controller(RestController):
             
             # send a stomp message to notify clients
             notify.send(asset)
-            notify_ancestors(asset)
+            notify.ancestors(asset)
             return dict(msg='submitted asset "%s"' % asset.path,
                                                             result='success')
         return dict(msg='asset "%s" cannot be submitted' % asset.path,
@@ -423,7 +417,7 @@ class Controller(RestController):
         
             # send a stomp message to notify clients
             notify.send(asset)
-            notify_ancestors(asset)
+            notify.ancestors(asset)
             return dict(msg='recalled submission for asset "%s"' % asset.path,
                                                             result='success')
         return dict(msg='submission for asset "%s" cannot be recalled' %
@@ -467,7 +461,7 @@ class Controller(RestController):
         
             # send a stomp message to notify clients
             notify.send(asset)
-            notify_ancestors(asset)
+            notify.ancestors(asset)
             return dict(msg='asset "%s" sent back for revisions' % asset.path,
                                                             result='success')
         return dict(msg='asset "%s" cannot be sent back for revisions' %
@@ -511,7 +505,7 @@ class Controller(RestController):
         
             # send a stomp message to notify clients
             notify.send(asset)
-            notify_ancestors(asset)
+            notify.ancestors(asset)
             return dict(msg='approved asset "%s"' % asset.path,
                                                             result='success')
         return dict(msg='asset "%s" cannot be approved' % asset.path,
@@ -555,7 +549,7 @@ class Controller(RestController):
         
             # send a stomp message to notify clients
             notify.send(asset)
-            notify_ancestors(asset)
+            notify.ancestors(asset)
             return dict(msg='revoked approval for asset "%s"' % asset.path,
                                                             result='success')
         return dict(msg='approval for asset "%s" cannot be revoked' %
