@@ -91,6 +91,8 @@ def mapped_list(keyattr, targetattr=None, values=[]):
     return lambda: MappedList(keyattr, targetattr, values)
 
 def diff_dicts(a, b):
+    """Return the differences between two dictionaries in a humane readable
+    form."""
     diff = []
     old = a.copy()
     old.pop('_sa_instance_state', None)
@@ -109,3 +111,23 @@ def diff_dicts(a, b):
         diff.append('added "%s" (%s)' % (key, val))
     
     return ', '.join(diff)
+
+def compute_status(objects):
+    """Compute the status of an object from the objects it contains."""
+    tot = len(objects)
+    count = dict(new=0, idle=0, wip=0, submitted=0, approved=0)
+    for ob in objects:
+        count[ob.status] += 1
+    
+    if count['submitted']:
+        return 'submitted'
+    elif count['wip']:
+        return 'wip'
+    elif count['approved'] == tot:
+        return 'approved'
+    elif count['new'] == tot:
+        return 'new'
+    else:
+        return 'idle'
+        
+

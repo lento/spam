@@ -34,7 +34,7 @@ DeclarativeBase = declarative_base()
 metadata = DeclarativeBase.metadata
 
 # Utils
-from utils import MappedList, mapped_list, diff_dicts
+from utils import MappedList, mapped_list, diff_dicts, compute_status
 
 # Global session manager: DBSession() returns the Thread-local
 # session object appropriate for the current web request.

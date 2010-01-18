@@ -37,7 +37,7 @@ from sqlalchemy.types import String
 from sqlalchemy.orm import relation, synonym, backref
 
 from tg import app_globals as G, config
-from spam.model import DeclarativeBase, metadata, mapped_list
+from spam.model import DeclarativeBase, metadata, mapped_list, compute_status
 from spam.model import migraterepo_get_version, db_get_version
 from spam.model import db_upgrade, db_downgrade
 from spam.model.auth import User
@@ -337,49 +337,19 @@ class AssetContainer(DeclarativeBase):
     @property
     def categories(self):
         categories = []
-        count = {}
         for asset in self.assets:
             if asset.category not in categories:
                 categories.append(asset.category)
-                count[asset.category.id] = dict(new=0, idle=0, wip=0,
-                                                        submitted=0, approved=0)
-            count[asset.category.id][asset.status] += 1
         
         for cat in categories:
-            if count[cat.id]['submitted']:
-                cat.status = 'submitted'
-            elif count[cat.id]['wip']:
-                cat.status = 'wip'
-            elif count[cat.id]['idle']:
-                cat.status = 'idle'
-            elif count[cat.id]['new']:
-                cat.status = 'new'
-            elif count[cat.id]['approved']:
-                cat.status = 'approved'
-            else:
-                cat.status = 'new'
+            cat.status = compute_status(self.assets[cat])
         
         categories.sort(cmp=lambda x, y: cmp(x.ordering, y.ordering))
         return categories
     
     @property
     def status(self):
-        count = dict(new=0, idle=0, wip=0, submitted=0, approved=0)
-        for asset in self.assets:
-            count[asset.status] += 1
-        
-        if count['submitted']:
-            return 'submitted'
-        elif count['wip']:
-            return 'wip'
-        elif count['idle']:
-            return 'idle'
-        elif count['new']:
-            return 'new'
-        elif count['approved']:
-            return 'approved'
-        else:
-            return 'new'
+        return compute_status(self.assets)
             
     # Special methods
     def __repr__(self):
@@ -434,22 +404,7 @@ class Scene(DeclarativeBase):
     
     @property
     def status(self):
-        count = dict(new=0, idle=0, wip=0, submitted=0, approved=0)
-        for shot in self.shots:
-            count[shot.status] += 1
-        
-        if count['submitted']:
-            return 'submitted'
-        elif count['wip']:
-            return 'wip'
-        elif count['idle']:
-            return 'idle'
-        elif count['new']:
-            return 'new'
-        elif count['approved']:
-            return 'approved'
-        else:
-            return 'new'
+        return compute_status(self.shots)
 
     # Special methods
     def __init__(self, proj, name, description=None):
