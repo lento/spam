@@ -195,6 +195,7 @@ table td.icon {
 .statusicon {
     display: block;
     float: left;
+    margin: 0 1px;
     padding: 1px;
     height: 16px;
     width: 16px;
@@ -228,7 +229,6 @@ table td.icon {
 
 .statusbox > div {
     float: left;
-    padding-right: 2px;
 }
 
 /**********************************************************************

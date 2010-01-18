@@ -357,11 +357,30 @@ class AssetContainer(DeclarativeBase):
             elif count[cat.id]['approved']:
                 cat.status = 'approved'
             else:
-                cat.status = None
+                cat.status = 'new'
         
         categories.sort(cmp=lambda x, y: cmp(x.ordering, y.ordering))
         return categories
     
+    @property
+    def status(self):
+        count = dict(new=0, idle=0, wip=0, submitted=0, approved=0)
+        for asset in self.assets:
+            count[asset.status] += 1
+        
+        if count['submitted']:
+            return 'submitted'
+        elif count['wip']:
+            return 'wip'
+        elif count['idle']:
+            return 'idle'
+        elif count['new']:
+            return 'new'
+        elif count['approved']:
+            return 'approved'
+        else:
+            return 'new'
+            
     # Special methods
     def __repr__(self):
         return '<AssetContainer: %s (%s)>' % (self.id, self.discriminator)
@@ -413,6 +432,25 @@ class Scene(DeclarativeBase):
     def notes(self):
         return self.annotable.notes
     
+    @property
+    def status(self):
+        count = dict(new=0, idle=0, wip=0, submitted=0, approved=0)
+        for shot in self.shots:
+            count[shot.status] += 1
+        
+        if count['submitted']:
+            return 'submitted'
+        elif count['wip']:
+            return 'wip'
+        elif count['idle']:
+            return 'idle'
+        elif count['new']:
+            return 'new'
+        elif count['approved']:
+            return 'approved'
+        else:
+            return 'new'
+
     # Special methods
     def __init__(self, proj, name, description=None):
         self.proj_id = proj
@@ -431,6 +469,8 @@ class Scene(DeclarativeBase):
                     name=self.name,
                     description=self.description,
                     thumbnail=self.thumbnail,
+                    status=self.status,
+                    shots=self.shots,
                    )
 
 DDL(taggable_delete_trigger).execute_at('after-create', Scene.__table__)
@@ -527,6 +567,8 @@ class Shot(AssetContainer):
                     frames=self.frames,
                     handle_in=self.handle_in,
                     handle_out=self.handle_out,
+                    status=self.status,
+                    categories=self.categories,
                    )
 
 DDL(taggable_delete_trigger).execute_at('after-create', Shot.__table__)
@@ -619,6 +661,7 @@ class Category(DeclarativeBase):
     id = Column(Unicode(40), primary_key=True)
     ordering = Column(Integer)
     naming_convention = Column(Unicode(255))
+    name = synonym('id')
     
     # Special methods
     def __init__(self, id, ordering=0, naming_convention=''):
@@ -633,6 +676,8 @@ class Category(DeclarativeBase):
         return dict(id=self.id,
                     ordering=self.ordering,
                     naming_convention=self.naming_convention,
+                    status=hasattr(self, 'status') and self.status or None,
+                    name=self.name,
                    )
 
 

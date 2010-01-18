@@ -60,6 +60,16 @@ class StatusIcon(LiveWidget):
     show_header = False
     sortable = False
 
+
+class StatusIconBox(LiveWidget):
+    params = ['icon_class']
+    template = 'mako:spam.templates.widgets.statusiconbox'
+    
+    field_class = 'statusiconbox'
+    show_header = False
+    sortable = False
+
+
 ############################################################
 # Live tables
 ############################################################
@@ -246,6 +256,9 @@ class TableScenes(LiveTable):
         name = Link(dest=url('/scene/%(proj_id)s/%(name)s/'),
                         sort_default=True)
         description = Text()
+        shots = StatusIconBox(fields=[
+            StatusIcon(label_text='')
+        ])
         actions = Box(fields=[
             IconButton(id='edit', icon_class='edit',
               label_text=_('edit'),
@@ -268,6 +281,9 @@ class TableShots(LiveTable):
                         sort_default=True)
         description = Text()
         frames = Text()
+        categories = StatusIconBox(fields=[
+            StatusIcon(label_text='')
+        ])
         actions = Box(fields=[
             IconButton(id='edit', icon_class='edit',
               label_text=_('edit'),
