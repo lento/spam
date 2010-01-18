@@ -347,10 +347,6 @@ class AssetContainer(DeclarativeBase):
         categories.sort(cmp=lambda x, y: cmp(x.ordering, y.ordering))
         return categories
     
-    @property
-    def status(self):
-        return compute_status(self.assets)
-            
     # Special methods
     def __repr__(self):
         return '<AssetContainer: %s (%s)>' % (self.id, self.discriminator)
@@ -490,6 +486,10 @@ class Shot(AssetContainer):
     def notes(self):
         return self.annotable.notes
     
+    @property
+    def status(self):
+        return compute_status(self.assets)
+            
     # Special methods
     def __init__(self, parent, name, description=None, action=None,
                        location=None, frames=0, handle_in=0, handle_out=0):
@@ -579,6 +579,12 @@ class LibraryGroup(AssetContainer):
     def notes(self):
         return self.annotable.notes
     
+    @property
+    def status(self):
+        subgroups_status = compute_status(self.subgroups)
+        assets_status = compute_status(self.assets)
+        return compute_status((subgroups_status, assets_status))
+            
     # Special methods
     def __init__(self, proj, name, parent=None, description=None):
         self.proj_id = proj
@@ -599,6 +605,9 @@ class LibraryGroup(AssetContainer):
                     parent_id=self.parent_id,
                     name=self.name,
                     description=self.description,
+                    subgroups=self.subgroups,
+                    status=self.status,
+                    categories=self.categories,
                    )
 
 DDL(taggable_delete_trigger).execute_at('after-create', LibraryGroup.__table__)

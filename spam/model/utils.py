@@ -117,9 +117,14 @@ def compute_status(objects):
     tot = len(objects)
     count = dict(new=0, idle=0, wip=0, submitted=0, approved=0)
     for ob in objects:
-        count[ob.status] += 1
+        if isinstance(ob, basestring):
+            count[ob] += 1
+        elif hasattr(ob, 'status'):
+            count[ob.status] += 1
     
-    if count['submitted']:
+    if tot == 0:
+        return 'new'
+    elif count['submitted']:
         return 'submitted'
     elif count['wip']:
         return 'wip'
