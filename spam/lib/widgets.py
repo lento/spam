@@ -305,6 +305,12 @@ class TableLibgroups(LiveTable):
         name = Link(dest=url('/libgroup/%(proj_id)s/%(id)s/'),
                         sort_default=True)
         description = Text()
+        subgroups = StatusIconBox(fields=[
+            StatusIcon(label_text='')
+        ])
+        categories = StatusIconBox(fields=[
+            StatusIcon(label_text='')
+        ])
         actions = Box(fields=[
             IconButton(id='edit', icon_class='edit',
               label_text=_('edit'),
