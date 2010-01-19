@@ -60,11 +60,16 @@ spam.overlays_activate = function(select) {
         select = "";
     }
 
-    $(select + " .overlay").overlay(function() { 
-        trigger = this.getTrigger();
-        target = trigger.attr("href");
-        iframe = $("#overlay iframe")[0];
-        iframe.src = target
+    $(select + " .overlay").overlay({
+        onBeforeLoad: function(event) { 
+            trigger = this.getTrigger();
+            target = trigger.attr("href");
+            iframe = $("#overlay iframe")[0];
+            iframe.src = target
+        },
+        expose: {
+            color: '#333'
+        }
     });
 }
 
