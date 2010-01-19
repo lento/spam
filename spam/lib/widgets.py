@@ -391,7 +391,7 @@ class TableAssets(LiveTable):
 
 class TableAssetHistory(LiveTable):
     class fields(WidgetsList):
-        thumbnail = Box(fields=[
+        thumbnail = Box(field_class='thumbnail', fields=[
           Thumb(id='preview', label_text=_('preview'), field_class='thumbnail',
             condition='data.thumb_path',
             src=url('/repo/%(thumb_path)s'),
