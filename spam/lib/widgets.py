@@ -427,6 +427,25 @@ class TableJournal(LiveTable):
         d['update_condition'] = '%s==1' % d['curpage']
 
 
+class TableNotes(LiveTable):
+    class fields(WidgetsList):
+        note = Box(fields=[
+            Text(id='header', field_class='note_header',
+              label_text=''),
+            Box(id='lines', fields=[Text(id='text', label_text='')]),
+        ])
+        actions = Box(fields=[
+            IconButton(id='pin', icon_class='pin',
+              condition='!data.sticky',
+              label_text=_('pin note'),
+              action=url('/note/%(id)s/pin')),
+            IconButton(id='unpin', icon_class='unpin',
+              condition='data.sticky',
+              label_text=_('un-pin note'),
+              action=url('/note/%(id)s/unpin')),
+        ])
+
+
 ############################################################
 # Live lists
 ############################################################

@@ -208,10 +208,11 @@ class Note(DeclarativeBase):
     sticky = Column(Boolean, default=False)
 
     # Relations
-    user = relation('User', backref=backref('notes', order_by=desc('created')))
+    user = relation('User', backref=backref('notes',
+                                    order_by=(desc('sticky'), desc('created'))))
     
-    annotable = relation(Annotable,
-                            backref=backref('notes', order_by=desc('created')))
+    annotable = relation(Annotable, backref=backref('notes',
+                                    order_by=(desc('sticky'), desc('created'))))
     
     # Properties
     @property
@@ -256,6 +257,7 @@ class Note(DeclarativeBase):
                     user=self.user,
                     created=self.created,
                     text=self.text,
+                    sticky=self.sticky,
                     strftime=self.strftime,
                     header=self.header,
                     summary=self.summary,

@@ -122,5 +122,33 @@ class Controller(RestController):
         return dict(msg='deleted note "%s"' % note.id, result='success')
     
     # Custom REST-like actions
-    custom_actions = []
+    custom_actions = ['pin', 'unpin']
+
+    @require(in_group('administrators'))
+    @expose('json')
+    @expose('spam.templates.forms.result')
+    @validate(f_confirm, error_handler=get_delete)
+    def pin(self, note_id, **kwargs):
+        """Pin a note."""
+        session = session_get()
+        note = note_get(note_id)
+        
+        note.sticky = True
+        
+        #notify.send(note, update_type='deleted')
+        return dict(msg='pinned note "%s"' % note.id, result='success')
+    
+    @require(in_group('administrators'))
+    @expose('json')
+    @expose('spam.templates.forms.result')
+    @validate(f_confirm, error_handler=get_delete)
+    def unpin(self, note_id, **kwargs):
+        """Un-pin a note."""
+        session = session_get()
+        note = note_get(note_id)
+        
+        note.sticky = False
+        #notify.send(note, update_type='deleted')
+        return dict(msg='un-pinned note "%s"' % note.id, result='success')
+    
 

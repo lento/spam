@@ -109,6 +109,8 @@ body {
 .lw_icon.revoke {background: url(../images/icons/16x16/revoke.png) left center no-repeat;}
 .lw_icon.history {background: url(../images/icons/16x16/history.png) left center no-repeat;}
 .lw_icon.download {background: url(../images/icons/16x16/download.png) left center no-repeat;}
+.lw_icon.pin {background: url(../images/icons/16x16/pin.png) left center no-repeat;}
+.lw_icon.unpin {background: url(../images/icons/16x16/unpin.png) left center no-repeat;}
 
 .thumbnail {
     width: 120px;
