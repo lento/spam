@@ -406,9 +406,9 @@ class TableAssetHistory(LiveTable):
         ])
         actions = Box(fields=[
             IconLink(id='download', icon_class='download',
-              condition='data.fmtver',
+              condition='data.ver && data.ver>0',
               label_text=_('download'),
-              dest=url('/asset/download')),
+              dest=url('/asset/%(proj_id)s/%(id)s/download')),
         ])
 
 

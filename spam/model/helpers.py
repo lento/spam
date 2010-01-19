@@ -31,6 +31,7 @@ from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 from spam.lib.exceptions import SPAMDBError, SPAMDBNotFound
 from spam.model import DBSession, Project, Scene, Shot, LibraryGroup, Asset
 from spam.model import Category, User, Group, Taggable, Tag, Annotable, Note
+from spam.model import AssetVersion
 
 import logging
 log = logging.getLogger(__name__)
@@ -146,6 +147,18 @@ def asset_get(proj, asset_id):
         raise SPAMDBNotFound('Asset "%s" could not be found.' % asset_id)
     except MultipleResultsFound:
         raise SPAMDBError('Error when searching asset "%s".' % asset_id)
+
+def assetversion_get(proj, assetver_id):
+    """Return an asset version."""
+    query = session_get().query(AssetVersion)
+    try:
+        return query.filter_by(id=assetver_id).one()
+    except NoResultFound:
+        raise SPAMDBNotFound('AssetVersion "%s" could not be found.' %
+                                                                    assetver_id)
+    except MultipleResultsFound:
+        raise SPAMDBError('Error when searching asset version "%s".' %
+                                                                    assetver_id)
 
 def category_get(category_id):
     """Return a asset category."""

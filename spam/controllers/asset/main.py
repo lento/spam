@@ -22,13 +22,15 @@
 #
 """Asset controller"""
 
-from tg import expose, url, tmpl_context, validate, require
+import os, shutil, mimetypes
+from tg import expose, url, tmpl_context, validate, require, response
 from tg.controllers import RestController
 from tg.decorators import with_trailing_slash
 from pylons.i18n import ugettext as _, lazy_ugettext as l_
 from tw.forms import validators
 from spam.model import session_get, Asset, AssetVersion, Category, Note
 from spam.model import project_get, container_get, asset_get, category_get
+from spam.model import assetversion_get
 from spam.lib.widgets import FormAssetNew, FormAssetEdit, FormAssetConfirm
 from spam.lib.widgets import FormAssetPublish, FormAssetStatus, BoxStatus
 from spam.lib.widgets import TableAssets, TableAssetHistory, NotifyClientJS
@@ -99,8 +101,12 @@ class Controller(RestController):
         history = []
         for ver in asset.versions:
             for note in ver.notes:
-                history.append(dict(thumb_path=None, fmtver=None,
-                        header=note.header, text=note.text, lines=note.lines))
+                history.append(dict(id=None, proj_id=None, thumb_path=None,
+                                    ver=None, fmtver=None, header=note.header,
+                                    text=note.text, lines=note.lines))
+            history[-1]['id'] = ver.id
+            history[-1]['ver'] = ver.ver
+            history[-1]['proj_id'] = ver.asset.proj_id
             history[-1]['thumb_path'] = ver.thumb_path
             history[-1]['fmtver'] = ver.fmtver
         
@@ -236,7 +242,7 @@ class Controller(RestController):
     
     # Custom REST-like actions
     custom_actions = ['checkout', 'release', 'publish', 'submit', 'recall',
-                      'sendback', 'approve', 'revoke']
+                      'sendback', 'approve', 'revoke', 'download']
 
     @project_set_active
     @require(is_project_user())
@@ -592,4 +598,30 @@ class Controller(RestController):
         return dict(msg='approval for asset "%s" cannot be revoked' %
                                                     asset.path, result='failed')
 
+    @project_set_active
+    @require(is_project_user())
+    @expose()
+    def download(self, proj, assetver_id):
+        """Return a version of an asset from the repository as a file 
+        attachment in the response body."""
+        assetver = assetversion_get(proj, assetver_id)
+        f = repo.cat(proj, assetver)
+        
+        if assetver.asset.is_sequence:
+            name, ext = os.path.splitext(assetver.path)
+            path = '%s.zip' % name
+        else:
+            path = assetver.path
+        
+        # set the correct content-type so the browser will know what to do
+        content_type, encoding = mimetypes.guess_type(path)
+        response.headers['Content-Type'] = content_type
+        response.headers['Content-Disposition'] = (
+                                        ('attachment; filename=%s' %
+                                            os.path.basename(path)).encode())
+        
+        # copy file content in the response body
+        shutil.copyfileobj(f, response.body_file)
+        f.close()
+        return
 

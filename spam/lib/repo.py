@@ -1,4 +1,4 @@
-import os, shutil
+import os, shutil, tempfile, zipfile, glob
 from mercurial import ui, hg, commands, match
 from mercurial.error import RepoError
 from tg import app_globals as G
@@ -39,6 +39,7 @@ def repo_init(proj):
         matched = match.exact(repo.root, repo.getcwd(), ['.hgignore'])
         commit_id = repo.commit('add .hgignore', user='system', match=matched)
 
+# Commit
 def commit_single(proj, asset, filename, text, username=None):
     repo_path = os.path.join(G.REPOSITORY, proj)
     repo = repo_get(proj)
@@ -105,6 +106,51 @@ def commit(proj, asset, filenames, text, username=None):
         return commit_multi(proj, asset, filenames, text, username=None)
     else:
         return commit_single(proj, asset, filenames[0], text, username=None)
+
+# Cat
+def cat_single(proj, assetver):
+    repo_path = os.path.join(G.REPOSITORY, proj)
+    repo = repo_get(proj)
+    
+    target_file_name = os.path.join(repo_path, assetver.asset.path)
+    temp = tempfile.NamedTemporaryFile()
+    commands.cat(repo_ui, repo, target_file_name, output=temp.name,
+                                                            rev=assetver.repoid)
+    return temp
+
+def cat_multi(proj, assetver):
+    if not assetver.object.is_sequence:
+        raise SPAMRepoError('asset %s is not a sequence of files' %
+                                                            assetver.asset.id)
+    
+    repo_path = os.path.join(G.REPOSITORY, proj)
+    repo = repo_get(proj)
+    
+    target_path = assetver.asset.path.replace('#', '*').encode()
+    target_filename = os.path.join(repo_path, target_path).encode()
+    targets = glob.glob(target_filename)
+
+    ztemp = tempfile.NamedTemporaryFile()
+    zfile = zipfile.ZipFile(ztemp.name, 'w')
+    for target in targets:
+        temp = tempfile.NamedTemporaryFile()
+        commands.cat(repo_ui, repo, target, output=temp.name,
+                                                            rev=assetver.repoid)
+        name = os.path.basename(target)
+        name, ext = os.path.splitext(name)
+        name, frame = os.path.splitext(name)
+        verdir = '%s_v%03d' % (name, assetver.ver)
+        vername = '%s_v%03d%s%s' % (name, assetver.ver, frame, ext)
+        zfile.write(temp.name, os.path.join(verdir, vername))
+        temp.close()
+    zfile.close
+    return ztemp
+
+def cat(proj, assetver):
+    if assetver.asset.is_sequence:
+        return cat_multi(proj, assetver)
+    else:
+        return cat_single(proj, assetver)
 
 # Directories
 def project_create_dirs(proj):
