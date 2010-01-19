@@ -249,7 +249,7 @@ class TableScenes(LiveTable):
     javascript = [notify_client_js]
     update_topic = '/topic/scenes'
     class fields(WidgetsList):
-        thumbnail = Thumb(label_text='preview',
+        thumbnail = Thumb(label_text='preview', field_class='thumbnail',
             src=url('/repo/%(proj_id)s/%(name)s/thumb.png'),
             dest=url('/repo/%(proj_id)s/%(name)s/preview.png')
         )
@@ -273,7 +273,7 @@ class TableShots(LiveTable):
     javascript = [notify_client_js]
     update_topic = '/topic/shots'
     class fields(WidgetsList):
-        thumbnail = Thumb(label_text='preview',
+        thumbnail = Thumb(label_text='preview', field_class='thumbnail',
             src=url('/repo/%(proj_id)s/%(parent_name)s/%(name)s/thumb.png'),
             dest=url('/repo/%(proj_id)s/%(parent_name)s/%(name)s/preview.png')
         )
@@ -298,7 +298,7 @@ class TableLibgroups(LiveTable):
     javascript = [notify_client_js]
     update_topic = '/topic/libgroups'
     class fields(WidgetsList):
-        thumbnail = Thumb(label_text='preview',
+        thumbnail = Thumb(label_text='preview', field_class='thumbnail',
             src=url('/repo/%(proj_id)s/%(id)s/thumb.png'),
             dest=url('/repo/%(proj_id)s/%(id)s/preview.png')
         )
