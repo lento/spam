@@ -3,7 +3,7 @@ from stomp.exception import ConnectionClosedException, NotConnectedException
 from tg import config
 from spam.lib.jsonify import encode as json_encode
 from spam.model import User, Category
-from spam.model import Project, Scene, Shot, Asset, LibraryGroup, Journal
+from spam.model import Project, Scene, Shot, Asset, LibraryGroup, Journal, Note
 
 import logging
 log = logging.getLogger(__name__)
@@ -23,6 +23,7 @@ TOPIC_PROJECT_SUPERVISORS = config.get(
 TOPIC_PROJECT_ARTISTS = config.get(
                 'stomp_topic_project_artists', '/topic/project_artists')
 TOPIC_JOURNAL = config.get('stomp_topic_journal', '/topic/journal')
+TOPIC_NOTES = config.get('stomp_topic_notesl', '/topic/notes')
 
 
 class StompClient(object):
@@ -36,6 +37,7 @@ class StompClient(object):
                        Asset: TOPIC_ASSETS,
                        LibraryGroup: TOPIC_LIBGROUPS,
                        Journal: TOPIC_JOURNAL,
+                       Note: TOPIC_NOTES,
                       }
     
     def _start_connection(self):

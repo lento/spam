@@ -29,10 +29,10 @@ from repoze.what import predicates
 from spam.lib.base import SPAMBaseController
 from spam.model import libgroup_get
 from spam.lib.predicates import is_project_user
-from spam.lib.widgets import ListTags, ListNotes
+from spam.lib.widgets import ListTags, TableNotes
 
 l_tags = ListTags()
-l_notes = ListNotes()
+t_notes = TableNotes()
 
 class TabController(SPAMBaseController):
     """The controller for libgroup tabs."""
@@ -50,7 +50,7 @@ class TabController(SPAMBaseController):
         This tab offers a quick view on the current status of the libgroup.
         """
         tmpl_context.l_tags = l_tags
-        tmpl_context.l_notes = l_notes
+        tmpl_context.t_notes = t_notes
         libgroup = tmpl_context.libgroup
         return dict()
 

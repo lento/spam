@@ -14,5 +14,5 @@ ${c.l_tags(id="taglist", items=c.libgroup.tags) | n}
 <h2>notes</h2>
 <a href="${tg.url('/note/%s/new' % c.libgroup.id)}"
    rel="#overlay" class="overlay button">add note</a>
-${c.l_notes(id="notelist", items=c.libgroup.notes) | n}
+${c.t_notes(id="notestable", items=c.libgroup.notes) | n}
 

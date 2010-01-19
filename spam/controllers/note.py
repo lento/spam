@@ -25,7 +25,7 @@
 from tg import expose, url, tmpl_context, redirect, validate, require
 from tg.controllers import RestController
 from pylons.i18n import ugettext as _, lazy_ugettext as l_
-from spam.model import session_get, annotable_get, note_get, Note
+from spam.model import session_get, annotable_get, note_get, Note, AssetVersion
 from spam.lib.widgets import FormNoteNew, FormNoteConfirm
 from spam.lib.widgets import ListNotes
 from spam.lib.notifications import notify
@@ -88,12 +88,20 @@ class Controller(RestController):
     @validate(f_new, error_handler=new)
     def post(self, annotable_id, text, **kwargs):
         """Add notes to a ``annotable`` obect."""
+        session = session_get()
         user = tmpl_context.user
         annotable = annotable_get(annotable_id)
+        ob = annotable.annotated
         
-        annotable.notes.append(Note(user, text))
+        note = Note(user, text)
+        annotable.notes.append(note)
+        session.refresh(annotable)
         
-        #notify.send(note, update_type='added', shot=shot)
+        notify.send(note, update_type='added', ob=ob)
+        if isinstance(ob, AssetVersion):
+            notify.send(ob.asset)
+        else:
+            notify.send(ob)
         return dict(msg='added note to "%s"' % annotable.annotated.path,
                                                             result='success')
     
@@ -117,8 +125,16 @@ class Controller(RestController):
         """Delete a note."""
         session = session_get()
         note = note_get(note_id)
+        ob = note.annotated
+        
         session.delete(note)
-        #notify.send(note, update_type='deleted')
+        session.refresh(ob.annotable)
+        
+        notify.send(note, update_type='deleted', ob=ob)
+        if isinstance(ob, AssetVersion):
+            notify.send(ob.asset)
+        else:
+            notify.send(ob)
         return dict(msg='deleted note "%s"' % note.id, result='success')
     
     # Custom REST-like actions
@@ -132,10 +148,13 @@ class Controller(RestController):
         """Pin a note."""
         session = session_get()
         note = note_get(note_id)
+        ob = note.annotated
         
         note.sticky = True
+        session.refresh(ob.annotable)
         
-        #notify.send(note, update_type='deleted')
+        notify.send(note, update_type='updated', ob=ob)
+        notify.send(ob)
         return dict(msg='pinned note "%s"' % note.id, result='success')
     
     @require(in_group('administrators'))
@@ -146,9 +165,13 @@ class Controller(RestController):
         """Un-pin a note."""
         session = session_get()
         note = note_get(note_id)
+        ob = note.annotated
         
         note.sticky = False
-        #notify.send(note, update_type='deleted')
+        session.refresh(ob.annotable)
+        
+        notify.send(note, update_type='updated', ob=ob)
+        notify.send(ob)
         return dict(msg='un-pinned note "%s"' % note.id, result='success')
     
 
