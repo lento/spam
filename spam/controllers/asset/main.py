@@ -94,7 +94,17 @@ class Controller(RestController):
         """Return a `standalone` page with the asset history"""
         tmpl_context.t_history = t_history
         asset = asset_get(proj, asset_id)
-        return dict(asset=asset)
+        
+        # thumb, ver, note
+        history = []
+        for ver in asset.versions:
+            for note in ver.notes:
+                history.append(dict(thumb_path=None, fmtver=None,
+                        header=note.header, text=note.text, lines=note.lines))
+            history[-1]['thumb_path'] = ver.thumb_path
+            history[-1]['fmtver'] = ver.fmtver
+        
+        return dict(asset=asset, history=history)
 
     @project_set_active
     @require(is_project_admin())

@@ -236,7 +236,7 @@ class Note(DeclarativeBase):
     
     @property
     def lines(self):
-        return [l for l in self.text.split('\n')]
+        return [dict(text=l) for l in self.text.split('\n')]
     
     # Special methods
     def __init__(self, user, text):
@@ -937,6 +937,11 @@ class AssetVersion(DeclarativeBase):
     def notes(self):
         return self.annotable.notes
     
+    @property
+    def thumb_path(self):
+        return self.asset.thumb_path.replace(
+                                        '-thumb', '_v%03d-thumb' % self.ver)
+    
     # Special methods
     def __init__(self, asset, ver, user, repoid, has_preview=False,
                                                             preview_ext=None):
@@ -960,6 +965,7 @@ class AssetVersion(DeclarativeBase):
                     ver=self.ver,
                     fmtver=self.fmtver,
                     path=self.path,
+                    thumb_path=self.thumb_path,
                     #'has_preview': self.has_preview,
                     #'preview_small_repopath': self.preview_small_repopath,
                     #'preview_large_repopath': self.preview_large_repopath,

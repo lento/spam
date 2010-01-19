@@ -9,7 +9,7 @@ from tw.forms.validators import All, Any, Regex, MaxLength, NotEmpty, Int
 from tw.forms.validators import Schema
 from spam.lib.validators import CategoryNamingConvention
 from livewidgets import LiveTable, LiveBox, LiveList
-from livewidgets import LiveWidget, Box, IconButton, Text, Link, Thumb
+from livewidgets import LiveWidget, Box, IconButton, IconLink, Text, Link, Thumb
 from spam.lib.notifications import TOPIC_JOURNAL
 
 # Orbited
@@ -391,11 +391,25 @@ class TableAssets(LiveTable):
 
 class TableAssetHistory(LiveTable):
     class fields(WidgetsList):
-        thumbnail = Thumb(label_text='preview', field_class='thumbnail',
-            src=url('/repo/%(proj_id)s/thumb.png'),
-            dest=url('/repo/%(proj_id)s/preview.png')
-        )
+        thumbnail = Box(fields=[
+          Thumb(id='preview', label_text=_('preview'), field_class='thumbnail',
+            condition='data.thumb_path',
+            src=url('/repo/%(thumb_path)s'),
+            dest=url('/repo/%(thumb_path)s')
+          )
+        ])
         fmtver = Text(label_text='ver')
+        note = Box(fields=[
+            Text(id='header', field_class='note_header',
+              label_text=''),
+            Box(id='lines', fields=[Text(id='text', label_text='')]),
+        ])
+        actions = Box(fields=[
+            IconLink(id='download', icon_class='download',
+              condition='data.fmtver',
+              label_text=_('download'),
+              dest=url('/asset/download')),
+        ])
 
 
 class TableJournal(LiveTable):
