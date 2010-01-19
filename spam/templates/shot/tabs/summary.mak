@@ -14,5 +14,6 @@ ${c.l_tags(id="taglist", items=c.shot.tags) | n}
 <h2>notes</h2>
 <a href="${tg.url('/note/%s/new' % c.shot.id)}"
    rel="#overlay" class="overlay button">add note</a>
-${c.t_notes(id="notestable", items=c.shot.notes) | n}
+${c.t_notes(id="notestable", items=c.shot.notes,
+                                    annotable_id=c.shot.annotable.id) | n}
 

@@ -10,7 +10,7 @@ from tw.forms.validators import Schema
 from spam.lib.validators import CategoryNamingConvention
 from livewidgets import LiveTable, LiveBox, LiveList
 from livewidgets import LiveWidget, Box, IconButton, IconLink, Text, Link, Thumb
-from spam.lib.notifications import TOPIC_JOURNAL
+from spam.lib import notifications
 
 # Orbited
 orbited_address = config.get('orbited_address', 'http://localhost:9000')
@@ -415,7 +415,7 @@ class TableAssetHistory(LiveTable):
 class TableJournal(LiveTable):
     params = ['curpage']
     javascript = [notify_client_js]
-    update_topic = TOPIC_JOURNAL
+    update_topic = notifications.TOPIC_JOURNAL
     class fields(WidgetsList):
         strftime = Text(label_text='date', sort_default=True,
                                                         sort_direction = 'desc')
@@ -428,12 +428,14 @@ class TableJournal(LiveTable):
 
 
 class TableNotes(LiveTable):
+    params = ['annotable_id']
+    javascript = [notify_client_js]
+    update_topic = notifications.TOPIC_NOTES
     class fields(WidgetsList):
-        note = Box(fields=[
-            Text(id='header', field_class='note_header',
-              label_text=''),
-            Box(id='lines', fields=[Text(id='text', label_text='')]),
-        ])
+        user_name = Text(field_class='note_header', label_text=_('user name'))
+        strftime = Text(field_class='note_header', label_text=_('date'),
+                        sort_default=True, sort_direction='desc')
+        lines = Box(fields=[Text(id='text', label_text='')])
         actions = Box(fields=[
             IconButton(id='pin', icon_class='pin',
               condition='!data.sticky',
@@ -444,6 +446,10 @@ class TableNotes(LiveTable):
               label_text=_('un-pin note'),
               action=url('/note/%(id)s/unpin')),
         ])
+    
+    def update_params(self, d):
+        super(TableNotes, self).update_params(d)
+        d['update_condition'] = 'msg.annotable_id=="%s"' % d['annotable_id']
 
 
 ############################################################

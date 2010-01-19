@@ -255,6 +255,7 @@ class Note(DeclarativeBase):
     def __json__(self):
         return dict(id=self.id,
                     user=self.user,
+                    user_name=self.user.user_name,
                     created=self.created,
                     text=self.text,
                     sticky=self.sticky,

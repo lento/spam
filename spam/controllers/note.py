@@ -97,7 +97,7 @@ class Controller(RestController):
         annotable.notes.append(note)
         session.refresh(annotable)
         
-        notify.send(note, update_type='added', ob=ob)
+        notify.send(note, update_type='added', annotable_id=ob.annotable.id)
         if isinstance(ob, AssetVersion):
             notify.send(ob.asset)
         else:
@@ -130,7 +130,7 @@ class Controller(RestController):
         session.delete(note)
         session.refresh(ob.annotable)
         
-        notify.send(note, update_type='deleted', ob=ob)
+        notify.send(note, update_type='deleted', annotable_id=ob.annotable.id)
         if isinstance(ob, AssetVersion):
             notify.send(ob.asset)
         else:
@@ -153,7 +153,7 @@ class Controller(RestController):
         note.sticky = True
         session.refresh(ob.annotable)
         
-        notify.send(note, update_type='updated', ob=ob)
+        notify.send(note, update_type='updated', annotable_id=ob.annotable.id)
         notify.send(ob)
         return dict(msg='pinned note "%s"' % note.id, result='success')
     
@@ -170,7 +170,7 @@ class Controller(RestController):
         note.sticky = False
         session.refresh(ob.annotable)
         
-        notify.send(note, update_type='updated', ob=ob)
+        notify.send(note, update_type='updated', annotable_id=ob.annotable.id)
         notify.send(ob)
         return dict(msg='un-pinned note "%s"' % note.id, result='success')
     
