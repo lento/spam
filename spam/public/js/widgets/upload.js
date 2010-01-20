@@ -1,9 +1,4 @@
-## the following line is just to have the file sintax-highlighted in gedit ;)
-##<script type="text/javascript">
-
 var upload = new Object;
-upload.target = "${tg.url('/upload')}";
-
 upload.queue = {length: 0, files: {},
                 add_file: function(file) {
                     this.length += 1;
@@ -28,19 +23,19 @@ upload.file_read = function(queue_id, file) {
     reader.readAsBinaryString(file);
 }
 
-upload.handle_files = function(files) {
+upload.handle_files = function(queue, files) {
     for (var i = 0; i < files.length; i++) {
         var file = files[i];
         
         if (!upload.queue.find(file.name)) {
             var n = upload.queue.add_file(file);
             var filediv = $('<div class="queue_item">' +
-                            '<div id="progress_' + n + '" class="progress"></div>' +
+                            '<div id="upload_progress_' + n + '" class="upload_progress"></div>' +
                             '<div class="obj">' + file.name + '</div>' +
                             '<input type="hidden" name="uploaded" value="' + file.name + '"></input>' +
                             '</div>');
-            $("#upload_queue").append(filediv);
-            var progress = $("#progress_" + n);
+            $(queue).append(filediv);
+            var progress = $("#upload_progress_" + n);
             progress.progressbar();
             upload.file_read(n, file);
         }
@@ -48,7 +43,7 @@ upload.handle_files = function(files) {
 }
 
 upload.file_upload = function(queue_id, fileData) {
-    var progress = $("#progress_" + queue_id);
+    var progress = $("#upload_progress_" + queue_id);
     var file = upload.queue.files[queue_id];
     var xhr = new XMLHttpRequest();
     
@@ -88,31 +83,34 @@ upload.file_upload = function(queue_id, fileData) {
         "\r\n"+
         fileData + "\r\n";
     
-    xhr.open("POST", upload.target);
+    xhr.open("POST", upload.config.target);
     xhr.setRequestHeader('Content-Type', 'multipart/form-data; boundary=' + boundaryString);
     xhr.setRequestHeader('Content-Length', postContent.length);
     xhr.sendAsBinary(postContent);
     
 }
 
-$(function(){
-    $(".uploader").bind("dragenter", function(e) {
-        return false;  
-    }).bind("dragover", function(e) {
-        return false;  
-    }).bind("drop", function(e) {
-        var dt = e.originalEvent.dataTransfer;
-        //console.log("dropped!", dt, e);
-        upload.handle_files(dt.files);
-        return false;
-    });
+$.fn.uploader = function(config){
+    if (typeof(config)=='undefined' || config==null) config = {};
+    if (!('queue' in config)) config.queue = "#upload_queue";
+    if (!('target' in config)) config.target = "/upload";
+    upload.config = config;
     
-    $("input.uploader").bind("change", function(e) {
-        //console.log("changed!", e);
-        upload.handle_files(e.target.files);
-        return false;
+    return this.each(function() {
+        $(this).bind("dragenter", function(e) {
+            return false;  
+        }).bind("dragover", function(e) {
+            return false;  
+        }).bind("drop", function(e) {
+            var dt = e.originalEvent.dataTransfer;
+            upload.handle_files(upload.config.queue, dt.files);
+            return false;
+        });
+        
+        $(this).bind("change", function(e) {
+            upload.handle_files(upload.config.queue, e.target.files);
+            return false;
+        });
     });
-    
-});
+}
 
-##</script>

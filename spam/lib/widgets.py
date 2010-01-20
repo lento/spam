@@ -774,7 +774,7 @@ class FormAssetConfirm(TableForm):
 
 class Upload(FormField):
     template = 'mako:spam.templates.widgets.upload'
-    upload_js = JSLink(link=url('/parsedjs/upload.js'))
+    upload_js = JSLink(link=url('/js/widgets/upload.js'))
     javascript = [upload_js]
 
 
