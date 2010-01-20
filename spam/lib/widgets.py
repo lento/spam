@@ -9,7 +9,7 @@ from tw.forms.validators import All, Any, Regex, MaxLength, NotEmpty, Int
 from tw.forms.validators import Schema
 from spam.lib.validators import CategoryNamingConvention
 from livewidgets import LiveTable, LiveBox, LiveList
-from livewidgets import LiveWidget, Box, IconButton, IconLink, Text, Link, Thumb
+from livewidgets import LiveWidget, Box, Button, Icon, Text, Link, Thumb
 from spam.lib import notifications
 
 # Orbited
@@ -83,10 +83,14 @@ class TableTest(LiveTable):
             dest=url('/repo/%(proj_id)s/%(name)s/preview.png')
         )
         actions = Box(fields=[
-            IconButton(id='edit', icon_class='edit',
-              action=url('/user/%(user_name)s/edit')),
-            IconButton(id='delete', icon_class='delete',
-              action=url('/user/%(user_name)s/delete')),
+            Button(id='edit',
+              action=url('/user/%(user_name)s/edit'),
+              fields=[Icon(id='edit', icon_class='edit')]
+            ),
+            Button(id='delete', icon_class='delete',
+              action=url('/user/%(user_name)s/delete'),
+              fields=[Icon(id='delete', icon_class='delete')]
+            ),
         ])
 
 
@@ -98,12 +102,16 @@ class TableUsers(LiveTable):
         user_name = Text(sort_default=True)
         display_name = Text()
         actions = Box(fields=[
-            IconButton(id='edit', icon_class='edit',
-              label_text=_('edit'),
-              action=url('/user/%(user_name)s/edit')),
-            IconButton(id='delete', icon_class='delete',
-              label_text=_('delete'),
-              action=url('/user/%(user_name)s/delete')),
+            Button(id='edit',
+              action=url('/user/%(user_name)s/edit'),
+              fields=[Icon(id='edit', icon_class='edit',
+                label_text=_('edit')),
+            ]),
+            Button(id='delete',
+              action=url('/user/%(user_name)s/delete'),
+              fields=[Icon(id='delete', icon_class='delete',
+                label_text=_('delete')),
+            ]),
         ])
 
 
@@ -114,10 +122,12 @@ class TableGroupUsers(LiveTable):
         user_name = Text(sort_default=True)
         display_name = Text()
         actions = Box(fields=[
-            IconButton(id='remove', icon_class='delete',
-              label_text=_('remove'),
+            Button(id='remove',
               action=url(
-                    '/user/%(user_name)s/%(group_name)s/remove_from_group')),
+                '/user/%(user_name)s/%(group_name)s/remove_from_group'),
+              fields=[Icon(id='delete', icon_class='delete',
+                label_text=_('remove')),
+            ]),
         ])
     
     def update_params(self, d):
@@ -133,9 +143,11 @@ class TableProjectAdmins(LiveTable):
         user_name = Text(sort_default=True)
         display_name = Text()
         actions = Box(fields=[
-            IconButton(id='remove', icon_class='delete',
-              label_text=_('remove'),
-              action=url('/user/%(proj)s/%(user_name)s/remove_admin')),
+            Button(id='remove',
+              action=url('/user/%(proj)s/%(user_name)s/remove_admin'),
+              fields=[Icon(id='delete', icon_class='delete',
+                label_text=_('remove')),
+            ]),
         ])
     
     def update_params(self, d):
@@ -150,10 +162,12 @@ class TableProjectSupervisors(LiveTable):
         user_name = Text(sort_default=True)
         display_name = Text()
         actions = Box(fields=[
-            IconButton(id='remove', icon_class='delete',
-              label_text=_('remove'),
+            Button(id='remove',
               action=url(
-                    '/user/%(proj)s/%(cat)s/%(user_name)s/remove_supervisor')),
+                    '/user/%(proj)s/%(cat)s/%(user_name)s/remove_supervisor'),
+              fields=[Icon(id='delete', icon_class='delete',
+                label_text=_('remove')),
+            ]),
         ])
     
     def update_params(self, d):
@@ -169,9 +183,12 @@ class TableProjectArtists(LiveTable):
         user_name = Text(sort_default=True)
         display_name = Text()
         actions = Box(fields=[
-            IconButton(id='remove', icon_class='delete',
+            Button(id='remove', icon_class='delete',
               label_text=_('remove'),
-              action=url('/user/%(proj)s/%(cat)s/%(user_name)s/remove_artist')),
+              action=url('/user/%(proj)s/%(cat)s/%(user_name)s/remove_artist'),
+              fields=[Icon(id='delete', icon_class='delete',
+                label_text=_('remove')),
+            ]),
         ])
     
     def update_params(self, d):
@@ -188,12 +205,17 @@ class TableCategories(LiveTable):
         id = Text()
         naming_convention = Text()
         actions = Box(fields=[
-            IconButton(id='edit', icon_class='edit',
-              label_text=_('edit'),
-              action=url('/category/%(id)s/edit')),
-            IconButton(id='delete', icon_class='delete',
+            Button(id='edit',
+              action=url('/category/%(id)s/edit'),
+              fields=[Icon(id='edit', icon_class='edit',
+                label_text=_('edit')),
+            ]),
+            Button(id='delete',
               label_text=_('delete'),
-              action=url('/category/%(id)s/delete')),
+              action=url('/category/%(id)s/delete'),
+              fields=[Icon(id='delete', icon_class='delete',
+                label_text=_('delete')),
+            ]),
         ])
 
 
@@ -212,15 +234,21 @@ class ProjectsActive(LiveTable):
         name = Text()
         description = Text()
         actions = Box(fields=[
-            IconButton(id='archive', icon_class='archive',
-              label_text=_('archive'),
-              action='%(id)s/archive'),
-            IconButton(id='edit', icon_class='edit',
-              label_text=_('edit'),
-              action='%(id)s/edit'),
-            IconButton(id='delete', icon_class='delete',
-              label_text=_('delete'),
-              action='%(id)s/delete'),
+            Button(id='archive',
+              action='%(id)s/archive',
+              fields=[Icon(id='archive', icon_class='archive',
+                label_text=_('archive')),
+            ]),
+            Button(id='edit',
+              action='%(id)s/edit',
+              fields=[Icon(id='edit', icon_class='edit',
+                label_text=_('edit')),
+            ]),
+            Button(id='delete',
+              action='%(id)s/delete',
+              fields=[Icon(id='delete', icon_class='delete',
+                label_text=_('delete')),
+            ]),
         ])
 
 
@@ -239,9 +267,11 @@ class ProjectsArchived(LiveTable):
         name = Text()
         description = Text()
         actions = Box(fields=[
-            IconButton(id='activate', icon_class='activate',
-              label_text=_('activate'),
-              action='%(id)s/activate'),
+            Button(id='activate',
+              action='%(id)s/activate',
+              fields=[Icon(id='activate', icon_class='activate',
+                label_text=_('activate')),
+            ]),
         ])
 
 
@@ -253,19 +283,23 @@ class TableScenes(LiveTable):
             src=url('/repo/%(proj_id)s/%(name)s/thumb.png'),
             dest=url('/repo/%(proj_id)s/%(name)s/preview.png')
         )
-        name = Link(dest=url('/scene/%(proj_id)s/%(name)s/'),
-                        sort_default=True)
+        namelink = Link(dest=url('/scene/%(proj_id)s/%(name)s/'), sort_default=True,
+                        fields=[Text(id='name', label_text=_('name'))])
         description = Text()
         shots = StatusIconBox(fields=[
             StatusIcon(label_text='')
         ])
         actions = Box(fields=[
-            IconButton(id='edit', icon_class='edit',
-              label_text=_('edit'),
-              action=url('/scene/%(proj_id)s/%(name)s/edit')),
-            IconButton(id='delete', icon_class='delete',
-              label_text=_('delete'),
-              action=url('/scene/%(proj_id)s/%(name)s/delete')),
+            Button(id='edit',
+              action=url('/scene/%(proj_id)s/%(name)s/edit'),
+              fields=[Icon(id='edit', icon_class='edit',
+                label_text=_('edit')),
+            ]),
+            Button(id='delete',
+              action=url('/scene/%(proj_id)s/%(name)s/delete'),
+              fields=[Icon(id='delete', icon_class='delete',
+                label_text=_('delete')),
+            ]),
         ])
 
 
@@ -277,20 +311,25 @@ class TableShots(LiveTable):
             src=url('/repo/%(proj_id)s/%(parent_name)s/%(name)s/thumb.png'),
             dest=url('/repo/%(proj_id)s/%(parent_name)s/%(name)s/preview.png')
         )
-        name = Link(dest=url('/shot/%(proj_id)s/%(parent_name)s/%(name)s/'),
-                        sort_default=True)
+        namelink = Link(dest=url('/shot/%(proj_id)s/%(parent_name)s/%(name)s/'),
+                        sort_default=True,
+                        fields=[Text(id='name', label_text=_('name'))])
         description = Text()
         frames = Text()
         categories = StatusIconBox(fields=[
             StatusIcon(label_text='')
         ])
         actions = Box(fields=[
-            IconButton(id='edit', icon_class='edit',
-              label_text=_('edit'),
-              action=url('/shot/%(proj_id)s/%(parent_name)s/%(name)s/edit')),
-            IconButton(id='delete', icon_class='delete',
-              label_text=_('delete'),
-              action=url('/shot/%(proj_id)s/%(parent_name)s/%(name)s/delete')),
+            Button(id='edit',
+              action=url('/shot/%(proj_id)s/%(parent_name)s/%(name)s/edit'),
+              fields=[Icon(id='edit', icon_class='edit',
+                label_text=_('edit')),
+            ]),
+            Button(id='delete',
+              action=url('/shot/%(proj_id)s/%(parent_name)s/%(name)s/delete'),
+              fields=[Icon(id='delete', icon_class='delete',
+                label_text=_('delete')),
+            ]),
         ])
 
 
@@ -302,8 +341,9 @@ class TableLibgroups(LiveTable):
             src=url('/repo/%(proj_id)s/%(id)s/thumb.png'),
             dest=url('/repo/%(proj_id)s/%(id)s/preview.png')
         )
-        name = Link(dest=url('/libgroup/%(proj_id)s/%(id)s/'),
-                        sort_default=True)
+        namelink = Link(dest=url('/libgroup/%(proj_id)s/%(id)s/'),
+                        sort_default=True,
+                        fields=[Text(id='name', label_text=_('name'))])
         description = Text()
         subgroups = StatusIconBox(fields=[
             StatusIcon(label_text='')
@@ -312,12 +352,16 @@ class TableLibgroups(LiveTable):
             StatusIcon(label_text='')
         ])
         actions = Box(fields=[
-            IconButton(id='edit', icon_class='edit',
-              label_text=_('edit'),
-              action=url('/libgroup/%(proj_id)s/%(id)s/edit')),
-            IconButton(id='delete', icon_class='delete',
-              label_text=_('delete'),
-              action=url('/libgroup/%(proj_id)s/%(id)s/delete')),
+            Button(id='edit',
+              action=url('/libgroup/%(proj_id)s/%(id)s/edit'),
+              fields=[Icon(id='edit', icon_class='edit',
+                label_text=_('edit')),
+            ]),
+            Button(id='delete',
+              action=url('/libgroup/%(proj_id)s/%(id)s/delete'),
+              fields=[Icon(id='delete', icon_class='delete',
+                label_text=_('delete')),
+            ]),
         ])
 
 
@@ -340,48 +384,71 @@ class TableAssets(LiveTable):
             Text(id='current_summary', label_text=_('latest comment')),
         ])
         actions = Box(fields=[
-            IconButton(id='history', icon_class='history',
-              label_text=_('asset history'),
-              action=url('/asset/%(proj_id)s/%(id)s')),
-            IconButton(id='addnote', icon_class='edit',
+            Button(id='history',
+              action=url('/asset/%(proj_id)s/%(id)s'),
+              fields=[Icon(id='history', icon_class='history',
+                label_text=_('asset history')),
+            ]),
+            Button(id='addnote', icon_class='edit',
               label_text=_('add note'),
-              action=url('/note/%(current_id)s/new')),
-            IconButton(id='checkout', icon_class='checkout',
-              label_text=_('checkout'),
+              action=url('/note/%(current_id)s/new'),
+              fields=[Icon(id='addnote', icon_class='edit',
+                label_text=_('add note')),
+            ]),
+            Button(id='checkout',
+              condition='!data.checkedout && !data.approved',
               action=url('/asset/%(proj_id)s/%(id)s/checkout'),
-              condition='!data.checkedout && !data.approved'),
-            IconButton(id='release', icon_class='release',
-              label_text=_('release'),
+              fields=[Icon(id='checkout', icon_class='checkout',
+                label_text=_('checkout')),
+            ]),
+            Button(id='release',
+              condition='data.checkedout && !data.submitted && !data.approved',
               action=url('/asset/%(proj_id)s/%(id)s/release'),
-              condition='data.checkedout && !data.submitted && !data.approved'),
-            IconButton(id='publish', icon_class='publish',
-              label_text=_('publish a new version'),
+              fields=[Icon(id='release', icon_class='release',
+                label_text=_('release')),
+            ]),
+            Button(id='publish',
+              condition='data.checkedout',
               action=url('/asset/%(proj_id)s/%(id)s/publish'),
-              condition='data.checkedout'),
-            IconButton(id='submit', icon_class='submit',
-              label_text=_('submit for approval'),
-              action=url('/asset/%(proj_id)s/%(id)s/submit'),
+              fields=[Icon(id='publish', icon_class='publish',
+                label_text=_('publish a new version')),
+            ]),
+            Button(id='submit', icon_class='submit',
               condition='data.checkedout && data.current_ver>0 '
-                        '&& !data.submitted && !data.approved'),
-            IconButton(id='recall', icon_class='recall',
-              label_text=_('recall submission'),
+                        '&& !data.submitted && !data.approved',
+              action=url('/asset/%(proj_id)s/%(id)s/submit'),
+              fields=[Icon(id='submit', icon_class='submit',
+                label_text=_('submit for approval')),
+            ]),
+            Button(id='recall',
+              condition='data.submitted && !(data.approved)',
               action=url('/asset/%(proj_id)s/%(id)s/recall'),
-              condition='data.submitted && !(data.approved)'),
-            IconButton(id='sendback', icon_class='sendback',
-              label_text=_('send back for revisions'),
+              fields=[Icon(id='recall', icon_class='recall',
+                label_text=_('recall submission')),
+            ]),
+            Button(id='sendback',
+              condition='data.submitted && !(data.approved)',
               action=url('/asset/%(proj_id)s/%(id)s/sendback'),
-              condition='data.submitted && !(data.approved)'),
-            IconButton(id='approve', icon_class='approve',
-              label_text=_('approve'),
+              fields=[Icon(id='sendback', icon_class='sendback',
+                label_text=_('send back for revisions')),
+            ]),
+            Button(id='approve',
+              condition='data.submitted && !(data.approved)',
               action=url('/asset/%(proj_id)s/%(id)s/approve'),
-              condition='data.submitted && !(data.approved)'),
-            IconButton(id='revoke', icon_class='revoke',
-              label_text=_('revoke approval'),
+              fields=[Icon(id='approve', icon_class='approve',
+                label_text=_('approve')),
+            ]),
+            Button(id='revoke',
+              condition='data.approved',
               action=url('/asset/%(proj_id)s/%(id)s/revoke'),
-              condition='data.approved'),
-            IconButton(id='delete', icon_class='delete',
-              label_text=_('delete'),
-              action=url('/asset/%(proj_id)s/%(id)s/delete')),
+              fields=[Icon(id='revoke', icon_class='revoke',
+                label_text=_('revoke approval')),
+            ]),
+            Button(id='delete',
+              action=url('/asset/%(proj_id)s/%(id)s/delete'),
+              fields=[Icon(id='delete', icon_class='delete',
+                label_text=_('delete')),
+            ]),
         ])
     
     def update_params(self, d):
@@ -402,13 +469,19 @@ class TableAssetHistory(LiveTable):
         note = Box(fields=[
             Text(id='header', field_class='note_header',
               label_text=''),
-            Box(id='lines', fields=[Text(id='text', label_text='')]),
+            Box(id='lines', fields=[
+                Text(id='text', label_text='')
+            ]),
         ])
         actions = Box(fields=[
-            IconLink(id='download', icon_class='download',
+            Link(id='download_link',
               condition='data.ver && data.ver>0',
-              label_text=_('download'),
-              dest=url('/asset/%(proj_id)s/%(id)s/download')),
+              dest=url('/asset/%(proj_id)s/%(id)s/download'),
+              fields=[
+                Icon(id='download', icon_class='download',
+                  label_text=_('download'),
+                )
+            ]),
         ])
 
 
@@ -435,16 +508,22 @@ class TableNotes(LiveTable):
         user_name = Text(field_class='note_header', label_text=_('user name'))
         strftime = Text(field_class='note_header', label_text=_('date'),
                         sort_default=True, sort_direction='desc')
-        lines = Box(fields=[Text(id='text', label_text='')])
+        lines = Box(fields=[
+            Text(id='text', label_text='')
+        ])
         actions = Box(fields=[
-            IconButton(id='pin', icon_class='pin',
+            Button(id='pin',
               condition='!data.sticky',
-              label_text=_('pin note'),
-              action=url('/note/%(id)s/pin')),
-            IconButton(id='unpin', icon_class='unpin',
+              action=url('/note/%(id)s/pin'),
+              fields=[Icon(id='pin', icon_class='pin',
+                label_text=_('pin note')),
+            ]),
+            Button(id='unpin',
               condition='data.sticky',
-              label_text=_('un-pin note'),
-              action=url('/note/%(id)s/unpin')),
+              action=url('/note/%(id)s/unpin'),
+              fields=[Icon(id='unpin', icon_class='unpin',
+                label_text=_('un-pin note')),
+            ]),
         ])
     
     def update_params(self, d):
