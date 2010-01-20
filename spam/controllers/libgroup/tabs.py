@@ -29,10 +29,11 @@ from repoze.what import predicates
 from spam.lib.base import SPAMBaseController
 from spam.model import libgroup_get
 from spam.lib.predicates import is_project_user
-from spam.lib.widgets import ListTags, TableNotes, BoxStatus
-
+from spam.lib.widgets import ListTags, TableNotes, BoxLibgroupsStatus
+from spam.lib.widgets import BoxCategoriesStatus
 # live widgets
-b_status = BoxStatus()
+b_libgroups_status = BoxLibgroupsStatus()
+b_categories_status = BoxCategoriesStatus()
 l_tags = ListTags()
 t_notes = TableNotes()
 
@@ -51,10 +52,15 @@ class TabController(SPAMBaseController):
         
         This tab offers a quick view on the current status of the libgroup.
         """
-        tmpl_context.b_status = b_status
+        tmpl_context.b_libgroups_status = b_libgroups_status
+        tmpl_context.b_categories_status = b_categories_status
         tmpl_context.l_tags = l_tags
         tmpl_context.t_notes = t_notes
         libgroup = tmpl_context.libgroup
-        return dict()
+
+        extra_data = dict(proj_id=libgroup.proj_id,
+                          container_type='libgroup',
+                          container_id=libgroup.id)
+        return dict(extra_data=extra_data)
 
 

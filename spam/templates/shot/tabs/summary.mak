@@ -1,7 +1,8 @@
 <%inherit file="spam.templates.tab"/>
 
 <h2>${_('assets')}</h2>
-${c.b_status(id="status_%s" % (c.shot.id), items=c.shot.categories) | n}
+${c.b_categories_status(id="status_%s" % (c.shot.id), items=c.shot.categories,
+                        extra_data=extra_data) | n}
 <br/>
 <br/>
 

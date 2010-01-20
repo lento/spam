@@ -547,11 +547,52 @@ class ListNotes(LiveList):
 ############################################################
 # Live boxes
 ############################################################
+class BoxScenesStatus(LiveBox):
+    container_class = 'statusbox'
+    
+    class fields(WidgetsList):
+        link = Link(dest=url('/scene/%(proj_id)s/%(name)s'),
+            fields=[
+              StatusIcon(id='status', label_text='%(name)s: %(status)s')
+        ])
+
+
+class BoxShotsStatus(LiveBox):
+    container_class = 'statusbox'
+    
+    class fields(WidgetsList):
+        link = Link(dest=url('/shot/%(proj_id)s/%(parent_name)s/%(name)s'),
+            fields=[
+              StatusIcon(id='status', label_text='%(name)s: %(status)s')
+        ])
+
+
+class BoxLibgroupsStatus(LiveBox):
+    container_class = 'statusbox'
+    
+    class fields(WidgetsList):
+        link = Link(dest=url('/libgroup/%(proj_id)s/%(id)s'),
+            fields=[
+              StatusIcon(id='status', label_text='%(name)s: %(status)s')
+        ])
+
+
+class BoxCategoriesStatus(LiveBox):
+    container_class = 'statusbox'
+    
+    class fields(WidgetsList):
+        link = Link(dest=
+              '#/asset/%(proj_id)s/%(container_type)s/%(container_id)s',
+            fields=[
+              StatusIcon(id='status', label_text='%(name)s: %(status)s')
+        ])
+
+
 class BoxStatus(LiveBox):
     container_class = 'statusbox'
     
     class fields(WidgetsList):
-        status = StatusIcon(label_text='')
+        status = StatusIcon(label_text='%(name)s: %(status)s')
 
 
 ############################################################

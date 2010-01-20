@@ -2,14 +2,16 @@
 
 % if c.libgroup.subgroups:
     <h2>${_('subgroups')}</h2>
-    ${c.b_status(id="status_%s_subgroups" % (c.libgroup.id), items=c.libgroup.subgroups) | n}
+    ${c.b_libgroups_status(id="status_%s_subgroups" % c.libgroup.id,
+                        items=c.libgroup.subgroups) | n}
     <br/>
     <br/>
 % endif
 
 % if c.libgroup.assets:
     <h2>${_('assets')}</h2>
-    ${c.b_status(id="status_%s_assets" % (c.libgroup.id), items=c.libgroup.categories) | n}
+    ${c.b_categories_status(id="status_%s_assets" % c.libgroup.id,
+                        items=c.libgroup.categories, extra_data=extra_data) | n}
     <br/>
     <br/>
 % endif
