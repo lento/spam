@@ -130,7 +130,7 @@ class RootController(SPAMBaseController):
 
     @expose('spam.templates.sandbox.upload')
     @require(not_anonymous(msg=l_('Please login')))
-    def upload(self, uploadedfile):
+    def upload(self, uploader, uploadedfile):
         """
         Upload a file (or a list of files) to a temporary storage area as a
         first step for publishing an asset. The file can then be moved to the

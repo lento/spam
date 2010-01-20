@@ -1,4 +1,6 @@
 var upload = new Object;
+upload.uploading = 0;
+
 upload.queue = {length: 0, files: {},
                 add_file: function(file) {
                     this.length += 1;
@@ -17,6 +19,8 @@ upload.queue = {length: 0, files: {},
 
 upload.file_read = function(queue_id, file) {
     var reader = new FileReader();
+    upload.uploading += 1;
+    $(upload.config.submitter).attr('disabled', 'disabled');
     reader.onloadend = function(e) {
         upload.file_upload(queue_id, e.target.result);
     };
@@ -57,36 +61,47 @@ upload.file_upload = function(queue_id, fileData) {
         return false;
     });
   
-    $(xhr.upload).bind("load", function(e){
-        //console.log('FileUpload: load event', e, xhr);
+    $(xhr).bind("load", function(e){
+        console.log('FileUpload: load event', e, xhr);
         progress.progressbar('option', 'value', 100);
         if (xhr.status != 200) {
             progress.addClass("error");
         }
+        upload.uploading -= 1;
+        if (upload.uploading==0) {
+            $(upload.config.submitter).removeAttr('disabled');
+        }
     });
   
     $(xhr.upload).bind("error", function(e){
-        //console.log('FileUpload: error event');
+        console.log('FileUpload: error event');
         progress.progressbar('option', 'value', 100);
         progress.addClass("error");
     });
   
-    var boundaryString = "S-P-A-M----u-p-l-o-a-d--X30";
-    var boundary = "--"+boundaryString;
+    var boundary = "S-P-A-M----u-p-l-o-a-d--X30";
 
     var fileData = file.getAsBinary();
 
-    var postContent = 
-        '\r\n' + boundary + '\r\n' +
-        'Content-Disposition: file; name="uploadedfile"; filename="' + file.name + '"\r\n'+
-        'Content-Type: ' + file.type + '\r\n'+
-        "\r\n"+
-        fileData + "\r\n";
+    var content = new String();
+    content += '--' + boundary + '\r\n';
+    content += 'Content-disposition: form-data;name="uploader"\r\n';
+    content += '\r\n';
+    content += '1';
+    content += '\r\n';
+    content += '--' + boundary + '\r\n';
+    content += 'Content-Disposition: file; name="uploadedfile"; filename="' + file.name + '"\r\n';
+    content += 'Content-Type: ' + file.type + '\r\n';
+    content += 'Content-Length: ' + fileData.length + '\r\n';
+    content += '\r\n';
+    content += fileData + '\r\n';
+    content += '\r\n';
+    content += '--' + boundary + '--\r\n';
     
     xhr.open("POST", upload.config.target);
-    xhr.setRequestHeader('Content-Type', 'multipart/form-data; boundary=' + boundaryString);
-    xhr.setRequestHeader('Content-Length', postContent.length);
-    xhr.sendAsBinary(postContent);
+    xhr.setRequestHeader('Content-Type', 'multipart/form-data; boundary=' + boundary);
+    xhr.setRequestHeader('Content-Length', content.length);
+    xhr.sendAsBinary(content);
     
 }
 
@@ -94,6 +109,7 @@ $.fn.uploader = function(config){
     if (typeof(config)=='undefined' || config==null) config = {};
     if (!('queue' in config)) config.queue = "#upload_queue";
     if (!('target' in config)) config.target = "/upload";
+    if (!('submitter' in config)) config.submitter = ".submitbutton";
     upload.config = config;
     
     return this.each(function() {

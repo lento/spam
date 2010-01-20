@@ -1,6 +1,8 @@
 <script type="text/javascript">
     $(function() {
-        $("#uploader").uploader();
+        $("#uploader").uploader({target: "${target}",
+                                 queue: "${queue}",
+                                 submitter: "${submitter}"});
     });
 </script>
 
