@@ -1,17 +1,18 @@
 <%inherit file="spam.templates.tab"/>
 
-Summary tab for shot ${c.shot.path}
+<h2>${_('assets')}</h2>
+${c.b_status(id="status_%s" % (c.shot.id), items=c.shot.categories) | n}
 <br/>
 <br/>
 
-<h2>tags</h2>
+<h2>${_('tags')}</h2>
 <a href="${tg.url('/tag/%s/new' % c.shot.id)}"
    rel="#overlay" class="overlay button">add tag</a>
 ${c.l_tags(id="taglist", items=c.shot.tags) | n}
 <br/>
 <br/>
 
-<h2>notes</h2>
+<h2>${_('notes')}</h2>
 <a href="${tg.url('/note/%s/new' % c.shot.id)}"
    rel="#overlay" class="overlay button">add note</a>
 ${c.t_notes(id="notestable", items=c.shot.notes,

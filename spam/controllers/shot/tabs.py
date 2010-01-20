@@ -29,8 +29,10 @@ from repoze.what import predicates
 from spam.lib.base import SPAMBaseController
 from spam.model import scene_get, shot_get
 from spam.lib.predicates import is_project_user
-from spam.lib.widgets import ListTags, TableNotes
+from spam.lib.widgets import ListTags, TableNotes, BoxStatus
 
+# live widgets
+b_status = BoxStatus()
 l_tags = ListTags()
 t_notes = TableNotes()
 
@@ -50,6 +52,7 @@ class TabController(SPAMBaseController):
         
         This tab offers a quick view on the current status of the shot.
         """
+        tmpl_context.b_status = b_status
         tmpl_context.l_tags = l_tags
         tmpl_context.t_notes = t_notes
         shot = tmpl_context.shot

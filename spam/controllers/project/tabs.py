@@ -30,9 +30,10 @@ from spam.lib.base import SPAMBaseController
 from spam.model import session_get, Category, project_get
 from spam.lib.predicates import is_project_user, is_project_admin
 from spam.lib.widgets import TableProjectAdmins, TableProjectSupervisors
-from spam.lib.widgets import TableProjectArtists
+from spam.lib.widgets import TableProjectArtists, BoxStatus
 
-# live tables
+# live widgets
+b_status = BoxStatus()
 t_project_admins = TableProjectAdmins()
 t_project_supervisors = TableProjectSupervisors()
 t_project_artists = TableProjectArtists()
@@ -51,6 +52,7 @@ class TabController(SPAMBaseController):
         
         This tab offers a quick view on the current status of the project.
         """
+        tmpl_context.b_status = b_status
         #project = tmpl_context.project
         return dict()
 
