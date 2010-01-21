@@ -210,8 +210,8 @@ class Controller(RestController):
     def post_delete(self, proj, **kwargs):
         """Delete a project.
         
-        Only delete the project record from the common db, the project own db
-        and repository must be removed manually.
+        Only delete the project record from the common db, the project
+        repository must be removed manually.
         (This should help prevent awful accidents) ;)
         """
         session = session_get()
