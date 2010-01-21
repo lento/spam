@@ -112,6 +112,7 @@ class Controller(RestController):
             
             history[-1]['id'] = ver.id
             history[-1]['proj_id'] = ver.asset.proj_id
+            history[-1]['has_preview'] = ver.has_preview
             history[-1]['thumb_path'] = ver.thumb_path
             history[-1]['ver'] = ver.ver
             history[-1]['fmtver'] = ver.fmtver

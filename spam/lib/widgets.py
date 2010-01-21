@@ -9,7 +9,7 @@ from tw.forms.validators import All, Any, Regex, MaxLength, NotEmpty, Int
 from tw.forms.validators import Schema
 from spam.lib.validators import CategoryNamingConvention
 from livewidgets import LiveTable, LiveBox, LiveList
-from livewidgets import LiveWidget, Box, Button, Icon, Text, Link, Thumb
+from livewidgets import LiveWidget, Box, Button, Icon, Text, Link, Image
 from spam.lib import notifications
 
 # Orbited
@@ -78,10 +78,6 @@ class TableTest(LiveTable):
     class fields(WidgetsList):
         a = Text(sort_default=True, sort_direction='desc')
         b = Link()
-        thumb = Thumb(label_text='preview',
-            src=url('/repo/%(proj_id)s/%(name)s/thumb.png'),
-            dest=url('/repo/%(proj_id)s/%(name)s/preview.png')
-        )
         actions = Box(fields=[
             Button(id='edit',
               action=url('/user/%(user_name)s/edit'),
@@ -279,10 +275,11 @@ class TableScenes(LiveTable):
     javascript = [notify_client_js]
     update_topic = '/topic/scenes'
     class fields(WidgetsList):
-        thumbnail = Thumb(label_text='preview', field_class='thumbnail',
-            src=url('/repo/%(proj_id)s/%(name)s/thumb.png'),
-            dest=url('/repo/%(proj_id)s/%(name)s/preview.png')
-        )
+        thumbnail = Box(field_class='thumbnail', fields=[
+            Image(label_text=_('thumbnail'), field_class='thumbnail',
+              condition='data.has_preview',
+              src=url('/repo/%(thumbnail)s'))
+        ])
         namelink = Link(dest=url('/scene/%(proj_id)s/%(name)s/'), sort_default=True,
                         fields=[Text(id='name', label_text=_('name'))])
         description = Text()
@@ -307,10 +304,11 @@ class TableShots(LiveTable):
     javascript = [notify_client_js]
     update_topic = '/topic/shots'
     class fields(WidgetsList):
-        thumbnail = Thumb(label_text='preview', field_class='thumbnail',
-            src=url('/repo/%(proj_id)s/%(parent_name)s/%(name)s/thumb.png'),
-            dest=url('/repo/%(proj_id)s/%(parent_name)s/%(name)s/preview.png')
-        )
+        thumbnail = Box(field_class='thumbnail', fields=[
+            Image(label_text=_('thumbnail'), field_class='thumbnail',
+              condition='data.has_preview',
+              src=url('/repo/%(thumbnail)s'))
+        ])
         namelink = Link(dest=url('/shot/%(proj_id)s/%(parent_name)s/%(name)s/'),
                         sort_default=True,
                         fields=[Text(id='name', label_text=_('name'))])
@@ -337,10 +335,11 @@ class TableLibgroups(LiveTable):
     javascript = [notify_client_js]
     update_topic = '/topic/libgroups'
     class fields(WidgetsList):
-        thumbnail = Thumb(label_text='preview', field_class='thumbnail',
-            src=url('/repo/%(proj_id)s/%(id)s/thumb.png'),
-            dest=url('/repo/%(proj_id)s/%(id)s/preview.png')
-        )
+        thumbnail = Box(field_class='thumbnail', fields=[
+            Image(label_text=_('thumbnail'), field_class='thumbnail',
+              condition='data.has_preview',
+              src=url('/repo/%(thumbnail)s'))
+        ])
         namelink = Link(dest=url('/libgroup/%(proj_id)s/%(id)s/'),
                         sort_default=True,
                         fields=[Text(id='name', label_text=_('name'))])
@@ -371,10 +370,13 @@ class TableAssets(LiveTable):
     javascript = [notify_client_js]
     update_topic = '/topic/assets'
     class fields(WidgetsList):
-        thumbnail = Thumb(label_text='preview', field_class='thumbnail',
-            src=url('/repo/%(thumb_path)s'),
-            dest=url('/repo/%(proj_id)s/preview.png')
-        )
+        thumbnail = Box(field_class='thumbnail', fields=[
+            Link(dest=url('/repo/%(proj_id)s/preview.png'),
+              condition='data.has_preview', fields=[
+              Image(label_text=_('preview'), field_class='thumbnail',
+                src=url('/repo/%(thumbnail)s'))
+            ])
+        ])
         name = Text(sort_default=True)
         current_fmtver = Text(label_text=_('version'))
         status = StatusIcon(icon_class='asset', label_text=_('status: '))
@@ -459,11 +461,11 @@ class TableAssets(LiveTable):
 class TableAssetHistory(LiveTable):
     class fields(WidgetsList):
         thumbnail = Box(field_class='thumbnail', fields=[
-          Thumb(id='preview', label_text=_('preview'), field_class='thumbnail',
-            condition='data.thumb_path',
-            src=url('/repo/%(thumb_path)s'),
-            dest=url('/repo/%(thumb_path)s')
-          )
+            Link(dest=url('/repo/%(preview_path)s'),
+              condition='data.has_preview', fields=[
+              Image(label_text=_('preview'), field_class='thumbnail',
+                src=url('/repo/%(thumbnail)s'))
+            ])
         ])
         fmtver = Text(label_text='ver')
         note = Box(fields=[

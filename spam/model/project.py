@@ -126,6 +126,12 @@ class Taggable(DeclarativeBase):
     def tagged(self):
         return getattr(self, 'tagged_%s' % self.association_type)
     
+    # Methods
+    def has_tags(self, tag_ids):
+        find = set(tag_ids)
+        tags = set([t.id for t in self.tags])
+        return find.issubset(tags)
+        
     # Special methods
     def __init__(self, id, association_type):
         self.id = id
@@ -355,6 +361,22 @@ class AssetContainer(DeclarativeBase):
         categories.sort(cmp=lambda x, y: cmp(x.ordering, y.ordering))
         return categories
     
+    @property
+    def thumbnail(self):
+        categories = self.categories
+        for i in range(len(categories)):
+            cat = categories.pop()
+            for asset in self.assets[cat]:
+                if asset.has_preview:
+                    return asset.thumbnail
+        return ''
+    
+    @property
+    def has_preview(self):
+        if not self.thumbnail:
+            return False
+        return os.path.exists(os.path.join(G.REPOSITORY, self.thumbnail))
+    
     # Special methods
     def __repr__(self):
         return '<AssetContainer: %s (%s)>' % (self.id, self.discriminator)
@@ -396,7 +418,16 @@ class Scene(DeclarativeBase):
     
     @property
     def thumbnail(self):
-        return os.path.join(G.PREVIEWS, self.path, 'thumb.png')
+        for sh in self.shots:
+            if sh.has_tags(['key']) and sh.has_preview:
+                return sh.thumbnail
+        return ''
+    
+    @property
+    def has_preview(self):
+        if not self.thumbnail:
+            return False
+        return os.path.exists(os.path.join(G.REPOSITORY, self.thumbnail))
     
     @property
     def tags(self):
@@ -410,6 +441,14 @@ class Scene(DeclarativeBase):
     def status(self):
         return compute_status(self.shots)
 
+    @property
+    def key_shots(self):
+        return [sh for sh in self.shots if sh.has_tags(['key'])]
+    
+    # Methods
+    def has_tags(self, tag_ids):
+        return self.taggable.has_tags(tag_ids)
+    
     # Special methods
     def __init__(self, proj, name, description=None):
         self.proj_id = proj
@@ -427,9 +466,10 @@ class Scene(DeclarativeBase):
                     proj_id=self.proj_id,
                     name=self.name,
                     description=self.description,
-                    thumbnail=self.thumbnail,
                     status=self.status,
                     shots=self.shots,
+                    thumbnail=self.thumbnail,
+                    has_preview=self.has_preview,
                    )
 
 DDL(taggable_delete_trigger).execute_at('after-create', Scene.__table__)
@@ -498,6 +538,10 @@ class Shot(AssetContainer):
     def status(self):
         return compute_status(self.assets)
             
+    # Methods
+    def has_tags(self, tag_ids):
+        return self.taggable.has_tags(tag_ids)
+    
     # Special methods
     def __init__(self, parent, name, description=None, action=None,
                        location=None, frames=0, handle_in=0, handle_out=0):
@@ -532,6 +576,8 @@ class Shot(AssetContainer):
                     handle_out=self.handle_out,
                     status=self.status,
                     categories=self.categories,
+                    thumbnail=self.thumbnail,
+                    has_preview=self.has_preview,
                    )
 
 DDL(taggable_delete_trigger).execute_at('after-create', Shot.__table__)
@@ -593,6 +639,10 @@ class LibraryGroup(AssetContainer):
         assets_status = compute_status(self.assets)
         return compute_status((subgroups_status, assets_status))
             
+    # Methods
+    def has_tags(self, tag_ids):
+        return self.taggable.has_tags(tag_ids)
+    
     # Special methods
     def __init__(self, proj, name, parent=None, description=None):
         self.proj_id = proj
@@ -616,6 +666,8 @@ class LibraryGroup(AssetContainer):
                     subgroups=self.subgroups,
                     status=self.status,
                     categories=self.categories,
+                    thumbnail=self.thumbnail,
+                    has_preview=self.has_preview,
                    )
 
 DDL(taggable_delete_trigger).execute_at('after-create', LibraryGroup.__table__)
@@ -789,12 +841,18 @@ class Asset(DeclarativeBase):
         return os.path.join(self.parent.path, self.category.id, self.name)
     
     @property
-    def thumb_path(self):
+    def thumbnail(self):
         name, ext = os.path.splitext(self.name)
         name = name.replace('.#', '')
         name = '%s-thumb.png' % name
         return os.path.join(self.proj_id, G.PREVIEWS, self.parent.path,
                             self.category.id, name)
+    
+    @property
+    def has_preview(self):
+        if not self.thumbnail:
+            return False
+        return os.path.exists(os.path.join(G.REPOSITORY, self.thumbnail))
     
     @property
     def current(self):
@@ -822,6 +880,9 @@ class Asset(DeclarativeBase):
             return 'idle'
     
     # Methods
+    def has_tags(self, tag_ids):
+        return self.taggable.has_tags(tag_ids)
+    
     def submit(self, user):
         self.submitted = True
         self.submitted_by = user
@@ -887,11 +948,11 @@ class Asset(DeclarativeBase):
                     current_summary=(self.current.notes and
                                         self.current.notes[0].summary or ''),
                     is_sequence=self.is_sequence,
-                    thumb_path=self.thumb_path,
+                    thumbnail=self.thumbnail,
+                    has_preview=self.has_preview,
                     #'repopath': self.repopath,
                     #'basedir': self.basedir,
                     #'repobasedir': self.repobasedir,
-                    #'has_preview': self.has_preview,
                     #'preview_small_repopath': self.preview_small_repopath,
                     #'preview_large_repopath': self.preview_large_repopath,
                     #'flow': self.flow,
@@ -941,9 +1002,15 @@ class AssetVersion(DeclarativeBase):
         return self.annotable.notes
     
     @property
-    def thumb_path(self):
-        return self.asset.thumb_path.replace(
+    def thumbnail(self):
+        return self.asset.thumbnail.replace(
                                         '-thumb', '_v%03d-thumb' % self.ver)
+    
+    @property
+    def has_preview(self):
+        if not self.thumbnail:
+            return False
+        return os.path.exists(os.path.join(G.REPOSITORY, self.thumbnail))
     
     # Special methods
     def __init__(self, asset, ver, user, repoid, has_preview=False,
@@ -968,8 +1035,8 @@ class AssetVersion(DeclarativeBase):
                     ver=self.ver,
                     fmtver=self.fmtver,
                     path=self.path,
-                    thumb_path=self.thumb_path,
-                    #'has_preview': self.has_preview,
+                    thumbnail=self.thumbnail,
+                    has_preview=self.has_preview,
                     #'preview_small_repopath': self.preview_small_repopath,
                     #'preview_large_repopath': self.preview_large_repopath,
                     #'strftime': self.strftime,
