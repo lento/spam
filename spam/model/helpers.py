@@ -29,7 +29,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.exceptions import InvalidRequestError
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 from spam.lib.exceptions import SPAMDBError, SPAMDBNotFound
-from spam.model import DBSession, Project, Scene, Shot, LibraryGroup, Asset
+from spam.model import DBSession, Project, Scene, Shot, Libgroup, Asset
 from spam.model import Category, User, Group, Taggable, Tag, Annotable, Note
 from spam.model import AssetVersion
 
@@ -115,11 +115,11 @@ def shot_get(proj, sc, sh):
 
 def libgroup_get(proj, libgroup_id):
     """Return a libgroup."""
-    query = session_get().query(LibraryGroup).filter_by(proj_id=proj)
+    query = session_get().query(Libgroup).filter_by(proj_id=proj)
     try:
         return query.filter_by(id=libgroup_id).one()
     except NoResultFound:
-        raise SPAMDBNotFound('LibraryGroup "%s" could not be found.' % libgroup_id)
+        raise SPAMDBNotFound('Libgroup "%s" could not be found.' % libgroup_id)
     except MultipleResultsFound:
         raise SPAMDBError('Error when searching Librarygroup "%s".' % libgroup_id)
 
@@ -128,7 +128,7 @@ def container_get(proj, container_type, container_id):
     if container_type=='shot':
         query = session_get().query(Shot)
     elif container_type=='libgroup':
-        query = session_get().query(LibraryGroup)
+        query = session_get().query(Libgroup)
     try:
         return query.filter_by(id=container_id).one()
     except NoResultFound:

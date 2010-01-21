@@ -49,7 +49,7 @@ from versioning import db_upgrade, db_downgrade
 # Models import
 from auth import User, Group, Permission
 from project import Taggable, Tag, Annotable, Note, Journal
-from project import Project, Scene, Shot, LibraryGroup
+from project import Project, Scene, Shot, Libgroup
 from project import Category, Supervisor, Artist, Asset, AssetVersion
 
 # Caching & helpers

@@ -35,8 +35,8 @@ class AssetContainer(DeclarativeBase):
         
     # Columns
     id = Column(String(40), primary_key=True)
-    discriminator = Column('type', Unicode(20))
-    __mapper_args__ = {'polymorphic_on': discriminator}
+    container_type = Column('type', Unicode(20))
+    __mapper_args__ = {'polymorphic_on': container_type}
 
 class Scene(DeclarativeBase):
     """
@@ -90,9 +90,9 @@ DDL(taggable_delete_trigger).execute_at('after-create', Shot.__table__)
 DDL(annotable_delete_trigger).execute_at('after-create', Shot.__table__)
 
 
-class LibraryGroup(AssetContainer):
+class Libgroup(AssetContainer):
     """Library group"""
-    __tablename__ = "library_groups"
+    __tablename__ = "libgroups"
     __table_args__ = (UniqueConstraint('parent_id', 'name'),
                       ForeignKeyConstraint(['id'], ['taggables.id']),
                       ForeignKeyConstraint(['id'], ['annotables.id']),
@@ -102,9 +102,13 @@ class LibraryGroup(AssetContainer):
     # Columns
     id = Column(String(40), ForeignKey('asset_containers.id'), primary_key=True)
     proj_id = Column(Unicode(10), ForeignKey('projects.id'))
-    parent_id = Column(String(40), ForeignKey('library_groups.id'))
+    parent_id = Column(String(40), ForeignKey('libgroups.id'))
     name = Column(Unicode(40))
     description = Column(UnicodeText)
+
+DDL(taggable_delete_trigger).execute_at('after-create', Libgroup.__table__)
+DDL(annotable_delete_trigger).execute_at('after-create', Libgroup.__table__)
+
 
 def upgrade():
     # Upgrade operations go here. Don't create your own engine; use the engine
@@ -112,15 +116,12 @@ def upgrade():
     AssetContainer.__table__.create()
     Scene.__table__.create()
     Shot.__table__.create()
-    LibraryGroup.__table__.create()
+    Libgroup.__table__.create()
     
 def downgrade():
     # Operations to reverse the above upgrade go here.
     AssetContainer.__table__.drop()
     Scene.__table__.drop()
     Shot.__table__.drop()
-    LibraryGroup.__table__.create()
-
-DDL(taggable_delete_trigger).execute_at('after-create', LibraryGroup.__table__)
-DDL(annotable_delete_trigger).execute_at('after-create', LibraryGroup.__table__)
+    Libgroup.__table__.drop()
 

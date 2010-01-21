@@ -25,7 +25,7 @@
 from tg import expose, url, tmpl_context, validate, require
 from tg.controllers import RestController
 from tg.decorators import with_trailing_slash
-from spam.model import session_get, Project, User, LibraryGroup, libgroup_get
+from spam.model import session_get, Project, User, Libgroup, libgroup_get
 from spam.model import diff_dicts
 from spam.lib.widgets import FormLibgroupNew, FormLibgroupEdit
 from spam.lib.widgets import FormLibgroupConfirm, TableLibgroups
@@ -127,7 +127,7 @@ class Controller(RestController):
         parent = parent_id and libgroup_get(proj, parent_id) or None
         
         # add libgroup to db
-        libgroup = LibraryGroup(project.id, name, parent, description)
+        libgroup = Libgroup(project.id, name, parent, description)
         session.add(libgroup)
         session.flush()
         

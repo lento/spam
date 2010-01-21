@@ -344,8 +344,8 @@ class AssetContainer(DeclarativeBase):
         
     # Columns
     id = Column(String(40), primary_key=True)
-    discriminator = Column('type', Unicode(20))
-    __mapper_args__ = {'polymorphic_on': discriminator}
+    container_type = Column('type', Unicode(20))
+    __mapper_args__ = {'polymorphic_on': container_type}
 
     # Properties
     @property
@@ -578,35 +578,35 @@ class Shot(AssetContainer):
                     categories=self.categories,
                     thumbnail=self.thumbnail,
                     has_preview=self.has_preview,
-                    container_type=self.discriminator,
+                    container_type=self.container_type,
                    )
 
 DDL(taggable_delete_trigger).execute_at('after-create', Shot.__table__)
 DDL(annotable_delete_trigger).execute_at('after-create', Shot.__table__)
                     
 
-class LibraryGroup(AssetContainer):
+class Libgroup(AssetContainer):
     """Library group"""
-    __tablename__ = "library_groups"
+    __tablename__ = "libgroups"
     __table_args__ = (UniqueConstraint('parent_id', 'name'),
                       ForeignKeyConstraint(['id'], ['taggables.id']),
                       ForeignKeyConstraint(['id'], ['annotables.id']),
                       {})
-    __mapper_args__ = {'polymorphic_identity': 'library_group'}
+    __mapper_args__ = {'polymorphic_identity': 'libgroup'}
     
     # Columns
     id = Column(String(40), ForeignKey('asset_containers.id'), primary_key=True)
     proj_id = Column(Unicode(10), ForeignKey('projects.id'))
-    parent_id = Column(String(40), ForeignKey('library_groups.id'))
+    parent_id = Column(String(40), ForeignKey('libgroups.id'))
     name = Column(Unicode(40))
     description = Column(UnicodeText)
     
     # Relations
     project = relation('Project',  backref=backref('libgroups', primaryjoin=
-        'and_(Project.id==LibraryGroup.proj_id, LibraryGroup.parent_id==None)',
+        'and_(Project.id==Libgroup.proj_id, Libgroup.parent_id==None)',
         viewonly=True, order_by=name))
     
-    subgroups = relation('LibraryGroup', primaryjoin=parent_id==id,
+    subgroups = relation('Libgroup', primaryjoin=parent_id==id,
                              foreign_keys=[parent_id], lazy=False, join_depth=5,
                              backref=backref('parent', remote_side=[id]))
     
@@ -656,7 +656,7 @@ class LibraryGroup(AssetContainer):
         self.annotable = Annotable(self.id, 'libgroup')
 
     def __repr__(self):
-        return '<LibraryGroup: %s (%s)>' % (self.id, self.path)
+        return '<Libgroup: %s (%s)>' % (self.id, self.path)
 
     def __json__(self):
         return dict(id=self.id,
@@ -669,11 +669,11 @@ class LibraryGroup(AssetContainer):
                     categories=self.categories,
                     thumbnail=self.thumbnail,
                     has_preview=self.has_preview,
-                    container_type=self.discriminator,
+                    container_type=self.container_type,
                    )
 
-DDL(taggable_delete_trigger).execute_at('after-create', LibraryGroup.__table__)
-DDL(annotable_delete_trigger).execute_at('after-create', LibraryGroup.__table__)
+DDL(taggable_delete_trigger).execute_at('after-create', Libgroup.__table__)
+DDL(annotable_delete_trigger).execute_at('after-create', Libgroup.__table__)
 
 
 ############################################################

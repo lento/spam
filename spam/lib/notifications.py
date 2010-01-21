@@ -3,7 +3,7 @@ from stomp.exception import ConnectionClosedException, NotConnectedException
 from tg import config
 from spam.lib.jsonify import encode as json_encode
 from spam.model import User, Category
-from spam.model import Project, Scene, Shot, Asset, LibraryGroup, Journal, Note
+from spam.model import Project, Scene, Shot, Asset, Libgroup, Journal, Note
 
 import logging
 log = logging.getLogger(__name__)
@@ -35,7 +35,7 @@ class StompClient(object):
                        Scene: TOPIC_SCENES,
                        Shot: TOPIC_SHOTS,
                        Asset: TOPIC_ASSETS,
-                       LibraryGroup: TOPIC_LIBGROUPS,
+                       Libgroup: TOPIC_LIBGROUPS,
                        Journal: TOPIC_JOURNAL,
                        Note: TOPIC_NOTES,
                       }
