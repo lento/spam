@@ -314,8 +314,13 @@ class TableShots(LiveTable):
                         fields=[Text(id='name', label_text=_('name'))])
         description = Text()
         frames = Text()
-        categories = StatusIconBox(fields=[
-            StatusIcon(label_text='')
+        categories = Box(field_class='statusbox', fields=[
+            Link(dest='%s#%s' % (
+                          url('/shot/%(proj_id)s/%(parent_name)s/%(name)s'),
+                          url('/asset/%(proj_id)s/%(container_type)s/%(id)s')),
+              fields=[
+                StatusIcon(id='item_status', label_text='%(item_name)s: %(item_status)s')
+            ])
         ])
         actions = Box(fields=[
             Button(id='edit',
@@ -347,8 +352,13 @@ class TableLibgroups(LiveTable):
         subgroups = StatusIconBox(fields=[
             StatusIcon(label_text='')
         ])
-        categories = StatusIconBox(fields=[
-            StatusIcon(label_text='')
+        categories = Box(field_class='statusbox', fields=[
+            Link(dest='%s#%s' % (
+                          url('/libgroup/%(proj_id)s/%(id)s'),
+                          url('/asset/%(proj_id)s/%(container_type)s/%(id)s')),
+              fields=[
+                StatusIcon(id='item_status', label_text='%(item_name)s: %(item_status)s')
+            ])
         ])
         actions = Box(fields=[
             Button(id='edit',

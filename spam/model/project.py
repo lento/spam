@@ -578,6 +578,7 @@ class Shot(AssetContainer):
                     categories=self.categories,
                     thumbnail=self.thumbnail,
                     has_preview=self.has_preview,
+                    container_type=self.discriminator,
                    )
 
 DDL(taggable_delete_trigger).execute_at('after-create', Shot.__table__)
@@ -668,6 +669,7 @@ class LibraryGroup(AssetContainer):
                     categories=self.categories,
                     thumbnail=self.thumbnail,
                     has_preview=self.has_preview,
+                    container_type=self.discriminator,
                    )
 
 DDL(taggable_delete_trigger).execute_at('after-create', LibraryGroup.__table__)
