@@ -56,9 +56,5 @@ class TabController(SPAMBaseController):
         tmpl_context.l_tags = l_tags
         tmpl_context.t_notes = t_notes
         shot = tmpl_context.shot
-        
-        extra_data = dict(proj_id=shot.proj_id,
-                          container_type='shot',
-                          container_id=shot.id)
-        return dict(extra_data=extra_data)
+        return dict()
 

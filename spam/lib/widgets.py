@@ -590,13 +590,12 @@ class BoxLibgroupsStatus(LiveBox):
 
 
 class BoxCategoriesStatus(LiveBox):
-    container_class = 'statusbox'
-    
     class fields(WidgetsList):
-        link = Link(dest=
-              '#/asset/%(proj_id)s/%(container_type)s/%(container_id)s',
-            fields=[
-              StatusIcon(id='status', label_text='%(name)s: %(status)s')
+        categories = Box(field_class='statusbox', fields=[
+            Link(dest='#/asset/%(proj_id)s/%(container_type)s/%(id)s', fields=[
+              StatusIcon(id='item_status',
+                label_text='%(item_name)s: %(item_status)s')
+            ])
         ])
 
 
@@ -604,7 +603,7 @@ class BoxStatus(LiveBox):
     container_class = 'statusbox'
     
     class fields(WidgetsList):
-        status = StatusIcon(label_text='%(name)s: %(status)s')
+        status = StatusIcon(label_text='%(item_name)s: %(item_status)s')
 
 
 ############################################################
