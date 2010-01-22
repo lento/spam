@@ -20,70 +20,78 @@ def build_client(filename):
 
     # Category
     group = 'category'
-    maker.add_call(cat.get_one, group, 'get', group, 'category')
-    maker.add_call(cat.post, group, 'new', group)
-    maker.add_call(cat.put, group, 'edit', group, _method='PUT')
-    maker.add_call(cat.post_delete, group, 'delete', group, _method='DELETE')
+    target = '%s.json' % group
+    maker.add_call(cat.get_one, group, 'get', '%s/get_one.json' % group, 'category', True)
+    maker.add_call(cat.post, group, 'new', target)
+    maker.add_call(cat.put, group, 'edit', target, _method='PUT')
+    maker.add_call(cat.post_delete, group, 'delete', target, _method='DELETE')
 
     # Tag
     group = 'tag'
-    maker.add_call(tag.get_one, group, 'get', group, 'tag')
-    maker.add_call(tag.post, group, 'new', group)
-    maker.add_call(tag.post_delete, group, 'delete', group, _method='DELETE')
-    maker.add_call(tag.post_remove, group, 'remove', group, _method='REMOVE')
+    target = '%s.json' % group
+    maker.add_call(tag.get_one, group, 'get', '%s/get_one.json' % group, 'tag', True)
+    maker.add_call(tag.post, group, 'new', target)
+    maker.add_call(tag.post_delete, group, 'delete', target, _method='DELETE')
+    maker.add_call(tag.post_remove, group, 'remove', target, _method='REMOVE')
 
     # Note
     group = 'note'
-    maker.add_call(note.get_one, group, 'get', group, 'note')
-    maker.add_call(note.post, group, 'new', group)
-    maker.add_call(note.post_delete, group, 'delete', group, _method='DELETE')
-    maker.add_call(note.pin, group, 'pin', group, _method='PIN')
-    maker.add_call(note.unpin, group, 'unpin', group, _method='UNPIN')
+    target = '%s.json' % group
+    maker.add_call(note.get_one, group, 'get', '%s/get_one.json' % group, 'note', True)
+    maker.add_call(note.post, group, 'new', target)
+    maker.add_call(note.post_delete, group, 'delete', target, _method='DELETE')
+    maker.add_call(note.pin, group, 'pin', target, _method='PIN')
+    maker.add_call(note.unpin, group, 'unpin', target, _method='UNPIN')
 
     # Project
     group = 'project'
-    maker.add_call(proj.get_one, group, 'get', group, 'project')
-    maker.add_call(proj.post, group, 'new', group)
-    maker.add_call(proj.put, group, 'edit', group, _method='PUT')
-    maker.add_call(proj.post_delete, group, 'delete', group, _method='DELETE')
-    maker.add_call(proj.post_archive, group, 'archive', group, _method='ARCHIVE')
-    maker.add_call(proj.post_activate, group, 'activate', group, _method='ACTIVATE')
+    target = '%s.json' % group
+    maker.add_call(proj.get_one, group, 'get', '%s/get_one.json' % group, 'project', True)
+    maker.add_call(proj.post, group, 'new', target)
+    maker.add_call(proj.put, group, 'edit', target, _method='PUT')
+    maker.add_call(proj.post_delete, group, 'delete', target, _method='DELETE')
+    maker.add_call(proj.post_archive, group, 'archive', target, _method='ARCHIVE')
+    maker.add_call(proj.post_activate, group, 'activate', target, _method='ACTIVATE')
 
     # Scene
     group = 'scene'
-    maker.add_call(sc.get_one, group, 'get', group, 'scene')
-    maker.add_call(sc.post, group, 'new', group)
-    maker.add_call(sc.put, group, 'edit', group, _method='PUT')
-    maker.add_call(sc.post_delete, group, 'delete', group, _method='DELETE')
+    target = '%s.json' % group
+    maker.add_call(sc.get_one, group, 'get', '%s/get_one.json' % group, 'scene', True)
+    maker.add_call(sc.post, group, 'new', target)
+    maker.add_call(sc.put, group, 'edit', target, _method='PUT')
+    maker.add_call(sc.post_delete, group, 'delete', target, _method='DELETE')
 
     # Shot
     group = 'shot'
-    maker.add_call(sh.get_one, group, 'get', group, 'shot')
-    maker.add_call(sh.post, group, 'new', group)
-    maker.add_call(sh.put, group, 'edit', group, _method='PUT')
-    maker.add_call(sh.post_delete, group, 'delete', group, _method='DELETE')
+    target = '%s.json' % group
+    maker.add_call(sh.get_one, group, 'get', '%s/get_one.json' % group, 'shot', True)
+    maker.add_call(sh.post, group, 'new', target)
+    maker.add_call(sh.put, group, 'edit', target, _method='PUT')
+    maker.add_call(sh.post_delete, group, 'delete', target, _method='DELETE')
 
     # Libgroup
     group = 'libgroup'
-    maker.add_call(lib.get_one, group, 'get', group, 'libgroup')
-    maker.add_call(lib.post, group, 'new', group)
-    maker.add_call(lib.put, group, 'edit', group, _method='PUT')
-    maker.add_call(lib.post_delete, group, 'delete', group, _method='DELETE')
+    target = '%s.json' % group
+    maker.add_call(lib.get_one, group, 'get', '%s/get_one.json' % group, 'libgroup', True)
+    maker.add_call(lib.post, group, 'new', target)
+    maker.add_call(lib.put, group, 'edit', target, _method='PUT')
+    maker.add_call(lib.post_delete, group, 'delete', target, _method='DELETE')
 
     # Asset
     group = 'asset'
-    maker.add_call(ast.get_one, group, 'get', group, 'asset')
-    maker.add_call(ast.post, group, 'new', group)
-    maker.add_call(ast.post_delete, group, 'delete', group, _method='DELETE')
-    maker.add_call(ast.checkout, group, 'checkout', group, _method='CHECKOUT')
-    maker.add_call(ast.release, group, 'release', group, _method='RELEASE')
-    maker.add_call(ast.post_publish, group, 'publish', group, _method='PUBLISH')
-    maker.add_call(ast.post_submit, group, 'submit', group, _method='SUBMIT')
-    maker.add_call(ast.post_recall, group, 'recall', group, _method='RECALL')
-    maker.add_call(ast.post_sendback, group, 'sendback', group, _method='SENDBACK')
-    maker.add_call(ast.post_approve, group, 'approve', group, _method='APPROVE')
-    maker.add_call(ast.post_revoke, group, 'revoke', group, _method='REVOKE')
-    #maker.add_call(ast.download, group, 'download', group, _method='DOWNLOAD')
+    target = '%s.json' % group
+    maker.add_call(ast.get_one, group, 'get', '%s/get_one.json' % group, 'asset', True)
+    maker.add_call(ast.post, group, 'new', target)
+    maker.add_call(ast.post_delete, group, 'delete', target, _method='DELETE')
+    maker.add_call(ast.checkout, group, 'checkout', target, _method='CHECKOUT')
+    maker.add_call(ast.release, group, 'release', target, _method='RELEASE')
+    maker.add_call(ast.post_publish, group, 'publish', target, _method='PUBLISH')
+    maker.add_call(ast.post_submit, group, 'submit', target, _method='SUBMIT')
+    maker.add_call(ast.post_recall, group, 'recall', target, _method='RECALL')
+    maker.add_call(ast.post_sendback, group, 'sendback', target, _method='SENDBACK')
+    maker.add_call(ast.post_approve, group, 'approve', target, _method='APPROVE')
+    maker.add_call(ast.post_revoke, group, 'revoke', target, _method='REVOKE')
+    #maker.add_call(ast.download, group, 'download', target, _method='DOWNLOAD')
 
     output = open(filename, 'w+')
     output.write(maker.render())

@@ -4,7 +4,26 @@
 """Standalone SPAM client"""
 
 import getpass, cookielib, urllib, urllib2, json
-import project, scene, shot
+
+def encode_params(args, **kwargs):
+    args.pop('self', None)
+    
+    params = dict()
+    for key, value in args.iteritems():
+        if value is not None:
+            params[key] = value
+        else:
+            params[key] = ''
+    
+    for key, value in kwargs.iteritems():
+        if value is not None:
+            params[key] = value
+        else:
+            params[key] = ''
+    
+    encoded = urllib.urlencode(params)
+    
+    return encoded
 
 
 class Category(object):
@@ -17,22 +36,27 @@ class Category(object):
         RESTController to work."""
         data = encode_params(locals(), )
         
-        result = self.client.open('category', data)
+        result = self.client.open('category/get_one.json?%s' % data)
+        
         return json.loads(result.read())['category']
 
     
-    def new(self, category_id, ordering=0, naming_convention=):
+    def new(self, category_id, ordering=None, naming_convention=None):
         """Create a new category"""
         data = encode_params(locals(), )
         
-        return self.client.open('category', data)
+        result = self.client.open('category.json', data)
+        
+        return result
 
     
-    def edit(self, category_id, ordering=0, naming_convention=):
+    def edit(self, category_id, ordering=None, naming_convention=None):
         """Edit a category"""
-        data = encode_params(locals(), _method=PUT)
+        data = encode_params(locals(), _method='PUT')
         
-        return self.client.open('category', data)
+        result = self.client.open('category.json', data)
+        
+        return result
 
     
     def delete(self, category_id):
@@ -41,9 +65,11 @@ class Category(object):
         Only delete the category record from the common db, all the assets
         in this category will be orphaned, and must be removed manually.
         """
-        data = encode_params(locals(), _method=DELETE)
+        data = encode_params(locals(), _method='DELETE')
         
-        return self.client.open('category', data)
+        result = self.client.open('category.json', data)
+        
+        return result
 
 
 
@@ -56,7 +82,8 @@ class Project(object):
         """Return a `tabbed` page for project tabs."""
         data = encode_params(locals(), )
         
-        result = self.client.open('project', data)
+        result = self.client.open('project/get_one.json?%s' % data)
+        
         return json.loads(result.read())['project']
 
     
@@ -64,14 +91,18 @@ class Project(object):
         """Create a new project"""
         data = encode_params(locals(), )
         
-        return self.client.open('project', data)
+        result = self.client.open('project.json', data)
+        
+        return result
 
     
     def edit(self, proj, name=None, description=None):
         """Edit a project"""
-        data = encode_params(locals(), _method=PUT)
+        data = encode_params(locals(), _method='PUT')
         
-        return self.client.open('project', data)
+        result = self.client.open('project.json', data)
+        
+        return result
 
     
     def delete(self, proj):
@@ -81,23 +112,29 @@ class Project(object):
         repository must be removed manually.
         (This should help prevent awful accidents) ;)
         """
-        data = encode_params(locals(), _method=DELETE)
+        data = encode_params(locals(), _method='DELETE')
         
-        return self.client.open('project', data)
+        result = self.client.open('project.json', data)
+        
+        return result
 
     
     def archive(self, proj):
         """Archive a project"""
-        data = encode_params(locals(), _method=ARCHIVE)
+        data = encode_params(locals(), _method='ARCHIVE')
         
-        return self.client.open('project', data)
+        result = self.client.open('project.json', data)
+        
+        return result
 
     
     def activate(self, proj):
         """Activate a project"""
-        data = encode_params(locals(), _method=ACTIVATE)
+        data = encode_params(locals(), _method='ACTIVATE')
         
-        return self.client.open('project', data)
+        result = self.client.open('project.json', data)
+        
+        return result
 
 
 
@@ -110,22 +147,27 @@ class Shot(object):
         """Return a `tabbed` page for shot tabs."""
         data = encode_params(locals(), )
         
-        result = self.client.open('shot', data)
+        result = self.client.open('shot/get_one.json?%s' % data)
+        
         return json.loads(result.read())['shot']
 
     
-    def new(self, proj, sc, sh, description=None, action=None, frames=0, handle_in=0, handle_out=0):
+    def new(self, proj, sc, sh, description=None, action=None, frames=None, handle_in=None, handle_out=None):
         """Create a new shot"""
         data = encode_params(locals(), )
         
-        return self.client.open('shot', data)
+        result = self.client.open('shot.json', data)
+        
+        return result
 
     
-    def edit(self, proj, sc, sh, description=None, action=None, frames=0, handle_in=0, handle_out=0):
+    def edit(self, proj, sc, sh, description=None, action=None, frames=None, handle_in=None, handle_out=None):
         """Edit a shot"""
-        data = encode_params(locals(), _method=PUT)
+        data = encode_params(locals(), _method='PUT')
         
-        return self.client.open('shot', data)
+        result = self.client.open('shot.json', data)
+        
+        return result
 
     
     def delete(self, proj, sc, sh):
@@ -135,9 +177,11 @@ class Shot(object):
         removed manually.
         (This should help prevent awful accidents) ;)
         """
-        data = encode_params(locals(), _method=DELETE)
+        data = encode_params(locals(), _method='DELETE')
         
-        return self.client.open('shot', data)
+        result = self.client.open('shot.json', data)
+        
+        return result
 
 
 
@@ -150,7 +194,8 @@ class Libgroup(object):
         """Return a `tabbed` page for libgroup tabs."""
         data = encode_params(locals(), )
         
-        result = self.client.open('libgroup', data)
+        result = self.client.open('libgroup/get_one.json?%s' % data)
+        
         return json.loads(result.read())['libgroup']
 
     
@@ -158,14 +203,18 @@ class Libgroup(object):
         """Create a new libgroup"""
         data = encode_params(locals(), )
         
-        return self.client.open('libgroup', data)
+        result = self.client.open('libgroup.json', data)
+        
+        return result
 
     
     def edit(self, proj, libgroup_id, description=None):
         """Edit a libgroup"""
-        data = encode_params(locals(), _method=PUT)
+        data = encode_params(locals(), _method='PUT')
         
-        return self.client.open('libgroup', data)
+        result = self.client.open('libgroup.json', data)
+        
+        return result
 
     
     def delete(self, proj, libgroup_id):
@@ -175,9 +224,11 @@ class Libgroup(object):
         be removed manually.
         (This should help prevent awful accidents) ;)
         """
-        data = encode_params(locals(), _method=DELETE)
+        data = encode_params(locals(), _method='DELETE')
         
-        return self.client.open('libgroup', data)
+        result = self.client.open('libgroup.json', data)
+        
+        return result
 
 
 
@@ -190,7 +241,8 @@ class Scene(object):
         """Return a `tabbed` page for scene tabs."""
         data = encode_params(locals(), )
         
-        result = self.client.open('scene', data)
+        result = self.client.open('scene/get_one.json?%s' % data)
+        
         return json.loads(result.read())['scene']
 
     
@@ -198,14 +250,18 @@ class Scene(object):
         """Create a new scene"""
         data = encode_params(locals(), )
         
-        return self.client.open('scene', data)
+        result = self.client.open('scene.json', data)
+        
+        return result
 
     
     def edit(self, proj, sc, description=None):
         """Edit a scene"""
-        data = encode_params(locals(), _method=PUT)
+        data = encode_params(locals(), _method='PUT')
         
-        return self.client.open('scene', data)
+        result = self.client.open('scene.json', data)
+        
+        return result
 
     
     def delete(self, proj, sc):
@@ -215,9 +271,11 @@ class Scene(object):
         removed manually.
         (This should help prevent awful accidents) ;)
         """
-        data = encode_params(locals(), _method=DELETE)
+        data = encode_params(locals(), _method='DELETE')
         
-        return self.client.open('scene', data)
+        result = self.client.open('scene.json', data)
+        
+        return result
 
 
 
@@ -231,7 +289,8 @@ class Note(object):
         RESTController to work."""
         data = encode_params(locals(), )
         
-        result = self.client.open('note', data)
+        result = self.client.open('note/get_one.json?%s' % data)
+        
         return json.loads(result.read())['note']
 
     
@@ -239,28 +298,36 @@ class Note(object):
         """Add notes to a ``annotable`` obect."""
         data = encode_params(locals(), )
         
-        return self.client.open('note', data)
+        result = self.client.open('note.json', data)
+        
+        return result
 
     
     def delete(self, note_id):
         """Delete a note."""
-        data = encode_params(locals(), _method=DELETE)
+        data = encode_params(locals(), _method='DELETE')
         
-        return self.client.open('note', data)
+        result = self.client.open('note.json', data)
+        
+        return result
 
     
     def pin(self, note_id):
         """Pin a note."""
-        data = encode_params(locals(), _method=PIN)
+        data = encode_params(locals(), _method='PIN')
         
-        return self.client.open('note', data)
+        result = self.client.open('note.json', data)
+        
+        return result
 
     
     def unpin(self, note_id):
         """Un-pin a note."""
-        data = encode_params(locals(), _method=UNPIN)
+        data = encode_params(locals(), _method='UNPIN')
         
-        return self.client.open('note', data)
+        result = self.client.open('note.json', data)
+        
+        return result
 
 
 
@@ -274,7 +341,8 @@ class Tag(object):
         RESTController to work."""
         data = encode_params(locals(), )
         
-        result = self.client.open('tag', data)
+        result = self.client.open('tag/get_one.json?%s' % data)
+        
         return json.loads(result.read())['tag']
 
     
@@ -282,21 +350,27 @@ class Tag(object):
         """Add tags to a ``taggable`` obect."""
         data = encode_params(locals(), )
         
-        return self.client.open('tag', data)
+        result = self.client.open('tag.json', data)
+        
+        return result
 
     
     def delete(self, tag_id):
         """Delete a tag."""
-        data = encode_params(locals(), _method=DELETE)
+        data = encode_params(locals(), _method='DELETE')
         
-        return self.client.open('tag', data)
+        result = self.client.open('tag.json', data)
+        
+        return result
 
     
     def remove(self, taggable_id, tag_ids=[]):
         """Delete a tag."""
-        data = encode_params(locals(), _method=REMOVE)
+        data = encode_params(locals(), _method='REMOVE')
         
-        return self.client.open('tag', data)
+        result = self.client.open('tag.json', data)
+        
+        return result
 
 
 
@@ -309,15 +383,18 @@ class Asset(object):
         """Return a `standalone` page with the asset history"""
         data = encode_params(locals(), )
         
-        result = self.client.open('asset', data)
+        result = self.client.open('asset/get_one.json?%s' % data)
+        
         return json.loads(result.read())['asset']
 
     
-    def new(self, proj, container_type, container_id, category_id, name, comment=):
+    def new(self, proj, container_type, container_id, category_id, name, comment=None):
         """Create a new asset"""
         data = encode_params(locals(), )
         
-        return self.client.open('asset', data)
+        result = self.client.open('asset.json', data)
+        
+        return result
 
     
     def delete(self, proj, asset_id):
@@ -327,9 +404,11 @@ class Asset(object):
         removed manually.
         (This should help prevent awful accidents) ;)
         """
-        data = encode_params(locals(), _method=DELETE)
+        data = encode_params(locals(), _method='DELETE')
         
-        return self.client.open('asset', data)
+        result = self.client.open('asset.json', data)
+        
+        return result
 
     
     def checkout(self, proj, asset_id):
@@ -338,9 +417,11 @@ class Asset(object):
         The asset will be blocked and only the current owner will be able to
         publish new versions until it is released.
         """
-        data = encode_params(locals(), _method=CHECKOUT)
+        data = encode_params(locals(), _method='CHECKOUT')
         
-        return self.client.open('asset', data)
+        result = self.client.open('asset.json', data)
+        
+        return result
 
     
     def release(self, proj, asset_id):
@@ -348,55 +429,69 @@ class Asset(object):
         
         The asset will be unblocked and available for other users to checkout.
         """
-        data = encode_params(locals(), _method=RELEASE)
+        data = encode_params(locals(), _method='RELEASE')
         
-        return self.client.open('asset', data)
+        result = self.client.open('asset.json', data)
+        
+        return result
 
     
-    def publish(self, proj, asset_id, uploaded, comment=):
+    def publish(self, proj, asset_id, uploaded, comment=None):
         """Publish a new version of an asset.
         
         This will commit to the repo the file(s) already uploaded in a temporary
         storage area, and create a thumbnail and preview if required.
         """
-        data = encode_params(locals(), _method=PUBLISH)
+        data = encode_params(locals(), _method='PUBLISH')
         
-        return self.client.open('asset', data)
+        result = self.client.open('asset.json', data)
+        
+        return result
 
     
-    def submit(self, proj, asset_id, comment=):
+    def submit(self, proj, asset_id, comment=None):
         """Submit an asset to supervisors for approval."""
-        data = encode_params(locals(), _method=SUBMIT)
+        data = encode_params(locals(), _method='SUBMIT')
         
-        return self.client.open('asset', data)
+        result = self.client.open('asset.json', data)
+        
+        return result
 
     
-    def recall(self, proj, asset_id, comment=):
+    def recall(self, proj, asset_id, comment=None):
         """Recall an asset submitted for approval."""
-        data = encode_params(locals(), _method=RECALL)
+        data = encode_params(locals(), _method='RECALL')
         
-        return self.client.open('asset', data)
+        result = self.client.open('asset.json', data)
+        
+        return result
 
     
-    def sendback(self, proj, asset_id, comment=):
+    def sendback(self, proj, asset_id, comment=None):
         """Send back an asset for revision."""
-        data = encode_params(locals(), _method=SENDBACK)
+        data = encode_params(locals(), _method='SENDBACK')
         
-        return self.client.open('asset', data)
+        result = self.client.open('asset.json', data)
+        
+        return result
 
     
-    def approve(self, proj, asset_id, comment=):
+    def approve(self, proj, asset_id, comment=None):
         """Approve an asset submitted for approval."""
-        data = encode_params(locals(), _method=APPROVE)
+        data = encode_params(locals(), _method='APPROVE')
         
-        return self.client.open('asset', data)
+        result = self.client.open('asset.json', data)
+        
+        return result
 
     
-    def revoke(self, proj, asset_id, comment=):
+    def revoke(self, proj, asset_id, comment=None):
         """Revoke approval for an asset."""
-        data = encode_params(locals(), _method=REVOKE)
+        data = encode_params(locals(), _method='REVOKE')
         
-        return self.client.open('asset', data)
+        result = self.client.open('asset.json', data)
+        
+        return result
 
 
 
