@@ -80,7 +80,7 @@ class Controller(RestController):
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_new, error_handler=new)
-    def post(self, category_id, ordering=0, naming_convention=''):
+    def post(self, category_id, ordering=None, naming_convention=None):
         """Create a new category"""
         session = session_get()
         user = tmpl_context.user
@@ -114,7 +114,7 @@ class Controller(RestController):
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_edit, error_handler=edit)
-    def put(self, category_id, ordering=0, naming_convention=''):
+    def put(self, category_id, ordering=None, naming_convention=None):
         """Edit a category"""
         session = session_get()
         user = tmpl_context.user
