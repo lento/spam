@@ -104,7 +104,7 @@ class Controller(RestController):
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_new, error_handler=new)
-    def post(self, user_name, display_name, password, **kwargs):
+    def post(self, user_name, display_name, password):
         """Create a new user"""
         session = session_get()
         user = tmpl_context.user
@@ -138,7 +138,7 @@ class Controller(RestController):
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_edit, error_handler=edit)
-    def put(self, user_id, display_name=None, **kwargs):
+    def put(self, user_id, display_name=None):
         """Edit a user"""
         session = session_get()
         user = tmpl_context.user
@@ -181,7 +181,7 @@ class Controller(RestController):
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_confirm, error_handler=get_delete)
-    def post_delete(self, user_id, **kwargs):
+    def post_delete(self, user_id):
         """Delete a user."""
         session = session_get()
         user = tmpl_context.user
@@ -221,7 +221,7 @@ class Controller(RestController):
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_add_to_group, error_handler=get_add_to_group)
-    def post_add_to_group(self, group_id, userids, **kwargs):
+    def post_add_to_group(self, group_id, userids):
         """Add users to a group"""
         session = session_get()
         user = tmpl_context.user
@@ -248,7 +248,7 @@ class Controller(RestController):
 
     @expose('json')
     @expose('spam.templates.forms.result')
-    def remove_from_group(self, user_id, group_id, **kwargs):
+    def remove_from_group(self, user_id, group_id):
         """Remove a user from a group"""
         session = session_get()
         user = tmpl_context.user
@@ -286,7 +286,7 @@ class Controller(RestController):
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_add_admins, error_handler=get_add_admins)
-    def post_add_admins(self, proj, userids, **kwargs):
+    def post_add_admins(self, proj, userids):
         """Add administrators to a project"""
         session = session_get()
         user = tmpl_context.user
@@ -316,7 +316,7 @@ class Controller(RestController):
     @require(is_project_admin())
     @expose('json')
     @expose('spam.templates.forms.result')
-    def remove_admin(self, proj, user_id, **kwargs):
+    def remove_admin(self, proj, user_id):
         """Remove an administrator from a project"""
         session = session_get()
         user = tmpl_context.user
@@ -360,7 +360,7 @@ class Controller(RestController):
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_add_to_category, error_handler=get_add_supervisors)
-    def post_add_supervisors(self, proj, category_id, userids, **kwargs):
+    def post_add_supervisors(self, proj, category_id, userids):
         """Add supervisors to a category"""
         session = session_get()
         user = tmpl_context.user
@@ -392,7 +392,7 @@ class Controller(RestController):
     @require(is_project_admin())
     @expose('json')
     @expose('spam.templates.forms.result')
-    def remove_supervisor(self, proj, category_id, user_id, **kwargs):
+    def remove_supervisor(self, proj, category_id, user_id):
         """Remove a supervisor from a category"""
         session = session_get()
         user = tmpl_context.user
@@ -442,7 +442,7 @@ class Controller(RestController):
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_add_to_category, error_handler=get_add_artists)
-    def post_add_artists(self, proj, category_id, userids, **kwargs):
+    def post_add_artists(self, proj, category_id, userids):
         """Add artists to a category"""
         session = session_get()
         user = tmpl_context.user
@@ -474,7 +474,7 @@ class Controller(RestController):
     @require(is_project_admin())
     @expose('json')
     @expose('spam.templates.forms.result')
-    def remove_artist(self, proj, category_id, user_id, **kwargs):
+    def remove_artist(self, proj, category_id, user_id):
         """Remove an artist from a category"""
         session = session_get()
         user = tmpl_context.user

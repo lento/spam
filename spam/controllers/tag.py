@@ -93,7 +93,7 @@ class Controller(RestController):
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_new, error_handler=new)
-    def post(self, taggable_id, tag_ids=[], new_tags=None, **kwargs):
+    def post(self, taggable_id, tag_ids=[], new_tags=None):
         """Add tags to a ``taggable`` obect."""
         session = session_get()
         user = tmpl_context.user
@@ -137,7 +137,7 @@ class Controller(RestController):
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_confirm, error_handler=get_delete)
-    def post_delete(self, tag_id, **kwargs):
+    def post_delete(self, tag_id):
         """Delete a tag."""
         session = session_get()
         user = tmpl_context.user
@@ -171,7 +171,7 @@ class Controller(RestController):
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_remove, error_handler=get_remove)
-    def post_remove(self, taggable_id, tag_ids=[], **kwargs):
+    def post_remove(self, taggable_id, tag_ids=[]):
         """Delete a tag."""
         session = session_get()
         user = tmpl_context.user

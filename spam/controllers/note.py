@@ -86,7 +86,7 @@ class Controller(RestController):
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_new, error_handler=new)
-    def post(self, annotable_id, text, **kwargs):
+    def post(self, annotable_id, text):
         """Add notes to a ``annotable`` obect."""
         session = session_get()
         user = tmpl_context.user
@@ -121,7 +121,7 @@ class Controller(RestController):
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_confirm, error_handler=get_delete)
-    def post_delete(self, note_id, **kwargs):
+    def post_delete(self, note_id):
         """Delete a note."""
         session = session_get()
         note = note_get(note_id)
@@ -143,8 +143,8 @@ class Controller(RestController):
     @require(in_group('administrators'))
     @expose('json')
     @expose('spam.templates.forms.result')
-    @validate(f_confirm, error_handler=get_delete)
-    def pin(self, note_id, **kwargs):
+    @validate(f_confirm)
+    def pin(self, note_id):
         """Pin a note."""
         session = session_get()
         note = note_get(note_id)
@@ -160,8 +160,8 @@ class Controller(RestController):
     @require(in_group('administrators'))
     @expose('json')
     @expose('spam.templates.forms.result')
-    @validate(f_confirm, error_handler=get_delete)
-    def unpin(self, note_id, **kwargs):
+    @validate(f_confirm)
+    def unpin(self, note_id):
         """Un-pin a note."""
         session = session_get()
         note = note_get(note_id)

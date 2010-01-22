@@ -107,7 +107,7 @@ class Controller(RestController):
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_new, error_handler=new)
-    def post(self, proj, sc, description=None, **kwargs):
+    def post(self, proj, sc, description=None):
         """Create a new scene"""
         session = session_get()
         user = tmpl_context.user
@@ -152,7 +152,7 @@ class Controller(RestController):
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_edit, error_handler=edit)
-    def put(self, proj, sc, description=None, **kwargs):
+    def put(self, proj, sc, description=None):
         """Edit a scene"""
         session = session_get()
         user = tmpl_context.user
@@ -199,7 +199,7 @@ class Controller(RestController):
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_confirm, error_handler=get_delete)
-    def post_delete(self, proj, sc, **kwargs):
+    def post_delete(self, proj, sc):
         """Delete a scene.
         
         Only delete the scene record from the db, the scene directories must be

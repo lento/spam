@@ -80,7 +80,7 @@ class Controller(RestController):
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_new, error_handler=new)
-    def post(self, category_id, ordering=0, naming_convention='', **kwargs):
+    def post(self, category_id, ordering=0, naming_convention=''):
         """Create a new category"""
         session = session_get()
         user = tmpl_context.user
@@ -114,7 +114,7 @@ class Controller(RestController):
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_edit, error_handler=edit)
-    def put(self, category_id, ordering=0, naming_convention='', **kwargs):
+    def put(self, category_id, ordering=0, naming_convention=''):
         """Edit a category"""
         session = session_get()
         user = tmpl_context.user
@@ -165,7 +165,7 @@ class Controller(RestController):
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_confirm, error_handler=get_delete)
-    def post_delete(self, category_id, **kwargs):
+    def post_delete(self, category_id):
         """Delete a category.
         
         Only delete the category record from the common db, all the assets

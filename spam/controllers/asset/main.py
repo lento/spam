@@ -146,7 +146,7 @@ class Controller(RestController):
     @expose('spam.templates.forms.result')
     @validate(f_new, error_handler=new)
     def post(self, proj, container_type, container_id, category_id, name,
-             comment='', **kwargs):
+             comment=''):
         """Create a new asset"""
         session = session_get()
         project = tmpl_context.project
@@ -170,36 +170,6 @@ class Controller(RestController):
         notify.send(asset, update_type='added')
         return dict(msg='created asset "%s"' % asset.name, result='success')
     
-    '''
-    @project_set_active
-    @require(is_project_admin())
-    @expose('spam.templates.forms.form')
-    def edit(self, proj, sc, **kwargs):
-        """Display a EDIT form."""
-        tmpl_context.form = f_edit
-        scene = scene_get(proj, sc)
-
-        fargs = dict(proj=scene.project.id, project_=scene.project.name,
-                     sc=scene.name, name_=scene.name,
-                     description=scene.description)
-        fcargs = dict()
-        return dict(title='Edit scene "%s"' % scene.path,
-                                                args=fargs, child_args=fcargs)
-        
-    @project_set_active
-    @require(is_project_admin())
-    @expose('json')
-    @expose('spam.templates.forms.result')
-    @validate(f_edit, error_handler=edit)
-    def put(self, proj, sc, description=None, **kwargs):
-        """Edit a scene"""
-        scene = scene_get(proj, sc)
-
-        if description: scene.description = description
-        notify.send(scene)
-        return dict(msg='updated scene "%s"' % scene.path, result='success')
-
-    '''
     @project_set_active
     @require(is_project_admin())
     @expose('spam.templates.forms.form')
@@ -227,7 +197,7 @@ class Controller(RestController):
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_confirm, error_handler=get_delete)
-    def post_delete(self, proj, asset_id, **kwargs):
+    def post_delete(self, proj, asset_id):
         """Delete an asset.
         
         Only delete the asset record from the db, the asset file(s) must be
@@ -256,7 +226,7 @@ class Controller(RestController):
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_confirm)
-    def checkout(self, proj, asset_id, **kwargs):
+    def checkout(self, proj, asset_id):
         """Checkout an asset.
         
         The asset will be blocked and only the current owner will be able to
@@ -282,7 +252,7 @@ class Controller(RestController):
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_confirm)
-    def release(self, proj, asset_id, **kwargs):
+    def release(self, proj, asset_id):
         """Release an asset.
         
         The asset will be unblocked and available for other users to checkout.
@@ -327,7 +297,7 @@ class Controller(RestController):
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_publish, error_handler=get_publish)
-    def post_publish(self, proj, asset_id, uploaded, comment='', **kwargs):
+    def post_publish(self, proj, asset_id, uploaded, comment=''):
         """Publish a new version of an asset.
         
         This will commit to the repo the file(s) already uploaded in a temporary
@@ -389,7 +359,7 @@ class Controller(RestController):
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_status, error_handler=get_submit)
-    def post_submit(self, proj, asset_id, comment='', **kwargs):
+    def post_submit(self, proj, asset_id, comment=''):
         """Submit an asset to supervisors for approval."""
         session = session_get()
         user = tmpl_context.user
@@ -437,7 +407,7 @@ class Controller(RestController):
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_status, error_handler=get_submit)
-    def post_recall(self, proj, asset_id, comment='', **kwargs):
+    def post_recall(self, proj, asset_id, comment=''):
         """Recall an asset submitted for approval."""
         session = session_get()
         user = tmpl_context.user
@@ -485,7 +455,7 @@ class Controller(RestController):
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_status, error_handler=get_submit)
-    def post_sendback(self, proj, asset_id, comment='', **kwargs):
+    def post_sendback(self, proj, asset_id, comment=''):
         """Send back an asset for revision."""
         session = session_get()
         user = tmpl_context.user
@@ -533,7 +503,7 @@ class Controller(RestController):
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_status, error_handler=get_submit)
-    def post_approve(self, proj, asset_id, comment='', **kwargs):
+    def post_approve(self, proj, asset_id, comment=''):
         """Approve an asset submitted for approval."""
         session = session_get()
         user = tmpl_context.user
@@ -581,7 +551,7 @@ class Controller(RestController):
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_status, error_handler=get_submit)
-    def post_revoke(self, proj, asset_id, comment='', **kwargs):
+    def post_revoke(self, proj, asset_id, comment=''):
         """Revoke approval for an asset."""
         session = session_get()
         user = tmpl_context.user

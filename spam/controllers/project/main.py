@@ -110,7 +110,7 @@ class Controller(RestController):
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_new, error_handler=new)
-    def post(self, proj, name=None, description=None, **kwargs):
+    def post(self, proj, name=None, description=None):
         """Create a new project"""
         session = session_get()
         user = tmpl_context.user
@@ -152,7 +152,7 @@ class Controller(RestController):
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_edit, error_handler=edit)
-    def put(self, proj, name=None, description=None, **kwargs):
+    def put(self, proj, name=None, description=None):
         """Edit a project"""
         project = tmpl_context.project
         old = project.__dict__.copy()
@@ -207,7 +207,7 @@ class Controller(RestController):
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_confirm, error_handler=get_delete)
-    def post_delete(self, proj, **kwargs):
+    def post_delete(self, proj):
         """Delete a project.
         
         Only delete the project record from the common db, the project
@@ -249,7 +249,7 @@ class Controller(RestController):
     @require(in_group('administrators'))
     @expose('json')
     @expose('spam.templates.forms.result')
-    def post_archive(self, proj, **kwargs):
+    def post_archive(self, proj):
         """Archive a project"""
         project = tmpl_context.project
         session = session_get()
@@ -286,7 +286,7 @@ class Controller(RestController):
     @require(in_group('administrators'))
     @expose('json')
     @expose('spam.templates.forms.result')
-    def post_activate(self, proj, **kwargs):
+    def post_activate(self, proj):
         """Activate a project"""
         project = query_projects_archived().filter_by(id=proj).one()
         session = session_get()
@@ -324,7 +324,7 @@ class Controller(RestController):
     @require(in_group('administrators'))
     @expose('json')
     @expose('spam.templates.forms.result')
-    def post_upgrade(self, proj, **kwargs):
+    def post_upgrade(self, proj):
         """Upgrade the DB schema for a project"""
         project = tmpl_context.project
         project.schema_upgrade()

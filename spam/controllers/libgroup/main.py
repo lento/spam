@@ -119,7 +119,7 @@ class Controller(RestController):
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_new, error_handler=new)
-    def post(self, proj, parent_id, name, description=None, **kwargs):
+    def post(self, proj, parent_id, name, description=None):
         """Create a new libgroup"""
         session = session_get()
         project = tmpl_context.project
@@ -166,7 +166,7 @@ class Controller(RestController):
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_edit, error_handler=edit)
-    def put(self, proj, libgroup_id, description=None, **kwargs):
+    def put(self, proj, libgroup_id, description=None):
         """Edit a libgroup"""
         session = session_get()
         user = tmpl_context.user
@@ -216,7 +216,7 @@ class Controller(RestController):
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_confirm, error_handler=get_delete)
-    def post_delete(self, proj, libgroup_id, **kwargs):
+    def post_delete(self, proj, libgroup_id):
         """Delete a libgroup.
         
         Only delete the libgroup record from the db, the scene directories must

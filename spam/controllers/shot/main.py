@@ -113,7 +113,7 @@ class Controller(RestController):
     @expose('spam.templates.forms.result')
     @validate(f_new, error_handler=new)
     def post(self, proj, sc, sh, description=None, action=None, frames=0,
-             handle_in=0, handle_out=0, **kwargs):
+                                                    handle_in=0, handle_out=0):
         """Create a new shot"""
         project = tmpl_context.project
         session = session_get()
@@ -164,7 +164,7 @@ class Controller(RestController):
     @expose('spam.templates.forms.result')
     @validate(f_edit, error_handler=edit)
     def put(self, proj, sc, sh, description=None, action=None,
-                  frames=0, handle_in=0, handle_out=0, **kwargs):
+                                        frames=0, handle_in=0, handle_out=0):
         """Edit a shot"""
         session = session_get()
         user = tmpl_context.user
@@ -229,7 +229,7 @@ class Controller(RestController):
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_confirm, error_handler=get_delete)
-    def post_delete(self, proj, sc, sh, **kwargs):
+    def post_delete(self, proj, sc, sh):
         """Delete a shot.
         
         Only delete the shot record from the db, the shot directories must be
