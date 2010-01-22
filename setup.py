@@ -53,6 +53,7 @@ setup(
     main = pylons.util:PylonsInstaller
 
     [paste.paster_command]
-    build-docs = spam.lib.commands:BuildDocs
+    build-docs = spam.commands.docs:BuildDocs
+    build-client = spam.commands.client:BuildClient
     """,
 )
