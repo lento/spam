@@ -297,7 +297,8 @@ class Controller(RestController):
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_publish, error_handler=get_publish)
-    def post_publish(self, proj, asset_id, uploaded, comment=None):
+    def post_publish(self, proj, asset_id, uploaded, comment=None,
+                                                                uploader=None):
         """Publish a new version of an asset.
         
         This will commit to the repo the file(s) already uploaded in a temporary
