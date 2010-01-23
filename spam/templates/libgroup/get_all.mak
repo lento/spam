@@ -9,5 +9,6 @@
 </a>
 <br/>
 <br/>
-${c.t_libgroups(items=libgroups, update_listener_adder="notify.add_listener_tab") | n}
+${c.t_libgroups(items=libgroups,
+    update_listener_adder="notify.add_listener_tab", parent_id=parent_id) | n}
 

@@ -337,6 +337,7 @@ class TableShots(LiveTable):
 
 
 class TableLibgroups(LiveTable):
+    params = ['parent_id']
     javascript = [notify_client_js]
     update_topic = '/topic/libgroups'
     class fields(WidgetsList):
@@ -372,6 +373,11 @@ class TableLibgroups(LiveTable):
                 label_text=_('delete')),
             ]),
         ])
+    
+    def update_params(self, d):
+        super(TableLibgroups, self).update_params(d)
+        d['update_condition'] = 'msg.ob.parent_id==%s' % (
+                        d['parent_id'] and '"%s"' % d['parent_id'] or 'null')
 
 
 class TableAssets(LiveTable):

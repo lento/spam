@@ -60,7 +60,7 @@ class Controller(RestController):
     
     @project_set_active
     @require(is_project_user())
-    @expose('spam.templates.project.tabs.library')
+    @expose('spam.templates.libgroup.get_all')
     def get_all(self, proj):
         """Return a `tab` page with a list of libgroups for a project and a
         button to add new libgroups.
@@ -71,9 +71,9 @@ class Controller(RestController):
         project = tmpl_context.project
         tmpl_context.t_libgroups = t_libgroups
         return dict(page='libgroups', sidebar=('projects', project.id),
-                                                    libgroups=project.libgroups)
+                                    libgroups=project.libgroups, parent_id=None)
 
-    @expose('spam.templates.project.tabs.library')
+    @expose('spam.templates.libgroup.get_all')
     def default(self, proj, *args, **kwargs):
         """Catch request to `libgroup/<something>' and pass them to :meth:`get_all`,
         because RESTController doesn't dispatch to get_all when there are
@@ -256,7 +256,7 @@ class Controller(RestController):
 
     @project_set_active
     @require(is_project_user())
-    @expose('spam.templates.project.tabs.library')
+    @expose('spam.templates.libgroup.get_all')
     def get_subgroups(self, proj, parent_id):
         """Return a `tab` page with a list of subgroups for a libgroup.
         
@@ -267,6 +267,6 @@ class Controller(RestController):
         project = tmpl_context.project
         parent = libgroup_get(proj, parent_id)
         tmpl_context.parent = parent
-        return dict(libgroups=parent.subgroups)
+        return dict(libgroups=parent.subgroups, parent_id=parent_id)
 
 
