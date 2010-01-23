@@ -27,19 +27,17 @@
 ${c.j_notify_client()}
 <script type="text/javascript">
     spam.temp.reload_tab = function() {
-        console.log('spam.temp.reload_tab');
         $(".pane.ajax").load("${tg.url('/asset/%s/%s/%s/' % (c.project.id, container_type, container_id))}");
     }
     spam.temp.current_categories = [];
     % for cat in container.categories:
         spam.temp.current_categories.push("${cat.id}");
     % endfor
-    console.log('spam.temp.current_categories', spam.temp.current_categories);
     
     $(function() {
         notify.add_listener("/topic/assets", function(msg) {
-            console.log('update categories', msg)
             if ($.inArray(msg.ob.category.id, spam.temp.current_categories)<0) {
+                spam.temp.current_categories.push(msg.ob.category.id);
                 spam.temp.reload_tab();
             }
         })
