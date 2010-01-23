@@ -175,7 +175,7 @@ class Controller(RestController):
             project.touch()
 
             # log into Journal
-            journal.add(user, 'modified %s: %s' %
+            journal.add(user, u'modified %s: %s' %
                                             (project, diff_dicts(old, new)))
         
             # send a stomp message to notify clients

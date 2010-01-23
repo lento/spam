@@ -103,14 +103,14 @@ def diff_dicts(a, b):
         if key in new:
             newval = new.pop(key)
             if not val==newval:
-                diff.append('changed "%s" (%s -> %s)' % (key, val, newval))
+                diff.append(u'changed "%s" (%s -> %s)' % (key, val, newval))
         else:
-            diff.append('removed "%s" (%s)' % (key, val))
+            diff.append(u'removed "%s" (%s)' % (key, val))
     
     for key, val in new.iteritems():
-        diff.append('added "%s" (%s)' % (key, val))
+        diff.append(u'added "%s" (%s)' % (key, val))
     
-    return ', '.join(diff)
+    return u', '.join(diff)
 
 def compute_status(objects):
     """Compute the status of an object from the objects it contains."""

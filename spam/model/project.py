@@ -88,7 +88,7 @@ class Journal(DeclarativeBase):
         self.text = text
         self.created = datetime.now()
         hashable = '%s-%s-%s' % (self.created, self.user_id, self.text)
-        self.id = sha1(hashable).hexdigest()
+        self.id = sha1(hashable.encode('utf-8')).hexdigest()
 
     def __repr__(self):
         return '<Journal: (%s) %s: "%s">' % (self.created, self.user_id,
@@ -251,7 +251,7 @@ class Note(DeclarativeBase):
         self.user = user
         self.text = text
         hashable = '%s-%s-%s' % (self.user_id, self.created, self.text)
-        self.id = sha1(hashable).hexdigest()
+        self.id = sha1(hashable.encode('utf-8')).hexdigest()
 
     def __repr__(self):
         return '<Note: by %s at %s "%s">' % (self.user.user_name,
@@ -555,7 +555,7 @@ class Shot(AssetContainer):
         self.action = action
         hashable = '%s-%s' % (parent.id, self.name)
         log.debug('Shot.__init__: %s' % hashable)
-        self.id = sha1(hashable).hexdigest()
+        self.id = sha1(hashable.encode('utf-8')).hexdigest()
         self.taggable = Taggable(self.id, 'shot')
         self.annotable = Annotable(self.id, 'shot')
 
@@ -651,7 +651,7 @@ class Libgroup(AssetContainer):
         if parent: self.parent_id = parent.id
         self.description = description
         hashable = '%s-%s' % (self.parent_id, self.name)
-        self.id = sha1(hashable).hexdigest()
+        self.id = sha1(hashable.encode('utf-8')).hexdigest()
         self.taggable = Taggable(self.id, 'libgroup')
         self.annotable = Annotable(self.id, 'libgroup')
 
@@ -734,7 +734,7 @@ class Supervisor(DeclarativeBase):
         self.category = category
         self.user = user
         hashable = '%s-%s-%s' % (proj, category.id, user.user_id)
-        self.id = sha1(hashable).hexdigest()
+        self.id = sha1(hashable.encode('utf-8')).hexdigest()
 
     def __repr__(self):
         return '<Supervisor: (%s) "%s" %s>' % (self.proj_id, self.category.id,
@@ -775,7 +775,7 @@ class Artist(DeclarativeBase):
         self.category = category
         self.user = user
         hashable = '%s-%s-%s' % (proj, category.id, user.user_id)
-        self.id = sha1(hashable).hexdigest()
+        self.id = sha1(hashable.encode('utf-8')).hexdigest()
 
     def __repr__(self):
         return '<Artist: (%s) "%s" %s>' % (self.proj_id, self.category.id,
@@ -919,7 +919,7 @@ class Asset(DeclarativeBase):
         self.category = category
         self.name = name
         hashable = '%s-%s-%s' % (parent.id, category.id, name)
-        self.id = sha1(hashable).hexdigest()
+        self.id = sha1(hashable.encode('utf-8')).hexdigest()
         self.taggable = Taggable(self.id, 'asset')
         
         #create version zero
@@ -1024,7 +1024,7 @@ class AssetVersion(DeclarativeBase):
         #self.has_preview = has_preview
         #self.preview_ext = preview_ext
         hashable = '%s-%s' % (asset.id, ver)
-        self.id = sha1(hashable).hexdigest()
+        self.id = sha1(hashable.encode('utf-8')).hexdigest()
         self.annotable = Annotable(self.id, 'asset_version')
 
     def __repr__(self):
