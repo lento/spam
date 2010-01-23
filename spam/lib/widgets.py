@@ -1,7 +1,7 @@
 from tg import config, url
 from tg import app_globals as G
 from pylons.i18n import ugettext as _, lazy_ugettext as l_
-from tw.api import Widget, WidgetsList, JSLink, js_function
+from tw.api import Widget, WidgetsList, JSLink, JSSource, js_function
 from tw.forms import TableForm, TextField, TextArea, HiddenField, FormField
 from tw.forms import CalendarDatePicker, SingleSelectField, FileField, Spacer
 from tw.forms import PasswordField, MultipleSelectField
@@ -565,6 +565,35 @@ class ListNotes(LiveList):
 ############################################################
 # Live boxes
 ############################################################
+statusbox_js = JSSource(src='''
+    wrap_functions = function(func, box_id, item, show_update, extra_data) {
+        $.each(item.parent.categories, function (i, parent_cat) {
+            if (parent_cat.id==item.category.id)
+                cat = parent_cat;
+        });
+        if (typeof(cat) != 'udefined')
+            func(box_id, cat, show_update, extra_data);
+    }
+    
+    add_categories = function(box_id, item, show_update, extra_data) {
+        if (typeof(item.ordering)!='undefined')   // 'item' is a category
+            lw.livebox.add(box_id, item, show_update, extra_data);
+        else    // 'item' is an asset
+            wrap_functions(lw.livebox.add, box_id, item, false, extra_data);
+    }
+    delete_categories = function(box_id, item, show_update, extra_data) {
+        if (typeof(item.ordering)!='undefined')   // 'item' is a category
+            lw.livebox.delete(box_id, item, show_update, extra_data);
+        else    // 'item' is an asset
+            wrap_functions(lw.livebox.delete, box_id, item, false, extra_data);
+    }
+    update_categories = function(box_id, item, show_update, extra_data) {
+        delete_categories(box_id, item, false, extra_data)
+        add_categories(box_id, item, false, extra_data)
+    }
+''')
+
+
 class BoxScenesStatus(LiveBox):
     container_class = 'statusbox'
     
@@ -596,13 +625,24 @@ class BoxLibgroupsStatus(LiveBox):
 
 
 class BoxCategoriesStatus(LiveBox):
+    params = ['container_id']
+    javascript = [statusbox_js]
+    container_class = 'statusbox'
+    update_topic = notifications.TOPIC_ASSETS
+    update_functions = ('{"added": add_categories,'
+                        ' "deleted": delete_categories,'
+                        ' "updated": update_categories}')
+    
     class fields(WidgetsList):
-        categories = Box(field_class='statusbox', fields=[
-            Link(dest='#/asset/%(proj_id)s/%(container_type)s/%(id)s', fields=[
-              StatusIcon(id='item_status',
-                label_text='%(item_name)s: %(item_status)s')
-            ])
+        category = Link(
+              dest='#/asset/%(proj_id)s/%(container_type)s/%(container_id)s',
+              fields=[
+                StatusIcon(id='status', label_text='%(name)s: %(status)s')
         ])
+    
+    def update_params(self, d):
+        super(BoxCategoriesStatus, self).update_params(d)
+        d['update_condition'] = 'msg.ob.parent_id=="%s"' % d['container_id']
 
 
 class BoxStatus(LiveBox):
