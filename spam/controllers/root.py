@@ -128,9 +128,9 @@ class RootController(SPAMBaseController):
 
         return dict()
 
-    @expose('spam.templates.sandbox.upload')
+    @expose('json')
     @require(not_anonymous(msg=l_('Please login')))
-    def upload(self, uploader, uploadedfile):
+    def upload(self, uploadfile, uploader=None):
         """
         Upload a file (or a list of files) to a temporary storage area as a
         first step for publishing an asset. The file can then be moved to the
@@ -139,16 +139,20 @@ class RootController(SPAMBaseController):
         The path for this storage area can be configured in the .ini file with
         the "upload_dir" variable.
         """
-        if isinstance(uploadedfile, list):
-            for uf in uploadedfile:
+        uploaded = []
+        if isinstance(uploadfile, list):
+            for uf in uploadfile:
                 tmpf = open(os.path.join(G.UPLOAD, uf.filename), 'w+b')
-                tmpf.write(uf.file.read())
+                shutil.copyfileobj(uf.file, tmpf)
                 tmpf.close()
+                uploaded.append(uf.filename)
         else:
-            tmpf = open(os.path.join(G.UPLOAD, uploadedfile.filename), 'w+b')
-            tmpf.write(uploadedfile.file.read())
+            tmpf = open(os.path.join(G.UPLOAD, uploadfile.filename), 'w+b')
+            shutil.copyfileobj(uploadfile.file, tmpf)
             tmpf.close()
-        return dict()
+            uploaded.append(uploadfile.filename)
+        return dict(msg='uploaded file(s) "%s"' % ', '.join(uploaded),
+                                                            result='success')
 
     @project_set_active
     @require(is_project_user())
