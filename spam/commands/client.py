@@ -3,10 +3,12 @@ from mrapps.mrclientmaker import ClientMaker
 from spam.commands import pylonsenv
 pylonsenv.setup()
 
-from spam.controllers import category, tag as _tag, note as _note, project
-from spam.controllers import scene, shot, libgroup, asset
+from spam.controllers import root as _root, category, tag as _tag
+from spam.controllers import note as _note, project, scene, shot, libgroup
+from spam.controllers import asset
 
 def build_client(filename):
+    root = _root.RootController()
     cat = category.Controller()
     tag = _tag.Controller()
     note = _note.Controller()
@@ -18,6 +20,10 @@ def build_client(filename):
 
     maker = ClientMaker('SPAM')
 
+    # Root
+    maker.add_call(root.upload)
+    maker.add_call(root.repo)
+    
     # Category
     group = 'category'
     target = '%s.json' % group
@@ -91,7 +97,7 @@ def build_client(filename):
     maker.add_call(ast.post_sendback, group, 'sendback', target, _method='SENDBACK')
     maker.add_call(ast.post_approve, group, 'approve', target, _method='APPROVE')
     maker.add_call(ast.post_revoke, group, 'revoke', target, _method='REVOKE')
-    #maker.add_call(ast.download, group, 'download', target, _method='DOWNLOAD')
+    maker.add_call(ast.download, group, 'download', target, _method='DOWNLOAD')
 
     output = open(filename, 'w+')
     output.write(maker.render())
