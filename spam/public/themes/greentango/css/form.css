@@ -83,9 +83,9 @@ label.required {
 }
 
 .ui-progressbar {
+    float: left;
     height:1em;
     width: 50px;
-    margin-right: 5px;
     text-align: left;
     border: 1px solid black;
     -moz-border-radius: 5px;
@@ -98,7 +98,10 @@ label.required {
     -moz-border-radius: 4px;
 }
 
-.progress.error .ui-progressbar-value {
+.upload_progress.error .ui-progressbar-value {
     background-color: #ef2929; /* Scarlet Red 1 */
 }
 
+.queue_item .obj {
+    margin-left: 55px;
+}
