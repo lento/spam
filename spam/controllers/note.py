@@ -103,7 +103,7 @@ class Controller(RestController):
         else:
             notify.send(ob)
         return dict(msg='added note to "%s"' % annotable.annotated.path,
-                                                            result='success')
+                                                    result='success', note=note)
     
     @require(in_group('administrators'))
     @expose('spam.templates.forms.form')

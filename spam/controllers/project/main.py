@@ -132,7 +132,8 @@ class Controller(RestController):
         
         # send a stomp message to notify clients
         notify.send(project, update_type='added')
-        return dict(msg='created project "%s"' % project.id, result='success')
+        return dict(msg='created project "%s"' % project.id, result='success',
+                                                                project=project)
     
     @project_set_active
     @require(in_group('administrators'))

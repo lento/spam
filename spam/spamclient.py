@@ -93,7 +93,11 @@ class Category(object):
     
     def get(self, name):
         """This method is currently unused, but is needed for the 
-        RESTController to work."""
+        RESTController to work.
+
+        Returns:
+            ``category``
+        """
         data = prep_data(locals(), )
         
         params = encode_params(data)
@@ -103,16 +107,24 @@ class Category(object):
 
     
     def new(self, category_id, ordering=None, naming_convention=None):
-        """Create a new category"""
+        """Create a new category
+
+        Returns:
+            ``category``
+        """
         data = prep_data(locals(), )
         
         result = self.open('category.json', data)
         
-        return result
+        return json.loads(result.read())['category']
 
     
     def edit(self, category_id, ordering=None, naming_convention=None):
-        """Edit a category"""
+        """Edit a category
+
+        Returns:
+            a file-like response object
+        """
         data = prep_data(locals(), _method='PUT')
         
         result = self.open('category.json', data)
@@ -125,6 +137,10 @@ class Category(object):
         
         Only delete the category record from the common db, all the assets
         in this category will be orphaned, and must be removed manually.
+        
+
+        Returns:
+            a file-like response object
         """
         data = prep_data(locals(), _method='DELETE')
         
@@ -140,7 +156,11 @@ class Project(object):
     
     
     def get(self, proj):
-        """Return a `tabbed` page for project tabs."""
+        """Return a `tabbed` page for project tabs.
+
+        Returns:
+            ``project``
+        """
         data = prep_data(locals(), )
         
         params = encode_params(data)
@@ -150,16 +170,24 @@ class Project(object):
 
     
     def new(self, proj, name=None, description=None):
-        """Create a new project"""
+        """Create a new project
+
+        Returns:
+            ``project``
+        """
         data = prep_data(locals(), )
         
         result = self.open('project.json', data)
         
-        return result
+        return json.loads(result.read())['project']
 
     
     def edit(self, proj, name=None, description=None):
-        """Edit a project"""
+        """Edit a project
+
+        Returns:
+            a file-like response object
+        """
         data = prep_data(locals(), _method='PUT')
         
         result = self.open('project.json', data)
@@ -173,6 +201,10 @@ class Project(object):
         Only delete the project record from the common db, the project
         repository must be removed manually.
         (This should help prevent awful accidents) ;)
+        
+
+        Returns:
+            a file-like response object
         """
         data = prep_data(locals(), _method='DELETE')
         
@@ -182,7 +214,11 @@ class Project(object):
 
     
     def archive(self, proj):
-        """Archive a project"""
+        """Archive a project
+
+        Returns:
+            a file-like response object
+        """
         data = prep_data(locals(), _method='ARCHIVE')
         
         result = self.open('project.json', data)
@@ -191,7 +227,11 @@ class Project(object):
 
     
     def activate(self, proj):
-        """Activate a project"""
+        """Activate a project
+
+        Returns:
+            a file-like response object
+        """
         data = prep_data(locals(), _method='ACTIVATE')
         
         result = self.open('project.json', data)
@@ -206,7 +246,11 @@ class Shot(object):
     
     
     def get(self, proj, sc, sh):
-        """Return a `tabbed` page for shot tabs."""
+        """Return a `tabbed` page for shot tabs.
+
+        Returns:
+            ``shot``
+        """
         data = prep_data(locals(), )
         
         params = encode_params(data)
@@ -216,16 +260,24 @@ class Shot(object):
 
     
     def new(self, proj, sc, sh, description=None, action=None, frames=None, handle_in=None, handle_out=None):
-        """Create a new shot"""
+        """Create a new shot
+
+        Returns:
+            ``shot``
+        """
         data = prep_data(locals(), )
         
         result = self.open('shot.json', data)
         
-        return result
+        return json.loads(result.read())['shot']
 
     
     def edit(self, proj, sc, sh, description=None, action=None, frames=None, handle_in=None, handle_out=None):
-        """Edit a shot"""
+        """Edit a shot
+
+        Returns:
+            a file-like response object
+        """
         data = prep_data(locals(), _method='PUT')
         
         result = self.open('shot.json', data)
@@ -239,6 +291,10 @@ class Shot(object):
         Only delete the shot record from the db, the shot directories must be
         removed manually.
         (This should help prevent awful accidents) ;)
+        
+
+        Returns:
+            a file-like response object
         """
         data = prep_data(locals(), _method='DELETE')
         
@@ -254,7 +310,11 @@ class Libgroup(object):
     
     
     def get(self, proj, libgroup_id):
-        """Return a `tabbed` page for libgroup tabs."""
+        """Return a `tabbed` page for libgroup tabs.
+
+        Returns:
+            ``libgroup``
+        """
         data = prep_data(locals(), )
         
         params = encode_params(data)
@@ -264,16 +324,24 @@ class Libgroup(object):
 
     
     def new(self, proj, parent_id, name, description=None):
-        """Create a new libgroup"""
+        """Create a new libgroup
+
+        Returns:
+            ``libgroup``
+        """
         data = prep_data(locals(), )
         
         result = self.open('libgroup.json', data)
         
-        return result
+        return json.loads(result.read())['libgroup']
 
     
     def edit(self, proj, libgroup_id, description=None):
-        """Edit a libgroup"""
+        """Edit a libgroup
+
+        Returns:
+            a file-like response object
+        """
         data = prep_data(locals(), _method='PUT')
         
         result = self.open('libgroup.json', data)
@@ -287,6 +355,10 @@ class Libgroup(object):
         Only delete the libgroup record from the db, the scene directories must
         be removed manually.
         (This should help prevent awful accidents) ;)
+        
+
+        Returns:
+            a file-like response object
         """
         data = prep_data(locals(), _method='DELETE')
         
@@ -302,7 +374,11 @@ class Scene(object):
     
     
     def get(self, proj, sc):
-        """Return a `tabbed` page for scene tabs."""
+        """Return a `tabbed` page for scene tabs.
+
+        Returns:
+            ``scene``
+        """
         data = prep_data(locals(), )
         
         params = encode_params(data)
@@ -312,16 +388,24 @@ class Scene(object):
 
     
     def new(self, proj, sc, description=None):
-        """Create a new scene"""
+        """Create a new scene
+
+        Returns:
+            ``scene``
+        """
         data = prep_data(locals(), )
         
         result = self.open('scene.json', data)
         
-        return result
+        return json.loads(result.read())['scene']
 
     
     def edit(self, proj, sc, description=None):
-        """Edit a scene"""
+        """Edit a scene
+
+        Returns:
+            a file-like response object
+        """
         data = prep_data(locals(), _method='PUT')
         
         result = self.open('scene.json', data)
@@ -335,6 +419,10 @@ class Scene(object):
         Only delete the scene record from the db, the scene directories must be
         removed manually.
         (This should help prevent awful accidents) ;)
+        
+
+        Returns:
+            a file-like response object
         """
         data = prep_data(locals(), _method='DELETE')
         
@@ -351,7 +439,11 @@ class Note(object):
     
     def get(self, annotable_id, note_id):
         """This method is currently unused, but is needed for the 
-        RESTController to work."""
+        RESTController to work.
+
+        Returns:
+            ``note``
+        """
         data = prep_data(locals(), )
         
         params = encode_params(data)
@@ -361,16 +453,24 @@ class Note(object):
 
     
     def new(self, annotable_id, text):
-        """Add notes to a ``annotable`` obect."""
+        """Add notes to a ``annotable`` obect.
+
+        Returns:
+            ``note``
+        """
         data = prep_data(locals(), )
         
         result = self.open('note.json', data)
         
-        return result
+        return json.loads(result.read())['note']
 
     
     def delete(self, note_id):
-        """Delete a note."""
+        """Delete a note.
+
+        Returns:
+            a file-like response object
+        """
         data = prep_data(locals(), _method='DELETE')
         
         result = self.open('note.json', data)
@@ -379,7 +479,11 @@ class Note(object):
 
     
     def pin(self, note_id):
-        """Pin a note."""
+        """Pin a note.
+
+        Returns:
+            a file-like response object
+        """
         data = prep_data(locals(), _method='PIN')
         
         result = self.open('note.json', data)
@@ -388,7 +492,11 @@ class Note(object):
 
     
     def unpin(self, note_id):
-        """Un-pin a note."""
+        """Un-pin a note.
+
+        Returns:
+            a file-like response object
+        """
         data = prep_data(locals(), _method='UNPIN')
         
         result = self.open('note.json', data)
@@ -404,7 +512,11 @@ class Tag(object):
     
     def get(self, taggable_id, tag_id):
         """This method is currently unused, but is needed for the 
-        RESTController to work."""
+        RESTController to work.
+
+        Returns:
+            ``tag``
+        """
         data = prep_data(locals(), )
         
         params = encode_params(data)
@@ -414,7 +526,11 @@ class Tag(object):
 
     
     def new(self, taggable_id, tag_ids=[], new_tags=None):
-        """Add tags to a ``taggable`` obect."""
+        """Add tags to a ``taggable`` obect.
+
+        Returns:
+            a file-like response object
+        """
         data = prep_data(locals(), )
         
         result = self.open('tag.json', data)
@@ -423,7 +539,11 @@ class Tag(object):
 
     
     def delete(self, tag_id):
-        """Delete a tag."""
+        """Delete a tag.
+
+        Returns:
+            a file-like response object
+        """
         data = prep_data(locals(), _method='DELETE')
         
         result = self.open('tag.json', data)
@@ -432,7 +552,11 @@ class Tag(object):
 
     
     def remove(self, taggable_id, tag_ids=[]):
-        """Delete a tag."""
+        """Delete a tag.
+
+        Returns:
+            a file-like response object
+        """
         data = prep_data(locals(), _method='REMOVE')
         
         result = self.open('tag.json', data)
@@ -447,7 +571,11 @@ class Asset(object):
     
     
     def get(self, proj, asset_id):
-        """Return a `standalone` page with the asset history"""
+        """Return a `standalone` page with the asset history
+
+        Returns:
+            ``asset``
+        """
         data = prep_data(locals(), )
         
         params = encode_params(data)
@@ -457,12 +585,16 @@ class Asset(object):
 
     
     def new(self, proj, container_type, container_id, category_id, name, comment=None):
-        """Create a new asset"""
+        """Create a new asset
+
+        Returns:
+            ``asset``
+        """
         data = prep_data(locals(), )
         
         result = self.open('asset.json', data)
         
-        return result
+        return json.loads(result.read())['asset']
 
     
     def delete(self, proj, asset_id):
@@ -471,6 +603,10 @@ class Asset(object):
         Only delete the asset record from the db, the asset file(s) must be
         removed manually.
         (This should help prevent awful accidents) ;)
+        
+
+        Returns:
+            a file-like response object
         """
         data = prep_data(locals(), _method='DELETE')
         
@@ -484,6 +620,10 @@ class Asset(object):
         
         The asset will be blocked and only the current owner will be able to
         publish new versions until it is released.
+        
+
+        Returns:
+            a file-like response object
         """
         data = prep_data(locals(), _method='CHECKOUT')
         
@@ -496,6 +636,10 @@ class Asset(object):
         """Release an asset.
         
         The asset will be unblocked and available for other users to checkout.
+        
+
+        Returns:
+            a file-like response object
         """
         data = prep_data(locals(), _method='RELEASE')
         
@@ -509,16 +653,24 @@ class Asset(object):
         
         This will commit to the repo the file(s) already uploaded in a temporary
         storage area, and create a thumbnail and preview if required.
+        
+
+        Returns:
+            ``version``
         """
         data = prep_data(locals(), _method='PUBLISH')
         
         result = self.open('asset.json', data)
         
-        return result
+        return json.loads(result.read())['version']
 
     
     def submit(self, proj, asset_id, comment=None):
-        """Submit an asset to supervisors for approval."""
+        """Submit an asset to supervisors for approval.
+
+        Returns:
+            a file-like response object
+        """
         data = prep_data(locals(), _method='SUBMIT')
         
         result = self.open('asset.json', data)
@@ -527,7 +679,11 @@ class Asset(object):
 
     
     def recall(self, proj, asset_id, comment=None):
-        """Recall an asset submitted for approval."""
+        """Recall an asset submitted for approval.
+
+        Returns:
+            a file-like response object
+        """
         data = prep_data(locals(), _method='RECALL')
         
         result = self.open('asset.json', data)
@@ -536,7 +692,11 @@ class Asset(object):
 
     
     def sendback(self, proj, asset_id, comment=None):
-        """Send back an asset for revision."""
+        """Send back an asset for revision.
+
+        Returns:
+            a file-like response object
+        """
         data = prep_data(locals(), _method='SENDBACK')
         
         result = self.open('asset.json', data)
@@ -545,7 +705,11 @@ class Asset(object):
 
     
     def approve(self, proj, asset_id, comment=None):
-        """Approve an asset submitted for approval."""
+        """Approve an asset submitted for approval.
+
+        Returns:
+            a file-like response object
+        """
         data = prep_data(locals(), _method='APPROVE')
         
         result = self.open('asset.json', data)
@@ -554,7 +718,11 @@ class Asset(object):
 
     
     def revoke(self, proj, asset_id, comment=None):
-        """Revoke approval for an asset."""
+        """Revoke approval for an asset.
+
+        Returns:
+            a file-like response object
+        """
         data = prep_data(locals(), _method='REVOKE')
         
         result = self.open('asset.json', data)
@@ -564,7 +732,11 @@ class Asset(object):
     
     def download(self, proj, assetver_id):
         """Return a version of an asset from the repository as a file 
-        attachment in the response body."""
+        attachment in the response body.
+
+        Returns:
+            a file-like response object
+        """
         data = prep_data(locals(), _method='DOWNLOAD')
         
         result = self.open('asset.json', data)
@@ -633,6 +805,10 @@ class Client(object):
         
         The path for this storage area can be configured in the .ini file with
         the "upload_dir" variable.
+        
+
+        Returns:
+            a file-like response object
         """
         data = prep_data(locals(), )
         
@@ -649,6 +825,10 @@ class Client(object):
 
         The path for the projects repository can be configured in the .ini file
         with the "repository" variable.
+        
+
+        Returns:
+            a file-like response object
         """
         data = prep_data(locals(), )
         

@@ -28,7 +28,7 @@ def build_client(filename):
     group = 'category'
     target = '%s.json' % group
     maker.add_call(cat.get_one, group, 'get', '%s/get_one.json' % group, 'category', True)
-    maker.add_call(cat.post, group, 'new', target)
+    maker.add_call(cat.post, group, 'new', target, 'category')
     maker.add_call(cat.put, group, 'edit', target, _method='PUT')
     maker.add_call(cat.post_delete, group, 'delete', target, _method='DELETE')
 
@@ -44,7 +44,7 @@ def build_client(filename):
     group = 'note'
     target = '%s.json' % group
     maker.add_call(note.get_one, group, 'get', '%s/get_one.json' % group, 'note', True)
-    maker.add_call(note.post, group, 'new', target)
+    maker.add_call(note.post, group, 'new', target, 'note')
     maker.add_call(note.post_delete, group, 'delete', target, _method='DELETE')
     maker.add_call(note.pin, group, 'pin', target, _method='PIN')
     maker.add_call(note.unpin, group, 'unpin', target, _method='UNPIN')
@@ -53,7 +53,7 @@ def build_client(filename):
     group = 'project'
     target = '%s.json' % group
     maker.add_call(proj.get_one, group, 'get', '%s/get_one.json' % group, 'project', True)
-    maker.add_call(proj.post, group, 'new', target)
+    maker.add_call(proj.post, group, 'new', target, 'project')
     maker.add_call(proj.put, group, 'edit', target, _method='PUT')
     maker.add_call(proj.post_delete, group, 'delete', target, _method='DELETE')
     maker.add_call(proj.post_archive, group, 'archive', target, _method='ARCHIVE')
@@ -63,7 +63,7 @@ def build_client(filename):
     group = 'scene'
     target = '%s.json' % group
     maker.add_call(sc.get_one, group, 'get', '%s/get_one.json' % group, 'scene', True)
-    maker.add_call(sc.post, group, 'new', target)
+    maker.add_call(sc.post, group, 'new', target, 'scene')
     maker.add_call(sc.put, group, 'edit', target, _method='PUT')
     maker.add_call(sc.post_delete, group, 'delete', target, _method='DELETE')
 
@@ -71,7 +71,7 @@ def build_client(filename):
     group = 'shot'
     target = '%s.json' % group
     maker.add_call(sh.get_one, group, 'get', '%s/get_one.json' % group, 'shot', True)
-    maker.add_call(sh.post, group, 'new', target)
+    maker.add_call(sh.post, group, 'new', target, 'shot')
     maker.add_call(sh.put, group, 'edit', target, _method='PUT')
     maker.add_call(sh.post_delete, group, 'delete', target, _method='DELETE')
 
@@ -79,7 +79,7 @@ def build_client(filename):
     group = 'libgroup'
     target = '%s.json' % group
     maker.add_call(lib.get_one, group, 'get', '%s/get_one.json' % group, 'libgroup', True)
-    maker.add_call(lib.post, group, 'new', target)
+    maker.add_call(lib.post, group, 'new', target, 'libgroup')
     maker.add_call(lib.put, group, 'edit', target, _method='PUT')
     maker.add_call(lib.post_delete, group, 'delete', target, _method='DELETE')
 
@@ -87,11 +87,11 @@ def build_client(filename):
     group = 'asset'
     target = '%s.json' % group
     maker.add_call(ast.get_one, group, 'get', '%s/get_one.json' % group, 'asset', True)
-    maker.add_call(ast.post, group, 'new', target)
+    maker.add_call(ast.post, group, 'new', target, 'asset')
     maker.add_call(ast.post_delete, group, 'delete', target, _method='DELETE')
     maker.add_call(ast.checkout, group, 'checkout', target, _method='CHECKOUT')
     maker.add_call(ast.release, group, 'release', target, _method='RELEASE')
-    maker.add_call(ast.post_publish, group, 'publish', target, _method='PUBLISH')
+    maker.add_call(ast.post_publish, group, 'publish', target, 'version', _method='PUBLISH')
     maker.add_call(ast.post_submit, group, 'submit', target, _method='SUBMIT')
     maker.add_call(ast.post_recall, group, 'recall', target, _method='RECALL')
     maker.add_call(ast.post_sendback, group, 'sendback', target, _method='SENDBACK')

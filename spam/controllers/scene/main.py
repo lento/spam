@@ -130,7 +130,8 @@ class Controller(RestController):
         # send a stomp message to notify clients
         notify.send(scene, update_type='added')
         notify.send(project)
-        return dict(msg='created scene "%s"' % scene.path, result='success')
+        return dict(msg='created scene "%s"' % scene.path, result='success',
+                                                                    scene=scene)
     
     @project_set_active
     @require(is_project_admin())

@@ -120,7 +120,8 @@ class Controller(RestController):
         
         # send a stomp message to notify clients
         notify.send(newuser, update_type='added')
-        return dict(msg='created user "%s"' % newuser.id, result='success')
+        return dict(msg='created user "%s"' % newuser.id, result='success',
+                                                                user=newuser)
     
     @require(in_group('administrators'))
     @expose('spam.templates.forms.form')

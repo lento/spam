@@ -138,7 +138,8 @@ class Controller(RestController):
         # send a stomp message to notify clients
         notify.send(shot, update_type='added')
         notify.send(project)
-        return dict(msg='created shot "%s"' % shot.path, result='success')
+        return dict(msg='created shot "%s"' % shot.path, result='success',
+                                                                    shot=shot)
     
     @project_set_active
     @require(is_project_admin())

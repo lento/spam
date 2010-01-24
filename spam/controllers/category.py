@@ -95,7 +95,8 @@ class Controller(RestController):
         
         # send a stomp message to notify clients
         notify.send(category, update_type='added')
-        return dict(msg='created category "%s"' % category_id, result='success')
+        return dict(msg='created category "%s"' % category_id, result='success',
+                                                            category=category)
     
     @require(in_group('administrators'))
     @expose('spam.templates.forms.form')

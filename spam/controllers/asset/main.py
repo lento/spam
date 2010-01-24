@@ -168,7 +168,8 @@ class Controller(RestController):
 
         # send a stomp message to notify clients
         notify.send(asset, update_type='added')
-        return dict(msg='created asset "%s"' % asset.name, result='success')
+        return dict(msg='created asset "%s"' % asset.name, result='success',
+                                                                    asset=asset)
     
     @project_set_active
     @require(is_project_admin())
@@ -340,7 +341,8 @@ class Controller(RestController):
         
         # send a stomp message to notify clients
         notify.send(asset)
-        return dict(msg='published asset "%s"' % asset.path, result='success')
+        return dict(msg='published asset "%s"' % asset.path, result='success',
+                                                                version=newver)
 
     @project_set_active
     @require(is_project_admin())

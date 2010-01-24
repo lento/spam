@@ -144,7 +144,7 @@ class Controller(RestController):
         notify.send(libgroup, update_type='added')
         notify.send(project)
         return dict(msg='created libgroup "%s"' % libgroup.path,
-                                                            result='success')
+                                            result='success', libgroup=libgroup)
     
     @project_set_active
     @require(is_project_admin())
