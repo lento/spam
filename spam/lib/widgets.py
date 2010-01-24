@@ -595,33 +595,55 @@ statusbox_js = JSSource(src='''
 
 
 class BoxScenesStatus(LiveBox):
+    params = ['proj_id']
     container_class = 'statusbox'
+    update_topic = notifications.TOPIC_SCENES
+    show_update = False
     
     class fields(WidgetsList):
         link = Link(dest=url('/scene/%(proj_id)s/%(name)s'),
             fields=[
               StatusIcon(id='status', label_text='%(name)s: %(status)s')
         ])
+    
+    def update_params(self, d):
+        super(BoxScenesStatus, self).update_params(d)
+        d['update_condition'] = 'msg.ob.proj_id=="%s"' % d['proj_id']
 
 
 class BoxShotsStatus(LiveBox):
+    params = ['scene_id']
     container_class = 'statusbox'
+    update_topic = notifications.TOPIC_SHOTS
+    show_update = False
     
     class fields(WidgetsList):
         link = Link(dest=url('/shot/%(proj_id)s/%(parent_name)s/%(name)s'),
             fields=[
               StatusIcon(id='status', label_text='%(name)s: %(status)s')
         ])
+    
+    def update_params(self, d):
+        super(BoxShotsStatus, self).update_params(d)
+        d['update_condition'] = 'msg.ob.parent_id=="%s"' % d['scene_id']
 
 
 class BoxLibgroupsStatus(LiveBox):
+    params = ['libgroup_id']
     container_class = 'statusbox'
+    update_topic = notifications.TOPIC_LIBGROUPS
+    show_update = False
     
     class fields(WidgetsList):
         link = Link(dest=url('/libgroup/%(proj_id)s/%(id)s'),
             fields=[
               StatusIcon(id='status', label_text='%(name)s: %(status)s')
         ])
+    
+    def update_params(self, d):
+        super(BoxLibgroupsStatus, self).update_params(d)
+        libgroup_id = d['libgroup_id'] and '"%s"' % d['libgroup_id'] or 'null'
+        d['update_condition'] = 'msg.ob.parent_id==%s' % libgroup_id
 
 
 class BoxCategoriesStatus(LiveBox):
@@ -632,6 +654,7 @@ class BoxCategoriesStatus(LiveBox):
     update_functions = ('{"added": add_categories,'
                         ' "deleted": delete_categories,'
                         ' "updated": update_categories}')
+    show_update = False
     
     class fields(WidgetsList):
         category = Link(
@@ -646,10 +669,22 @@ class BoxCategoriesStatus(LiveBox):
 
 
 class BoxStatus(LiveBox):
+    params = ['container_id', 'category_id']
+    javascript = [statusbox_js]
     container_class = 'statusbox'
+    update_topic = notifications.TOPIC_ASSETS
+    update_functions = ('{"added": add_categories,'
+                        ' "deleted": delete_categories,'
+                        ' "updated": update_categories}')
+    show_update = False
     
     class fields(WidgetsList):
-        status = StatusIcon(label_text='%(item_name)s: %(item_status)s')
+        status = StatusIcon(label_text='%(name)s: %(status)s')
+    
+    def update_params(self, d):
+        super(BoxStatus, self).update_params(d)
+        d['update_condition'] = ('msg.ob.parent_id=="%s" && '
+            'msg.ob.category.id=="%s"' % (d['container_id'], d['category_id']))
 
 
 ############################################################

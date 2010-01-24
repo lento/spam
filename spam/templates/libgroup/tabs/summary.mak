@@ -3,8 +3,7 @@
 % if c.libgroup.subgroups:
     <h2>${_('subgroups')}</h2>
     ${c.b_libgroups_status(id="status_%s_subgroups" % c.libgroup.id,
-                    items=c.libgroup.subgroups, container_id=c.libgroup.id,
-                    extra_data=cat_extra_data) | n}
+                    items=c.libgroup.subgroups, libgroup_id=c.libgroup.id) | n}
     <br/>
     <br/>
 % endif
