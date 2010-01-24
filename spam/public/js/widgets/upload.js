@@ -74,7 +74,7 @@ upload.file_upload = function(queue_id, fileData) {
     });
   
     $(xhr.upload).bind("error", function(e){
-        console.log('FileUpload: error event');
+        console.log('FileUpload: error event', e);
         progress.progressbar('option', 'value', 100);
         progress.addClass("error");
     });
@@ -90,7 +90,7 @@ upload.file_upload = function(queue_id, fileData) {
     content += '1';
     content += '\r\n';
     content += '--' + boundary + '\r\n';
-    content += 'Content-Disposition: file; name="uploadedfile"; filename="' + file.name + '"\r\n';
+    content += 'Content-Disposition: file; name="uploadfile"; filename="' + file.name + '"\r\n';
     content += 'Content-Type: ' + file.type + '\r\n';
     content += 'Content-Length: ' + fileData.length + '\r\n';
     content += '\r\n';
