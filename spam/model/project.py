@@ -885,6 +885,14 @@ class Asset(DeclarativeBase):
     def has_tags(self, tag_ids):
         return self.taggable.has_tags(tag_ids)
     
+    def checkout(self, user):
+        self.checkedout = True
+        self.owner = user
+
+    def release(self):
+        self.checkedout = False
+        self.owner = None
+
     def submit(self, user):
         self.submitted = True
         self.submitted_by = user

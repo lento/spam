@@ -236,8 +236,7 @@ class Controller(RestController):
         user = tmpl_context.user
         
         if not asset.checkedout:
-            asset.user = user
-            asset.checkedout = True
+            asset.checkout(user)
             notify.send(asset)
             notify.ancestors(asset)
             return dict(msg='checkedout asset "%s"' % asset.path,
@@ -261,8 +260,7 @@ class Controller(RestController):
         user = tmpl_context.user
         
         if asset.checkedout:
-            asset.user = None
-            asset.checkedout = False
+            asset.release()
             notify.send(asset)
             notify.ancestors(asset)
             return dict(msg='released asset "%s"' % asset.path,
@@ -277,7 +275,6 @@ class Controller(RestController):
     @expose('spam.templates.forms.form')
     def get_publish(self, proj, asset_id, **kwargs):
         """Display a PUBLISH form."""
-        log.debug('asset/get_publish: %s %s' % (kwargs, tmpl_context.form_errors))
         tmpl_context.form = f_publish
         asset = asset_get(proj, asset_id)
 
@@ -304,11 +301,20 @@ class Controller(RestController):
         This will commit to the repo the file(s) already uploaded in a temporary
         storage area, and create a thumbnail and preview if required.
         """
-        uploaded = uploaded[1:] # the form send an empty string as first item
-        log.debug('post_publish: %s' % uploaded)
         session = session_get()
         asset = asset_get(proj, asset_id)
         user = tmpl_context.user
+
+        if not asset.checkedout or user != asset.owner:
+            return dict(msg='cannot publish asset "%s"' % asset_id,
+                                                            result='failed')
+        
+        if isinstance(uploaded, list):
+            if not uploaded[0]:
+                # the form send an empty string as first item, so we strip it
+                uploaded = uploaded[1:]
+        else:
+            uploaded = [uploaded]
         
         # commit file to repo
         text = u'[published %s v%03d]\n%s' % (asset.path, asset.current.ver+1,
