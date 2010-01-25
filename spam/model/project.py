@@ -297,6 +297,10 @@ class Project(DeclarativeBase):
                 set(self.admins))
     
     @property
+    def user_ids(self):
+        return [u.user_id for u in self.users]
+
+    @property
     def schema_is_uptodate(self):
         proj_version = db_get_version(self.id)
         repo_version = migraterepo_get_version()
@@ -332,6 +336,7 @@ class Project(DeclarativeBase):
                     modified=self.modified.strftime('%Y/%m/%d %H:%M'),
                     archived=self.archived,
                     schema_is_uptodate=self.schema_is_uptodate,
+                    user_ids=self.user_ids,
                    )
 
 

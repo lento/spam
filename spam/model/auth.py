@@ -182,6 +182,10 @@ class User(DeclarativeBase):
                 set(self.projects_as_admin))
     
     @property
+    def project_ids(self):
+        return [p.id for p in self.projects]
+    
+    @property
     def id(self):
         return self.user_id
     
@@ -206,6 +210,7 @@ class User(DeclarativeBase):
                     user_name=self.user_name,
                     display_name=self.display_name,
                     domain=self.domain,
+                    project_ids=self.project_ids,
                    )
     
 

@@ -552,12 +552,29 @@ class TableNotes(LiveTable):
 ############################################################
 # Live lists
 ############################################################
+class ListProjects(LiveList):
+    javascript = [notify_client_js]
+    params = ['user_id']
+    update_topic = notify.TOPIC_PROJECTS
+    class fields(WidgetsList):
+        name = Link(dest=url('/project/%(id)s'), fields=[
+            Text(id='name', label_text='%(description)s')
+        ])
+    
+    def update_params(self, d):
+        super(ListProjects, self).update_params(d)
+        d['update_condition'] = ('$.inArray("%s", msg.ob.user_ids) > -1' %
+                                                                d['user_id'])
+
+
 class ListTags(LiveList):
+    javascript = [notify_client_js]
     class fields(WidgetsList):
         id = Text()
 
 
 class ListNotes(LiveList):
+    javascript = [notify_client_js]
     class fields(WidgetsList):
         text = Text()
 

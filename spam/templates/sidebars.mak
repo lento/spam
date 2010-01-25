@@ -46,14 +46,8 @@
                     <span class="toggle_title">${_('projects')}</span>
                 </div>
                 <div class="toggleable">
-                    <ul class="links">
-                        % for p in c.user.projects:
-                        <li class="${p.id}">
-                            <div class="hidden id">${p.id}</div>
-                            <a href="${tg.url('/project/%s/' % p.id)}">${p.name}</a>
-                        </li>
-                        % endfor
-                    </ul>
+                    ${c.l_projects(id='projectslist', items=list(c.user.projects),
+                                                    user_id=c.user.user_id) | n}
                 </div>
             </div>
         </div>

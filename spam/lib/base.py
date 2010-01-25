@@ -9,10 +9,12 @@ from pylons.i18n import _, ungettext, N_
 from tw.api import WidgetBunch
 import spam.model as model
 from spam.lib.widgets import StartupJS, NetworkingJS, NotifyClientJS
+from spam.lib.widgets import ListProjects
 
 j_networking = NetworkingJS()
 j_startup = StartupJS()
 j_notify_client = NotifyClientJS()
+l_projects = ListProjects()
 
 __all__ = ['Controller', 'BaseController']
 
@@ -62,6 +64,7 @@ class SPAMBaseController(TGController):
         tmpl_context.j_networking = j_networking
         tmpl_context.j_startup = j_startup
         tmpl_context.j_notify_client = j_notify_client
+        tmpl_context.l_projects = l_projects
         
         return TGController.__call__(self, environ, start_response)
 
