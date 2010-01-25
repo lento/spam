@@ -588,8 +588,7 @@ statusbox_js = JSSource(src='''
             wrap_functions(lw.livebox.delete, box_id, item, false, extra_data);
     }
     update_categories = function(box_id, item, show_update, extra_data) {
-        delete_categories(box_id, item, false, extra_data)
-        add_categories(box_id, item, false, extra_data)
+        wrap_functions(lw.livebox.update, box_id, item, false, extra_data);
     }
 ''')
 
