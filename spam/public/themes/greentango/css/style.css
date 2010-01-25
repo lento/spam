@@ -245,6 +245,19 @@ div.note_header {
     font-weight: bold;
 }
 
+/* Tags */
+.tagbox {
+    display: block;
+}
+
+.tagbox div {
+    float: left;
+}
+
+.tagbox .lw_box {
+    margin-left: 10px;
+}
+
 /**********************************************************************
  * Overlay
  **********************************************************************/

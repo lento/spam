@@ -27,7 +27,7 @@ from tg.controllers import RestController
 from pylons.i18n import ugettext as _, lazy_ugettext as l_
 from spam.model import session_get, annotable_get, note_get, Note, AssetVersion
 from spam.lib.widgets import FormNoteNew, FormNoteConfirm
-from spam.lib.widgets import ListNotes
+from spam.lib.widgets import TableNotes
 from spam.lib.notifications import notify
 from repoze.what.predicates import in_group
 
@@ -39,7 +39,7 @@ f_new = FormNoteNew(action=url('/note/'))
 f_confirm = FormNoteConfirm(action=url('/note/'))
 
 # live widgets
-l_notes = ListNotes()
+t_notes = TableNotes()
 
 class Controller(RestController):
     """REST controller for managing notes"""
@@ -48,9 +48,9 @@ class Controller(RestController):
     @expose('spam.templates.notes.get_all')
     def get_all(self, annotable_id):
         """Return a html fragment with a list of notes for this object."""
-        tmpl_context.l_notes = l_notes
+        tmpl_context.t_notes = t_notes
         annotable = annotable_get(annotable_id)
-        return dict(notes=annotable.notes)
+        return dict(notes=annotable.notes, annotable_id=annotable.id)
 
     @expose('spam.templates.notes.get_all')
     def default(self, annotable_id, *args, **kwargs):

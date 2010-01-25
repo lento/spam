@@ -3,8 +3,8 @@ import stomp, threading, time, sys
 from stomp.exception import ConnectionClosedException, NotConnectedException
 from tg import config, app_globals as G
 from spam.lib.jsonify import encode as json_encode
-from spam.model import User, Category
-from spam.model import Project, Scene, Shot, Asset, Libgroup, Journal, Note
+from spam.model import User, Category, Journal, Note, Tag
+from spam.model import Project, Scene, Shot, Asset, Libgroup
 
 import logging
 log = logging.getLogger(__name__)
@@ -37,6 +37,7 @@ class StompClient(object):
                                                 '/topic/project_artists')
         self.TOPIC_JOURNAL = config.get('stomp_topic_journal', '/topic/journal')
         self.TOPIC_NOTES = config.get('stomp_topic_notesl', '/topic/notes')
+        self.TOPIC_TAGS = config.get('stomp_topic_tags', '/topic/tags')
 
         self.topics = {User: self.TOPIC_USERS,
                        Category: self.TOPIC_CATEGORIES,
@@ -47,6 +48,7 @@ class StompClient(object):
                        Libgroup: self.TOPIC_LIBGROUPS,
                        Journal: self.TOPIC_JOURNAL,
                        Note: self.TOPIC_NOTES,
+                       Tag: self.TOPIC_TAGS,
                       }
     
     # adapted from orbited start.py main()

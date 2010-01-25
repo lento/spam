@@ -553,8 +553,8 @@ class TableNotes(LiveTable):
 # Live lists
 ############################################################
 class ListProjects(LiveList):
-    javascript = [notify_client_js]
     params = ['user_id']
+    javascript = [notify_client_js]
     update_topic = notify.TOPIC_PROJECTS
     class fields(WidgetsList):
         name = Link(dest=url('/project/%(id)s'), fields=[
@@ -567,21 +567,30 @@ class ListProjects(LiveList):
                                                                 d['user_id'])
 
 
-class ListTags(LiveList):
-    javascript = [notify_client_js]
-    class fields(WidgetsList):
-        id = Text()
-
-
-class ListNotes(LiveList):
-    javascript = [notify_client_js]
-    class fields(WidgetsList):
-        text = Text()
-
-
 ############################################################
 # Live boxes
 ############################################################
+class BoxTags(LiveBox):
+    params = ['taggable_id']
+    container_class = 'tagbox'
+    javascript = [notify_client_js]
+    update_topic = notify.TOPIC_TAGS
+    class fields(WidgetsList):
+        id = Box(fields=[
+            Text(id='id', label_text=''),
+            Button(id='remove',
+              action=url('/tag/%(taggable_id)s/%(id)s/remove'),
+              fields=[Icon(id='remove', icon_class='delete',
+                label_text=_('remove')),
+            ]),
+            Text(id='separator', label_text='', text=', '),
+        ])
+    
+    def update_params(self, d):
+        super(BoxTags, self).update_params(d)
+        d['update_condition'] = 'msg.taggable_id=="%s"' % d['taggable_id']
+
+
 statusbox_js = JSSource(src='''
     wrap_functions = function(func, box_id, item, show_update, extra_data) {
         $.each(item.parent.categories, function (i, parent_cat) {

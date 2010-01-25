@@ -27,7 +27,7 @@ from tg.controllers import RestController
 from pylons.i18n import ugettext as _, lazy_ugettext as l_
 from spam.model import session_get, taggable_get, tag_get, Tag
 from spam.lib.widgets import FormTagNew, FormTagConfirm, FormTagRemove
-from spam.lib.widgets import ListTags
+from spam.lib.widgets import BoxTags
 from spam.lib.notifications import notify
 from spam.lib.journaling import journal
 from repoze.what.predicates import in_group
@@ -41,7 +41,7 @@ f_confirm = FormTagConfirm(action=url('/tag/'))
 f_remove = FormTagRemove(action=url('/tag/'))
 
 # live widgets
-l_tags = ListTags()
+b_tags = BoxTags()
 
 class Controller(RestController):
     """REST controller for managing tags"""
@@ -50,7 +50,7 @@ class Controller(RestController):
     @expose('spam.templates.tags.get_all')
     def get_all(self, taggable_id):
         """Return a html fragment with a list of tags for this object."""
-        tmpl_context.l_tags = l_tags
+        tmpl_context.b_tags = b_tags
         taggable = taggable_get(taggable_id)
         return dict(tags=taggable.tags)
 
@@ -99,7 +99,11 @@ class Controller(RestController):
         user = tmpl_context.user
         taggable = taggable_get(taggable_id)
         
-        tags = [tag_get(i) for i in tag_ids]
+        if isinstance(tag_ids, list):
+            tags = [tag_get(i) for i in tag_ids]
+        else:
+            tags = [tag_get(tag_ids)]
+        
         if new_tags:
             tags.extend([tag_get(name) for name in new_tags.split(', ')])
         
@@ -107,17 +111,20 @@ class Controller(RestController):
         for tag in tags:
             if tag not in taggable.tags:
                 taggable.tags.append(tag)
-                added_tags.append(tag.id)
-        added_tags = ', '.join(added_tags)
-        
-        # log into Journal
-        journal.add(user, 'added tag(s) "%s" to %s' %
-                                            (added_tags, taggable.tagged))
+                added_tags.append(tag)
         
         # send a stomp message to notify clients
-        #notify.send(tag, update_type='added', shot=shot)
+        for tag in added_tags:
+            notify.send(tag, update_type='added', taggable_id=taggable_id)
+
+        added = ', '.join([t.id for t in added_tags])
+
+        # log into Journal
+        journal.add(user, 'added tag(s) "%s" to %s' %
+                                                    (added, taggable.tagged))
+        
         return dict(msg='added tag(s) "%s" to %s' % 
-                       (added_tags, taggable.tagged.path), result='success')
+                                (added, taggable.tagged.path), result='success')
     
     @require(in_group('administrators'))
     @expose('spam.templates.forms.form')
@@ -149,48 +156,43 @@ class Controller(RestController):
         journal.add(user, 'deleted %s' % tag)
         
         # send a stomp message to notify clients
-        #notify.send(tag, update_type='deleted')
+        notify.send(tag, update_type='deleted', taggable_id=taggable_id)
         return dict(msg='deleted tag "%s"' % tag.id, result='success')
     
     # Custom REST-like actions
     custom_actions = ['remove']
     
     @require(in_group('administrators'))
-    @expose('spam.templates.forms.form')
-    def get_remove(self, taggable_id, **kwargs):
-        """Display a REMOVE tag form."""
-        tmpl_context.form = f_remove
-        taggable = taggable_get(taggable_id)
-        fargs = dict(taggable_id=taggable.id)
-        choices = [t.id for t in taggable.tags]
-        fcargs = dict(tag_ids=dict(options=choices))
-        return dict(title='Remove tags from "%s"' % taggable.tagged.path,
-                                                args=fargs, child_args=fcargs)
-
-    @require(in_group('administrators'))
     @expose('json')
     @expose('spam.templates.forms.result')
-    @validate(f_remove, error_handler=get_remove)
-    def post_remove(self, taggable_id, tag_ids=[]):
-        """Delete a tag."""
+    @validate(f_remove)
+    def remove(self, taggable_id, tag_ids=[]):
+        """Remove tags from an object."""
         session = session_get()
         user = tmpl_context.user
         taggable = taggable_get(taggable_id)
         
-        tags = [tag_get(i) for i in tag_ids]
+        if isinstance(tag_ids, list):
+            tags = [tag_get(i) for i in tag_ids]
+        else:
+            tags = [tag_get(tag_ids)]
+        
         removed_tags = []
         for tag in tags:
             if tag in taggable.tags:
                 taggable.tags.remove(tag)
-                removed_tags.append(tag.id)
-        removed_tags = ', '.join(removed_tags)
+                removed_tags.append(tag)
+
+        # send a stomp message to notify clients
+        for tag in removed_tags:
+            notify.send(tag, update_type='deleted', taggable_id=taggable_id)
+
+        removed = ', '.join([t.id for t in removed_tags])
         
         # log into Journal
         journal.add(user, 'removed tag(s) "%s" from %s' %
-                                        (removed_tags, taggable.tagged))
+                                                    (removed, taggable.tagged))
         
-        # send a stomp message to notify clients
-        #notify.send(tag, update_type='removed', taggable=taggable)
         return dict(msg='removed tag(s) "%s" from %s' %
-                        (removed_tags, taggable.tagged.path), result='success')
+                            (removed, taggable.tagged.path), result='success')
 

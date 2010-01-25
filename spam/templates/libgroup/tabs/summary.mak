@@ -21,8 +21,10 @@
 
 <h2>${_('tags')}</h2>
 <a href="${tg.url('/tag/%s/new' % c.libgroup.id)}"
-   rel="#overlay" class="overlay button">add tag</a>
-${c.l_tags(id="taglist", items=c.libgroup.tags,
+   rel="#overlay" class="overlay button">add tags</a>
+${c.b_tags(id="taglist", items=c.libgroup.tags,
+                    taggable_id=c.libgroup.taggable.id,
+                    extra_data=tag_extra_data,
                     update_listener_adder="notify.add_listener_tab") | n}
 <br/>
 <br/>
