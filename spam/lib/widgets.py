@@ -10,7 +10,7 @@ from tw.forms.validators import Schema
 from spam.lib.validators import CategoryNamingConvention
 from livewidgets import LiveTable, LiveBox, LiveList
 from livewidgets import LiveWidget, Box, Button, Icon, Text, Link, Image
-from spam.lib import notifications
+from spam.lib.notifications import notify
 
 # Orbited
 orbited_address = config.get('orbited_address', 'http://localhost:9000')
@@ -92,7 +92,7 @@ class TableTest(LiveTable):
 
 class TableUsers(LiveTable):
     javascript = [notify_client_js]
-    update_topic = '/topic/users'
+    update_topic = notify.TOPIC_USERS
     class fields(WidgetsList):
         domain = Text()
         user_name = Text(sort_default=True)
@@ -113,7 +113,7 @@ class TableUsers(LiveTable):
 
 class TableGroupUsers(LiveTable):
     javascript = [notify_client_js]
-    update_topic = '/topic/groups'
+    update_topic = notify.TOPIC_GROUPS
     class fields(WidgetsList):
         user_name = Text(sort_default=True)
         display_name = Text()
@@ -134,7 +134,7 @@ class TableGroupUsers(LiveTable):
 
 class TableProjectAdmins(LiveTable):
     javascript = [notify_client_js]
-    update_topic = '/topic/project_admins'
+    update_topic = notify.TOPIC_PROJECT_ADMINS
     class fields(WidgetsList):
         user_name = Text(sort_default=True)
         display_name = Text()
@@ -153,7 +153,7 @@ class TableProjectAdmins(LiveTable):
 
 class TableProjectSupervisors(LiveTable):
     javascript = [notify_client_js]
-    update_topic = '/topic/project_supervisors'
+    update_topic = notify.TOPIC_PROJECT_SUPERVISORS
     class fields(WidgetsList):
         user_name = Text(sort_default=True)
         display_name = Text()
@@ -174,7 +174,7 @@ class TableProjectSupervisors(LiveTable):
 
 class TableProjectArtists(LiveTable):
     javascript = [notify_client_js]
-    update_topic = '/topic/project_artists'
+    update_topic = notify.TOPIC_PROJECT_ARTISTS
     class fields(WidgetsList):
         user_name = Text(sort_default=True)
         display_name = Text()
@@ -195,7 +195,7 @@ class TableProjectArtists(LiveTable):
 
 class TableCategories(LiveTable):
     javascript = [notify_client_js]
-    update_topic = '/topic/categories'
+    update_topic = notify.TOPIC_CATEGORIES
     class fields(WidgetsList):
         ordering = Text(sort_default=True)
         id = Text()
@@ -217,7 +217,7 @@ class TableCategories(LiveTable):
 
 class ProjectsActive(LiveTable):
     javascript = [notify_client_js]
-    update_topic = '/topic/projects'
+    update_topic = notify.TOPIC_PROJECTS
     update_condition = '!msg.ob.archived || msg.update_type=="archived"'
     update_functions = ('{"added": lw.livetable.addrow,'
                         ' "deleted": lw.livetable.deleterow,'
@@ -250,7 +250,7 @@ class ProjectsActive(LiveTable):
 
 class ProjectsArchived(LiveTable):
     javascript = [notify_client_js]
-    update_topic = '/topic/projects'
+    update_topic = notify.TOPIC_PROJECTS
     update_condition = 'msg.ob.archived || msg.update_type=="activated"'
     update_functions = ('{"added": lw.livetable.addrow,'
                         ' "deleted": lw.livetable.deleterow,'
@@ -273,7 +273,7 @@ class ProjectsArchived(LiveTable):
 
 class TableScenes(LiveTable):
     javascript = [notify_client_js]
-    update_topic = '/topic/scenes'
+    update_topic = notify.TOPIC_SCENES
     class fields(WidgetsList):
         thumbnail = Box(field_class='thumbnail', fields=[
             Image(label_text=_('thumbnail'), field_class='thumbnail',
@@ -302,7 +302,7 @@ class TableScenes(LiveTable):
 
 class TableShots(LiveTable):
     javascript = [notify_client_js]
-    update_topic = '/topic/shots'
+    update_topic = notify.TOPIC_SHOTS
     class fields(WidgetsList):
         thumbnail = Box(field_class='thumbnail', fields=[
             Image(label_text=_('thumbnail'), field_class='thumbnail',
@@ -339,7 +339,7 @@ class TableShots(LiveTable):
 class TableLibgroups(LiveTable):
     params = ['parent_id']
     javascript = [notify_client_js]
-    update_topic = '/topic/libgroups'
+    update_topic = notify.TOPIC_LIBGROUPS
     class fields(WidgetsList):
         thumbnail = Box(field_class='thumbnail', fields=[
             Image(label_text=_('thumbnail'), field_class='thumbnail',
@@ -384,7 +384,7 @@ class TableAssets(LiveTable):
     params = ['category']
     
     javascript = [notify_client_js]
-    update_topic = '/topic/assets'
+    update_topic = notify.TOPIC_ASSETS
     class fields(WidgetsList):
         thumbnail = Box(field_class='thumbnail', fields=[
             Link(dest=url('/repo/%(proj_id)s/preview.png'),
@@ -506,7 +506,7 @@ class TableAssetHistory(LiveTable):
 class TableJournal(LiveTable):
     params = ['curpage']
     javascript = [notify_client_js]
-    update_topic = notifications.TOPIC_JOURNAL
+    update_topic = notify.TOPIC_JOURNAL
     class fields(WidgetsList):
         strftime = Text(label_text='date', sort_default=True,
                                                         sort_direction = 'desc')
@@ -521,7 +521,7 @@ class TableJournal(LiveTable):
 class TableNotes(LiveTable):
     params = ['annotable_id']
     javascript = [notify_client_js]
-    update_topic = notifications.TOPIC_NOTES
+    update_topic = notify.TOPIC_NOTES
     class fields(WidgetsList):
         user_name = Text(field_class='note_header', label_text=_('user name'))
         strftime = Text(field_class='note_header', label_text=_('date'),
@@ -597,7 +597,7 @@ statusbox_js = JSSource(src='''
 class BoxScenesStatus(LiveBox):
     params = ['proj_id']
     container_class = 'statusbox'
-    update_topic = notifications.TOPIC_SCENES
+    update_topic = notify.TOPIC_SCENES
     show_update = False
     
     class fields(WidgetsList):
@@ -614,7 +614,7 @@ class BoxScenesStatus(LiveBox):
 class BoxShotsStatus(LiveBox):
     params = ['scene_id']
     container_class = 'statusbox'
-    update_topic = notifications.TOPIC_SHOTS
+    update_topic = notify.TOPIC_SHOTS
     show_update = False
     
     class fields(WidgetsList):
@@ -631,7 +631,7 @@ class BoxShotsStatus(LiveBox):
 class BoxLibgroupsStatus(LiveBox):
     params = ['libgroup_id']
     container_class = 'statusbox'
-    update_topic = notifications.TOPIC_LIBGROUPS
+    update_topic = notify.TOPIC_LIBGROUPS
     show_update = False
     
     class fields(WidgetsList):
@@ -650,7 +650,7 @@ class BoxCategoriesStatus(LiveBox):
     params = ['container_id']
     javascript = [statusbox_js]
     container_class = 'statusbox'
-    update_topic = notifications.TOPIC_ASSETS
+    update_topic = notify.TOPIC_ASSETS
     update_functions = ('{"added": add_categories,'
                         ' "deleted": delete_categories,'
                         ' "updated": update_categories}')
@@ -672,7 +672,7 @@ class BoxStatus(LiveBox):
     params = ['container_id', 'category_id']
     javascript = [statusbox_js]
     container_class = 'statusbox'
-    update_topic = notifications.TOPIC_ASSETS
+    update_topic = notify.TOPIC_ASSETS
     update_functions = ('{"added": add_categories,'
                         ' "deleted": delete_categories,'
                         ' "updated": update_categories}')

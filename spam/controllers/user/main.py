@@ -33,9 +33,7 @@ from spam.lib.exceptions import SPAMDBError, SPAMDBNotFound
 from spam.lib.widgets import FormUserNew, FormUserEdit
 from spam.lib.widgets import FormUserConfirm, FormUserAddToGroup
 from spam.lib.widgets import FormUserAddAdmins, FormUserAddToCategory
-from spam.lib.notifications import notify, TOPIC_GROUPS, TOPIC_PROJECT_ADMINS
-from spam.lib.notifications import TOPIC_PROJECT_SUPERVISORS
-from spam.lib.notifications import TOPIC_PROJECT_ARTISTS
+from spam.lib.notifications import notify
 from spam.lib.journaling import journal
 from spam.lib.decorators import project_set_active
 from spam.lib.predicates import is_project_user, is_project_admin
@@ -237,7 +235,8 @@ class Controller(RestController):
                 
                 # send a stomp message to notify clients
                 notify.send(adduser, update_type='added',
-                        destination=TOPIC_GROUPS, group_name=group.group_name)
+                            destination=notify.TOPIC_GROUPS,
+                            group_name=group.group_name)
         
         added = ', '.join(added)
         
@@ -262,8 +261,9 @@ class Controller(RestController):
         journal.add(user, 'removed user "%s" from %s' % (remuser, group))
         
         # send a stomp message to notify clients
-        notify.send(remuser, update_type='deleted', destination=TOPIC_GROUPS,
-                                                    group_name=group.group_name)
+        notify.send(remuser, update_type='deleted',
+                    destination=notify.TOPIC_GROUPS,
+                    group_name=group.group_name)
         return dict(msg='user "%s" removed from group "%s"' %
                         (remuser.user_id, group.group_id), result='success')
         
@@ -302,7 +302,7 @@ class Controller(RestController):
                 
                 # send a stomp message to notify clients
                 notify.send(adduser, update_type='added', proj=project.id,
-                                            destination=TOPIC_PROJECT_ADMINS)
+                            destination=notify.TOPIC_PROJECT_ADMINS)
             
         added = ', '.join(added)
         
@@ -333,7 +333,7 @@ class Controller(RestController):
             
             # send a stomp message to notify clients
             notify.send(user, update_type='deleted', proj=project.id,
-                                            destination=TOPIC_PROJECT_ADMINS)
+                        destination=notify.TOPIC_PROJECT_ADMINS)
             return dict(msg='user "%s" removed from "%s" administrators' %
                         (remuser.user_id, project.id), result='success')
         return dict(msg='user "%s" cannot be removed from "%s" administrators' %
@@ -377,8 +377,8 @@ class Controller(RestController):
 
             # send a stomp message to notify clients
             notify.send(supervisor.user, update_type='added', proj=project.id,
-                            cat=category.id,
-                            destination=TOPIC_PROJECT_SUPERVISORS)
+                        cat=category.id,
+                        destination=notify.TOPIC_PROJECT_SUPERVISORS)
         
         added = ', '.join(added)
         
@@ -415,7 +415,7 @@ class Controller(RestController):
             # send a stomp message to notify clients
             notify.send(remuser, update_type='deleted', proj=project.id,
                         cat=category.id,
-                        destination=TOPIC_PROJECT_SUPERVISORS)
+                        destination=notify.TOPIC_PROJECT_SUPERVISORS)
             return dict(msg='removed %s "%s" supervisor "%s"' %
                 (project.id, category.id, remuser.user_id), result='success')
         return dict(msg='%s "%s" supervisor "%s" cannot be removed' %
@@ -460,7 +460,7 @@ class Controller(RestController):
             # send a stomp message to notify clients
             notify.send(artist.user, update_type='added', proj=project.id,
                             cat=category.id,
-                            destination=TOPIC_PROJECT_ARTISTS)
+                            destination=notify.TOPIC_PROJECT_ARTISTS)
         
         added = ', '.join(added)
         
@@ -497,7 +497,7 @@ class Controller(RestController):
             # send a stomp message to notify clients
             notify.send(remuser, update_type='deleted', proj=project.id,
                         cat=category.id,
-                        destination=TOPIC_PROJECT_ARTISTS)
+                        destination=notify.TOPIC_PROJECT_ARTISTS)
             return dict(msg='removed %s "%s" artist "%s"' %
                 (project.id, category.id, remuser.user_id), result='success')
         return dict(msg='%s "%s" artist "%s" cannot be removed' %

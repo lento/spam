@@ -1,6 +1,7 @@
-import stomp, threading
+import orbited.start
+import stomp, threading, time, sys
 from stomp.exception import ConnectionClosedException, NotConnectedException
-from tg import config
+from tg import config, app_globals as G
 from spam.lib.jsonify import encode as json_encode
 from spam.model import User, Category
 from spam.model import Project, Scene, Shot, Asset, Libgroup, Journal, Note
@@ -8,47 +9,68 @@ from spam.model import Project, Scene, Shot, Asset, Libgroup, Journal, Note
 import logging
 log = logging.getLogger(__name__)
 
-TOPIC_USERS = config.get('stomp_topic_users', '/topic/users')
-TOPIC_GROUPS = config.get('stomp_topic_groups', '/topic/groups')
-TOPIC_CATEGORIES = config.get('stomp_topic_categories', '/topic/categories')
-TOPIC_PROJECTS = config.get('stomp_topic_projects', '/topic/projects')
-TOPIC_SCENES = config.get('stomp_topic_scenes', '/topic/scenes')
-TOPIC_SHOTS = config.get('stomp_topic_shots', '/topic/shots')
-TOPIC_ASSETS = config.get('stomp_topic_assets', '/topic/assets')
-TOPIC_LIBGROUPS = config.get('stomp_topic_libgroups', '/topic/libgroups')
-TOPIC_PROJECT_ADMINS = config.get(
-                        'stomp_topic_project_admins', '/topic/project_admins')
-TOPIC_PROJECT_SUPERVISORS = config.get(
-                'stomp_topic_project_supervisors', '/topic/project_supervisors')
-TOPIC_PROJECT_ARTISTS = config.get(
-                'stomp_topic_project_artists', '/topic/project_artists')
-TOPIC_JOURNAL = config.get('stomp_topic_journal', '/topic/journal')
-TOPIC_NOTES = config.get('stomp_topic_notesl', '/topic/notes')
-
-
 class StompClient(object):
     def __init__(self):
         self.connection = None
-        self.topics = {User: TOPIC_USERS,
-                       Category: TOPIC_CATEGORIES,
-                       Project: TOPIC_PROJECTS,
-                       Scene: TOPIC_SCENES,
-                       Shot: TOPIC_SHOTS,
-                       Asset: TOPIC_ASSETS,
-                       Libgroup: TOPIC_LIBGROUPS,
-                       Journal: TOPIC_JOURNAL,
-                       Note: TOPIC_NOTES,
+    
+    def _setup_config(self):
+        self.ORBITED_AUTOSTART = config.get('orbited_autostart', False)
+        self.ORBITED_CONFIG = config.get('orbited_config', 'orbited.cfg')
+
+        self.TOPIC_USERS = config.get('stomp_topic_users', '/topic/users')
+        self.TOPIC_GROUPS = config.get('stomp_topic_groups', '/topic/groups')
+        self.TOPIC_CATEGORIES = config.get('stomp_topic_categories',
+                                           '/topic/categories')
+        self.TOPIC_PROJECTS = config.get('stomp_topic_projects',
+                                         '/topic/projects')
+        self.TOPIC_SCENES = config.get('stomp_topic_scenes', '/topic/scenes')
+        self.TOPIC_SHOTS = config.get('stomp_topic_shots', '/topic/shots')
+        self.TOPIC_ASSETS = config.get('stomp_topic_assets', '/topic/assets')
+        self.TOPIC_LIBGROUPS = config.get('stomp_topic_libgroups',
+                                          '/topic/libgroups')
+        self.TOPIC_PROJECT_ADMINS = config.get('stomp_topic_project_admins',
+                                               '/topic/project_admins')
+        self.TOPIC_PROJECT_SUPERVISORS = config.get(
+                                            'stomp_topic_project_supervisors',
+                                            '/topic/project_supervisors')
+        self.TOPIC_PROJECT_ARTISTS = config.get('stomp_topic_project_artists',
+                                                '/topic/project_artists')
+        self.TOPIC_JOURNAL = config.get('stomp_topic_journal', '/topic/journal')
+        self.TOPIC_NOTES = config.get('stomp_topic_notesl', '/topic/notes')
+
+        self.topics = {User: self.TOPIC_USERS,
+                       Category: self.TOPIC_CATEGORIES,
+                       Project: self.TOPIC_PROJECTS,
+                       Scene: self.TOPIC_SCENES,
+                       Shot: self.TOPIC_SHOTS,
+                       Asset: self.TOPIC_ASSETS,
+                       Libgroup: self.TOPIC_LIBGROUPS,
+                       Journal: self.TOPIC_JOURNAL,
+                       Note: self.TOPIC_NOTES,
                       }
     
+    # adapted from orbited start.py main()
+    def _start_orbited(self):
+        log.debug('_start_orbited()')
+        oldargv = sys.argv[:]
+        sys.argv[1:] = ['--config', self.ORBITED_CONFIG]
+        orbited.start.main()
+        sys.argv = oldargv
+
     def _start_connection(self):
+        log.debug('_start_connection()')
         self.connection = stomp.Connection()
         self.connection.start()
         self.connection.connect()
 
     def connect(self):
         """start the connection in a non-blocking thread"""
-        self.thread = threading.Thread(None, self._start_connection)
-        self.thread.start()
+        self._setup_config()
+        if self.ORBITED_AUTOSTART in [True, 'True', 'true']:
+            self.thread_orbited = threading.Thread(None, self._start_orbited)
+            self.thread_orbited.start()
+        self.thread_connect = threading.Thread(None, self._start_connection)
+        self.thread_connect.start()
     
     def send(self, instance, update_type="updated", destination=None, **kwargs):
         """Send a message to the stomp server.
