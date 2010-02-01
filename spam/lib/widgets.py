@@ -363,17 +363,19 @@ class TableLibgroups(LiveTable):
                 StatusIcon(id='item_status', label_text='%(item_name)s: %(item_status)s')
             ])
         ])
-        actions = Box(fields=[
-            Button(id='edit',
-              action=url('/libgroup/%(proj_id)s/%(id)s/edit'),
-              fields=[Icon(id='edit', icon_class='edit',
-                label_text=_('edit')),
-            ]),
-            Button(id='delete',
-              action=url('/libgroup/%(proj_id)s/%(id)s/delete'),
-              fields=[Icon(id='delete', icon_class='delete',
-                label_text=_('delete')),
-            ]),
+        actions = Box(
+            condition='$.inArray(data.user_id, data.project.admin_ids)>=0',
+            fields=[
+              Button(id='edit',
+                action=url('/libgroup/%(proj_id)s/%(id)s/edit'),
+                fields=[Icon(id='edit', icon_class='edit',
+                  label_text=_('edit')),
+              ]),
+              Button(id='delete',
+                action=url('/libgroup/%(proj_id)s/%(id)s/delete'),
+                fields=[Icon(id='delete', icon_class='delete',
+                  label_text=_('delete')),
+              ]),
         ])
     
     def update_params(self, d):

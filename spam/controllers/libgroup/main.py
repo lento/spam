@@ -69,9 +69,11 @@ class Controller(RestController):
         :meth:`spam.controllers.project.main.get_one`.
         """
         project = tmpl_context.project
+        user = tmpl_context.user
         tmpl_context.t_libgroups = t_libgroups
+        extra_data = dict(project=project, user_id=user.user_id)
         return dict(page='libgroups', sidebar=('projects', project.id),
-                                    libgroups=project.libgroups, parent_id=None)
+            libgroups=project.libgroups, parent_id=None, extra_data=extra_data)
 
     @expose('spam.templates.libgroup.get_all')
     def default(self, proj, *args, **kwargs):
