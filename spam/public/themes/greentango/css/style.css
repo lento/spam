@@ -10,6 +10,7 @@ common colors from the tango palette:
 #4e9a06; / * Chameleon 3 * /
 #f6f6f4; / * Aluminium 0 * /
 #eeeeec; / * Aluminium 1 * /
+#d3d7cf; / * Aluminium 2 * /
 #babdb6; / * Aluminium 3 * /
 #888a85; / * Aluminium 4 * /
 #555753; / * Aluminium 5 * /
@@ -171,10 +172,12 @@ body {
 table {
     /*border: 1px solid black;*/
     width: 100%;
+    border-spacing: 2px;
 }
 
 table td {
     vertical-align: top;
+    background-color: #f6f6f4; /* Aluminium 0 */
 }
 
 table td.icon {

@@ -56,7 +56,7 @@ class StatusIcon(LiveWidget):
     params = ['icon_class']
     template = 'mako:spam.templates.widgets.statusicon'
     
-    field_class = 'statusicon'
+    field_class = 'lw_status'
     show_header = False
     sortable = False
 
