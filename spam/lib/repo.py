@@ -48,6 +48,7 @@ def commit_single(proj, asset, filename, text, username=None):
         raise SPAMRepoError('expected a single file for asset %s' % asset.id)
 
     text = 'asset %s - %s' % (asset.id, text)
+    encodedtext = text.encode('utf-8')
     targets = []
     
     uploadedfile = os.path.join(G.UPLOAD, filename)
@@ -63,7 +64,7 @@ def commit_single(proj, asset, filename, text, username=None):
     targets.append(target_path)
     
     matched = match.exact(repo.root, repo.getcwd(), targets)
-    commit_id = repo.commit(text, user=username, match=matched)
+    commit_id = repo.commit(encodedtext, user=username, match=matched)
     if commit_id:
         return repo[commit_id].hex()
     else:
@@ -77,6 +78,7 @@ def commit_multi(proj, asset, filenames, text, username=None):
         raise SPAMRepoError('expected a list of files for asset %s' % asset.id)
 
     text = 'asset %s - %s' % (asset.id, text)
+    encodedtext = text.encode('utf-8')
     target_sequence_path = asset.path.replace('#', '%04d')
     targets = []
     
@@ -95,7 +97,7 @@ def commit_multi(proj, asset, filenames, text, username=None):
         targets.append(target_path)
         
     matched = match.exact(repo.root, repo.getcwd(), targets)
-    commit_id = repo.commit(text, user=username, match=matched)
+    commit_id = repo.commit(encodedtext, user=username, match=matched)
     if commit_id:
         return repo[commit_id].hex()
     else:
