@@ -265,10 +265,13 @@ class Controller(RestController):
         This page is used as the `subgroups` tab in the libgroup view:
         :meth:`spam.controllers.libgroup.main.get_one`.
         """
-        tmpl_context.t_libgroups = t_libgroups
         project = tmpl_context.project
+        user = tmpl_context.user
         parent = libgroup_get(proj, parent_id)
+        tmpl_context.t_libgroups = t_libgroups
         tmpl_context.parent = parent
-        return dict(libgroups=parent.subgroups, parent_id=parent_id)
+        extra_data = dict(project=project, user_id=user.user_id)
+        return dict(libgroups=parent.subgroups, parent_id=parent_id,
+                                                        extra_data=extra_data)
 
 
