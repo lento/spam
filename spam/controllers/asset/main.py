@@ -77,7 +77,6 @@ class Controller(RestController):
         tmpl_context.b_status = b_status
         tmpl_context.j_notify_client = j_notify_client
         container = container_get(proj, container_type, container_id)
-        query = session_get().query(Category)
         
         return dict(page='assets', sidebar=('projects', project.id),
                 container_type=container_type, container_id=container_id,
@@ -272,7 +271,7 @@ class Controller(RestController):
 
 
     @project_set_active
-    @require(is_project_admin())
+    @require(is_project_user())
     @expose('spam.templates.forms.form')
     def get_publish(self, proj, asset_id, **kwargs):
         """Display a PUBLISH form."""
@@ -291,7 +290,7 @@ class Controller(RestController):
                                         args=fargs, child_args=fcargs)
 
     @project_set_active
-    @require(is_project_admin())
+    @require(is_project_user())
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_publish, error_handler=get_publish)
@@ -347,7 +346,7 @@ class Controller(RestController):
                                                                 version=newver)
 
     @project_set_active
-    @require(is_project_admin())
+    @require(is_project_user())
     @expose('spam.templates.forms.form')
     def get_submit(self, proj, asset_id, **kwargs):
         """Display a SUBMIT form."""
@@ -366,7 +365,7 @@ class Controller(RestController):
                                                 args=fargs, child_args=fcargs)
 
     @project_set_active
-    @require(is_project_admin())
+    @require(is_project_user())
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_status, error_handler=get_submit)
@@ -395,7 +394,7 @@ class Controller(RestController):
                                                             result='failed')
     
     @project_set_active
-    @require(is_project_admin())
+    @require(is_project_user())
     @expose('spam.templates.forms.form')
     def get_recall(self, proj, asset_id, **kwargs):
         """Display a RECALL form."""
@@ -414,7 +413,7 @@ class Controller(RestController):
                                                 args=fargs, child_args=fcargs)
 
     @project_set_active
-    @require(is_project_admin())
+    @require(is_project_user())
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_status, error_handler=get_submit)

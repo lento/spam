@@ -885,6 +885,14 @@ class Asset(DeclarativeBase):
         else:
             return 'idle'
     
+    @property
+    def supervisors(self):
+        return self.project.supervisors[self.category]
+    
+    @property
+    def artists(self):
+        return self.project.artists[self.category]
+    
     # Methods
     def has_tags(self, tag_ids):
         return self.taggable.has_tags(tag_ids)
@@ -951,7 +959,11 @@ class Asset(DeclarativeBase):
                     checkedout=self.checkedout,
                     submitted=self.submitted,
                     approved=self.approved,
+                    owner_id=self.owner_id,
                     owner=self.owner,
+                    owner_user_name=self.owner and self.owner.user_name or None,
+                    owner_display_name=(self.owner and self.owner.display_name
+                                                                    or None),
                     path=self.path,
                     current=self.current,
                     current_id=self.current.id,
@@ -964,6 +976,8 @@ class Asset(DeclarativeBase):
                     is_sequence=self.is_sequence,
                     thumbnail=self.thumbnail,
                     has_preview=self.has_preview,
+                    supervisor_ids=[u.user_id for u in self.supervisors],
+                    artist_ids=[u.user_id for u in self.artists],
                     #'repopath': self.repopath,
                     #'basedir': self.basedir,
                     #'repobasedir': self.repobasedir,

@@ -393,7 +393,14 @@ class TableAssets(LiveTable):
                 src=url('/repo/%(thumbnail)s'))
             ])
         ])
-        name = Text(sort_default=True)
+        name = Box(fields=[
+            Text(id='name', sort_default=True),
+            Text(id='owner_id', field_class='owner',
+              condition='data.checkedout',
+              text='%s: %s' % (_('checkedout by'), '%(owner_user_name)s'),
+              label_text='%(owner_id)s (%(owner_display_name)s)',
+              )
+        ])
         current_fmtver = Text(label_text=_('version'))
         status = StatusIcon(icon_class='asset', label_text=_('status: '))
         note = Box(fields=[
@@ -414,55 +421,74 @@ class TableAssets(LiveTable):
                 label_text=_('add note')),
             ]),
             Button(id='checkout',
-              condition='!data.checkedout && !data.approved',
+              condition=('!data.checkedout && !data.approved '
+                         '&& ($.inArray(data.user_id, data.supervisor_ids)>=0 '
+                         '|| $.inArray(data.user_id, data.artist_ids)>=0)'),
               action=url('/asset/%(proj_id)s/%(id)s/checkout'),
               fields=[Icon(id='checkout', icon_class='checkout',
                 label_text=_('checkout')),
             ]),
             Button(id='release',
-              condition='data.checkedout && !data.submitted && !data.approved',
+              condition=('data.checkedout && !data.submitted && !data.approved '
+                         '&& (data.user_id==data.owner_id '
+                         '|| $.inArray(data.user_id, data.supervisor_ids)>=0)'),
               action=url('/asset/%(proj_id)s/%(id)s/release'),
               fields=[Icon(id='release', icon_class='release',
                 label_text=_('release')),
             ]),
             Button(id='publish',
-              condition='data.checkedout',
+              condition=('data.checkedout '
+                         '&& data.user_id==data.owner_id'),
               action=url('/asset/%(proj_id)s/%(id)s/publish'),
               fields=[Icon(id='publish', icon_class='publish',
                 label_text=_('publish a new version')),
             ]),
             Button(id='submit', icon_class='submit',
-              condition='data.checkedout && data.current_ver>0 '
-                        '&& !data.submitted && !data.approved',
+              condition=('data.checkedout && data.current_ver>0 '
+                         '&& !data.submitted && !data.approved '
+                         '&& data.user_id==data.owner_id'),
               action=url('/asset/%(proj_id)s/%(id)s/submit'),
               fields=[Icon(id='submit', icon_class='submit',
                 label_text=_('submit for approval')),
             ]),
             Button(id='recall',
-              condition='data.submitted && !(data.approved)',
+              condition=('data.submitted && !data.approved '
+                         '&& data.user_id==data.owner_id'),
               action=url('/asset/%(proj_id)s/%(id)s/recall'),
               fields=[Icon(id='recall', icon_class='recall',
                 label_text=_('recall submission')),
             ]),
             Button(id='sendback',
-              condition='data.submitted && !(data.approved)',
+              condition=('data.submitted && !data.approved '
+                         '&& $.inArray(data.user_id, data.supervisor_ids)>=0'),
               action=url('/asset/%(proj_id)s/%(id)s/sendback'),
               fields=[Icon(id='sendback', icon_class='sendback',
                 label_text=_('send back for revisions')),
             ]),
             Button(id='approve',
-              condition='data.submitted && !(data.approved)',
+              condition=('data.submitted && !data.approved '
+                         '&& $.inArray(data.user_id, data.supervisor_ids)>=0'),
               action=url('/asset/%(proj_id)s/%(id)s/approve'),
               fields=[Icon(id='approve', icon_class='approve',
                 label_text=_('approve')),
             ]),
             Button(id='revoke',
-              condition='data.approved',
+              condition=('data.approved '
+                         '&& $.inArray(data.user_id, data.supervisor_ids)>=0'),
               action=url('/asset/%(proj_id)s/%(id)s/revoke'),
               fields=[Icon(id='revoke', icon_class='revoke',
                 label_text=_('revoke approval')),
             ]),
+            Link(id='download_link',
+              condition='data.current_ver && data.current_ver>0',
+              dest=url('/asset/%(proj_id)s/%(current_id)s/download'),
+              fields=[
+                Icon(id='download', icon_class='download',
+                  label_text=_('download'),
+                )
+            ]),
             Button(id='delete',
+              condition='$.inArray(data.user_id, data.supervisor_ids)>=0',
               action=url('/asset/%(proj_id)s/%(id)s/delete'),
               fields=[Icon(id='delete', icon_class='delete',
                 label_text=_('delete')),

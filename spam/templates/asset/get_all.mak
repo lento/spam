@@ -18,7 +18,8 @@
         <div class="toggleable">
             ${c.t_assets(id="assets_%s_%s_%s" % (container_type, container_id, cat.id),
                          items=container.assets[cat], category=cat.id,
-                         update_listener_adder="notify.add_listener_tab") | n}
+                         update_listener_adder="notify.add_listener_tab",
+                         extra_data=dict(user_id=c.user.id)) | n}
         </div>
     </div>
 % endfor
