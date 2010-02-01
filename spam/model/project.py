@@ -301,6 +301,10 @@ class Project(DeclarativeBase):
         return [u.user_id for u in self.users]
 
     @property
+    def admin_ids(self):
+        return [u.user_id for u in self.admins]
+
+    @property
     def schema_is_uptodate(self):
         proj_version = db_get_version(self.id)
         repo_version = migraterepo_get_version()
@@ -336,6 +340,7 @@ class Project(DeclarativeBase):
                     modified=self.modified.strftime('%Y/%m/%d %H:%M'),
                     archived=self.archived,
                     schema_is_uptodate=self.schema_is_uptodate,
+                    admin_ids=self.admin_ids,
                     user_ids=self.user_ids,
                    )
 
@@ -887,11 +892,13 @@ class Asset(DeclarativeBase):
     
     @property
     def supervisors(self):
-        return self.project.supervisors[self.category]
+        return (set(self.project.supervisors[self.category]) |
+                set(self.project.admins))
     
     @property
     def artists(self):
-        return self.project.artists[self.category]
+        return (set(self.project.artists[self.category]) |
+                set(self.project.admins))
     
     # Methods
     def has_tags(self, tag_ids):
@@ -952,6 +959,7 @@ class Asset(DeclarativeBase):
         return dict(id=self.id,
                     name=self.name,
                     proj_id=self.proj_id,
+                    project=self.project,
                     parent_id=self.parent_id,
                     parent=self.parent,
                     category=self.category,
@@ -959,8 +967,8 @@ class Asset(DeclarativeBase):
                     checkedout=self.checkedout,
                     submitted=self.submitted,
                     approved=self.approved,
-                    owner_id=self.owner_id,
                     owner=self.owner,
+                    owner_id=self.owner and self.owner.user_id or None,
                     owner_user_name=self.owner and self.owner.user_name or None,
                     owner_display_name=(self.owner and self.owner.display_name
                                                                     or None),

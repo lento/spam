@@ -488,7 +488,7 @@ class TableAssets(LiveTable):
                 )
             ]),
             Button(id='delete',
-              condition='$.inArray(data.user_id, data.supervisor_ids)>=0',
+              condition='$.inArray(data.user_id, data.project.admin_ids)>=0',
               action=url('/asset/%(proj_id)s/%(id)s/delete'),
               fields=[Icon(id='delete', icon_class='delete',
                 label_text=_('delete')),

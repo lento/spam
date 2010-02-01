@@ -1,10 +1,12 @@
 <%inherit file="spam.templates.tab"/>
 
+% if c.predicates.is_project_admin():
 <a href="${tg.url('/asset/%s/%s/%s/new' % (c.project.id, container_type, container_id))}"
    rel="#overlay" class="overlay button">new asset</a>
+<br/>
+<br/>
+% endif
 
-<br/>
-<br/>
 % for cat in container.categories:
     <div id="${'toggle_%s' % cat.id}" class="toggle ${len(container.assets[cat])==0 and 'hidden' or ''}">
         <div class="toggle_header title">

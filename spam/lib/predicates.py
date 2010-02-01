@@ -15,7 +15,7 @@ class is_project_user(Predicate):
     def evaluate(self, environ, credentials):
         if hasattr(tmpl_context, 'user') and hasattr(tmpl_context, 'project'):
             userid = credentials.get('repoze.what.userid')
-            if tmpl_context.project in tmpl_context.user.projects:
+            if tmpl_context.user in tmpl_context.project.users:
                 return
             if in_group('administrators'):
                 return
@@ -33,9 +33,68 @@ class is_project_admin(Predicate):
     def evaluate(self, environ, credentials):
         if hasattr(tmpl_context, 'user') and hasattr(tmpl_context, 'project'):
             userid = credentials.get('repoze.what.userid')
-            if tmpl_context.project in tmpl_context.user.projects_as_admin:
+            if tmpl_context.user in tmpl_context.project.admins:
                 return
-            if in_group('administrators'):
+            elif in_group('administrators'):
+                return
+        self.unmet()
+
+class is_asset_supervisor(Predicate):
+    """Predicate for checking whether the visitor is a supervisor for the
+    given asset.
+    
+    This predicate requires "project_set_active" and "asset_set_active"
+    decorators earlier in the stack, because it relies on tmpl_context.project
+    and tmpl_context.asset to be set.
+    """
+    message = (u'The user must be registered as "supervisor"')
+
+    def evaluate(self, environ, credentials):
+        if hasattr(tmpl_context, 'user') and hasattr(tmpl_context, 'project'):
+            userid = credentials.get('repoze.what.userid')
+            if tmpl_context.user in tmpl_context.asset.supervisors:
+                return
+            elif tmpl_context.user in tmpl_context.project.admins:
+                return
+            elif in_group('administrators'):
+                return
+        self.unmet()
+
+class is_asset_artist(Predicate):
+    """Predicate for checking whether the visitor is an artist for the given
+    asset.
+    
+    This predicate requires "project_set_active" and "asset_set_active"
+    decorators earlier in the stack, because it relies on tmpl_context.project
+    and tmpl_context.asset to be set.
+    """
+    message = (u'The user must be registered as "artist"')
+
+    def evaluate(self, environ, credentials):
+        if hasattr(tmpl_context, 'user') and hasattr(tmpl_context, 'project'):
+            userid = credentials.get('repoze.what.userid')
+            if tmpl_context.user in tmpl_context.asset.artist:
+                return
+            elif tmpl_context.user in tmpl_context.project.admins:
+                return
+            elif in_group('administrators'):
+                return
+        self.unmet()
+
+class is_asset_owner(Predicate):
+    """Predicate for checking whether the visitor is the owner of the given
+    asset.
+    
+    This predicate requires "project_set_active" and "asset_set_active"
+    decorators earlier in the stack, because it relies on tmpl_context.project
+    and tmpl_context.asset to be set.
+    """
+    message = (u'The user must be the owner')
+
+    def evaluate(self, environ, credentials):
+        if hasattr(tmpl_context, 'user') and hasattr(tmpl_context, 'project'):
+            userid = credentials.get('repoze.what.userid')
+            if tmpl_context.user is tmpl_context.asset.owner:
                 return
         self.unmet()
 

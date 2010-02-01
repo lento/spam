@@ -37,8 +37,11 @@ from spam.lib.widgets import TableAssets, TableAssetHistory, NotifyClientJS
 from spam.lib import repo, preview
 from spam.lib.notifications import notify
 from spam.lib.journaling import journal
-from spam.lib.decorators import project_set_active
+from spam.lib.decorators import project_set_active, asset_set_active
+from repoze.what.predicates import Any
 from spam.lib.predicates import is_project_user, is_project_admin
+from spam.lib.predicates import is_asset_supervisor, is_asset_artist
+from spam.lib.predicates import is_asset_owner
 
 import logging
 log = logging.getLogger(__name__)
@@ -222,7 +225,8 @@ class Controller(RestController):
                       'sendback', 'approve', 'revoke', 'download']
 
     @project_set_active
-    @require(is_project_user())
+    @asset_set_active
+    @require(Any(is_asset_supervisor(), is_asset_artist()))
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_confirm)
@@ -232,6 +236,7 @@ class Controller(RestController):
         The asset will be blocked and only the current owner will be able to
         publish new versions until it is released.
         """
+        session = session_get()
         asset = asset_get(proj, asset_id)
         user = tmpl_context.user
         
@@ -247,7 +252,8 @@ class Controller(RestController):
 
 
     @project_set_active
-    @require(is_project_user())
+    @asset_set_active
+    @require(Any(is_asset_owner(), is_asset_supervisor()))
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_confirm)
@@ -271,7 +277,8 @@ class Controller(RestController):
 
 
     @project_set_active
-    @require(is_project_user())
+    @asset_set_active
+    @require(is_asset_owner())
     @expose('spam.templates.forms.form')
     def get_publish(self, proj, asset_id, **kwargs):
         """Display a PUBLISH form."""
@@ -290,7 +297,8 @@ class Controller(RestController):
                                         args=fargs, child_args=fcargs)
 
     @project_set_active
-    @require(is_project_user())
+    @asset_set_active
+    @require(is_asset_owner())
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_publish, error_handler=get_publish)
@@ -346,7 +354,8 @@ class Controller(RestController):
                                                                 version=newver)
 
     @project_set_active
-    @require(is_project_user())
+    @asset_set_active
+    @require(is_asset_owner())
     @expose('spam.templates.forms.form')
     def get_submit(self, proj, asset_id, **kwargs):
         """Display a SUBMIT form."""
@@ -365,7 +374,8 @@ class Controller(RestController):
                                                 args=fargs, child_args=fcargs)
 
     @project_set_active
-    @require(is_project_user())
+    @asset_set_active
+    @require(is_asset_owner())
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_status, error_handler=get_submit)
@@ -394,7 +404,8 @@ class Controller(RestController):
                                                             result='failed')
     
     @project_set_active
-    @require(is_project_user())
+    @asset_set_active
+    @require(is_asset_owner())
     @expose('spam.templates.forms.form')
     def get_recall(self, proj, asset_id, **kwargs):
         """Display a RECALL form."""
@@ -413,7 +424,8 @@ class Controller(RestController):
                                                 args=fargs, child_args=fcargs)
 
     @project_set_active
-    @require(is_project_user())
+    @asset_set_active
+    @require(is_asset_owner())
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_status, error_handler=get_submit)
@@ -442,7 +454,8 @@ class Controller(RestController):
                                                     asset.path, result='failed')
 
     @project_set_active
-    @require(is_project_admin())
+    @asset_set_active
+    @require(is_asset_supervisor())
     @expose('spam.templates.forms.form')
     def get_sendback(self, proj, asset_id, **kwargs):
         """Display a SENDBACK form."""
@@ -461,7 +474,8 @@ class Controller(RestController):
                                     asset.path, args=fargs, child_args=fcargs)
 
     @project_set_active
-    @require(is_project_admin())
+    @asset_set_active
+    @require(is_asset_supervisor())
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_status, error_handler=get_submit)
@@ -490,7 +504,8 @@ class Controller(RestController):
                                                     asset.path, result='failed')
 
     @project_set_active
-    @require(is_project_admin())
+    @asset_set_active
+    @require(is_asset_supervisor())
     @expose('spam.templates.forms.form')
     def get_approve(self, proj, asset_id, **kwargs):
         """Display a APPROVE form."""
@@ -509,7 +524,8 @@ class Controller(RestController):
                                                 args=fargs, child_args=fcargs)
 
     @project_set_active
-    @require(is_project_admin())
+    @asset_set_active
+    @require(is_asset_supervisor())
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_status, error_handler=get_submit)
@@ -538,7 +554,8 @@ class Controller(RestController):
                                                             result='failed')
 
     @project_set_active
-    @require(is_project_admin())
+    @asset_set_active
+    @require(is_asset_supervisor())
     @expose('spam.templates.forms.form')
     def get_revoke(self, proj, asset_id, **kwargs):
         """Display a REVOKE form."""
@@ -557,7 +574,8 @@ class Controller(RestController):
                                                 args=fargs, child_args=fcargs)
 
     @project_set_active
-    @require(is_project_admin())
+    @asset_set_active
+    @require(is_asset_supervisor())
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_status, error_handler=get_submit)
