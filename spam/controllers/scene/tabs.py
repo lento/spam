@@ -51,10 +51,15 @@ class TabController(SPAMBaseController):
         
         This tab offers a quick view on the current status of the scene.
         """
+        project = tmpl_context.project
+        user = tmpl_context.user
+        scene = tmpl_context.scene
         tmpl_context.b_shots_status = b_shots_status
         tmpl_context.b_tags = b_tags
         tmpl_context.t_notes = t_notes
-        scene = tmpl_context.scene
-        tag_extra_data = dict(taggable_id=scene.id)
-        return dict(tag_extra_data=tag_extra_data)
+        tag_extra_data = dict(taggable_id=scene.id, user_id=user.user_id,
+                                                                project=project)
+        note_extra_data = dict(user_id=user.user_id)
+        return dict(tag_extra_data=tag_extra_data,
+                                                note_extra_data=note_extra_data)
 

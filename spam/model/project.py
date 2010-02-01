@@ -245,6 +245,10 @@ class Note(DeclarativeBase):
     def lines(self):
         return [dict(line=l) for l in self.text.split('\n')]
     
+    @property
+    def project(self):
+        return self.annotable.annotated.project
+    
     # Special methods
     def __init__(self, user, text):
         self.created = datetime.now()
@@ -260,6 +264,7 @@ class Note(DeclarativeBase):
 
     def __json__(self):
         return dict(id=self.id,
+                    project=self.project,
                     user=self.user,
                     user_name=self.user.user_name,
                     created=self.created,

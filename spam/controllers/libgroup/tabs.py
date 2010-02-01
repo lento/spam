@@ -52,15 +52,19 @@ class TabController(SPAMBaseController):
         
         This tab offers a quick view on the current status of the libgroup.
         """
+        project = tmpl_context.project
+        user = tmpl_context.user
+        libgroup = tmpl_context.libgroup
         tmpl_context.b_libgroups_status = b_libgroups_status
         tmpl_context.b_categories_status = b_categories_status
         tmpl_context.b_tags = b_tags
         tmpl_context.t_notes = t_notes
-        libgroup = tmpl_context.libgroup
         cat_extra_data = dict(proj_id=libgroup.proj_id,
                             container_type='libgroup', container_id=libgroup.id)
-        tag_extra_data = dict(taggable_id=libgroup.id)
+        tag_extra_data = dict(taggable_id=libgroup.id, user_id=user.user_id,
+                                                                project=project)
+        note_extra_data = dict(user_id=user.user_id)
         return dict(cat_extra_data=cat_extra_data,
-                                                tag_extra_data=tag_extra_data)
+                note_extra_data=note_extra_data, tag_extra_data=tag_extra_data)
 
 

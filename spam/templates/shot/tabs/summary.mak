@@ -8,8 +8,10 @@ ${c.b_categories_status(id="status_%s" % c.shot.id, items=c.shot.categories,
 <br/>
 
 <h2>${_('tags')}</h2>
+% if c.predicates.is_project_admin():
 <a href="${tg.url('/tag/%s/new' % c.shot.id)}"
    rel="#overlay" class="overlay button">add tags</a>
+% endif
 ${c.b_tags(id="taglist", items=c.shot.tags,
                     taggable_id=c.shot.taggable.id,
                     extra_data=tag_extra_data,
@@ -18,9 +20,12 @@ ${c.b_tags(id="taglist", items=c.shot.tags,
 <br/>
 
 <h2>${_('notes')}</h2>
+% if c.predicates.is_project_admin():
 <a href="${tg.url('/note/%s/new' % c.shot.id)}"
    rel="#overlay" class="overlay button">add note</a>
+% endif
 ${c.t_notes(id="notestable", items=c.shot.notes,
                     annotable_id=c.shot.annotable.id,
+                    extra_data=note_extra_data,
                     update_listener_adder="notify.add_listener_tab") | n}
 

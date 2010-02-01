@@ -555,19 +555,21 @@ class TableNotes(LiveTable):
         lines = Box(fields=[
             Text(id='text', label_text='')
         ])
-        actions = Box(fields=[
-            Button(id='pin',
-              condition='!data.sticky',
-              action=url('/note/%(id)s/pin'),
-              fields=[Icon(id='pin', icon_class='pin',
-                label_text=_('pin note')),
-            ]),
-            Button(id='unpin',
-              condition='data.sticky',
-              action=url('/note/%(id)s/unpin'),
-              fields=[Icon(id='unpin', icon_class='unpin',
-                label_text=_('un-pin note')),
-            ]),
+        actions = Box(
+            condition='$.inArray(data.user_id, data.project.admin_ids)>=0',
+            fields=[
+              Button(id='pin',
+                condition='!data.sticky',
+                action=url('/note/%(id)s/pin'),
+                fields=[Icon(id='pin', icon_class='pin',
+                  label_text=_('pin note')),
+              ]),
+              Button(id='unpin',
+                condition='data.sticky',
+                action=url('/note/%(id)s/unpin'),
+                fields=[Icon(id='unpin', icon_class='unpin',
+                  label_text=_('un-pin note')),
+              ]),
         ])
     
     def update_params(self, d):
@@ -605,6 +607,7 @@ class BoxTags(LiveBox):
         id = Box(fields=[
             Text(id='id', label_text=''),
             Button(id='remove',
+              condition='$.inArray(data.user_id, data.project.admin_ids)>=0',
               action=url('/tag/%(taggable_id)s/%(id)s/remove'),
               fields=[Icon(id='remove', icon_class='delete',
                 label_text=_('remove')),

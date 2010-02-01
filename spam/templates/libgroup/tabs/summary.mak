@@ -20,8 +20,10 @@
 % endif
 
 <h2>${_('tags')}</h2>
+% if c.predicates.is_project_admin():
 <a href="${tg.url('/tag/%s/new' % c.libgroup.id)}"
    rel="#overlay" class="overlay button">add tags</a>
+% endif
 ${c.b_tags(id="taglist", items=c.libgroup.tags,
                     taggable_id=c.libgroup.taggable.id,
                     extra_data=tag_extra_data,
@@ -30,9 +32,12 @@ ${c.b_tags(id="taglist", items=c.libgroup.tags,
 <br/>
 
 <h2>${_('notes')}</h2>
+% if c.predicates.is_project_admin():
 <a href="${tg.url('/note/%s/new' % c.libgroup.id)}"
    rel="#overlay" class="overlay button">add note</a>
+% endif
 ${c.t_notes(id="notestable", items=c.libgroup.notes,
                     annotable_id=c.libgroup.annotable.id,
+                    extra_data=note_extra_data,
                     update_listener_adder="notify.add_listener_tab") | n}
 

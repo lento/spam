@@ -52,13 +52,17 @@ class TabController(SPAMBaseController):
         
         This tab offers a quick view on the current status of the shot.
         """
+        project = tmpl_context.project
+        user = tmpl_context.user
+        shot = tmpl_context.shot
         tmpl_context.b_categories_status = b_categories_status
         tmpl_context.b_tags = b_tags
         tmpl_context.t_notes = t_notes
-        shot = tmpl_context.shot
         cat_extra_data = dict(proj_id=shot.proj_id, container_type='shot',
                                                         container_id=shot.id)
-        tag_extra_data = dict(taggable_id=shot.id)
+        tag_extra_data = dict(taggable_id=shot.id, user_id=user.user_id,
+                                                                project=project)
+        note_extra_data = dict(user_id=user.user_id)
         return dict(cat_extra_data=cat_extra_data,
-                                                tag_extra_data=tag_extra_data)
+                note_extra_data=note_extra_data, tag_extra_data=tag_extra_data)
 
