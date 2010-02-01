@@ -488,7 +488,7 @@ class TableAssetHistory(LiveTable):
             Text(id='header', field_class='note_header',
               label_text=''),
             Box(id='lines', fields=[
-                Text(id='text', label_text='')
+                Text(id='item_line', label_text='')
             ]),
         ])
         actions = Box(fields=[

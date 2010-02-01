@@ -243,7 +243,7 @@ class Note(DeclarativeBase):
     
     @property
     def lines(self):
-        return [dict(text=l) for l in self.text.split('\n')]
+        return [dict(line=l) for l in self.text.split('\n')]
     
     # Special methods
     def __init__(self, user, text):
