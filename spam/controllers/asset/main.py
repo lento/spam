@@ -318,8 +318,10 @@ class Controller(RestController):
             uploaded = [uploaded]
         
         # commit file to repo
-        text = u'[published %s v%03d]\n%s' % (asset.path, asset.current.ver+1,
-                                                                comment or '')
+        if comment is None or comment=='None':
+            comment = ''
+        header = u'[published %s v%03d]' % (asset.path, asset.current.ver+1)
+        text = comment and u'%s\n%s' % (header, comment) or header
         repo_id = repo.commit(proj, asset, uploaded, text, user.user_name)
         if not repo_id:
             return dict(msg='%s is already the latest version' %
