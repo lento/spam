@@ -324,7 +324,9 @@ class TableShots(LiveTable):
                 StatusIcon(id='item_status', label_text='%(item_name)s: %(item_status)s')
             ])
         ])
-        actions = Box(fields=[
+        actions = Box(
+            condition='$.inArray(data.user_id, data.project.admin_ids)>=0',
+            fields=[
             Button(id='edit',
               action=url('/shot/%(proj_id)s/%(parent_name)s/%(name)s/edit'),
               fields=[Icon(id='edit', icon_class='edit',

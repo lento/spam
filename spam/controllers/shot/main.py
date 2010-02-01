@@ -56,7 +56,7 @@ class Controller(RestController):
     
     @project_set_active
     @require(is_project_user())
-    @expose('spam.templates.scene.tabs.shots')
+    @expose('spam.templates.shot.get_all')
     def get_all(self, proj, sc):
         """Return a `tab` page with a list of shots for a scene and a button to
         add new shots.
@@ -64,13 +64,16 @@ class Controller(RestController):
         This page is used as the `shots` tab in the scene view:
         :meth:`spam.controllers.scene.main.get_one`.
         """
+        project = tmpl_context.project
+        user = tmpl_context.user
         scene = scene_get(proj, sc)
         tmpl_context.scene = scene
         tmpl_context.t_shots = t_shots
+        extra_data = dict(project=project, user_id=user.user_id)
         return dict(page='shot', sidebar=('projects', scene.project.id),
-                                                            shots=scene.shots)
+                                    shots=scene.shots, extra_data=extra_data)
 
-    @expose('spam.templates.scene.tabs.shots')
+    @expose('spam.templates.shot.get_all')
     def default(self, proj, sc, *args, **kwargs):
         """Catch request to `shot/<something>' and pass them to :meth:`get_all`,
         because RESTController doesn't dispatch to get_all when there are
