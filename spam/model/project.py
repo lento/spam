@@ -849,11 +849,10 @@ class Asset(DeclarativeBase):
     
     @property
     def thumbnail(self):
-        name, ext = os.path.splitext(self.name)
-        name = name.replace('.#', '')
-        name = '%s-thumb.png' % name
-        return os.path.join(self.proj_id, G.PREVIEWS, self.parent.path,
-                            self.category.id, name)
+        for ver in self.versions:
+            if ver.has_preview:
+                return ver.thumbnail
+        return None
     
     @property
     def has_preview(self):
@@ -1018,8 +1017,11 @@ class AssetVersion(DeclarativeBase):
     
     @property
     def thumbnail(self):
-        return self.asset.thumbnail.replace(
-                                        '-thumb', '_v%03d-thumb' % self.ver)
+        name, ext = os.path.splitext(self.asset.name)
+        name = name.replace('.#', '')
+        name = '%s_v%03d-thumb.png' % (name, self.ver)
+        return os.path.join(self.asset.proj_id, G.PREVIEWS,
+                        self.asset.parent.path, self.asset.category.id, name)
     
     @property
     def has_preview(self):
