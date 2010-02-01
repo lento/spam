@@ -79,7 +79,7 @@ class Journal(DeclarativeBase):
     # Properties
     @property
     def strftime(self):
-        return self.created.strftime('%d/%m/%Y-%H:%M')
+        return self.created.strftime('%Y.%m.%d-%H:%M')
     
     # Special methods
     def __init__(self, user, text):
