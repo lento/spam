@@ -116,6 +116,7 @@ body {
 .thumbnail {
     width: 120px;
     height: 68px;
+    border: 0;
 }
 
 .thumbnail img {
@@ -296,7 +297,7 @@ div.note_header {
 	-moz-border-radius: 10px;
 	-webkit-border-radius: 10px;
     -moz-box-shadow: 0 0 25px 5px #333;
-    background-color: #f6f6f4; /* Aluminium 0 */
+    background-color: #eeeeec; /* Aluminium 1 */
 }
 
 
