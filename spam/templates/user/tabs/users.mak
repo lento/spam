@@ -4,5 +4,6 @@
 <br/>
 <br/>
 <h1>${_('Users')}</h1>
-${c.t_users(id='users', items=list(users)) | n}
+${c.t_users(id='users', items=list(users),
+            update_listener_adder="notify.add_listener_tab") | n}
 
