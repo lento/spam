@@ -392,14 +392,14 @@ class TableAssets(LiveTable):
     javascript = [notify_client_js]
     update_topic = notify.TOPIC_ASSETS
     class fields(WidgetsList):
-        thumbnail = Box(field_class='thumbnail', fields=[
+        thumbnail = Box(field_class='thumbnail status %(status)s', fields=[
             Link(dest=url('/repo/%(proj_id)s/preview.png'),
               condition='data.has_preview', fields=[
               Image(label_text=_('preview'), field_class='thumbnail',
                 src=url('/repo/%(thumbnail)s'))
             ])
         ])
-        name = Box(fields=[
+        name = Box(field_class='status %(status)s', fields=[
             Text(id='name', sort_default=True),
             Text(id='owner_id', field_class='owner',
               condition='data.checkedout',
@@ -407,14 +407,15 @@ class TableAssets(LiveTable):
               label_text='%(owner_id)s (%(owner_display_name)s)',
               )
         ])
-        current_fmtver = Text(label_text=_('version'))
-        status = StatusIcon(icon_class='asset', label_text=_('status: '))
-        note = Box(fields=[
+        current_fmtver = Text(field_class='status %(status)s', label_text=_('version'))
+        status = StatusIcon(field_class='status %(status)s', icon_class='asset',
+                                                    label_text=_('status: '))
+        note = Box(field_class='status %(status)s', fields=[
             Text(id='current_header', field_class='note_header',
               label_text=_('latest comment')),
             Text(id='current_summary', label_text=_('latest comment')),
         ])
-        actions = Box(fields=[
+        actions = Box(field_class='status %(status)s', fields=[
             Button(id='history',
               action=url('/asset/%(proj_id)s/%(id)s'),
               fields=[Icon(id='history', icon_class='history',
