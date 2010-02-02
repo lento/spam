@@ -1030,6 +1030,10 @@ class AssetVersion(DeclarativeBase):
     
     # Properties
     @property
+    def project(self):
+        return self.asset.project
+    
+    @property
     def path(self):
         base, ext = os.path.splitext(self.asset.path)
         return '%s_v%03d%s' % (base, self.ver, ext)

@@ -30,6 +30,8 @@ from spam.lib.widgets import FormNoteNew, FormNoteConfirm
 from spam.lib.widgets import TableNotes
 from spam.lib.notifications import notify
 from repoze.what.predicates import in_group
+from spam.lib.decorators import project_set_active
+from spam.lib.predicates import is_project_user, is_project_admin
 
 import logging
 log = logging.getLogger(__name__)
@@ -44,49 +46,56 @@ t_notes = TableNotes()
 class Controller(RestController):
     """REST controller for managing notes"""
     
-    @require(in_group('administrators'))
+    @project_set_active
+    @require(is_project_user())
     @expose('spam.templates.notes.get_all')
-    def get_all(self, annotable_id):
+    def get_all(self, proj, annotable_id):
         """Return a html fragment with a list of notes for this object."""
         tmpl_context.t_notes = t_notes
         annotable = annotable_get(annotable_id)
         return dict(notes=annotable.notes, annotable_id=annotable.id)
 
+    @project_set_active
+    @require(is_project_user())
     @expose('spam.templates.notes.get_all')
-    def default(self, annotable_id, *args, **kwargs):
+    def default(self, proj, annotable_id, *args, **kwargs):
         """Catch request to `note/<something>' and pass them to :meth:`get_all`,
         because RESTController doesn't dispatch to get_all when there are
         arguments.
         """
-        return self.get_all(annotable_id)
+        return self.get_all(proj, annotable_id)
 
-    @require(in_group('administrators'))
+    @project_set_active
+    @require(is_project_user())
     @expose('json')
     @expose('spam.templates.notes.get_one')
-    def get_one(self, annotable_id, note_id):
+    def get_one(self, proj, annotable_id, note_id):
         """This method is currently unused, but is needed for the 
         RESTController to work."""
         note = note_get(note_id)
         return dict(note=note)
 
-    @require(in_group('administrators'))
+    @project_set_active
+    @require(is_project_user())
     @expose('spam.templates.forms.form')
-    def new(self, annotable_id, **kwargs):
+    def new(self, proj, annotable_id, **kwargs):
         """Display a NEW form."""
+        project = tmpl_context.project
         tmpl_context.form = f_new
         session = session_get()
         annotable = annotable_get(annotable_id)
         
-        fargs = dict(annotable_id=annotable.id)
+        fargs = dict(proj=project.id, annotable_id=annotable.id)
         fcargs = dict()
         return dict(title='Add a note to "%s"' % annotable.annotated.path,
                                                 args=fargs, child_args=fcargs)
     
-    @require(in_group('administrators'))
+    @project_set_active
+    @require(is_project_user())
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_new, error_handler=new)
-    def post(self, annotable_id, text):
+    def post(self, proj, annotable_id, text):
         """Add notes to a ``annotable`` obect."""
         session = session_get()
         user = tmpl_context.user
@@ -105,23 +114,27 @@ class Controller(RestController):
         return dict(msg='added note to "%s"' % annotable.annotated.path,
                                                     result='success', note=note)
     
-    @require(in_group('administrators'))
+    @project_set_active
+    @require(is_project_admin())
     @expose('spam.templates.forms.form')
-    def get_delete(self, note_id, **kwargs):
+    def get_delete(self, proj, note_id, **kwargs):
         """Display a DELETE confirmation form."""
+        project = tmpl_context.project
         tmpl_context.form = f_confirm
         note = note_get(note_id)
-        fargs = dict(_method='DELETE', note_id=note.id, text_=note.text)
+        fargs = dict(_method='DELETE', proj=project.id, note_id=note.id,
+                                                                text_=note.text)
         fcargs = dict()
         return dict(
                 title='Are you sure you want to delete note "%s"?' % note.id,
                 warning=warning, args=fargs, child_args=fcargs)
 
-    @require(in_group('administrators'))
+    @project_set_active
+    @require(is_project_admin())
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_confirm, error_handler=get_delete)
-    def post_delete(self, note_id):
+    def post_delete(self, proj, note_id):
         """Delete a note."""
         session = session_get()
         note = note_get(note_id)
@@ -140,11 +153,12 @@ class Controller(RestController):
     # Custom REST-like actions
     custom_actions = ['pin', 'unpin']
 
-    @require(in_group('administrators'))
+    @project_set_active
+    @require(is_project_admin())
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_confirm)
-    def pin(self, note_id):
+    def pin(self, proj, note_id):
         """Pin a note."""
         session = session_get()
         note = note_get(note_id)
@@ -157,11 +171,12 @@ class Controller(RestController):
         notify.send(ob)
         return dict(msg='pinned note "%s"' % note.id, result='success')
     
-    @require(in_group('administrators'))
+    @project_set_active
+    @require(is_project_admin())
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_confirm)
-    def unpin(self, note_id):
+    def unpin(self, proj, note_id):
         """Un-pin a note."""
         session = session_get()
         note = note_get(note_id)

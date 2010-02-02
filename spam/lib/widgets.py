@@ -422,7 +422,7 @@ class TableAssets(LiveTable):
             ]),
             Button(id='addnote', icon_class='edit',
               label_text=_('add note'),
-              action=url('/note/%(current_id)s/new'),
+              action=url('/note/%(proj_id)s/%(current_id)s/new'),
               fields=[Icon(id='addnote', icon_class='edit',
                 label_text=_('add note')),
             ]),
@@ -848,6 +848,7 @@ class FormTagRemove(TableForm):
 # Notes
 class FormNoteNew(TableForm):
     class fields(WidgetsList):
+        proj = HiddenField(validator=NotEmpty)
         annotable_id = HiddenField(validator=NotEmpty)
         text = TextArea(cols=30, rows=3)
         
@@ -855,6 +856,7 @@ class FormNoteNew(TableForm):
 class FormNoteConfirm(TableForm):
     class fields(WidgetsList):
         _method = HiddenField(default='', validator=None)
+        proj = HiddenField(validator=NotEmpty)
         note_id = HiddenField(validator=NotEmpty)
         text_ = TextArea(cols=30, rows=3, disabled=True, validator=None)
 
