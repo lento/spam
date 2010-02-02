@@ -332,7 +332,7 @@ class Controller(RestController):
                                                         (remuser, project.id))
             
             # send a stomp message to notify clients
-            notify.send(user, update_type='deleted', proj=project.id,
+            notify.send(remuser, update_type='deleted', proj=project.id,
                         destination=notify.TOPIC_PROJECT_ADMINS)
             return dict(msg='user "%s" removed from "%s" administrators' %
                         (remuser.user_id, project.id), result='success')
