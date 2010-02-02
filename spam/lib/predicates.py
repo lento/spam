@@ -73,7 +73,7 @@ class is_asset_artist(Predicate):
     def evaluate(self, environ, credentials):
         if hasattr(tmpl_context, 'user') and hasattr(tmpl_context, 'project'):
             userid = credentials.get('repoze.what.userid')
-            if tmpl_context.user in tmpl_context.asset.artist:
+            if tmpl_context.user in tmpl_context.asset.artists:
                 return
             elif tmpl_context.user in tmpl_context.project.admins:
                 return
