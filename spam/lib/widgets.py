@@ -357,7 +357,7 @@ class TableLibgroups(LiveTable):
         subgroups = StatusIconBox(fields=[
             StatusIcon(label_text='')
         ])
-        categories = Box(field_class='statusbox', fields=[
+        categories = Box(field_class='statusiconbox', fields=[
             Link(dest='%s#%s' % (
                           url('/libgroup/%(proj_id)s/%(id)s'),
                           url('/asset/%(proj_id)s/%(container_type)s/%(id)s')),
