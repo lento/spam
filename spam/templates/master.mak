@@ -81,8 +81,8 @@
         % endif
         
   	    <div class="title">
-  	    	% if project:
-  	    	    ${project.name}
+  	    	% if hasattr(c, 'project'):
+  	    	    ${c.project.name}
     	    % else:
     	        SPAM
 	        % endif

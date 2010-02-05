@@ -592,7 +592,7 @@ class ListProjects(LiveList):
     javascript = [notify_client_js]
     update_topic = notify.TOPIC_PROJECTS
     class fields(WidgetsList):
-        name = Link(dest=url('/project/%(id)s'), fields=[
+        name = Link(dest=url('/project/%(id)s'), field_class='%(id)s', fields=[
             Text(id='name', label_text='%(description)s')
         ])
     

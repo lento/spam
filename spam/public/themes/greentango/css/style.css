@@ -194,7 +194,7 @@ table td.icon {
 	-moz-border-radius: 4px;
 	-webkit-border-radius: 4px;
     background-color: #8ae234; /* Chameleon 1 */
-    color: #ef2929; /* Scarlet Red 1 */
+    color: #f6f6f4; /* Aluminium 0 */
 }
 
 .pager_link {
@@ -363,7 +363,8 @@ div.note_header {
 }
 
 #header .path {
-    height: 20px;
+    height: 22px;
+	font-size: 1.2em;
 	overflow: hidden;
 }
 
@@ -435,7 +436,8 @@ div.note_header {
 
 .side .sidebar.active {
 	background-color: #8ae234; /* Chameleon 1 */
-	color: #eeeeec; /* Aluminium 1 */
+	color: #4e9a06; /* Chameleon 3 */
+
 }
 
 .side .sidebar .title {
@@ -458,8 +460,8 @@ div.note_header {
     color: #204a87; /* Sky Blue 3 */
 }
 
-.side li.active {
-    color: #ef2929; /* Scarlet Red 1 */
+.side .active a, .side .active a:hover {
+    color: #f6f6f4; / * Aluminium 0 * /
 }
 
 #side_overflow_container {
