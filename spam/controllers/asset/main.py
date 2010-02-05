@@ -622,7 +622,7 @@ class Controller(RestController):
         f = repo.cat(proj, assetver)
         
         if assetver.asset.is_sequence:
-            name, ext = os.path.splitext(assetver.path)
+            name = os.path.split(assetver.path)[0]
             path = '%s.zip' % name
         else:
             path = assetver.path

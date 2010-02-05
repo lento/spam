@@ -855,7 +855,12 @@ class Asset(DeclarativeBase):
     
     @property
     def path(self):
-        return os.path.join(self.parent.path, self.category.id, self.name)
+        path = os.path.join(self.parent.path, self.category.id)
+        if self.is_sequence:
+            name, ext = os.path.splitext(self.name)
+            dirname = name.rstrip('.#')
+            path = os.path.join(path, dirname)
+        return os.path.join(path, self.name)
     
     @property
     def thumbnail(self):

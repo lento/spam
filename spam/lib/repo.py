@@ -1,4 +1,4 @@
-import os, shutil, tempfile, zipfile, glob
+import os, shutil, tempfile, zipfile, glob, time
 from mercurial import ui, hg, commands, match
 from mercurial.error import RepoError
 from tg import app_globals as G
@@ -121,7 +121,7 @@ def cat_single(proj, assetver):
     return temp
 
 def cat_multi(proj, assetver):
-    if not assetver.object.is_sequence:
+    if not assetver.asset.is_sequence:
         raise SPAMRepoError('asset %s is not a sequence of files' %
                                                             assetver.asset.id)
     
@@ -141,11 +141,12 @@ def cat_multi(proj, assetver):
         name = os.path.basename(target)
         name, ext = os.path.splitext(name)
         name, frame = os.path.splitext(name)
+        name = name.rstrip('.#')
         verdir = '%s_v%03d' % (name, assetver.ver)
         vername = '%s_v%03d%s%s' % (name, assetver.ver, frame, ext)
         zfile.write(temp.name, os.path.join(verdir, vername))
         temp.close()
-    zfile.close
+    zfile.close()
     return ztemp
 
 def cat(proj, assetver):
