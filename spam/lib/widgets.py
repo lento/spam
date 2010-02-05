@@ -102,23 +102,6 @@ class StatusIconBox(LiveWidget):
 ############################################################
 # Live tables
 ############################################################
-class TableTest(LiveTable):
-    show_headers = True
-    class fields(WidgetsList):
-        a = Text(sort_default=True, sort_direction='desc')
-        b = Link()
-        actions = Box(fields=[
-            Button(id='edit',
-              action=url('/user/%(user_name)s/edit'),
-              fields=[Icon(id='edit', icon_class='edit')]
-            ),
-            Button(id='delete', icon_class='delete',
-              action=url('/user/%(user_name)s/delete'),
-              fields=[Icon(id='delete', icon_class='delete')]
-            ),
-        ])
-
-
 class TableUsers(LiveTable):
     """User livetable."""
     javascript = [notify_client_js]
@@ -1039,17 +1022,6 @@ class FormShotConfirm(TableForm):
         frames_ = TextField(validator=None, disabled=True)
         handle_in_ = TextField(validator=None, disabled=True)
         handle_out_ = TextField(validator=None, disabled=True)
-
-
-class FormShotAddTag(TableForm):
-    class fields(WidgetsList):
-        _method = HiddenField(default='ADD_TAG', validator=None)
-        proj = HiddenField(validator=NotEmpty)
-        sc = HiddenField(validator=NotEmpty)
-        sh = HiddenField(validator=NotEmpty)
-        current_tags_ = TextField(validator=None, disabled=True)
-        tag_ids = MultipleSelectField(label_text='Tags', options=[], size=10)
-        new_tags = TextField(validator=Regex(G.pattern_tags))
 
 
 # Libgroups

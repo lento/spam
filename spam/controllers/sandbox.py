@@ -104,11 +104,3 @@ class SandboxController(SPAMBaseController):
         tags = shot.tags
         return dict(page='sandbox/taglist', shot=shot, tags=tags)
 
-    @expose('spam.templates.sandbox.livetable')
-    def livetable(self):
-        from spam.lib.widgets import TableTest
-        t_test = TableTest()
-        items = [dict(a='one', b=1), dict(a='two', b=2)]
-        tmpl_context.t_test = t_test
-        return dict(items=items)
-        

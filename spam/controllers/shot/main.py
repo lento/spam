@@ -28,7 +28,7 @@ from tg.decorators import with_trailing_slash
 from spam.model import session_get, Project, User, Shot, Tag
 from spam.model import scene_get, shot_get, tag_get, diff_dicts
 from spam.lib.widgets import FormShotNew, FormShotEdit, FormShotConfirm
-from spam.lib.widgets import FormShotAddTag, TableShots
+from spam.lib.widgets import TableShots
 from spam.lib import repo
 from spam.lib.notifications import notify
 from spam.lib.journaling import journal
@@ -44,7 +44,6 @@ log = logging.getLogger(__name__)
 f_new = FormShotNew(action=url('/shot/'))
 f_edit = FormShotEdit(action=url('/shot/'))
 f_confirm = FormShotConfirm(action=url('/shot/'))
-f_add_tag = FormShotAddTag(action=url('/shot/'))
 
 # livetable widgets
 t_shots = TableShots()
