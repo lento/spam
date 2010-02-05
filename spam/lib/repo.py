@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# SPAM Spark Project & Asset Manager
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 3 of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this program; if not, write to the
+# Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Original Copyright (c) 2010, Lorenzo Pierfederici <lpierfederici@gmail.com>
+# Contributor(s): 
+#
+"""Mercurial repository management."""
+
 import os, shutil, tempfile, zipfile, glob, time
 from mercurial import ui, hg, commands, match
 from mercurial.error import RepoError
@@ -13,6 +37,7 @@ repo_ui.setconfig('ui', 'interactive', 'False')
 
 # Repository
 def repo_get(proj):
+    """Return the mercurial repository for ``proj``."""
     repo_path = os.path.join(G.REPOSITORY, proj)
     try:
         return hg.repository(repo_ui, repo_path)
@@ -20,6 +45,7 @@ def repo_get(proj):
         raise SPAMRepoNotFound('"%s" is not a valid HG repository' % repo_path)
 
 def repo_init(proj):
+    """Init a new mercurial repository for ``proj``."""
     repo_path = os.path.join(G.REPOSITORY, proj)
     try:
         repo = repo_get(proj)
@@ -41,6 +67,7 @@ def repo_init(proj):
 
 # Commit
 def commit_single(proj, asset, filename, text, username=None):
+    """Commit a single file to the repository and returns the revision id."""
     repo_path = os.path.join(G.REPOSITORY, proj)
     repo = repo_get(proj)
     
@@ -71,6 +98,7 @@ def commit_single(proj, asset, filename, text, username=None):
         return None
 
 def commit_multi(proj, asset, filenames, text, username=None):
+    """Commit multiple files to the repository and returns the revision id."""
     repo_path = os.path.join(G.REPOSITORY, proj)
     repo = repo_get(proj)
     
@@ -104,6 +132,9 @@ def commit_multi(proj, asset, filenames, text, username=None):
         return None
 
 def commit(proj, asset, filenames, text, username=None):
+    """Helper to commit a new version of an asset to the repository.
+    
+    Call :meth:``commit_multi`` or :meth:``commit_single`` based on the asset type."""
     if asset.is_sequence:
         return commit_multi(proj, asset, filenames, text, username=None)
     else:
@@ -111,6 +142,8 @@ def commit(proj, asset, filenames, text, username=None):
 
 # Cat
 def cat_single(proj, assetver):
+    """Return the file corresponding to the given asset version, retriving it
+    from the mercurial repository."""
     repo_path = os.path.join(G.REPOSITORY, proj)
     repo = repo_get(proj)
     
@@ -121,6 +154,9 @@ def cat_single(proj, assetver):
     return temp
 
 def cat_multi(proj, assetver):
+    """Return the files corresponding to the given asset version in a zip
+    archive (ready for http download), retriving them from the mercurial
+    repository."""
     if not assetver.asset.is_sequence:
         raise SPAMRepoError('asset %s is not a sequence of files' %
                                                             assetver.asset.id)
@@ -150,6 +186,10 @@ def cat_multi(proj, assetver):
     return ztemp
 
 def cat(proj, assetver):
+    """Helper to retrive the file(s) corresponding to a specific asset version
+    from the repository.
+    
+    Call :meth:``cat_multi`` or :meth:``cat_single`` based on the asset type."""
     if assetver.asset.is_sequence:
         return cat_multi(proj, assetver)
     else:
@@ -157,6 +197,7 @@ def cat(proj, assetver):
 
 # Directories
 def project_create_dirs(proj):
+    """Create default directories in the repository for ``proj``."""
     repo_path = os.path.join(G.REPOSITORY, proj)
     try:
         os.makedirs(repo_path)
@@ -169,6 +210,7 @@ def project_create_dirs(proj):
                                                                         path)
 
 def scene_create_dirs(proj, scene):
+    """Create directories in the repository for ``scene``."""
     path = os.path.join(G.REPOSITORY, proj, scene.path)
     previews_path = os.path.join(G.REPOSITORY, proj, G.PREVIEWS, scene.path)
     try:
@@ -181,6 +223,7 @@ def scene_create_dirs(proj, scene):
                                                                         path)
 
 def shot_create_dirs(proj, shot):
+    """Create directories in the repository for ``shot``."""
     path = os.path.join(G.REPOSITORY, proj, shot.path)
     previews_path = os.path.join(G.REPOSITORY, proj, G.PREVIEWS, shot.path)
     try:
@@ -193,6 +236,7 @@ def shot_create_dirs(proj, shot):
                                                                         path)
 
 def libgroup_create_dirs(proj, libgroup):
+    """Create directories in the repository for ``libgroup``."""
     path = os.path.join(G.REPOSITORY, proj, libgroup.path)
     previews_path = os.path.join(G.REPOSITORY, proj, G.PREVIEWS, libgroup.path)
     try:

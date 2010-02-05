@@ -7,6 +7,10 @@ SPAM internals
    internals/models
    internals/controllers
    internals/templates
+   internals/commands
+   internals/config
+   internals/lib
+   internals/websetup
 
 
 

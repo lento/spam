@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# SPAM Spark Project & Asset Manager
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 3 of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this program; if not, write to the
+# Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Original Copyright (c) 2010, Lorenzo Pierfederici <lpierfederici@gmail.com>
+# Contributor(s): 
+#
+"""build-client paster command."""
+
 from paste.script import command
 from mrapps.mrclientmaker import ClientMaker
 from spam.commands import pylonsenv
@@ -8,6 +32,7 @@ from spam.controllers import note as _note, project, scene, shot, libgroup
 from spam.controllers import asset
 
 def build_client(filename):
+    """Builds a standalone client for SPAM using mrClientMaker."""
     root = _root.RootController()
     cat = category.Controller()
     tag = _tag.Controller()
@@ -38,7 +63,7 @@ def build_client(filename):
     maker.add_call(tag.get_one, group, 'get', '%s/get_one.json' % group, 'tag', True)
     maker.add_call(tag.post, group, 'new', target)
     maker.add_call(tag.post_delete, group, 'delete', target, _method='DELETE')
-    maker.add_call(tag.post_remove, group, 'remove', target, _method='REMOVE')
+    maker.add_call(tag.remove, group, 'remove', target, _method='REMOVE')
 
     # Note
     group = 'note'
@@ -104,7 +129,7 @@ def build_client(filename):
     output.close()
 
 class BuildClient(command.Command):
-
+    """Paster command to build a standalone SPAM client."""
     max_args = 1
     min_args = 0
 

@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# SPAM Spark Project & Asset Manager
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 3 of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this program; if not, write to the
+# Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Original Copyright (c) 2010, Lorenzo Pierfederici <lpierfederici@gmail.com>
+# Contributor(s): 
+#
+"""STOMP notifications."""
+
 import orbited.start
 import stomp, threading, time, sys
 from stomp.exception import ConnectionClosedException, NotConnectedException
@@ -10,6 +34,11 @@ import logging
 log = logging.getLogger(__name__)
 
 class StompClient(object):
+    """A client to connect to a stomp server and send messages.
+    
+    If the destination is not specified, messages are sent to the topic
+    associated with the class of the object given as first parameter.
+    StompClient can optionally start an ``Orbited`` server on the localhost."""
     def __init__(self):
         self.connection = None
     
@@ -51,22 +80,19 @@ class StompClient(object):
                        Tag: self.TOPIC_TAGS,
                       }
     
-    # adapted from orbited start.py main()
     def _start_orbited(self):
-        log.debug('_start_orbited()')
         oldargv = sys.argv[:]
         sys.argv[1:] = ['--config', self.ORBITED_CONFIG]
         orbited.start.main()
         sys.argv = oldargv
 
     def _start_connection(self):
-        log.debug('_start_connection()')
         self.connection = stomp.Connection()
         self.connection.start()
         self.connection.connect()
 
     def connect(self):
-        """start the connection in a non-blocking thread"""
+        """Start the connection in a non-blocking thread."""
         self._setup_config()
         if self.ORBITED_AUTOSTART in [True, 'True', 'true']:
             self.thread_orbited = threading.Thread(None, self._start_orbited)

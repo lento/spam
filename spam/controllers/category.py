@@ -44,7 +44,7 @@ f_confirm = FormCategoryConfirm(action=url('/category/'))
 t_categories = TableCategories()
 
 class Controller(RestController):
-    """REST controller for managing categories"""
+    """REST controller for managing categories."""
     
     @require(in_group('administrators'))
     @expose('spam.templates.category.get_all')

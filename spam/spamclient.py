@@ -87,6 +87,7 @@ class MultipartPostHandler(urllib2.BaseHandler):
 
 
 class Category(object):
+    """Category calls."""
     def __init__(self, openfunc):
         self.open = openfunc
     
@@ -151,6 +152,7 @@ class Category(object):
 
 
 class Project(object):
+    """Project calls."""
     def __init__(self, openfunc):
         self.open = openfunc
     
@@ -241,6 +243,7 @@ class Project(object):
 
 
 class Shot(object):
+    """Shot calls."""
     def __init__(self, openfunc):
         self.open = openfunc
     
@@ -305,6 +308,7 @@ class Shot(object):
 
 
 class Libgroup(object):
+    """Libgroup calls."""
     def __init__(self, openfunc):
         self.open = openfunc
     
@@ -369,6 +373,7 @@ class Libgroup(object):
 
 
 class Scene(object):
+    """Scene calls."""
     def __init__(self, openfunc):
         self.open = openfunc
     
@@ -433,11 +438,12 @@ class Scene(object):
 
 
 class Note(object):
+    """Note calls."""
     def __init__(self, openfunc):
         self.open = openfunc
     
     
-    def get(self, annotable_id, note_id):
+    def get(self, proj, annotable_id, note_id):
         """This method is currently unused, but is needed for the 
         RESTController to work.
 
@@ -452,7 +458,7 @@ class Note(object):
         return json.loads(result.read())['note']
 
     
-    def new(self, annotable_id, text):
+    def new(self, proj, annotable_id, text):
         """Add notes to a ``annotable`` obect.
 
         Returns:
@@ -465,7 +471,7 @@ class Note(object):
         return json.loads(result.read())['note']
 
     
-    def delete(self, note_id):
+    def delete(self, proj, note_id):
         """Delete a note.
 
         Returns:
@@ -478,7 +484,7 @@ class Note(object):
         return result
 
     
-    def pin(self, note_id):
+    def pin(self, proj, note_id):
         """Pin a note.
 
         Returns:
@@ -491,7 +497,7 @@ class Note(object):
         return result
 
     
-    def unpin(self, note_id):
+    def unpin(self, proj, note_id):
         """Un-pin a note.
 
         Returns:
@@ -506,6 +512,7 @@ class Note(object):
 
 
 class Tag(object):
+    """Tag calls."""
     def __init__(self, openfunc):
         self.open = openfunc
     
@@ -552,7 +559,7 @@ class Tag(object):
 
     
     def remove(self, taggable_id, tag_ids=[]):
-        """Delete a tag.
+        """Remove tags from an object.
 
         Returns:
             a file-like response object
@@ -566,6 +573,7 @@ class Tag(object):
 
 
 class Asset(object):
+    """Asset calls."""
     def __init__(self, openfunc):
         self.open = openfunc
     

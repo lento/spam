@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# SPAM Spark Project & Asset Manager
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 3 of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this program; if not, write to the
+# Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Original Copyright (c) 2010, Lorenzo Pierfederici <lpierfederici@gmail.com>
+# Contributor(s): 
+#
+"""Custom ToscaWidgets for SPAM."""
+
 from tg import config, url
 from tg import app_globals as G
 from pylons.i18n import ugettext as _, lazy_ugettext as l_
@@ -37,14 +61,17 @@ livetable_js = JSLink(modname='spam.lib.twlib.livetable',
                       filename='static/livetable.js')
 
 class NetworkingJS(Widget):
+    """Javascripts for connecting to a stomp server."""
     javascript = [orbited_js, initsocket_js, stomp_js]
 
 
 class NotifyClientJS(Widget):
+    """SPAM notification client javascript."""
     javascript = [notify_client_js]
 
 
 class StartupJS(Widget):
+    """Javascript to include in every page."""
     javascript = [jquery_js, jquery_ui_js, jquery_tools_js, jquery_cookie_js,
                   jquery_treeview_js, jquery_sprintf_js, jquery_tablesorter_js,
                   spam_js]
@@ -53,6 +80,7 @@ class StartupJS(Widget):
 # Custom Live widgets
 ############################################################
 class StatusIcon(LiveWidget):
+    """Custom livewidget to show a status icon."""
     params = ['icon_class']
     template = 'mako:spam.templates.widgets.statusicon'
     
@@ -62,6 +90,7 @@ class StatusIcon(LiveWidget):
 
 
 class StatusIconBox(LiveWidget):
+    """Custom livewidget to show a box of status icons."""
     params = ['icon_class']
     template = 'mako:spam.templates.widgets.statusiconbox'
     
@@ -91,6 +120,7 @@ class TableTest(LiveTable):
 
 
 class TableUsers(LiveTable):
+    """User livetable."""
     javascript = [notify_client_js]
     update_topic = notify.TOPIC_USERS
     class fields(WidgetsList):
@@ -112,6 +142,7 @@ class TableUsers(LiveTable):
 
 
 class TableGroupUsers(LiveTable):
+    """Group users livetable."""
     javascript = [notify_client_js]
     update_topic = notify.TOPIC_GROUPS
     class fields(WidgetsList):
@@ -133,6 +164,7 @@ class TableGroupUsers(LiveTable):
 
 
 class TableProjectAdmins(LiveTable):
+    """Project administrators livetable."""
     javascript = [notify_client_js]
     update_topic = notify.TOPIC_PROJECT_ADMINS
     class fields(WidgetsList):
@@ -152,6 +184,7 @@ class TableProjectAdmins(LiveTable):
 
 
 class TableProjectSupervisors(LiveTable):
+    """Project supervisors livetable."""
     javascript = [notify_client_js]
     update_topic = notify.TOPIC_PROJECT_SUPERVISORS
     class fields(WidgetsList):
@@ -173,6 +206,7 @@ class TableProjectSupervisors(LiveTable):
 
 
 class TableProjectArtists(LiveTable):
+    """Project artists livetable."""
     javascript = [notify_client_js]
     update_topic = notify.TOPIC_PROJECT_ARTISTS
     class fields(WidgetsList):
@@ -194,6 +228,7 @@ class TableProjectArtists(LiveTable):
 
 
 class TableCategories(LiveTable):
+    """Category livetable."""
     javascript = [notify_client_js]
     update_topic = notify.TOPIC_CATEGORIES
     class fields(WidgetsList):
@@ -216,6 +251,7 @@ class TableCategories(LiveTable):
 
 
 class ProjectsActive(LiveTable):
+    """Active projects livetable."""
     javascript = [notify_client_js]
     update_topic = notify.TOPIC_PROJECTS
     update_condition = '!msg.ob.archived || msg.update_type=="archived"'
@@ -249,6 +285,7 @@ class ProjectsActive(LiveTable):
 
 
 class ProjectsArchived(LiveTable):
+    """Archived projects livetable."""
     javascript = [notify_client_js]
     update_topic = notify.TOPIC_PROJECTS
     update_condition = 'msg.ob.archived || msg.update_type=="activated"'
@@ -272,6 +309,7 @@ class ProjectsArchived(LiveTable):
 
 
 class TableScenes(LiveTable):
+    """Scene livetable."""
     javascript = [notify_client_js]
     update_topic = notify.TOPIC_SCENES
     class fields(WidgetsList):
@@ -303,6 +341,7 @@ class TableScenes(LiveTable):
 
 
 class TableShots(LiveTable):
+    """Shot livetable."""
     javascript = [notify_client_js]
     update_topic = notify.TOPIC_SHOTS
     class fields(WidgetsList):
@@ -341,6 +380,7 @@ class TableShots(LiveTable):
 
 
 class TableLibgroups(LiveTable):
+    """Libgroup livetable."""
     params = ['parent_id']
     javascript = [notify_client_js]
     update_topic = notify.TOPIC_LIBGROUPS
@@ -387,6 +427,7 @@ class TableLibgroups(LiveTable):
 
 
 class TableAssets(LiveTable):
+    """Asset livetable."""
     params = ['category']
     
     javascript = [notify_client_js]
@@ -508,6 +549,7 @@ class TableAssets(LiveTable):
 
 
 class TableAssetHistory(LiveTable):
+    """Asset history livetable."""
     class fields(WidgetsList):
         thumbnail = Box(field_class='thumbnail', fields=[
             Link(dest=url('/repo/%(preview_path)s'),
@@ -537,6 +579,7 @@ class TableAssetHistory(LiveTable):
 
 
 class TableJournal(LiveTable):
+    """Journal entries livetable."""
     params = ['curpage']
     javascript = [notify_client_js]
     update_topic = notify.TOPIC_JOURNAL
@@ -552,6 +595,7 @@ class TableJournal(LiveTable):
 
 
 class TableNotes(LiveTable):
+    """Note livetable."""
     params = ['annotable_id']
     javascript = [notify_client_js]
     update_topic = notify.TOPIC_NOTES
@@ -588,6 +632,7 @@ class TableNotes(LiveTable):
 # Live lists
 ############################################################
 class ListProjects(LiveList):
+    """Project livelist."""
     params = ['user_id']
     javascript = [notify_client_js]
     update_topic = notify.TOPIC_PROJECTS
@@ -606,6 +651,7 @@ class ListProjects(LiveList):
 # Live boxes
 ############################################################
 class BoxTags(LiveBox):
+    """Tag livebox."""
     params = ['taggable_id']
     container_class = 'tagbox'
     javascript = [notify_client_js]
@@ -656,6 +702,7 @@ statusbox_js = JSSource(src='''
 
 
 class BoxScenesStatus(LiveBox):
+    """Scene status livebox."""
     params = ['proj_id']
     container_class = 'statusbox'
     update_topic = notify.TOPIC_SCENES
@@ -673,6 +720,7 @@ class BoxScenesStatus(LiveBox):
 
 
 class BoxShotsStatus(LiveBox):
+    """Shot status livebox."""
     params = ['scene_id']
     container_class = 'statusbox'
     update_topic = notify.TOPIC_SHOTS
@@ -690,6 +738,7 @@ class BoxShotsStatus(LiveBox):
 
 
 class BoxLibgroupsStatus(LiveBox):
+    """Libgroup status livebox."""
     params = ['libgroup_id']
     container_class = 'statusbox'
     update_topic = notify.TOPIC_LIBGROUPS
@@ -708,6 +757,7 @@ class BoxLibgroupsStatus(LiveBox):
 
 
 class BoxCategoriesStatus(LiveBox):
+    """Asset categories status livebox."""
     params = ['container_id']
     javascript = [statusbox_js]
     container_class = 'statusbox'
@@ -730,6 +780,7 @@ class BoxCategoriesStatus(LiveBox):
 
 
 class BoxStatus(LiveBox):
+    """Category status livebox."""
     params = ['container_id', 'category_id']
     javascript = [statusbox_js]
     container_class = 'statusbox'
@@ -754,6 +805,7 @@ class BoxStatus(LiveBox):
 
 # User
 class FormUserNew(TableForm):
+    """New user form."""
     class fields(WidgetsList):
         user_name = TextField(validator=MaxLength(16, not_empty=True))
         display_name = TextField(validator=MaxLength(255, not_empty=True))
@@ -761,6 +813,7 @@ class FormUserNew(TableForm):
 
 
 class FormUserEdit(TableForm):
+    """Edit user form."""
     class fields(WidgetsList):
         _method = HiddenField(default='PUT', validator=None)
         user_id = HiddenField(validator=NotEmpty)
@@ -769,6 +822,7 @@ class FormUserEdit(TableForm):
 
 
 class FormUserConfirm(TableForm):
+    """Generic user confirmation form."""
     class fields(WidgetsList):
         _method = HiddenField(default='', validator=None)
         user_id = HiddenField(validator=NotEmpty)
@@ -777,6 +831,7 @@ class FormUserConfirm(TableForm):
 
 
 class FormUserAddToGroup(TableForm):
+    """Add user to group form."""
     class fields(WidgetsList):
         _method = HiddenField(default='ADD_TO_GROUP', validator=None)
         group_id = HiddenField(validator=NotEmpty)
@@ -784,6 +839,7 @@ class FormUserAddToGroup(TableForm):
 
 
 class FormUserAddAdmins(TableForm):
+    """Add admin to project form."""
     class fields(WidgetsList):
         _method = HiddenField(default='ADD_ADMINS', validator=None)
         proj = HiddenField(validator=NotEmpty)
@@ -791,6 +847,7 @@ class FormUserAddAdmins(TableForm):
 
 
 class FormUserAddToCategory(TableForm):
+    """Add user to category form."""
     class fields(WidgetsList):
         _method = HiddenField(default='', validator=None)
         proj = HiddenField(validator=NotEmpty)
@@ -800,6 +857,7 @@ class FormUserAddToCategory(TableForm):
 
 # Category
 class FormCategoryNew(TableForm):
+    """New category form."""
     class fields(WidgetsList):
         category_id = TextField(validator=All(
                           Regex(G.pattern_name, not_empty=True), MaxLength(30)))
@@ -807,6 +865,7 @@ class FormCategoryNew(TableForm):
         naming_convention = TextField(validator=MaxLength(255))
 
 class FormCategoryEdit(TableForm):
+    """Edit category form."""
     class fields(WidgetsList):
         _method = HiddenField(default='PUT', validator=None)
         category_id = HiddenField(validator=NotEmpty)
@@ -816,6 +875,7 @@ class FormCategoryEdit(TableForm):
 
 
 class FormCategoryConfirm(TableForm):
+    """Generic category confirmation form."""
     class fields(WidgetsList):
         _method = HiddenField(default='', validator=None)
         category_id = HiddenField(validator=NotEmpty)
@@ -826,6 +886,7 @@ class FormCategoryConfirm(TableForm):
 
 # Tags
 class FormTagNew(TableForm):
+    """New tag form."""
     class fields(WidgetsList):
         taggable_id = HiddenField(validator=NotEmpty)
         current_tags_ = TextField(validator=None, disabled=True)
@@ -834,12 +895,14 @@ class FormTagNew(TableForm):
 
 
 class FormTagConfirm(TableForm):
+    """Generic tag confirmation form."""
     class fields(WidgetsList):
         _method = HiddenField(default='', validator=None)
         tag_id = HiddenField(validator=NotEmpty)
 
 
 class FormTagRemove(TableForm):
+    """Remove tag form."""
     class fields(WidgetsList):
         _method = HiddenField(default='REMOVE', validator=None)
         taggable_id = HiddenField(validator=NotEmpty)
@@ -848,6 +911,7 @@ class FormTagRemove(TableForm):
 
 # Notes
 class FormNoteNew(TableForm):
+    """New note form."""
     class fields(WidgetsList):
         proj = HiddenField(validator=NotEmpty)
         annotable_id = HiddenField(validator=NotEmpty)
@@ -855,6 +919,7 @@ class FormNoteNew(TableForm):
         
 
 class FormNoteConfirm(TableForm):
+    """Generic note confirmation form."""
     class fields(WidgetsList):
         _method = HiddenField(default='', validator=None)
         proj = HiddenField(validator=NotEmpty)
@@ -864,6 +929,7 @@ class FormNoteConfirm(TableForm):
 
 # Project
 class FormProjectNew(TableForm):
+    """New project form."""
     class fields(WidgetsList):
         proj = TextField(label_text='id', validator=All(Regex(G.pattern_name,
                                                 not_empty=True), MaxLength(15)))
@@ -872,6 +938,7 @@ class FormProjectNew(TableForm):
 
 
 class FormProjectEdit(TableForm):
+    """Edit project form."""
     class fields(WidgetsList):
         _method = HiddenField(default='PUT', validator=None)
         proj = HiddenField(validator=NotEmpty)
@@ -881,6 +948,7 @@ class FormProjectEdit(TableForm):
 
 
 class FormProjectConfirm(TableForm):
+    """Generic project confirmation form."""
     class fields(WidgetsList):
         _method = HiddenField(default='', validator=None)
         proj = HiddenField(validator=NotEmpty)
@@ -891,6 +959,7 @@ class FormProjectConfirm(TableForm):
 
 # Scene
 class FormSceneNew(TableForm):
+    """New scene form."""
     class fields(WidgetsList):
         proj = HiddenField(validator=NotEmpty)
         project_ = TextField(validator=None, disabled=True)
@@ -900,6 +969,7 @@ class FormSceneNew(TableForm):
 
 
 class FormSceneEdit(TableForm):
+    """Edit scene form."""
     class fields(WidgetsList):
         _method = HiddenField(default='PUT', validator=None)
         proj = HiddenField(validator=NotEmpty)
@@ -910,6 +980,7 @@ class FormSceneEdit(TableForm):
 
 
 class FormSceneConfirm(TableForm):
+    """Generic scene confirmation form."""
     class fields(WidgetsList):
         _method = HiddenField(default='', validator=None)
         proj = HiddenField(validator=NotEmpty)
@@ -921,6 +992,7 @@ class FormSceneConfirm(TableForm):
 
 # Shot
 class FormShotNew(TableForm):
+    """New shot form."""
     class fields(WidgetsList):
         proj = HiddenField(validator=NotEmpty)
         sc = HiddenField(validator=NotEmpty)
@@ -936,6 +1008,7 @@ class FormShotNew(TableForm):
 
 
 class FormShotEdit(TableForm):
+    """Edit shot form."""
     class fields(WidgetsList):
         _method = HiddenField(default='PUT', validator=None)
         proj = HiddenField(validator=NotEmpty)
@@ -952,6 +1025,7 @@ class FormShotEdit(TableForm):
 
 
 class FormShotConfirm(TableForm):
+    """Generic shot confirmation form."""
     class fields(WidgetsList):
         _method = HiddenField(default='', validator=None)
         proj = HiddenField(validator=NotEmpty)
@@ -980,6 +1054,7 @@ class FormShotAddTag(TableForm):
 
 # Libgroups
 class FormLibgroupNew(TableForm):
+    """New libgroup form."""
     class fields(WidgetsList):
         proj = HiddenField(validator=NotEmpty)
         parent_id = HiddenField()
@@ -991,6 +1066,7 @@ class FormLibgroupNew(TableForm):
 
 
 class FormLibgroupEdit(TableForm):
+    """Edit libgroup form."""
     class fields(WidgetsList):
         _method = HiddenField(default='PUT', validator=None)
         proj = HiddenField(validator=NotEmpty)
@@ -1001,6 +1077,7 @@ class FormLibgroupEdit(TableForm):
 
 
 class FormLibgroupConfirm(TableForm):
+    """Generic libgroup confirmation form."""
     class fields(WidgetsList):
         _method = HiddenField(default='', validator=None)
         proj = HiddenField(validator=NotEmpty)
@@ -1012,6 +1089,7 @@ class FormLibgroupConfirm(TableForm):
 
 # Asset
 class FormAssetNew(TableForm):
+    """New asset form."""
     class fields(WidgetsList):
         proj = HiddenField(validator=NotEmpty)
         container_type = HiddenField(validator=NotEmpty)
@@ -1030,6 +1108,7 @@ class FormAssetNew(TableForm):
         )
 
 class FormAssetEdit(TableForm):
+    """Edit asset form."""
     class fields(WidgetsList):
         _method = HiddenField(default='PUT', validator=None)
         proj = HiddenField(validator=NotEmpty)
@@ -1037,6 +1116,7 @@ class FormAssetEdit(TableForm):
 
 
 class FormAssetConfirm(TableForm):
+    """Generic asset confirmation form."""
     class fields(WidgetsList):
         _method = HiddenField(default='', validator=None)
         proj = HiddenField(validator=NotEmpty)
@@ -1048,6 +1128,10 @@ class FormAssetConfirm(TableForm):
 
 
 class Upload(FormField):
+    """Advanced upload field for the publish asset form.
+    
+    An ``Upload`` field uploads file to the server as they are selected
+    (or dragged onto it) and shows a progress bar for the upload."""
     params = ['target', 'queue', 'submitter', 'ext']
     template = 'mako:spam.templates.widgets.upload'
     upload_js = JSLink(link=url('/js/widgets/upload.js'))
@@ -1060,6 +1144,7 @@ class Upload(FormField):
 
 
 class FormAssetPublish(TableForm):
+    """Publish asset form."""
     class fields(WidgetsList):
         _method = HiddenField(default='PUBLISH', validator=None)
         proj = HiddenField(validator=NotEmpty)
@@ -1072,6 +1157,7 @@ class FormAssetPublish(TableForm):
 
 
 class FormAssetStatus(TableForm):
+    """Asset status form."""
     class fields(WidgetsList):
         _method = HiddenField(default='', validator=None)
         proj = HiddenField(validator=NotEmpty)

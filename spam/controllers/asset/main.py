@@ -62,7 +62,20 @@ b_status = BoxStatus()
 j_notify_client = NotifyClientJS()
 
 class Controller(RestController):
-    """REST controller for managing assets"""
+    """REST controller for managing assets.
+    
+    In addition to the standard REST verbs this controller defines the following
+    REST-like methods:
+        * ``checkout``  (:meth:`checkout`)
+        * ``release`` (:meth:`release`)
+        * ``publish``  (:meth:`get_publish`, :meth:`post_publish`)
+        * ``submit``  (:meth:`get_submit`, :meth:`post_submit`)
+        * ``recall``  (:meth:`get_recall`, :meth:`post_recall`)
+        * ``sendback``  (:meth:`get_sendback`, :meth:`post_sendback`)
+        * ``approve``  (:meth:`get_approve`, :meth:`post_approve`)
+        * ``revoke``  (:meth:`get_revoke`, :meth:`post_revoke`)
+        * ``download``  (:meth:`download`)
+    """
     
     @project_set_active
     @require(is_project_user())

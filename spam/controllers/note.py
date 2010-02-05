@@ -44,7 +44,13 @@ f_confirm = FormNoteConfirm(action=url('/note/'))
 t_notes = TableNotes()
 
 class Controller(RestController):
-    """REST controller for managing notes"""
+    """REST controller for managing notes.
+
+    In addition to the standard REST verbs this controller defines the following
+    REST-like methods:
+        * ``pin``  (:meth:`pin`)
+        * ``unpin`` (:meth:`unpin`)
+    """
     
     @project_set_active
     @require(is_project_user())

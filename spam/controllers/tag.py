@@ -44,7 +44,12 @@ f_remove = FormTagRemove(action=url('/tag/'))
 b_tags = BoxTags()
 
 class Controller(RestController):
-    """REST controller for managing tags"""
+    """REST controller for managing tags.
+    
+    In addition to the standard REST verbs this controller defines the following
+    REST-like methods:
+        * ``remove``  (:meth:`remove`)
+    """
     
     @require(in_group('administrators'))
     @expose('spam.templates.tags.get_all')

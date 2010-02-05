@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
 """
-    ~~~~~~~~~~~~~~~~~
-
-
     :copyright: 2009 by Toshio Kuratomi <tkuratom@redhat.com>
                 Adapted by code from pylons testutil.py,
                 Copyright (c) 2005-2009 Ben Bangert, James Gardner,
@@ -30,6 +27,7 @@ else:
 
 pylonsapp = None
 class PylonsSetup(Builder):
+    """Pylons environment helper."""
     @classmethod
     def pylons_env_setup(cls, app):
         global pylonsapp
@@ -50,6 +48,7 @@ class PylonsSetup(Builder):
         paste.registry.restorer.restoration_begin(request_id)
 
 def setup(app):
+    """Setup a pylons environment."""
     PylonsSetup.pylons_env_setup(app)
     app.add_config_value('pylons_config_file', '', None)
 
