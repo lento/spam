@@ -1048,7 +1048,7 @@ class FormAssetConfirm(TableForm):
 
 
 class Upload(FormField):
-    params = ['target', 'queue', 'submitter']
+    params = ['target', 'queue', 'submitter', 'ext']
     template = 'mako:spam.templates.widgets.upload'
     upload_js = JSLink(link=url('/js/widgets/upload.js'))
     javascript = [upload_js]
@@ -1056,6 +1056,7 @@ class Upload(FormField):
     target = url('/upload')
     queue = '#upload_queue'
     submitter = '.submitbutton'
+    ext = None
 
 
 class FormAssetPublish(TableForm):

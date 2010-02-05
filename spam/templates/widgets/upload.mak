@@ -2,7 +2,8 @@
     $(function() {
         $("#uploader").uploader({target: "${target}",
                                  queue: "${queue}",
-                                 submitter: "${submitter}"});
+                                 submitter: "${submitter}",
+                                 ext: "${ext}"});
     });
 </script>
 

@@ -291,8 +291,9 @@ class Controller(RestController):
                      container_=asset.parent.path,
                      category_=asset.category.id,
                     )
-                     
-        fcargs = dict()
+        
+        name, ext =os.path.splitext(asset.name)
+        fcargs = dict(uploader=dict(ext=ext))
         return dict(title='Publish a new version for "%s"' % asset.path,
                                         args=fargs, child_args=fcargs)
 
@@ -323,6 +324,14 @@ class Controller(RestController):
                 uploaded = uploaded[1:]
         else:
             uploaded = [uploaded]
+        
+        # check that uploaded file extension matches asset name
+        name, ext = os.path.splitext(asset.name)
+        for uf in uploaded:
+            uf_name, uf_ext = os.path.splitext(uf)
+            if not uf_ext == ext:
+                return dict(msg='uploaded file is not a "%s" file' % ext,
+                                                                result='failed')
         
         # commit file to repo
         if comment is None or comment=='None':

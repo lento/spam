@@ -31,6 +31,13 @@ upload.handle_files = function(queue, files) {
     for (var i = 0; i < files.length; i++) {
         var file = files[i];
         
+        var splitted_name = file.name.split(".");
+        var ext = "." + splitted_name[splitted_name.length-1];
+        if (ext != upload.config.ext) {
+            alert('"' + file.name + '" is not a "' + upload.config.ext + '" file');
+            continue;
+        }
+        
         if (!upload.queue.find(file.name)) {
             var n = upload.queue.add_file(file);
             var filediv = $('<div class="queue_item">' +
@@ -110,6 +117,7 @@ $.fn.uploader = function(config){
     if (!('queue' in config)) config.queue = "#upload_queue";
     if (!('target' in config)) config.target = "/upload";
     if (!('submitter' in config)) config.submitter = ".submitbutton";
+    if (!('ext' in config)) config.ext = "";
     upload.config = config;
     
     return this.each(function() {
