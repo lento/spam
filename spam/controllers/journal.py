@@ -29,7 +29,7 @@ from sqlalchemy import desc
 from spam.lib.base import SPAMBaseController
 from spam.model import session_get, Journal
 from spam.lib.widgets import TableJournal
-from repoze.what.predicates import not_anonymous
+from repoze.what.predicates import in_group
 
 import logging
 log = logging.getLogger(__name__)
@@ -40,15 +40,15 @@ t_journal = TableJournal()
 class Controller(SPAMBaseController):
     """Controller for the journal"""
     
-    @require(not_anonymous())
+    @require(in_group('administrators'))
     @expose('spam.templates.journal')
     @paginate('journal', items_per_page=30)
     def index(self):
-        """Return a `full` page with a table of journal entries."""
+        """Return a `full` page with a paginated table of journal entries."""
         tmpl_context.t_journal = t_journal
         query = session_get().query(Journal)
         journal = query.order_by(desc('created'))
-        return dict(page='user/journal', sidebar=('user', 'journal'),
+        return dict(page='user/journal', sidebar=('admin', 'journal'),
                                                                 journal=journal)
 
 

@@ -9,7 +9,6 @@
                 <div class="toggleable">
                     <ul class="links">
                         <li class="home"><a href="${tg.url('/user/home')}">${_('home')}</a></li>
-                        <li class="journal"><a href="${tg.url('/journal')}">${_('journal')}</a></li>
                     </ul>
                 </div>
             </div>
@@ -30,6 +29,7 @@
                         <li class="users"><a href="${tg.url('/user/')}">${_('users')}</a></li>
                         <li class="categories"><a href="${tg.url('/category/')}">${_('categories')}</a></li>
                         <li class="projects"><a href="${tg.url('/project/')}">${_('projects')}</a></li>
+                        <li class="journal"><a href="${tg.url('/journal')}">${_('journal')}</a></li>
                     </ul>
                 </div>
             </div>
