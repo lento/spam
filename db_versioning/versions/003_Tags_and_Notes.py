@@ -61,17 +61,19 @@ class Note(DeclarativeBase):
 def upgrade():
     # Upgrade operations go here. Don't create your own engine; use the engine
     # named 'migrate_engine' imported from migrate.
-    taggables_tags_table.create()
     Taggable.__table__.create()
     Tag.__table__.create()
+    taggables_tags_table.create()
+
     Annotable.__table__.create()
     Note.__table__.create()
 
 def downgrade():
     # Operations to reverse the above upgrade go here.
     taggables_tags_table.drop()
-    Taggable.__table__.drop()
     Tag.__table__.drop()
-    Annotable.__table__.drop()
+    Taggable.__table__.drop()
+
     Note.__table__.drop()
+    Annotable.__table__.drop()
 

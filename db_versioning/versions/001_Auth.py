@@ -11,18 +11,18 @@ DeclarativeBase = declarative_base(bind=migrate_engine, metadata=metadata)
 # This is the association table for the many-to-many relationship between
 # groups and permissions. This is required by repoze.what.
 groups_permissions_table = Table('__groups_permissions', metadata,
-    Column('group_id', Integer, ForeignKey('groups.group_id',
+    Column('group_id', Unicode(40), ForeignKey('groups.group_id',
         onupdate="CASCADE", ondelete="CASCADE")),
-    Column('permission_id', Integer, ForeignKey('permissions.permission_id',
+    Column('permission_id', Unicode(40), ForeignKey('permissions.permission_id',
         onupdate="CASCADE", ondelete="CASCADE"))
 )
 
 # This is the association table for the many-to-many relationship between
 # groups and members - this is, the memberships. It's required by repoze.what.
 users_groups_table = Table('__users_groups', metadata,
-    Column('user_id', Integer, ForeignKey('users.user_id',
+    Column('user_id', Unicode(40), ForeignKey('users.user_id',
         onupdate="CASCADE", ondelete="CASCADE")),
-    Column('group_id', Integer, ForeignKey('groups.group_id',
+    Column('group_id', Unicode(40), ForeignKey('groups.group_id',
         onupdate="CASCADE", ondelete="CASCADE"))
 )
 
@@ -76,17 +76,17 @@ class Permission(DeclarativeBase):
 def upgrade():
     # Upgrade operations go here. Don't create your own engine; use the engine
     # named 'migrate_engine' imported from migrate.
-    groups_permissions_table.create()
-    users_groups_table.create()
     Group.__table__.create()
     User.__table__.create()
     Permission.__table__.create()
+    groups_permissions_table.create()
+    users_groups_table.create()
     
 def downgrade():
     # Operations to reverse the above upgrade go here.
-    groups_permissions_table.drop()
     users_groups_table.drop()
-    Group.__table__.drop()
-    User.__table__.drop()
+    groups_permissions_table.drop()
     Permission.__table__.drop()
+    User.__table__.drop()
+    Group.__table__.drop()
 

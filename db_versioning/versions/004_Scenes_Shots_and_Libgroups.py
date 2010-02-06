@@ -15,15 +15,11 @@ projects = Table('projects', metadata, autoload=True)
 taggables = Table('taggables', metadata, autoload=True)
 annotables = Table('annotables', metadata, autoload=True)
 
-taggable_delete_trigger = (
-    'CREATE TRIGGER delete_orphaned_%(table)s_taggable DELETE ON %(table)s '
+orphaned_delete_trigger = (
+    'CREATE TRIGGER delete_orphaned_%(table)s_taggable AFTER DELETE ON %(table)s '
+    'FOR EACH ROW '
     'BEGIN '
         'DELETE FROM taggables WHERE id=old.id; '
-    'END;')
-
-annotable_delete_trigger = (
-    'CREATE TRIGGER delete_orphaned_%(table)s_annotable DELETE ON %(table)s '
-    'BEGIN '
         'DELETE FROM annotables WHERE id=old.id; '
     'END;')
 
@@ -56,8 +52,7 @@ class Scene(DeclarativeBase):
     name = Column(Unicode(15))
     description = Column(UnicodeText)
 
-DDL(taggable_delete_trigger).execute_at('after-create', Scene.__table__)
-DDL(annotable_delete_trigger).execute_at('after-create', Scene.__table__)
+DDL(orphaned_delete_trigger).execute_at('after-create', Scene.__table__)
 
 
 class Shot(AssetContainer):
@@ -86,8 +81,7 @@ class Shot(AssetContainer):
     taggable_id = Column(Integer)
     annotable_id = Column(Integer)
 
-DDL(taggable_delete_trigger).execute_at('after-create', Shot.__table__)
-DDL(annotable_delete_trigger).execute_at('after-create', Shot.__table__)
+DDL(orphaned_delete_trigger).execute_at('after-create', Shot.__table__)
 
 
 class Libgroup(AssetContainer):
@@ -106,8 +100,7 @@ class Libgroup(AssetContainer):
     name = Column(Unicode(40))
     description = Column(UnicodeText)
 
-DDL(taggable_delete_trigger).execute_at('after-create', Libgroup.__table__)
-DDL(annotable_delete_trigger).execute_at('after-create', Libgroup.__table__)
+DDL(orphaned_delete_trigger).execute_at('after-create', Libgroup.__table__)
 
 
 def upgrade():

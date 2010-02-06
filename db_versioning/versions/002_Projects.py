@@ -14,7 +14,7 @@ users = Table('users', metadata, autoload=True)
 projects_admins_table = Table('__projects_admins', metadata,
     Column('project_id', Unicode(10), ForeignKey('projects.id',
                                     onupdate="CASCADE", ondelete="CASCADE")),
-    Column('user_id', Integer, ForeignKey('users.user_id',
+    Column('user_id', Unicode(40), ForeignKey('users.user_id',
                                     onupdate="CASCADE", ondelete="CASCADE"))
 )
 
@@ -23,7 +23,7 @@ class Project(DeclarativeBase):
     
     id = Column(Unicode(10), primary_key=True)
     name = Column(Unicode(40))
-    description = Column(Unicode)
+    description = Column(UnicodeText())
     modified = Column(DateTime, default=datetime.now)
     archived = Column(Boolean, default=False)
 
@@ -31,8 +31,8 @@ class Project(DeclarativeBase):
 def upgrade():
     # Upgrade operations go here. Don't create your own engine; use the engine
     # named 'migrate_engine' imported from migrate.
-    projects_admins_table.create()
     Project.__table__.create()
+    projects_admins_table.create()
 
 def downgrade():
     # Operations to reverse the above upgrade go here.
