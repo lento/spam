@@ -20,7 +20,7 @@
 # Original Copyright (c) 2010, Lorenzo Pierfederici <lpierfederici@gmail.com>
 # Contributor(s): 
 #
-"""Setup the SPAM application"""
+"""Setup the SPAM database data"""
 
 import logging
 from tg import config
@@ -30,7 +30,7 @@ import transaction
 
 
 def bootstrap(command, conf, vars):
-    """Commands for the first-time setup of SPAM."""
+    """Commands for the first-time setup of SPAM database data."""
 
     session = model.session_get()
     # <websetup.bootstrap.before.auth

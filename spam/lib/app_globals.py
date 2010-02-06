@@ -42,9 +42,12 @@ class Globals(object):
         self.SCENES = config.get('default_scenes_dir', 'scenes')
         self.LIBRARY = config.get('default_library_dir', 'library')
         self.DEFAULT_PROJ_DIRS = [self.SCENES, self.LIBRARY, self.PREVIEWS]
-        self.ADDITIONAL_PROJ_DIRS = config.get('additional_proj_dirs', '').split()
+        self.ADDITIONAL_PROJ_DIRS = config.get(
+                                            'additional_proj_dirs', '').split()
         self.DEFAULT_PROJ_DIRS.extend(self.ADDITIONAL_PROJ_DIRS)
         self.UPLOAD = config.get('upload_dir', '/var/lib/spam/upload')
+
+        self.DB = config.get('db_dir', '/var/lib/spam/db')
 
         self.ORBITED_AUTOSTART = config.get('orbited_autostart', False)
         self.ORBITED_CONFIG = config.get('orbited_config', 'orbited.cfg')

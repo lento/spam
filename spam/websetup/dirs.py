@@ -20,23 +20,26 @@
 # Original Copyright (c) 2010, Lorenzo Pierfederici <lpierfederici@gmail.com>
 # Contributor(s): 
 #
-"""Setup the SPAM application"""
+"""Setup the SPAM directories"""
+
+import os
+from tg import config
 
 import logging
-from tg import app_globals
-from spam.config.environment import load_environment
-
-__all__ = ['setup_app']
-
 log = logging.getLogger(__name__)
 
-from dirs import setup_dirs
-from schema import setup_schema
-from bootstrap import bootstrap
 
-def setup_app(command, conf, vars):
-    """Place any commands to setup SPAM here"""
-    load_environment(conf.global_conf, conf.local_conf)
-    setup_dirs(command, conf, vars)
-    setup_schema(command, conf, vars)
-    bootstrap(command, conf, vars)
+def setup_dirs(command, conf, vars):
+    """Commands for the first-time setup of SPAM directories."""
+    for name in ['db_dir', 'repository', 'upload_dir']:
+        d = config.get(name, None)
+        if d:
+            try:
+                os.makedirs(d)
+            except OSError as error:
+                if error.errno==17:
+                    log.debug('directory "%s" already exists' % d)
+                else:
+                    log.debug('cannot create directory "%s"' % d)
+                    raise
+
