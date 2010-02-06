@@ -461,7 +461,7 @@ div.note_header {
 }
 
 .side .active a, .side .active a:hover {
-    color: #f6f6f4; / * Aluminium 0 * /
+    color: #f6f6f4; /* Aluminium 0 */
 }
 
 #side_overflow_container {
