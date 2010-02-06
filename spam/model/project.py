@@ -83,7 +83,7 @@ class Journal(DeclarativeBase):
     
     # Special methods
     def __init__(self, user, text):
-        self.domain = config.auth_domain
+        self.domain = config.auth_domain.decode('utf-8')
         self.user = user
         self.text = text
         self.created = datetime.now()
@@ -470,8 +470,8 @@ class Scene(DeclarativeBase):
         self.name = name
         self.id = sha1('%s-%s' % (self.proj_id, self.name)).hexdigest()
         self.description = description
-        self.taggable = Taggable(self.id, 'scene')
-        self.annotable = Annotable(self.id, 'scene')
+        self.taggable = Taggable(self.id, u'scene')
+        self.annotable = Annotable(self.id, u'scene')
 
     def __repr__(self):
         return '<Scene: %s (%s)>' % (self.id, self.path)
@@ -571,8 +571,8 @@ class Shot(AssetContainer):
         hashable = '%s-%s' % (parent.id, self.name)
         log.debug('Shot.__init__: %s' % hashable)
         self.id = sha1(hashable.encode('utf-8')).hexdigest()
-        self.taggable = Taggable(self.id, 'shot')
-        self.annotable = Annotable(self.id, 'shot')
+        self.taggable = Taggable(self.id, u'shot')
+        self.annotable = Annotable(self.id, u'shot')
 
     def __repr__(self):
         return '<Shot: %s (%s)>' % (self.id, self.path)
@@ -667,8 +667,8 @@ class Libgroup(AssetContainer):
         self.description = description
         hashable = '%s-%s' % (self.parent_id, self.name)
         self.id = sha1(hashable.encode('utf-8')).hexdigest()
-        self.taggable = Taggable(self.id, 'libgroup')
-        self.annotable = Annotable(self.id, 'libgroup')
+        self.taggable = Taggable(self.id, u'libgroup')
+        self.annotable = Annotable(self.id, u'libgroup')
 
     def __repr__(self):
         return '<Libgroup: %s (%s)>' % (self.id, self.path)
@@ -957,7 +957,7 @@ class Asset(DeclarativeBase):
         self.name = name
         hashable = '%s-%s-%s' % (parent.id, category.id, name)
         self.id = sha1(hashable.encode('utf-8')).hexdigest()
-        self.taggable = Taggable(self.id, 'asset')
+        self.taggable = Taggable(self.id, u'asset')
         
         #create version zero
         AssetVersion(self, 0, user, '')
@@ -1076,7 +1076,7 @@ class AssetVersion(DeclarativeBase):
         #self.preview_ext = preview_ext
         hashable = '%s-%s' % (asset.id, ver)
         self.id = sha1(hashable.encode('utf-8')).hexdigest()
-        self.annotable = Annotable(self.id, 'asset_version')
+        self.annotable = Annotable(self.id, u'asset_version')
 
     def __repr__(self):
         return '<AssetVersion: %s (%s_v%03d)>' % (self.asset_id,

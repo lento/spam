@@ -56,7 +56,7 @@ def user_get(user_id):
         return query.filter_by(user_id=user_id.decode('utf-8')).one()
     except NoResultFound:
         try:
-            domain = config.auth_domain
+            domain = config.auth_domain.decode('utf-8')
             user_id = '%s-%s' % (domain, user_id)
             return query.filter_by(user_id=user_id).one()
         except NoResultFound:
@@ -73,7 +73,7 @@ def group_get(group_id):
         return query.filter_by(group_id=group_id.decode('utf-8')).one()
     except NoResultFound:
         try:
-            domain = config.auth_domain
+            domain = config.auth_domain.decode('utf-8')
             group_id = '%s-%s' % (domain, group_id)
             return query.filter_by(group_id=group_id.decode('utf-8')).one()
         except NoResultFound:

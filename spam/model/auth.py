@@ -87,7 +87,7 @@ class Group(DeclarativeBase):
     
     # Special methods
     def __init__(self, group_name, display_name):
-        domain = config.auth_domain
+        domain = config.auth_domain.decode('utf-8')
         self.group_id = '%s-%s' % (domain, group_name)
         self.group_name = group_name
         self.display_name = display_name
@@ -195,7 +195,7 @@ class User(DeclarativeBase):
     
     # Special methods
     def __init__(self, user_name, display_name=None, email=None):
-        domain = config.auth_domain
+        domain = config.auth_domain.decode('utf-8')
         self.user_id = '%s-%s' % (domain, user_name)
         self.user_name = user_name
         self.display_name = display_name
@@ -233,7 +233,7 @@ class Permission(DeclarativeBase):
     
     # Special methods
     def __init__(self, permission_name, description):
-        domain = config.auth_domain
+        domain = config.auth_domain.decode('utf-8')
         self.permission_id = '%s-%s' % (domain, permission_name)
         self.permission_name = permission_name
         self.description = description
