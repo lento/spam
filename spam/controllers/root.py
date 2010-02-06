@@ -75,7 +75,7 @@ class RootController(SPAMBaseController):
         redirect('/user/home')
 
     @expose('spam.templates.login')
-    def login(self, came_from=url('/')):
+    def login(self, came_from='/'):
         """Start the user login."""
         login_counter = request.environ['repoze.who.logins']
         if login_counter > 0:
@@ -84,7 +84,7 @@ class RootController(SPAMBaseController):
                     came_from=came_from)
     
     @expose()
-    def post_login(self, came_from=url('/')):
+    def post_login(self, came_from='/'):
         """
         Redirect the user to the initially requested page on successful
         authentication or redirect her back to the login page if login failed.
@@ -97,7 +97,7 @@ class RootController(SPAMBaseController):
         redirect(came_from)
 
     @expose()
-    def post_logout(self, came_from=url('/')):
+    def post_logout(self, came_from='/'):
         """
         Redirect the user to the initially requested page on logout and say
         goodbye as well.
