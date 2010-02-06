@@ -64,7 +64,7 @@ class Controller(RestController):
     @project_set_active
     @require(is_project_user())
     @expose('spam.templates.notes.get_all')
-    def default(self, proj, annotable_id, *args, **kwargs):
+    def _default(self, proj, annotable_id, *args, **kwargs):
         """Catch request to `note/<something>' and pass them to :meth:`get_all`,
         because RESTController doesn't dispatch to get_all when there are
         arguments.

@@ -70,7 +70,7 @@ class Controller(RestController):
                                 scenes=project.scenes, extra_data=extra_data)
 
     @expose('spam.templates.scene.get_all')
-    def default(self, proj, *args, **kwargs):
+    def _default(self, proj, *args, **kwargs):
         """Catch request to `scene/<something>' and pass them to :meth:`get_all`,
         because RESTController doesn't dispatch to get_all when there are
         arguments.

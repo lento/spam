@@ -60,7 +60,7 @@ class Controller(RestController):
         return dict(tags=taggable.tags)
 
     @expose('spam.templates.tags.get_all')
-    def default(self, taggable_id, *args, **kwargs):
+    def _default(self, taggable_id, *args, **kwargs):
         """Catch request to `tag/<something>' and pass them to :meth:`get_all`,
         because RESTController doesn't dispatch to get_all when there are
         arguments.

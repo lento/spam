@@ -99,7 +99,7 @@ class Controller(RestController):
                 container=container)
 
     @expose('spam.templates.asset.get_all')
-    def default(self, proj, container_type, container_id, *args, **kwargs):
+    def _default(self, proj, container_type, container_id, *args, **kwargs):
         return self.get_all(proj, container_type, container_id)
 
     @project_set_active

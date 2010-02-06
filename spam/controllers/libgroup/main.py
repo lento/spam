@@ -76,7 +76,7 @@ class Controller(RestController):
             libgroups=project.libgroups, parent_id=None, extra_data=extra_data)
 
     @expose('spam.templates.libgroup.get_all')
-    def default(self, proj, *args, **kwargs):
+    def _default(self, proj, *args, **kwargs):
         """Catch request to `libgroup/<something>' and pass them to :meth:`get_all`,
         because RESTController doesn't dispatch to get_all when there are
         arguments.
