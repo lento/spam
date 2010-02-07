@@ -460,7 +460,7 @@ div.note_header {
     color: #204a87; /* Sky Blue 3 */
 }
 
-.side .active a, .side .active a:hover {
+.side .active > a, .side .active > a:hover {
     color: #f6f6f4; /* Aluminium 0 */
 }
 
