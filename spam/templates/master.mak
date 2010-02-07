@@ -59,7 +59,7 @@
             ${sidebars.sb_user()}
             ${sidebars.sb_projects()}
         </div>
-        % if hasattr(c, 'project'):
+        % if hasattr(c, 'project') and c.project:
             <div id="side_overflow_container">
                 <div id="side_overflow_activearea">
                     <div id="side_overflow" class="side overflow">
@@ -102,7 +102,7 @@
         % endif
         
   	    <div class="title">
-  	    	% if hasattr(c, 'project'):
+  	    	% if hasattr(c, 'project') and c.project:
   	    	    ${c.project.name}
     	    % else:
     	        SPAM

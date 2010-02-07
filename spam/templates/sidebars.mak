@@ -76,7 +76,7 @@
 </%def>    
 
 <%def name="sb_project()">
-    % if tg.predicates.not_anonymous() and c.project:
+    % if tg.predicates.not_anonymous() and hasattr(c, 'project') and c.project:
         ${c.j_notify_client()}
         <div id="sb_project" class="sidebar">
             <div class="title">
