@@ -22,6 +22,6 @@
 <%inherit file="spam.templates.master"/>
 
 <div class="content">
-    home dell'utente ${c.user.user_name}
+    ${c.user.user_name}'s home
 </div>
 
