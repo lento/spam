@@ -23,7 +23,7 @@ import os
 os.environ['PYTHON_EGG_CACHE'] = '/var/www/wsgi/python-eggs'
 
 from paste.deploy import loadapp
-application = loadapp('config:/home/lorenzo/dev/spam/apache.ini')
+application = loadapp('config:/var/www/wsgi/apps/spam/deployment.ini')
 
 # init the app by calling '/' to be sure that all threads register toscawidgets
 # and their resources
