@@ -8,11 +8,12 @@ except ImportError:
 
 setup(
     name='spam',
-    version='0.2',
-    description='',
-    author='',
-    author_email='',
+    version='0.3',
+    description='A project and asset manager for 3d animation and VFX productions',
+    author='Lorenzo Pierfederici',
+    author_email='lpierfederici@gmail.com',
     #url='',
+    license='GPL v3',
     zip_safe=False,
     install_requires=[
         "TurboGears2 >= 2.1a2",
