@@ -271,8 +271,8 @@ class Controller(RestController):
     def get_activate(self, proj, **kwargs):
         """Display a ACTIVATE confirmation form."""
         tmpl_context.form = f_confirm
-        project = query_projects_archived().filter_by(id=proj).one()
-        log.debug('get_activate: %s' % project)
+        query = query_projects_archived().filter_by(id=proj.decode('utf-8'))
+        project = query.one()
         
         fargs = dict(_method='ACTIVATE', proj=project.id, id_=project.id,
                      name_=project.name,
@@ -287,7 +287,8 @@ class Controller(RestController):
     @expose('spam.templates.forms.result')
     def post_activate(self, proj):
         """Activate a project"""
-        project = query_projects_archived().filter_by(id=proj).one()
+        query = query_projects_archived().filter_by(id=proj.decode('utf-8'))
+        project = query.one()
         session = session_get()
         user = tmpl_context.user
 
