@@ -35,7 +35,7 @@ class CategoryNamingConvention(FormValidator):
     __unpackargs__ = ('category_field', 'name_field')
     
     messages = {
-        'notDict': _("Fields should be a dictionary"),
+        'notDict': "Fields should be a dictionary",
         }
 
     def validate_partial(self, field_dict, state):
