@@ -262,5 +262,5 @@ class Controller(RestController):
         return dict(msg='deleted shot "%s"' % shot.path, result='success')
     
     # Custom REST-like actions
-    custom_actions = []
+    _custom_actions = []
 

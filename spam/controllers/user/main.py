@@ -194,7 +194,7 @@ class Controller(RestController):
         return dict(msg='deleted user "%s"' % deluser.user_id, result='success')
 
     # Custom REST-like actions
-    custom_actions = ['add_to_group', 'remove_from_group',
+    _custom_actions = ['add_to_group', 'remove_from_group',
                       'add_admins', 'remove_admin',
                       'add_supervisors', 'remove_supervisor',
                       'add_artists', 'remove_artist',

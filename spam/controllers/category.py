@@ -184,5 +184,5 @@ class Controller(RestController):
                                                             result='success')
     
     # Custom REST-like actions
-    custom_actions = []
+    _custom_actions = []
 

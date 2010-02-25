@@ -227,7 +227,7 @@ class Controller(RestController):
         return dict(msg='deleted project "%s"' % proj, result='success')
     
     # Custom REST-like actions
-    custom_actions = ['archive', 'activate', 'upgrade', 'sidebar']
+    _custom_actions = ['archive', 'activate', 'upgrade', 'sidebar']
     
     @project_set_active
     @require(in_group('administrators'))

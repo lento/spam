@@ -163,7 +163,7 @@ class Controller(RestController):
         return dict(msg='deleted tag "%s"' % tag.id, result='success')
     
     # Custom REST-like actions
-    custom_actions = ['remove']
+    _custom_actions = ['remove']
     
     @require(in_group('administrators'))
     @expose('json')

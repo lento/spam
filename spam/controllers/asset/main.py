@@ -232,7 +232,7 @@ class Controller(RestController):
         return dict(msg='deleted asset "%s"' % asset.path, result='success')
     
     # Custom REST-like actions
-    custom_actions = ['checkout', 'release', 'publish', 'submit', 'recall',
+    _custom_actions = ['checkout', 'release', 'publish', 'submit', 'recall',
                       'sendback', 'approve', 'revoke', 'download']
 
     @project_set_active

@@ -231,5 +231,5 @@ class Controller(RestController):
         return dict(msg='deleted scene "%s"' % scene.path, result='success')
     
     # Custom REST-like actions
-    custom_actions = []
+    _custom_actions = []
 

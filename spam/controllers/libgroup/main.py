@@ -252,7 +252,7 @@ class Controller(RestController):
     
 
     # Custom REST-like actions
-    custom_actions = ['subgroups']
+    _custom_actions = ['subgroups']
 
     @project_set_active
     @require(is_project_user())

@@ -155,7 +155,7 @@ class Controller(RestController):
         return dict(msg='deleted note "%s"' % note.id, result='success')
     
     # Custom REST-like actions
-    custom_actions = ['pin', 'unpin']
+    _custom_actions = ['pin', 'unpin']
 
     @project_set_active
     @require(is_project_admin())
