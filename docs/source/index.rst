@@ -10,7 +10,7 @@ production workflow of a 3d animation or VFX pipeline.
 .. toctree::
    :maxdepth: 2
     
-   install
+   deploy
    admin
    projects
    assets
