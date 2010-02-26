@@ -8,7 +8,7 @@ except ImportError:
 
 setup(
     name='spam',
-    version='0.3',
+    version='0.3.1',
     description='A project and asset manager for 3d animation and VFX productions',
     author='Lorenzo Pierfederici',
     author_email='lpierfederici@gmail.com',
@@ -16,7 +16,7 @@ setup(
     license='GPL v3',
     zip_safe=False,
     install_requires=[
-        "TurboGears2 >= 2.1a2",
+        "TurboGears2 >= 2.1b2",
         "Babel >=0.9.4",
         #can be removed iif use_toscawidgets = False
         "toscawidgets >= 0.9.7.1",
