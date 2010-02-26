@@ -1,4 +1,4 @@
-ALLDIRS = ['/home/lorenzo/dev/virtualenv/tg21env/lib/python2.6/site-packages']
+ALLDIRS = ['/var/www/wsgi/virtualenv/tg21env/lib/python2.6/site-packages']
 
 import sys 
 import site 
