@@ -8,3 +8,5 @@ syntax: regexp
 .*\#.*\#$
 ^data/sessions/.*
 ^docs/build/
+^deployment_.*\.ini
+^orbited_.*\.cfg
