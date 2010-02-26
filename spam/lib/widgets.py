@@ -89,7 +89,7 @@ class StatusIcon(LiveWidget):
 
 class StatusIconBox(LiveWidget):
     """Custom livewidget to show a box of status icons."""
-    params = ['icon_class']
+    params = ['icon_class', 'dest']
     template = 'mako:spam.templates.widgets.statusiconbox'
     
     field_class = 'statusiconbox'
@@ -302,8 +302,10 @@ class TableScenes(LiveTable):
         namelink = Link(dest=url('/scene/%(proj_id)s/%(name)s/'), sort_default=True,
                         fields=[Text(id='name', label_text='name')])
         description = Text()
-        shots = StatusIconBox(fields=[
-            StatusIcon(label_text='')
+        shots = StatusIconBox(
+            dest=url('/shot/%(proj_id)s/%(parent_name)s/%(name)s/'),
+            fields=[
+              StatusIcon(label_text='')
         ])
         actions = Box(
             condition='$.inArray(data.user_id, data.project.admin_ids)>=0',
@@ -375,8 +377,10 @@ class TableLibgroups(LiveTable):
                         sort_default=True,
                         fields=[Text(id='name', label_text='name')])
         description = Text()
-        subgroups = StatusIconBox(fields=[
-            StatusIcon(label_text='')
+        subgroups = StatusIconBox(
+            dest=url('/libgroup/%(proj_id)s/%(id)s'),
+            fields=[
+              StatusIcon(label_text='')
         ])
         categories = Box(field_class='statusiconbox', fields=[
             Link(dest='%s#%s' % (
