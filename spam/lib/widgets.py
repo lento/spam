@@ -34,45 +34,6 @@ from livewidgets import LiveTable, LiveBox, LiveList
 from livewidgets import LiveWidget, Box, Button, Icon, Text, Link, Image
 from spam.lib.notifications import notify
 
-# Orbited
-orbited_address = config.get('orbited_address', 'http://localhost:9000')
-
-orbited_js = JSLink(link='%s/static/Orbited.js' % orbited_address)
-initsocket_js = JSLink(link=url('/js/init_TCPSocket.js'))
-stomp_js = JSLink(link='%s/static/protocols/stomp/stomp.js' % orbited_address)
-
-# JQuery and plugins
-jquery_js = JSLink(link=url('/js/jquery.js'))
-jquery_ui_js = JSLink(link=url('/js/jquery-ui.js'))
-jquery_tools_js = JSLink(link=url('/js/jquery.tools.js'))
-jquery_cookie_js = JSLink(link=url('/js/jquery.cookie.js'))
-jquery_treeview_js = JSLink(link=url('/js/jquery.treeview.js'))
-jquery_sprintf_js = JSLink(link=url('/js/jquery.sprintf.js'))
-jquery_tablesorter_js = JSLink(link=url('/js/jquery.tablesorter.js'))
-
-# SPAM
-spam_js = JSLink(link=url('/parsedjs/spam.js'))
-notify_client_js = JSLink(link=url('/parsedjs/notify_client.js'))
-
-# load LiveTable js on every page, so we can use it in tabs
-livetable_js = JSLink(modname='spam.lib.twlib.livetable',
-                      filename='static/livetable.js')
-
-class NetworkingJS(Widget):
-    """Javascripts for connecting to a stomp server."""
-    javascript = [orbited_js, initsocket_js, stomp_js]
-
-
-class NotifyClientJS(Widget):
-    """SPAM notification client javascript."""
-    javascript = [notify_client_js]
-
-
-class StartupJS(Widget):
-    """Javascript to include in every page."""
-    javascript = [jquery_js, jquery_ui_js, jquery_tools_js, jquery_cookie_js,
-                  jquery_treeview_js, jquery_sprintf_js, jquery_tablesorter_js,
-                  spam_js]
 
 ############################################################
 # Custom Live widgets
@@ -102,7 +63,6 @@ class StatusIconBox(LiveWidget):
 ############################################################
 class TableUsers(LiveTable):
     """User livetable."""
-    javascript = [notify_client_js]
     update_topic = notify.TOPIC_USERS
     class fields(WidgetsList):
         domain = Text()
@@ -124,7 +84,6 @@ class TableUsers(LiveTable):
 
 class TableGroupUsers(LiveTable):
     """Group users livetable."""
-    javascript = [notify_client_js]
     update_topic = notify.TOPIC_GROUPS
     class fields(WidgetsList):
         user_name = Text(sort_default=True)
@@ -146,7 +105,6 @@ class TableGroupUsers(LiveTable):
 
 class TableProjectAdmins(LiveTable):
     """Project administrators livetable."""
-    javascript = [notify_client_js]
     update_topic = notify.TOPIC_PROJECT_ADMINS
     class fields(WidgetsList):
         user_name = Text(sort_default=True)
@@ -166,7 +124,6 @@ class TableProjectAdmins(LiveTable):
 
 class TableProjectSupervisors(LiveTable):
     """Project supervisors livetable."""
-    javascript = [notify_client_js]
     update_topic = notify.TOPIC_PROJECT_SUPERVISORS
     class fields(WidgetsList):
         user_name = Text(sort_default=True)
@@ -188,7 +145,6 @@ class TableProjectSupervisors(LiveTable):
 
 class TableProjectArtists(LiveTable):
     """Project artists livetable."""
-    javascript = [notify_client_js]
     update_topic = notify.TOPIC_PROJECT_ARTISTS
     class fields(WidgetsList):
         user_name = Text(sort_default=True)
@@ -210,7 +166,6 @@ class TableProjectArtists(LiveTable):
 
 class TableCategories(LiveTable):
     """Category livetable."""
-    javascript = [notify_client_js]
     update_topic = notify.TOPIC_CATEGORIES
     class fields(WidgetsList):
         ordering = Text(sort_default=True)
@@ -233,7 +188,6 @@ class TableCategories(LiveTable):
 
 class ProjectsActive(LiveTable):
     """Active projects livetable."""
-    javascript = [notify_client_js]
     update_topic = notify.TOPIC_PROJECTS
     update_condition = '!msg.ob.archived || msg.update_type=="archived"'
     update_functions = ('{"added": lw.livetable.addrow,'
@@ -267,7 +221,6 @@ class ProjectsActive(LiveTable):
 
 class ProjectsArchived(LiveTable):
     """Archived projects livetable."""
-    javascript = [notify_client_js]
     update_topic = notify.TOPIC_PROJECTS
     update_condition = 'msg.ob.archived || msg.update_type=="activated"'
     update_functions = ('{"added": lw.livetable.addrow,'
@@ -291,7 +244,6 @@ class ProjectsArchived(LiveTable):
 
 class TableScenes(LiveTable):
     """Scene livetable."""
-    javascript = [notify_client_js]
     update_topic = notify.TOPIC_SCENES
     class fields(WidgetsList):
         thumbnail = Box(field_class='thumbnail', fields=[
@@ -325,7 +277,6 @@ class TableScenes(LiveTable):
 
 class TableShots(LiveTable):
     """Shot livetable."""
-    javascript = [notify_client_js]
     update_topic = notify.TOPIC_SHOTS
     class fields(WidgetsList):
         thumbnail = Box(field_class='thumbnail', fields=[
@@ -365,7 +316,6 @@ class TableShots(LiveTable):
 class TableLibgroups(LiveTable):
     """Libgroup livetable."""
     params = ['parent_id']
-    javascript = [notify_client_js]
     update_topic = notify.TOPIC_LIBGROUPS
     class fields(WidgetsList):
         thumbnail = Box(field_class='thumbnail', fields=[
@@ -415,7 +365,6 @@ class TableAssets(LiveTable):
     """Asset livetable."""
     params = ['category']
     
-    javascript = [notify_client_js]
     update_topic = notify.TOPIC_ASSETS
     class fields(WidgetsList):
         thumbnail = Box(field_class='thumbnail status %(status)s', fields=[
@@ -566,7 +515,6 @@ class TableAssetHistory(LiveTable):
 class TableJournal(LiveTable):
     """Journal entries livetable."""
     params = ['curpage']
-    javascript = [notify_client_js]
     update_topic = notify.TOPIC_JOURNAL
     class fields(WidgetsList):
         strftime = Text(label_text='date', sort_default=True,
@@ -582,7 +530,6 @@ class TableJournal(LiveTable):
 class TableNotes(LiveTable):
     """Note livetable."""
     params = ['annotable_id']
-    javascript = [notify_client_js]
     update_topic = notify.TOPIC_NOTES
     class fields(WidgetsList):
         user_name = Text(field_class='note_header', label_text='user name')
@@ -619,7 +566,6 @@ class TableNotes(LiveTable):
 class ListProjects(LiveList):
     """Project livelist."""
     params = ['user_id']
-    javascript = [notify_client_js]
     update_topic = notify.TOPIC_PROJECTS
     class fields(WidgetsList):
         name = Link(dest=url('/project/%(id)s'), field_class='%(id)s', fields=[
@@ -639,7 +585,6 @@ class BoxTags(LiveBox):
     """Tag livebox."""
     params = ['taggable_id']
     container_class = 'tagbox'
-    javascript = [notify_client_js]
     update_topic = notify.TOPIC_TAGS
     class fields(WidgetsList):
         id = Box(fields=[
