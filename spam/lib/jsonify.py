@@ -20,13 +20,17 @@
 #
 """JSON encoding functions using EAK-Rules.
 
-Stolen from tg2.1 and modified to use standard lib json instead of simplejson.
+Stolen from tg2.1 and modified to use standard lib json instead of simplejson
+if available.
 """
 
 import datetime
 import decimal
 
-from json import JSONEncoder
+try:
+    from json import JSONEncoder
+except ImportError:
+    from simplejson import JSONEncoder
 
 import sqlalchemy
 

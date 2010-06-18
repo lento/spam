@@ -217,6 +217,11 @@ class Controller(RestController):
         user = tmpl_context.user
         project = tmpl_context.project
         
+        if project.scenes or project.libgroups:
+            return dict(msg='cannot delete project "%s" because it contains '
+                            'scenes or libgroups' % project.id,
+                        result='failed')
+
         session.delete(project)
         
         # log into Journal

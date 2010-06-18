@@ -34,7 +34,7 @@ def setup_dirs(command, conf, vars):
         if d:
             try:
                 os.makedirs(d)
-            except OSError as error:
+            except OSError, error:
                 if error.errno==17:
                     log.debug('directory "%s" already exists' % d)
                 else:

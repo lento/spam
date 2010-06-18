@@ -20,7 +20,7 @@
 <%inherit file="spam.templates.tab"/>
 
 <%
-    new_url = hasattr(c, 'parent') and '%s/%s' % (c.project.id, c.parent.id) or c.project.id
+    new_url = hasattr(c, 'parent') and hasattr(c.parent, 'id') and '%s/%s' % (c.project.id, c.parent.id) or c.project.id
 %>
 
 % if c.predicates.is_project_admin():

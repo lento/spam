@@ -201,7 +201,7 @@ def project_create_dirs(proj):
         os.makedirs(repo_path)
         for d in G.DEFAULT_PROJ_DIRS:
             os.makedirs(os.path.join(repo_path, d))
-    except OSError as error:
+    except OSError, error:
         # error 17 is "file exists", in that case we just skip the exception
         if not error.errno==17:
             raise SPAMRepoError("Couldn't create directories for project %s" %
@@ -214,7 +214,7 @@ def scene_create_dirs(proj, scene):
     try:
         os.makedirs(path)
         os.makedirs(previews_path)
-    except OSError as error:
+    except OSError, error:
         # error 17 is "file exists", in that case we just skip the exception
         if not error.errno==17:
             raise SPAMRepoError("Couldn't create directories for scene %s" %
@@ -227,7 +227,7 @@ def shot_create_dirs(proj, shot):
     try:
         os.makedirs(path)
         os.makedirs(previews_path)
-    except OSError as error:
+    except OSError, error:
         # error 17 is "file exists", in that case we just skip the exception
         if not error.errno==17:
             raise SPAMRepoError("Couldn't create directories for shot %s" %
@@ -240,7 +240,7 @@ def libgroup_create_dirs(proj, libgroup):
     try:
         os.makedirs(path)
         os.makedirs(previews_path)
-    except OSError as error:
+    except OSError, error:
         # error 17 is "file exists", in that case we just skip the exception
         if not error.errno==17:
             raise SPAMRepoError("Couldn't create directories for libgroup %s" %

@@ -25,7 +25,7 @@ code, so the WSGI error middleware can take care of them."""
 
 from tg.exceptions import HTTPClientError
 
-class SPAMError(HTTPClientError):
+class SPAMError(Exception):
     """SPAM Error."""
     code = 400
     title = 'SPAM Error'
