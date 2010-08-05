@@ -87,6 +87,8 @@ spam/public/js/jquery.sprintf.js
 spam/public/js/jquery.tablesorter.js
 spam/public/js/jquery.tools.js
 spam/public/js/jquery.treeview.js
+spam/public/js/notify_client.js
+spam/public/js/spam.js
 spam/public/js/extern/jquery-1.3.2.min.js
 spam/public/js/extern/jquery-ui-1.7.2.custom.min.js
 spam/public/js/extern/jquery.cookie.js
@@ -173,10 +175,6 @@ spam/templates/libgroup/tabs/__init__.pyc
 spam/templates/libgroup/tabs/summary.mak
 spam/templates/notes/__init__.py
 spam/templates/notes/get_all.mak
-spam/templates/parsedjs/__init__.py
-spam/templates/parsedjs/__init__.pyc
-spam/templates/parsedjs/notify_client.mak
-spam/templates/parsedjs/spam.mak
 spam/templates/project/__init__.py
 spam/templates/project/__init__.pyc
 spam/templates/project/get_all.mak

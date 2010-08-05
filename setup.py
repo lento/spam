@@ -18,7 +18,7 @@ setup(
     install_requires=[
         "TurboGears2 >= 2.1b2",
         "Babel >=0.9.4",
-        #can be removed iif use_toscawidgets = False
+        #can be removed if use_toscawidgets = False
         "toscawidgets >= 0.9.7.1",
         "tw.forms >= 0.9.7.1",
         "zope.sqlalchemy >= 0.4 ",
@@ -32,6 +32,7 @@ setup(
         "Twisted",
         "stomp.py<2.1",
         "MySQL-python",
+        "sqlalchemy-migrate",
                 ],
     setup_requires=["PasteScript >= 1.7"],
     paster_plugins=['PasteScript', 'Pylons', 'TurboGears2', 'tg.devtools',

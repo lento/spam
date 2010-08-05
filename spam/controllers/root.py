@@ -103,29 +103,6 @@ class RootController(SPAMBaseController):
         flash(_('See you soon!'))
         redirect(came_from)
     
-    @expose(content_type='text/javascript')
-    @require(not_anonymous(msg=l_('Please login')))
-    def parsedjs(self, script, *args, **kwargs):
-        """
-        Render the required javascript from a template of the same name (but
-        with a .mak extension) as found in spam/templates/parsedjs/
-        
-        This is needed for javascripts that use config variables from spam or
-        other variable data.
-        """
-        scriptname = os.path.splitext(script)[0]
-        templatename = 'spam.templates.parsedjs.%s' % scriptname
-        
-        if config.get('use_dotted_templatenames', False):
-            template = G.dotted_filename_finder.get_dotted_filename(
-                                    templatename, template_extension='.mak')
-            if not os.path.exists(template):
-                raise HTTPNotFound
-        
-        override_template(self.parsedjs, 'mako:%s' % templatename)
-
-        return dict()
-
     @expose('json')
     @require(not_anonymous(msg=l_('Please login')))
     def upload(self, uploadfile, uploader=None):

@@ -31,12 +31,15 @@
     <title>${self.title()}</title>
     <link rel="stylesheet" type="text/css" media="screen" href="${tg.url('/themes/%s/css/style.css' % c.theme)}" />
 
-    ${c.j_networking()}
-    ${c.j_startup()}
+    ##${c.j_networking()}
     <script type="text/javascript">
     $(function() {
+        spam_init("${tg.url('/')}");
         spam.sidebar_set_active("${sidebar and sidebar[0] or ''}",
-                              "${sidebar and sidebar[1] or ''}");
+                                "${sidebar and sidebar[1] or ''}");
+
+        notify_init("${tg.config.get('stomp_host', 'localhost')}",
+                    ${tg.config.get('stomp_port', '61613')});
     });
     </script>
 </head>

@@ -31,7 +31,7 @@ from spam.model import project_get, container_get, asset_get, category_get
 from spam.model import assetversion_get
 from spam.lib.widgets import FormAssetNew, FormAssetEdit, FormAssetConfirm
 from spam.lib.widgets import FormAssetPublish, FormAssetStatus, BoxStatus
-from spam.lib.widgets import TableAssets, TableAssetHistory, NotifyClientJS
+from spam.lib.widgets import TableAssets, TableAssetHistory
 from spam.lib import repo, preview
 from spam.lib.notifications import notify
 from spam.lib.journaling import journal
@@ -56,8 +56,6 @@ t_assets = TableAssets()
 t_history = TableAssetHistory()
 b_status = BoxStatus()
 
-# javascripts
-j_notify_client = NotifyClientJS()
 
 class Controller(RestController):
     """REST controller for managing assets.
@@ -89,7 +87,6 @@ class Controller(RestController):
         project = tmpl_context.project
         tmpl_context.t_assets = t_assets
         tmpl_context.b_status = b_status
-        tmpl_context.j_notify_client = j_notify_client
         container = container_get(proj, container_type, container_id)
         
         return dict(page='assets', sidebar=('projects', project.id),

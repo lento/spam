@@ -11,3 +11,4 @@ orbited
 Twisted
 stomp.py<2.1
 MySQL-python
+sqlalchemy-migrate

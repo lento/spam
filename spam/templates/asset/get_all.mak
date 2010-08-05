@@ -47,10 +47,6 @@
     </div>
 % endfor
 
-## we load the stomp client in case there's no livetable on the page (this can
-## happen if the container has no assets). The <script> tag will be put in
-## the <head> section inherited from "spam.templates.tab"
-${c.j_notify_client()}
 <script type="text/javascript">
     spam.temp.reload_tab = function() {
         $(".pane.ajax").load("${tg.url('/asset/%s/%s/%s/' % (c.project.id, container_type, container_id))}");
