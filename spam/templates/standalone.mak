@@ -26,7 +26,6 @@
     <meta content="text/html; charset=UTF-8" http-equiv="content-type"/>
     ${self.style()}
 </head>
-${c.j_startup()}
 
 <body>
     ${self.body()}

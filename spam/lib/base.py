@@ -49,9 +49,8 @@ jquery_tablesorter_js = JSLink(link=url('/js/jquery.tablesorter.js'))
 spam_js = JSLink(link=url('/js/spam.js'))
 notify_client_js = JSLink(link=url('/js/notify_client.js'))
 
-# load LiveTable js on every page, so we can use it in tabs
-livetable_js = JSLink(modname='spam.lib.twlib.livetable',
-                      filename='static/livetable.js')
+# load Livewidgets js on every page, so we can use it in tabs
+livewidgets_js = JSLink(modname='livewidgets', filename='static/livewidgets.js')
 
 # widgets
 l_projects = ListProjects()
@@ -109,7 +108,7 @@ class SPAMBaseController(TGController):
 
         spam_js.inject()
         notify_client_js.inject()
-        livetable_js.inject()
+        livewidgets_js.inject()
 
         # widgets
         tmpl_context.l_projects = l_projects

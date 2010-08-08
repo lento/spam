@@ -31,7 +31,6 @@
     <title>${self.title()}</title>
     <link rel="stylesheet" type="text/css" media="screen" href="${tg.url('/themes/%s/css/style.css' % c.theme)}" />
 
-    ##${c.j_networking()}
     <script type="text/javascript">
     $(function() {
         spam_init("${tg.url('/')}");
