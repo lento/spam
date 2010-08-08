@@ -24,6 +24,9 @@ import logging
 import transaction
 from tg import config
 
+import logging
+log = logging.getLogger(__name__)
+
 def setup_schema(command, conf, vars):
     """Commands for the first-time setup of SPAM database schema."""
     # Load the models
@@ -34,8 +37,9 @@ def setup_schema(command, conf, vars):
 
     
     # <websetup.websetup.schema.before.metadata.create_all>
-    print "Creating tables"
-    model.versioning.db_init('spam')
-    model.versioning.db_upgrade('spam')
+    engine = config['pylons.app_globals'].sa_engine
+
+    log.debug('Creating tables')
+    model.metadata.create_all(bind=engine)
     # <websetup.websetup.schema.after.metadata.create_all>
     transaction.commit()
