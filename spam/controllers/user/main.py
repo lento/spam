@@ -20,7 +20,7 @@
 #
 """User main Controller"""
 
-from tg import expose, url, tmpl_context, redirect, validate, require
+from tg import expose, url, tmpl_context, redirect, validate, require, flash
 from tg.controllers import RestController
 from tg.decorators import with_trailing_slash
 from pylons.i18n import ugettext as _, lazy_ugettext as l_
@@ -98,7 +98,7 @@ class Controller(RestController):
 
     @require(in_group('administrators'))
     @expose('json')
-    @expose('spam.templates.forms.result')
+    @expose('spam.templates.redirect_parent')
     @validate(f_new, error_handler=new)
     def post(self, user_name, display_name, password):
         """Create a new user"""
@@ -116,9 +116,9 @@ class Controller(RestController):
         
         # send a stomp message to notify clients
         notify.send(newuser, update_type='added')
-        return dict(msg='created user "%s"' % newuser.id, result='success',
-                                                                user=newuser)
-    
+        flash('%s %s' % (_('Created User:'), newuser.id), 'ok')
+        return dict(redirect_to=url('/user'))
+
     @require(in_group('administrators'))
     @expose('spam.templates.forms.form')
     def edit(self, user_id, **kwargs):
@@ -133,7 +133,7 @@ class Controller(RestController):
         
     @require(in_group('administrators'))
     @expose('json')
-    @expose('spam.templates.forms.result')
+    @expose('spam.templates.redirect_parent')
     @validate(f_edit, error_handler=edit)
     def put(self, user_id, display_name=None):
         """Edit a user"""
@@ -156,10 +156,10 @@ class Controller(RestController):
             
             # send a stomp message to notify clients
             notify.send(edituser)
-            return dict(msg='updated user "%s"' %
-                                            edituser.user_id, result='success')
-        return dict(msg='user "%s" unchanged' %
-                                            edituser.user_id, result='success')
+            flash('%s %s' % (_('Updated User:'), edituser.user_id), 'ok')
+        else:
+            flash('%s %s' % (_('User is unchanged:'), edituser.user_id), 'info')
+        return dict(redirect_to=url('/user'))
 
     @require(in_group('administrators'))
     @expose('spam.templates.forms.form')
@@ -176,7 +176,7 @@ class Controller(RestController):
 
     @require(in_group('administrators'))
     @expose('json')
-    @expose('spam.templates.forms.result')
+    @expose('spam.templates.redirect_parent')
     @validate(f_confirm, error_handler=get_delete)
     def post_delete(self, user_id):
         """Delete a user."""
@@ -191,7 +191,8 @@ class Controller(RestController):
         
         # send a stomp message to notify clients
         notify.send(deluser, update_type='deleted')
-        return dict(msg='deleted user "%s"' % deluser.user_id, result='success')
+        flash('%s %s' % (_('Deleted User:'), deluser.user_id), 'ok')
+        return dict(redirect_to=url('/user'))
 
     # Custom REST-like actions
     _custom_actions = ['add_to_group', 'remove_from_group',
@@ -216,7 +217,7 @@ class Controller(RestController):
 
     @require(in_group('administrators'))
     @expose('json')
-    @expose('spam.templates.forms.result')
+    @expose('spam.templates.redirect_parent')
     @validate(f_add_to_group, error_handler=get_add_to_group)
     def post_add_to_group(self, group_id, userids):
         """Add users to a group"""
@@ -241,11 +242,12 @@ class Controller(RestController):
         # log into Journal
         journal.add(user, 'added user(s) "%s" to %s' % (added, group))
         
-        return dict(msg='added user(s) %s to group "%s"' %
-                                    (added, group.group_id), result='success')
+        flash('%s: %s "%s"' % (added, _('user(s) added to group'),
+                                                        group.group_id), 'ok')
+        return dict(redirect_to=url('/user'))
 
     @expose('json')
-    @expose('spam.templates.forms.result')
+    @expose('spam.templates.redirect_parent')
     def remove_from_group(self, user_id, group_id):
         """Remove a user from a group"""
         session = session_get()
@@ -262,8 +264,9 @@ class Controller(RestController):
         notify.send(remuser, update_type='deleted',
                     destination=notify.TOPIC_GROUPS,
                     group_name=group.group_name)
-        return dict(msg='user "%s" removed from group "%s"' %
-                        (remuser.user_id, group.group_id), result='success')
+        flash('%s %s "%s"' % (remuser.user_id, _('removed from group'),
+                                                        group.group_id), 'ok')
+        return dict(redirect_to=url('/user'))
         
     @project_set_active
     @require(is_project_admin())
@@ -283,7 +286,7 @@ class Controller(RestController):
     @project_set_active
     @require(is_project_admin())
     @expose('json')
-    @expose('spam.templates.forms.result')
+    @expose('spam.templates.redirect_parent')
     @validate(f_add_admins, error_handler=get_add_admins)
     def post_add_admins(self, proj, userids):
         """Add administrators to a project"""
@@ -308,13 +311,14 @@ class Controller(RestController):
         journal.add(user, 'added user(s) "%s" to "%s" administrators' %
                                                         (added, project.id))
         
-        return dict(msg='added user(s) %s to "%s" administrators' %
-                                        (added, project.id), result='success')
+        flash('%s: %s "%s"' % (added,
+                    _('user(s) set as administrators for'), project_id), 'ok')
+        return dict(redirect_to=url('/user'))
 
     @project_set_active
     @require(is_project_admin())
     @expose('json')
-    @expose('spam.templates.forms.result')
+    @expose('spam.templates.redirect_parent')
     def remove_admin(self, proj, user_id):
         """Remove an administrator from a project"""
         session = session_get()
@@ -332,10 +336,12 @@ class Controller(RestController):
             # send a stomp message to notify clients
             notify.send(remuser, update_type='deleted', proj=project.id,
                         destination=notify.TOPIC_PROJECT_ADMINS)
-            return dict(msg='user "%s" removed from "%s" administrators' %
-                        (remuser.user_id, project.id), result='success')
-        return dict(msg='user "%s" cannot be removed from "%s" administrators' %
-                        (remuser.user_id, project.id), result='failed')
+            flash('%s %s %s' % (remuser.user_id,
+                        _('revoked as administrator for'), project.id), 'ok')
+        else:
+            flash('%s %s %s ' % (remuser.user_id,
+                        _('is not an administrator for'), project.id), 'error')
+        return dict(redirect_to=url('/user'))
 
     @project_set_active
     @require(is_project_admin())
@@ -357,7 +363,7 @@ class Controller(RestController):
     @project_set_active
     @require(is_project_admin())
     @expose('json')
-    @expose('spam.templates.forms.result')
+    @expose('spam.templates.redirect_parent')
     @validate(f_add_to_category, error_handler=get_add_supervisors)
     def post_add_supervisors(self, proj, category_id, userids):
         """Add supervisors to a category"""
@@ -384,13 +390,14 @@ class Controller(RestController):
         journal.add(user, 'added %s "%s" supervisor(s) %s' %
                                             (project.id, category.id, added))
         
-        return dict(msg='added %s "%s" supervisor(s) %s' %
-                            (project.id, category.id, added), result='success')
+        flash('%s: %s %s %s' % (added, _('user(s) set as supervisors for'),
+                                                project_id, category.id), 'ok')
+        return dict(redirect_to=url('/user'))
 
     @project_set_active
     @require(is_project_admin())
     @expose('json')
-    @expose('spam.templates.forms.result')
+    @expose('spam.templates.redirect_parent')
     def remove_supervisor(self, proj, category_id, user_id):
         """Remove a supervisor from a category"""
         session = session_get()
@@ -414,10 +421,12 @@ class Controller(RestController):
             notify.send(remuser, update_type='deleted', proj=project.id,
                         cat=category.id,
                         destination=notify.TOPIC_PROJECT_SUPERVISORS)
-            return dict(msg='removed %s "%s" supervisor "%s"' %
-                (project.id, category.id, remuser.user_id), result='success')
-        return dict(msg='%s "%s" supervisor "%s" cannot be removed' %
-                (project.id, category.id, remuser.user_id), result='failed')
+            flash('%s %s %s %s' % (remuser.user_id,
+                _('revoked as supervisor for'), project.id, category.id), 'ok')
+        else:
+            flash('%s %s %s %s' % (remuser.user_id,
+                _('is not a supervisor for'), project.id, category.id), 'error')
+        return dict(redirect_to=url('/user'))
 
     @project_set_active
     @require(is_project_admin())
@@ -439,7 +448,7 @@ class Controller(RestController):
     @project_set_active
     @require(is_project_admin())
     @expose('json')
-    @expose('spam.templates.forms.result')
+    @expose('spam.templates.redirect_parent')
     @validate(f_add_to_category, error_handler=get_add_artists)
     def post_add_artists(self, proj, category_id, userids):
         """Add artists to a category"""
@@ -466,13 +475,14 @@ class Controller(RestController):
         journal.add(user, 'added %s "%s" artist(s) %s' %
                                             (project.id, category.id, added))
         
-        return dict(msg='added %s "%s" artist(s) %s' %
-                            (project.id, category.id, added), result='success')
+        flash('%s: %s %s %s' % (added, _('user(s) set as artists for'),
+                                                project_id, category.id), 'ok')
+        return dict(redirect_to=url('/user'))
 
     @project_set_active
     @require(is_project_admin())
     @expose('json')
-    @expose('spam.templates.forms.result')
+    @expose('spam.templates.redirect_parent')
     def remove_artist(self, proj, category_id, user_id):
         """Remove an artist from a category"""
         session = session_get()
@@ -496,8 +506,10 @@ class Controller(RestController):
             notify.send(remuser, update_type='deleted', proj=project.id,
                         cat=category.id,
                         destination=notify.TOPIC_PROJECT_ARTISTS)
-            return dict(msg='removed %s "%s" artist "%s"' %
-                (project.id, category.id, remuser.user_id), result='success')
-        return dict(msg='%s "%s" artist "%s" cannot be removed' %
-                (project.id, category.id, remuser.user_id), result='failed')
+            flash('%s %s %s %s' % (remuser.user_id,
+                _('revoked as artist for'), project.id, category.id), 'ok')
+        else:
+            flash('%s %s %s %s' % (remuser.user_id,
+                _('is not an artist for'), project.id, category.id), 'error')
+        return dict(redirect_to=url('/user'))
 
