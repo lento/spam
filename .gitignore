@@ -1,0 +1,24 @@
+# setuptools egg info
+*.egg-info/
+
+# .pyc files
+*.pyc
+
+# rejected patches
+*.orig
+*.rej
+
+# backup files
+*~
+
+# built docs
+docs/build/
+
+# turbogears local files
+data/
+development_*.ini
+deployment_*.ini
+paster.log
+paster.pid
+*/public/themes/local_*
+
