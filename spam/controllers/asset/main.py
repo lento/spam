@@ -218,7 +218,12 @@ class Controller(RestController):
         session = session_get()
         user = tmpl_context.user
         asset = asset_get(proj, asset_id)
-        
+
+        # delete association objects or they will be orphaned
+        for ver in asset.versions:
+            session.delete(ver.annotable)
+        session.delete(asset.taggable)
+
         session.delete(asset)
 
         # log into Journal

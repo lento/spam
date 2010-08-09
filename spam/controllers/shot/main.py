@@ -246,7 +246,11 @@ class Controller(RestController):
             return dict(msg='cannot delete shot "%s" because it contains '
                             'assets' % shot.path,
                         result='failed')
-        
+
+        # delete association objects or they will be orphaned
+        session.delete(shot.taggable)
+        session.delete(shot.annotable)
+
         session.delete(shot)
 
         # invalidate project cache

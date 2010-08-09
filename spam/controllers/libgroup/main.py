@@ -235,7 +235,11 @@ class Controller(RestController):
             return dict(msg='cannot delete libgroup "%s" because it contains '
                             'assets' % libgroup.path,
                         result='failed')
-        
+
+        # delete association objects or they will be orphaned
+        session.delete(libgroup.taggable)
+        session.delete(libgroup.annotable)
+
         session.delete(libgroup)
 
         # invalidate project cache

@@ -216,7 +216,11 @@ class Controller(RestController):
             return dict(msg='cannot delete scene "%s" because it contains '
                             'shots' % scene.path,
                         result='failed')
-        
+
+        # delete association objects or they will be orphaned
+        session.delete(scene.taggable)
+        session.delete(scene.annotable)
+
         session.delete(scene)
 
         # invalidate project cache
