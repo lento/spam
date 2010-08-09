@@ -82,7 +82,11 @@ spam_init = function (cookiebase) {
                 trigger = this.getTrigger();
                 target = trigger.attr("href");
                 iframe = $("#overlay iframe")[0];
-                iframe.src = target
+                iframe.src = target;
+            },
+            onClose: function(event) { 
+                iframe = $("#overlay iframe")[0];
+                iframe.src = "about:blank";
             },
             expose: {
                 color: '#333'
