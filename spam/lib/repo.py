@@ -59,7 +59,7 @@ def repo_init(proj):
         hgignore.close()
     
     if not '.hgignore' in repo['tip']:
-        repo.add(['.hgignore'])
+        commands.add(repo_ui, repo, hgignore_path)
         matched = match.exact(repo.root, repo.getcwd(), ['.hgignore'])
         commit_id = repo.commit('add .hgignore', user='system', match=matched)
 
