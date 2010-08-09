@@ -23,7 +23,7 @@
 from tg import expose, url, tmpl_context, redirect, validate, require, flash
 from tg.controllers import RestController
 from tg.decorators import with_trailing_slash
-from pylons.i18n import ugettext as _, lazy_ugettext as l_
+from pylons.i18n import ugettext as _, ungettext as n_, lazy_ugettext as l_
 from spam.model import session_get, User, user_get, group_get, project_get
 from spam.model import category_get, Supervisor, Artist, diff_dicts
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
@@ -241,12 +241,16 @@ class Controller(RestController):
 
         if added:
             # log into Journal
-            journal.add(user, 'added user(s) "%s" to %s' % (added, group))
-            flash('%s: %s "%s"' % (added, _('user(s) added to group'),
-                                                        group.group_id), 'ok')
+            msg = '%s %s %s' % (added,
+                                n_('added to group',
+                                   'added to group', len(added)),
+                                group.group_id)
+            journal.add(user, msg)
+            flash(msg, 'ok')
         else:
-            flash('%s "%s"' % (_('Selected users are already in group'),
-                                                        group.group_id), 'info')
+            msg = '%s %s' % (_('Selected users are already in group'),
+                             group.group_id)
+            flash(msg, 'info')
         return dict(redirect_to=url('/user#tab/groups'))
 
     @expose('json')
@@ -258,17 +262,26 @@ class Controller(RestController):
         remuser = user_get(user_id)
         group = group_get(group_id)
         
-        group.users.remove(remuser)
-        
-        # log into Journal
-        journal.add(user, 'removed user "%s" from %s' % (remuser, group))
-        
-        # send a stomp message to notify clients
-        notify.send(remuser, update_type='deleted',
-                    destination=notify.TOPIC_GROUPS,
-                    group_name=group.group_name)
-        flash('%s %s "%s"' % (remuser.user_id, _('removed from group'),
-                                                        group.group_id), 'ok')
+        if remuser in group.users:
+            group.users.remove(remuser)
+            
+            # send a stomp message to notify clients
+            notify.send(remuser, update_type='deleted',
+                        destination=notify.TOPIC_GROUPS,
+                        group_name=group.group_name)
+
+            # log into Journal
+            msg = '%s %s %s' % (remuser.user_id,
+                                _('removed from group'),
+                                group.group_id)
+            journal.add(user, msg)
+
+            flash(msg, 'ok')
+        else:
+            msg = '%s %s %s' % (remuser.user_id,
+                                _('is not in group'),
+                                group.group_id)
+            flash(msg, 'error')
         return dict(redirect_to=url('/user#tab/groups'))
         
     @project_set_active
@@ -312,15 +325,17 @@ class Controller(RestController):
         
         if added:
             # log into Journal
-            journal.add(user, 'added user(s) "%s" to "%s" administrators' %
-                                                            (added, project.id))
-            flash('%s: %s "%s"' % (added,
-                    _('user(s) set as administrators for'), project_id), 'ok')
+            msg = '%s %s %s' % (added,
+                                n_('set as administrator for',
+                                   'set as administrators for', len(added)),
+                                project.id)
+            journal.add(user, msg)
+            flash(msg, 'ok')
         else:
-            flash('%s "%s"' % (
-                            _('Selected users are already administrators for'),
-                            group.group_id), 'info')
-        return dict(redirect_to=url('/user'))
+            msg = '%s %s' % (_('Selected users are already administrators for'),
+                             project.id)
+            flash(msg, 'info')
+        return dict(redirect_to=url('/project/%s#tab/users' % project.id))
 
     @project_set_active
     @require(is_project_admin())
@@ -336,19 +351,23 @@ class Controller(RestController):
         if remuser in project.admins:
             project.admins.remove(remuser)
             
-            # log into Journal
-            journal.add(user, 'removed %s from "%s" administrators' %
-                                                        (remuser, project.id))
-            
             # send a stomp message to notify clients
             notify.send(remuser, update_type='deleted', proj=project.id,
                         destination=notify.TOPIC_PROJECT_ADMINS)
-            flash('%s %s %s' % (remuser.user_id,
-                        _('revoked as administrator for'), project.id), 'ok')
+
+            # log into Journal
+            msg = '%s %s %s' % (remuser.user_id,
+                                _('is not an administrator for'),
+                                project.id)
+            journal.add(user, msg)
+
+            flash(msg, 'ok')
         else:
-            flash('%s %s %s ' % (remuser.user_id,
-                        _('is not an administrator for'), project.id), 'error')
-        return dict(redirect_to=url('/user'))
+            msg = '%s %s %s' % (remuser.user_id,
+                                _('is not an administrator for'),
+                                project.id)
+            flash(msg, 'error')
+        return dict(redirect_to=url('/project/%s#tab/users' % project.id))
 
     @project_set_active
     @require(is_project_admin())
@@ -395,16 +414,17 @@ class Controller(RestController):
 
         if added:
             # log into Journal
-            journal.add(user, 'added %s "%s" supervisor(s) %s' %
-                                            (project.id, category.id, added))
-        
-            flash('%s: %s %s %s' % (added, _('user(s) set as supervisors for'),
-                                                project_id, category.id), 'ok')
+            msg = '%s %s %s/%s' % (added,
+                                   n_('set as supervisor for',
+                                      'set as supervisors for', len(added)),
+                                   project.id, category.id)
+            journal.add(user, msg)
+            flash(msg, 'ok')
         else:
-            flash('%s %s %s"' % (
-                            _('Selected users are already supervisors for'),
-                            project_id, category.i), 'info')
-        return dict(redirect_to=url('/user'))
+            msg = '%s %s/%s' % (_('Selected users are already supervisors for'),
+                                project.id, category.id)
+            flash(msg, 'info')
+        return dict(redirect_to=url('/project/%s#tab/users' % project.id))
 
     @project_set_active
     @require(is_project_admin())
@@ -425,20 +445,24 @@ class Controller(RestController):
             sup = query.one()
             session.delete(sup)
 
-            # log into Journal
-            journal.add(user, 'removed %s "%s" supervisor %s' %
-                                            (project.id, category.id, remuser))
-            
             # send a stomp message to notify clients
             notify.send(remuser, update_type='deleted', proj=project.id,
                         cat=category.id,
                         destination=notify.TOPIC_PROJECT_SUPERVISORS)
-            flash('%s %s %s %s' % (remuser.user_id,
-                _('revoked as supervisor for'), project.id, category.id), 'ok')
+
+            # log into Journal
+            msg = '%s %s %s/%s' % (remuser.user_id,
+                                   _('revoked as supervisor from'),
+                                   project.id, category.id)
+            journal.add(user, msg)
+
+            flash(msg, 'ok')
         else:
-            flash('%s %s %s %s' % (remuser.user_id,
-                _('is not a supervisor for'), project.id, category.id), 'error')
-        return dict(redirect_to=url('/user'))
+            msg = '%s %s %s/%s' % (remuser.user_id,
+                                   _('is not a supervisor for'),
+                                   project.id, category.id)
+            flash(msg, 'error')
+        return dict(redirect_to=url('/project/%s#tab/users' % project.id))
 
     @project_set_active
     @require(is_project_admin())
@@ -485,16 +509,17 @@ class Controller(RestController):
 
         if added:
             # log into Journal
-            journal.add(user, 'added %s "%s" artist(s) %s' %
-                                            (project.id, category.id, added))
-        
-            flash('%s: %s %s %s' % (added, _('user(s) set as artists for'),
-                                                project_id, category.id), 'ok')
+            msg = '%s %s %s/%s' % (added,
+                                   n_('set as artist for',
+                                      'set as artists for', len(added)),
+                                   project.id, category.id)
+            journal.add(user, msg)
+            flash(msg, 'ok')
         else:
-            flash('%s %s %s"' % (
-                            _('Selected users are already artists for'),
-                            project_id, category.i), 'info')
-        return dict(redirect_to=url('/user'))
+            msg = '%s %s/%s' % (_('Selected users are already artists for'),
+                                project.id, category.id)
+            flash(msg, 'info')
+        return dict(redirect_to=url('/project/%s#tab/users' % project.id))
 
     @project_set_active
     @require(is_project_admin())
@@ -515,18 +540,22 @@ class Controller(RestController):
             artist = query.one()
             session.delete(artist)
 
-            # log into Journal
-            journal.add(user, 'removed %s "%s" artist %s' %
-                                            (project.id, category.id, remuser))
-            
             # send a stomp message to notify clients
             notify.send(remuser, update_type='deleted', proj=project.id,
                         cat=category.id,
                         destination=notify.TOPIC_PROJECT_ARTISTS)
-            flash('%s %s %s %s' % (remuser.user_id,
-                _('revoked as artist for'), project.id, category.id), 'ok')
+
+            # log into Journal
+            msg = '%s %s %s/%s' % (remuser.user_id,
+                                   _('revoked as artist from'),
+                                   project.id, category.id)
+            journal.add(user, msg)
+
+            flash(msg, 'ok')
         else:
-            flash('%s %s %s %s' % (remuser.user_id,
-                _('is not an artist for'), project.id, category.id), 'error')
-        return dict(redirect_to=url('/user'))
+            msg = '%s %s %s/%s' % (remuser.user_id,
+                                   _('is not an artist for'),
+                                   project.id, category.id)
+            flash(msg, 'error')
+        return dict(redirect_to=url('/project/%s#tab/users' % project.id))
 
