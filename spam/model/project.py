@@ -34,10 +34,11 @@ from sqlalchemy.types import Unicode, UnicodeText, Integer, DateTime, Boolean
 from sqlalchemy.types import String
 from sqlalchemy.orm import relation, synonym, backref
 
-from tg import app_globals as G, config
-from spam.model import DeclarativeBase, metadata, mapped_list, compute_status
+from tg import app_globals as G
+from spam.model import DeclarativeBase, metadata
 from spam.model import migraterepo_get_version, db_get_version
 from spam.model import db_upgrade, db_downgrade
+from spam.model.utils import mapped_list, compute_status, add_container_props
 from spam.model.auth import User
 from spam.model.misc import Taggable, Annotable
 
@@ -136,15 +137,18 @@ class Project(DeclarativeBase):
 # Containers
 ############################################################
 class AssetContainer(DeclarativeBase):
-    """Base class for object containers"""
+    """Association class for object containers"""
     __tablename__ = 'asset_containers'
         
     # Columns
     id = Column(String(40), primary_key=True)
-    container_type = Column('type', Unicode(20))
-    __mapper_args__ = {'polymorphic_on': container_type}
+    association_type = Column(Unicode(50))
 
     # Properties
+    @property
+    def container(self):
+        return getattr(self, 'container_%s' % self.association_type)
+
     @property
     def categories(self):
         categories = []
@@ -175,8 +179,12 @@ class AssetContainer(DeclarativeBase):
         return os.path.exists(os.path.join(G.REPOSITORY, self.thumbnail))
     
     # Special methods
+    def __init__(self, id, association_type):
+        self.id = id
+        self.association_type = association_type
+
     def __repr__(self):
-        return '<AssetContainer: %s (%s)>' % (self.id, self.discriminator)
+        return '<AssetContainer: %s (%s)>' % (self.id, self.association_type)
 
 
 class Scene(DeclarativeBase):
@@ -270,7 +278,7 @@ class Scene(DeclarativeBase):
                    )
 
 
-class Shot(AssetContainer):
+class Shot(DeclarativeBase):
     """
     The shot container.
 
@@ -278,13 +286,13 @@ class Shot(AssetContainer):
     """
     __tablename__ = "shots"
     __table_args__ = (UniqueConstraint('parent_id', 'name'),
+                      ForeignKeyConstraint(['id'], ['asset_containers.id']),
                       ForeignKeyConstraint(['id'], ['taggables.id']),
                       ForeignKeyConstraint(['id'], ['annotables.id']),
                       {})
-    __mapper_args__ = {'polymorphic_identity': 'shot'}
     
     # Columns
-    id = Column(String(40), ForeignKey('asset_containers.id'), primary_key=True)
+    id = Column(String(40), primary_key=True)
     parent_id = Column(String(40), ForeignKey('scenes.id'))
     name = Column(Unicode(15))
     description = Column(UnicodeText)
@@ -298,10 +306,13 @@ class Shot(AssetContainer):
     parent = relation(Scene,
                         backref=backref('shots', order_by=name, lazy=False))
     
+    container = relation(AssetContainer,
+                            backref=backref('container_shot', uselist=False))
+    
     taggable = relation(Taggable, backref=backref('tagged_shot', uselist=False))
     
-    annotable = relation(Annotable, backref=backref('annotated_shot',
-                                                                uselist=False))
+    annotable = relation(Annotable,
+                            backref=backref('annotated_shot', uselist=False))
     
     # Properties
     @property
@@ -331,7 +342,7 @@ class Shot(AssetContainer):
     @property
     def status(self):
         return compute_status(self.assets)
-            
+
     # Methods
     def has_tags(self, tag_ids):
         return self.taggable.has_tags(tag_ids)
@@ -350,6 +361,7 @@ class Shot(AssetContainer):
         hashable = '%s-%s' % (parent.id, self.name)
         log.debug('Shot.__init__: %s' % hashable)
         self.id = sha1(hashable.encode('utf-8')).hexdigest()
+        self.container = AssetContainer(self.id, u'shot')
         self.taggable = Taggable(self.id, u'shot')
         self.annotable = Annotable(self.id, u'shot')
 
@@ -375,18 +387,19 @@ class Shot(AssetContainer):
                     container_type=self.container_type,
                    )
 
+add_container_props(Shot)
 
-class Libgroup(AssetContainer):
+class Libgroup(DeclarativeBase):
     """Library group"""
     __tablename__ = "libgroups"
     __table_args__ = (UniqueConstraint('parent_id', 'name'),
+                      ForeignKeyConstraint(['id'], ['asset_containers.id']),
                       ForeignKeyConstraint(['id'], ['taggables.id']),
                       ForeignKeyConstraint(['id'], ['annotables.id']),
                       {})
-    __mapper_args__ = {'polymorphic_identity': 'libgroup'}
     
     # Columns
-    id = Column(String(40), ForeignKey('asset_containers.id'), primary_key=True)
+    id = Column(String(40), primary_key=True)
     proj_id = Column(Unicode(10), ForeignKey('projects.id'))
     parent_id = Column(String(40), ForeignKey('libgroups.id'))
     name = Column(Unicode(40))
@@ -400,6 +413,9 @@ class Libgroup(AssetContainer):
     subgroups = relation('Libgroup', primaryjoin=parent_id==id,
                              foreign_keys=[parent_id], lazy=False, join_depth=5,
                              backref=backref('parent', remote_side=[id]))
+    
+    container = relation(AssetContainer, backref=backref('container_libgroup',
+                                                                uselist=False))
     
     taggable = relation(Taggable, backref=backref('tagged_libgroup',
                                                                 uselist=False))
@@ -443,6 +459,7 @@ class Libgroup(AssetContainer):
         self.description = description
         hashable = '%s-%s' % (self.parent_id, self.name)
         self.id = sha1(hashable.encode('utf-8')).hexdigest()
+        self.container = AssetContainer(self.id, u'libgroup')
         self.taggable = Taggable(self.id, u'libgroup')
         self.annotable = Annotable(self.id, u'libgroup')
 
@@ -463,6 +480,7 @@ class Libgroup(AssetContainer):
                     container_type=self.container_type,
                    )
 
+add_container_props(Libgroup)
 
 ############################################################
 # Categories
@@ -791,8 +809,6 @@ class AssetVersion(DeclarativeBase):
     asset_id = Column(String(40), ForeignKey('assets.id'))
     ver = Column(Integer)
     repoid = Column(String(50))
-    #has_preview = Column(Boolean)
-    #preview_ext = Column(String(10))
     user_id = Column(Integer, ForeignKey('users.user_id'))
 
     # Relations

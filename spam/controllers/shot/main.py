@@ -248,6 +248,7 @@ class Controller(RestController):
                         result='failed')
 
         # delete association objects or they will be orphaned
+        session.delete(shot.container)
         session.delete(shot.taggable)
         session.delete(shot.annotable)
 

@@ -237,6 +237,7 @@ class Controller(RestController):
                         result='failed')
 
         # delete association objects or they will be orphaned
+        session.delete(libgroup.container)
         session.delete(libgroup.taggable)
         session.delete(libgroup.annotable)
 

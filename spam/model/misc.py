@@ -32,8 +32,22 @@ from sqlalchemy.types import Unicode, UnicodeText, Integer, DateTime, Boolean
 from sqlalchemy.types import String
 from sqlalchemy.orm import relation, synonym, backref
 
+from tg import config
 from spam.model import DeclarativeBase, metadata
 from spam.model.auth import User
+
+
+############################################################
+# Migrate versioning
+############################################################
+class Migrate(DeclarativeBase):
+    __tablename__ = 'migrate_version'
+
+    # Columns
+    repository_id = Column(Unicode(250), primary_key=True)
+    repository_path = Column(UnicodeText)
+    version = Column(Integer)
+
 
 ############################################################
 # Journal
@@ -116,12 +130,6 @@ class Taggable(DeclarativeBase):
     def __repr__(self):
         return '<Taggable: %s (%s)>' % (self.id, self.association_type)
 
-#taggable_delete_trigger = (
-#    'CREATE TRIGGER delete_orphaned_%(table)s_taggable DELETE ON %(table)s '
-#    'BEGIN '
-#        'DELETE FROM taggables WHERE id=old.id; '
-#    'END;')
-
 
 class Tag(DeclarativeBase):
     __tablename__ = 'tags'
@@ -171,12 +179,6 @@ class Annotable(DeclarativeBase):
 
     def __repr__(self):
         return '<Annotable: %s (%s)>' % (self.id, self.association_type)
-
-#annotable_delete_trigger = (
-#    'CREATE TRIGGER delete_orphaned_%(table)s_annotable DELETE ON %(table)s '
-#    'BEGIN '
-#        'DELETE FROM annotables WHERE id=old.id; '
-#    'END;')
 
 
 class Note(DeclarativeBase):

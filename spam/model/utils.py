@@ -133,4 +133,11 @@ def compute_status(objects):
     else:
         return 'idle'
         
+def add_container_props(cls):
+    """Add asset container related properties to a class"""
+    cls.categories = property(lambda obj: obj.container.categories)
+    cls.thumbnail = property(lambda obj: obj.container.thumbnail)
+    cls.has_preview = property(lambda obj: obj.container.has_preview)
+    cls.assets = property(lambda obj: obj.container.assets)
+
 

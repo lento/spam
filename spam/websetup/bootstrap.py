@@ -20,22 +20,23 @@
 #
 """Setup the SPAM database data"""
 
-import logging
 from tg import config
 from spam import model
 
 import transaction
 
+import logging
+log = logging.getLogger(__name__)
 
 def bootstrap(command, conf, vars):
     """Commands for the first-time setup of SPAM database data."""
 
     session = model.session_get()
-    # <websetup.bootstrap.before.auth
+    # auth
     from sqlalchemy.exc import IntegrityError
     try:
         admin = model.User(u'admin', display_name=u'SPAM Administrator')
-        admin._password = u'4e1b983227e6992278c9fc9346356e40169bef8839441bb9b9ddbb5174a3b89cdc27ad71d79245cd'
+        admin.password = u'none'
 
         session.add(admin)
 
@@ -49,69 +50,93 @@ def bootstrap(command, conf, vars):
         session.flush()
         transaction.commit()
     except IntegrityError:
-        print 'Warning, there was a problem adding your auth data, it may have already been added:'
+        log.info('Warning, there was a problem adding your auth data, it may '
+                                                    'have already been added:')
         import traceback
-        print traceback.format_exc()
+        log.info(traceback.format_exc())
         transaction.abort()
-        print 'Continuing with bootstrapping...'
+        log.info('Continuing with bootstrapping...')
         
 
-    # <websetup.bootstrap.after.auth>
-    design = model.Category(u'design', ordering=1,
-                    naming_convention=u'^[a-zA-Z0-9_]+_DRW\.[a-zA-Z0-9]+$')
-    session.add(design)
-    
-    modelling = model.Category(u'model', ordering=2,
-                    naming_convention=u'^[a-zA-Z0-9_]+_MDL\.[a-zA-Z0-9]+$')
-    session.add(modelling)
-    
-    texture = model.Category(u'texture', ordering=3,
-                    naming_convention=u'^[a-zA-Z0-9_]+_TEX\.[a-zA-Z0-9]+$')
-    session.add(texture)
-    
-    rig = model.Category(u'rig', ordering=4,
-                    naming_convention=u'^[a-zA-Z0-9_]+_RIG\.[a-zA-Z0-9]+$')
-    session.add(rig)
-    
-    storyboard = model.Category(u'storyboard', ordering=5,
-                    naming_convention=u'^[a-zA-Z0-9_]+_STB\.#\.[a-zA-Z0-9]+$')
-    session.add(storyboard)
+    # migrate versioning
+    try:
+        migrate = model.Migrate(repository_id=u'SPAM DB versions repository',
+                                    repository_path=u'db_versioning', version=3)
+        session.add(migrate)
+        session.flush()
+        transaction.commit()
+    except IntegrityError:
+        log.info('Warning, there was a problem adding migrate versioning data,'
+                                            ' it may have already been added:')
+        import traceback
+        log.info(traceback.format_exc())
+        transaction.abort()
+        log.info('Continuing with bootstrapping...')
 
-    plate = model.Category(u'plate', ordering=6,
-                    naming_convention=u'^[a-zA-Z0-9_]+_PLT\.#\.[a-zA-Z0-9]+$')
-    session.add(plate)
+    # default categories
+    try:
+        design = model.Category(u'design', ordering=1,
+                        naming_convention=u'^[a-zA-Z0-9_]+_DRW\.[a-zA-Z0-9]+$')
+        session.add(design)
+        
+        modelling = model.Category(u'model', ordering=2,
+                        naming_convention=u'^[a-zA-Z0-9_]+_MDL\.[a-zA-Z0-9]+$')
+        session.add(modelling)
+        
+        texture = model.Category(u'texture', ordering=3,
+                        naming_convention=u'^[a-zA-Z0-9_]+_TEX\.[a-zA-Z0-9]+$')
+        session.add(texture)
+        
+        rig = model.Category(u'rig', ordering=4,
+                        naming_convention=u'^[a-zA-Z0-9_]+_RIG\.[a-zA-Z0-9]+$')
+        session.add(rig)
+        
+        storyboard = model.Category(u'storyboard', ordering=5,
+                        naming_convention=u'^[a-zA-Z0-9_]+_STB\.#\.[a-zA-Z0-9]+$')
+        session.add(storyboard)
 
-    paint = model.Category(u'paint', ordering=7,
-                    naming_convention=u'^[a-zA-Z0-9_]+_PNT\.[a-zA-Z0-9]+$')
-    session.add(paint)
+        plate = model.Category(u'plate', ordering=6,
+                        naming_convention=u'^[a-zA-Z0-9_]+_PLT\.#\.[a-zA-Z0-9]+$')
+        session.add(plate)
 
-    audio = model.Category(u'audio', ordering=8,
-                    naming_convention=u'^[a-zA-Z0-9_]+_AUD\.[a-zA-Z0-9]+$')
-    session.add(audio)
+        paint = model.Category(u'paint', ordering=7,
+                        naming_convention=u'^[a-zA-Z0-9_]+_PNT\.[a-zA-Z0-9]+$')
+        session.add(paint)
 
-    animatic = model.Category(u'animatic', ordering=9,
-                    naming_convention=u'^[a-zA-Z0-9_]+_A[23]D\.[a-zA-Z0-9]+$')
-    session.add(animatic)
+        audio = model.Category(u'audio', ordering=8,
+                        naming_convention=u'^[a-zA-Z0-9_]+_AUD\.[a-zA-Z0-9]+$')
+        session.add(audio)
 
-    layout = model.Category(u'layout', ordering=10,
-                    naming_convention=u'^[a-zA-Z0-9_]+_LAY\.[a-zA-Z0-9]+$')
-    session.add(layout)
+        animatic = model.Category(u'animatic', ordering=9,
+                        naming_convention=u'^[a-zA-Z0-9_]+_A[23]D\.[a-zA-Z0-9]+$')
+        session.add(animatic)
 
-    animation = model.Category(u'animation', ordering=11,
-                    naming_convention=u'^[a-zA-Z0-9_]+_ANI\.[a-zA-Z0-9]+$')
-    session.add(animation)
+        layout = model.Category(u'layout', ordering=10,
+                        naming_convention=u'^[a-zA-Z0-9_]+_LAY\.[a-zA-Z0-9]+$')
+        session.add(layout)
 
-    effects = model.Category(u'effects', ordering=12,
-                    naming_convention=u'^[a-zA-Z0-9_]+_FX\.[a-zA-Z0-9]+$')
-    session.add(effects)
+        animation = model.Category(u'animation', ordering=11,
+                        naming_convention=u'^[a-zA-Z0-9_]+_ANI\.[a-zA-Z0-9]+$')
+        session.add(animation)
 
-    render = model.Category(u'render', ordering=13,
-                    naming_convention=u'^[a-zA-Z0-9_]+_RND\.#\.[a-zA-Z0-9]+$')
-    session.add(render)
+        effects = model.Category(u'effects', ordering=12,
+                        naming_convention=u'^[a-zA-Z0-9_]+_FX\.[a-zA-Z0-9]+$')
+        session.add(effects)
 
-    compositing = model.Category(u'compositing', ordering=14,
-                    naming_convention=u'^[a-zA-Z0-9_]+_CMP\.#\.[a-zA-Z0-9]+$')
-    session.add(compositing)
+        render = model.Category(u'render', ordering=13,
+                        naming_convention=u'^[a-zA-Z0-9_]+_RND\.#\.[a-zA-Z0-9]+$')
+        session.add(render)
 
-    transaction.commit()
+        compositing = model.Category(u'compositing', ordering=14,
+                        naming_convention=u'^[a-zA-Z0-9_]+_CMP\.#\.[a-zA-Z0-9]+$')
+        session.add(compositing)
+
+        transaction.commit()
+    except IntegrityError:
+        log.info('Warning, there was a problem adding default categories '
+                                            'they may have already been added:')
+        import traceback
+        log.info(traceback.format_exc())
+        transaction.abort()
+        log.info('Continuing with bootstrapping...')
 
