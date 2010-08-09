@@ -1,12 +1,10 @@
 from datetime import datetime
 from sqlalchemy import *
-from migrate import *
-#from sqlalchemy.types import Unicode, Integer, DateTime
-from sqlalchemy.orm import sessionmaker, relation
 from sqlalchemy.ext.declarative import declarative_base
+from migrate import *
 
 metadata = MetaData()
-DeclarativeBase = declarative_base(bind=migrate_engine, metadata=metadata)
+DeclarativeBase = declarative_base(metadata=metadata)
 
 # This is the association table for the many-to-many relationship between
 # groups and permissions. This is required by repoze.what.
@@ -73,17 +71,20 @@ class Permission(DeclarativeBase):
     description = Column(Unicode(255))
 
 
-def upgrade():
-    # Upgrade operations go here. Don't create your own engine; use the engine
-    # named 'migrate_engine' imported from migrate.
+def upgrade(migrate_engine):
+    """operations to upgrade the db"""
+    metadata.bind = migrate_engine
+
     Group.__table__.create()
     User.__table__.create()
     Permission.__table__.create()
     groups_permissions_table.create()
     users_groups_table.create()
     
-def downgrade():
-    # Operations to reverse the above upgrade go here.
+def downgrade(migrate_engine):
+    """operations to reverse the above upgrade"""
+    metadata.bind = migrate_engine
+
     users_groups_table.drop()
     groups_permissions_table.drop()
     Permission.__table__.drop()

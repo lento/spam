@@ -1,22 +1,23 @@
 from datetime import datetime
-from sqlalchemy import Table, MetaData, and_
-from sqlalchemy import UniqueConstraint, Column, ForeignKey
-from sqlalchemy.types import Unicode, UnicodeText, DateTime, Integer, Boolean
-from sqlalchemy.types import String
-from sqlalchemy.orm import relation, backref
-from migrate import migrate_engine
-from migrate.changeset import schema
-from migrate.changeset.constraint import ForeignKeyConstraint
+from sqlalchemy import *
 from sqlalchemy.ext.declarative import declarative_base
+from migrate import *
 
 metadata = MetaData()
-DeclarativeBase = declarative_base(bind=migrate_engine, metadata=metadata)
-
-
-# Existing classes and tables to be used in relations
-users = Table('users', metadata, autoload=True)
+DeclarativeBase = declarative_base(metadata=metadata)
 
 # New classes and tables
+class Journal(DeclarativeBase):
+    __tablename__ = 'journal'
+    
+    # Columns
+    id = Column(String(40), primary_key=True)
+    domain = Column(Unicode(24))
+    user_id = Column(Unicode(40), ForeignKey('users.user_id'))
+    text = Column(UnicodeText)
+    created = Column(DateTime, default=datetime.now)
+
+
 # Association table for the many-to-many relationship taggables-tags.
 taggables_tags_table = Table('__taggables_tags', metadata,
     Column('taggable_id', String(40), ForeignKey('taggables.id',
@@ -58,9 +59,16 @@ class Note(DeclarativeBase):
     created = Column(DateTime, default=datetime.now)
     sticky = Column(Boolean, default=False)
 
-def upgrade():
-    # Upgrade operations go here. Don't create your own engine; use the engine
-    # named 'migrate_engine' imported from migrate.
+
+def upgrade(migrate_engine):
+    """operations to upgrade the db"""
+    metadata.bind = migrate_engine
+
+    # Existing classes and tables to be used in relations
+    users = Table('users', metadata, autoload=True)
+
+    Journal.__table__.create()
+
     Taggable.__table__.create()
     Tag.__table__.create()
     taggables_tags_table.create()
@@ -68,8 +76,15 @@ def upgrade():
     Annotable.__table__.create()
     Note.__table__.create()
 
-def downgrade():
-    # Operations to reverse the above upgrade go here.
+def downgrade(migrate_engine):
+    """operations to reverse the above upgrade"""
+    metadata.bind = migrate_engine
+
+    # Existing classes and tables to be used in relations
+    users = Table('users', metadata, autoload=True)
+
+    Journal.__table__.drop()
+
     taggables_tags_table.drop()
     Tag.__table__.drop()
     Taggable.__table__.drop()
