@@ -238,13 +238,16 @@ class Controller(RestController):
                             group_name=group.group_name)
         
         added = ', '.join(added)
-        
-        # log into Journal
-        journal.add(user, 'added user(s) "%s" to %s' % (added, group))
-        
-        flash('%s: %s "%s"' % (added, _('user(s) added to group'),
+
+        if added:
+            # log into Journal
+            journal.add(user, 'added user(s) "%s" to %s' % (added, group))
+            flash('%s: %s "%s"' % (added, _('user(s) added to group'),
                                                         group.group_id), 'ok')
-        return dict(redirect_to=url('/user'))
+        else:
+            flash('%s "%s"' % (_('Selected users are already in group'),
+                                                        group.group_id), 'info')
+        return dict(redirect_to=url('/user#tab/groups'))
 
     @expose('json')
     @expose('spam.templates.redirect_parent')
@@ -266,7 +269,7 @@ class Controller(RestController):
                     group_name=group.group_name)
         flash('%s %s "%s"' % (remuser.user_id, _('removed from group'),
                                                         group.group_id), 'ok')
-        return dict(redirect_to=url('/user'))
+        return dict(redirect_to=url('/user#tab/groups'))
         
     @project_set_active
     @require(is_project_admin())
@@ -307,12 +310,16 @@ class Controller(RestController):
             
         added = ', '.join(added)
         
-        # log into Journal
-        journal.add(user, 'added user(s) "%s" to "%s" administrators' %
-                                                        (added, project.id))
-        
-        flash('%s: %s "%s"' % (added,
+        if added:
+            # log into Journal
+            journal.add(user, 'added user(s) "%s" to "%s" administrators' %
+                                                            (added, project.id))
+            flash('%s: %s "%s"' % (added,
                     _('user(s) set as administrators for'), project_id), 'ok')
+        else:
+            flash('%s "%s"' % (
+                            _('Selected users are already administrators for'),
+                            group.group_id), 'info')
         return dict(redirect_to=url('/user'))
 
     @project_set_active
@@ -385,13 +392,18 @@ class Controller(RestController):
                         destination=notify.TOPIC_PROJECT_SUPERVISORS)
         
         added = ', '.join(added)
-        
-        # log into Journal
-        journal.add(user, 'added %s "%s" supervisor(s) %s' %
+
+        if added:
+            # log into Journal
+            journal.add(user, 'added %s "%s" supervisor(s) %s' %
                                             (project.id, category.id, added))
         
-        flash('%s: %s %s %s' % (added, _('user(s) set as supervisors for'),
+            flash('%s: %s %s %s' % (added, _('user(s) set as supervisors for'),
                                                 project_id, category.id), 'ok')
+        else:
+            flash('%s %s %s"' % (
+                            _('Selected users are already supervisors for'),
+                            project_id, category.i), 'info')
         return dict(redirect_to=url('/user'))
 
     @project_set_active
@@ -470,13 +482,18 @@ class Controller(RestController):
                             destination=notify.TOPIC_PROJECT_ARTISTS)
         
         added = ', '.join(added)
-        
-        # log into Journal
-        journal.add(user, 'added %s "%s" artist(s) %s' %
+
+        if added:
+            # log into Journal
+            journal.add(user, 'added %s "%s" artist(s) %s' %
                                             (project.id, category.id, added))
         
-        flash('%s: %s %s %s' % (added, _('user(s) set as artists for'),
+            flash('%s: %s %s %s' % (added, _('user(s) set as artists for'),
                                                 project_id, category.id), 'ok')
+        else:
+            flash('%s %s %s"' % (
+                            _('Selected users are already artists for'),
+                            project_id, category.i), 'info')
         return dict(redirect_to=url('/user'))
 
     @project_set_active
