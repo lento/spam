@@ -33,7 +33,6 @@
 </%def>    
 
 
-${c.j_notify_client()}
 <ul id="sb_project_tree" class="hidden">
     <li>
         <%
