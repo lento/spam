@@ -192,7 +192,7 @@ class Controller(RestController):
         fargs = dict(_method='DELETE',
                      proj=asset.project.id, project_=asset.project.name,
                      asset_id=asset.id, name_=asset.name,
-                     container_=asset.parent.path,
+                     container_=asset.parent.owner.path,
                      category_=asset.category.id,
                     )
                      
@@ -219,12 +219,13 @@ class Controller(RestController):
         user = tmpl_context.user
         asset = asset_get(proj, asset_id)
 
+        session.delete(asset)
+
         # delete association objects or they will be orphaned
+        session.flush()
         for ver in asset.versions:
             session.delete(ver.annotable)
         session.delete(asset.taggable)
-
-        session.delete(asset)
 
         # log into Journal
         journal.add(user, 'deleted %s' % asset)
@@ -301,7 +302,7 @@ class Controller(RestController):
         fargs = dict(_method='PUBLISH',
                      proj=asset.project.id, project_=asset.project.name,
                      asset_id=asset.id, name_=asset.name,
-                     container_=asset.parent.path,
+                     container_=asset.parent.owner.path,
                      category_=asset.category.id,
                     )
         
@@ -387,7 +388,7 @@ class Controller(RestController):
         fargs = dict(_method='SUBMIT',
                      proj=asset.project.id, project_=asset.project.name,
                      asset_id=asset.id, name_=asset.name,
-                     container_=asset.parent.path,
+                     container_=asset.parent.owner.path,
                      category_=asset.category.id,
                     )
                      
@@ -437,7 +438,7 @@ class Controller(RestController):
         fargs = dict(_method='RECALL',
                      proj=asset.project.id, project_=asset.project.name,
                      asset_id=asset.id, name_=asset.name,
-                     container_=asset.parent.path,
+                     container_=asset.parent.owner.path,
                      category_=asset.category.id,
                     )
                      
@@ -487,7 +488,7 @@ class Controller(RestController):
         fargs = dict(_method='SENDBACK',
                      proj=asset.project.id, project_=asset.project.name,
                      asset_id=asset.id, name_=asset.name,
-                     container_=asset.parent.path,
+                     container_=asset.parent.owner.path,
                      category_=asset.category.id,
                     )
                      
@@ -537,7 +538,7 @@ class Controller(RestController):
         fargs = dict(_method='APPROVE',
                      proj=asset.project.id, project_=asset.project.name,
                      asset_id=asset.id, name_=asset.name,
-                     container_=asset.parent.path,
+                     container_=asset.parent.owner.path,
                      category_=asset.category.id,
                     )
                      
@@ -587,7 +588,7 @@ class Controller(RestController):
         fargs = dict(_method='REVOKE',
                      proj=asset.project.id, project_=asset.project.name,
                      asset_id=asset.id, name_=asset.name,
-                     container_=asset.parent.path,
+                     container_=asset.parent.owner.path,
                      category_=asset.category.id,
                     )
                      

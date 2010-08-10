@@ -146,8 +146,8 @@ class AssetContainer(DeclarativeBase):
 
     # Properties
     @property
-    def container(self):
-        return getattr(self, 'container_%s' % self.association_type)
+    def owner(self):
+        return getattr(self, 'owner_%s' % self.association_type)
 
     @property
     def categories(self):
@@ -307,7 +307,7 @@ class Shot(DeclarativeBase):
                         backref=backref('shots', order_by=name, lazy=False))
     
     container = relation(AssetContainer,
-                            backref=backref('container_shot', uselist=False))
+                            backref=backref('owner_shot', uselist=False))
     
     taggable = relation(Taggable, backref=backref('tagged_shot', uselist=False))
     
@@ -384,7 +384,7 @@ class Shot(DeclarativeBase):
                     categories=self.categories,
                     thumbnail=self.thumbnail,
                     has_preview=self.has_preview,
-                    container_type=self.container_type,
+                    container_type=self.container.association_type,
                    )
 
 add_container_props(Shot)
@@ -414,7 +414,7 @@ class Libgroup(DeclarativeBase):
                              foreign_keys=[parent_id], lazy=False, join_depth=5,
                              backref=backref('parent', remote_side=[id]))
     
-    container = relation(AssetContainer, backref=backref('container_libgroup',
+    container = relation(AssetContainer, backref=backref('owner_libgroup',
                                                                 uselist=False))
     
     taggable = relation(Taggable, backref=backref('tagged_libgroup',
@@ -477,7 +477,7 @@ class Libgroup(DeclarativeBase):
                     categories=self.categories,
                     thumbnail=self.thumbnail,
                     has_preview=self.has_preview,
-                    container_type=self.container_type,
+                    container_type=self.container.association_type,
                    )
 
 add_container_props(Libgroup)
@@ -638,15 +638,15 @@ class Asset(DeclarativeBase):
     # Properties
     @property
     def proj_id(self):
-        return self.parent.project.id
+        return self.parent.owner.project.id
     
     @property
     def project(self):
-        return self.parent.project
+        return self.parent.owner.project
     
     @property
     def path(self):
-        path = os.path.join(self.parent.path, self.category.id)
+        path = os.path.join(self.parent.owner.path, self.category.id)
         if self.is_sequence:
             name, ext = os.path.splitext(self.name)
             dirname = name.rstrip('.#')
@@ -762,7 +762,7 @@ class Asset(DeclarativeBase):
                     proj_id=self.proj_id,
                     project=self.project,
                     parent_id=self.parent_id,
-                    parent=self.parent,
+                    parent=self.parent.owner,
                     category=self.category,
                     status=self.status,
                     checkedout=self.checkedout,
@@ -827,8 +827,10 @@ class AssetVersion(DeclarativeBase):
     
     @property
     def path(self):
-        base, ext = os.path.splitext(self.asset.path)
-        return '%s_v%03d%s' % (base, self.ver, ext)
+        if self.asset:
+            base, ext = os.path.splitext(self.asset.path)
+            return '%s_v%03d%s' % (base, self.ver, ext)
+        return None
     
     @property
     def fmtver(self):
@@ -840,11 +842,13 @@ class AssetVersion(DeclarativeBase):
     
     @property
     def thumbnail(self):
-        name, ext = os.path.splitext(self.asset.name)
-        name = name.replace('.#', '')
-        name = '%s_v%03d-thumb.png' % (name, self.ver)
-        return os.path.join(self.asset.proj_id, G.PREVIEWS,
-                        self.asset.parent.path, self.asset.category.id, name)
+        if self.asset:
+            name, ext = os.path.splitext(self.asset.name)
+            name = name.replace('.#', '')
+            name = '%s_v%03d-thumb.png' % (name, self.ver)
+            return os.path.join(self.asset.proj_id, G.PREVIEWS,
+                    self.asset.parent.owner.path, self.asset.category.id, name)
+        return None
     
     @property
     def has_preview(self):

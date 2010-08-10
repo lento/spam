@@ -217,11 +217,12 @@ class Controller(RestController):
                             'shots' % scene.path,
                         result='failed')
 
+        session.delete(scene)
+
         # delete association objects or they will be orphaned
+        session.flush()
         session.delete(scene.taggable)
         session.delete(scene.annotable)
-
-        session.delete(scene)
 
         # invalidate project cache
         project.touch()

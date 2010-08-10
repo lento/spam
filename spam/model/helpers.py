@@ -29,7 +29,7 @@ from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 from spam.lib.exceptions import SPAMDBError, SPAMDBNotFound
 from spam.model import DBSession, Project, Scene, Shot, Libgroup, Asset
 from spam.model import Category, User, Group, Taggable, Tag, Annotable, Note
-from spam.model import AssetVersion
+from spam.model import AssetVersion, AssetContainer
 
 import logging
 log = logging.getLogger(__name__)
@@ -126,11 +126,8 @@ def libgroup_get(proj, libgroup_id):
                                                                     libgroup_id)
 
 def container_get(proj, container_type, container_id):
-    """Return a container."""
-    if container_type=='shot':
-        query = session_get().query(Shot)
-    elif container_type=='libgroup':
-        query = session_get().query(Libgroup)
+    """Return an asset container."""
+    query = session_get().query(AssetContainer)
     try:
         return query.filter_by(id=container_id.decode('utf-8')).one()
     except NoResultFound:

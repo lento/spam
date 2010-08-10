@@ -236,12 +236,13 @@ class Controller(RestController):
                             'assets' % libgroup.path,
                         result='failed')
 
+        session.delete(libgroup)
+
         # delete association objects or they will be orphaned
+        session.flush()
         session.delete(libgroup.container)
         session.delete(libgroup.taggable)
         session.delete(libgroup.annotable)
-
-        session.delete(libgroup)
 
         # invalidate project cache
         project.touch()

@@ -247,12 +247,13 @@ class Controller(RestController):
                             'assets' % shot.path,
                         result='failed')
 
+        session.delete(shot)
+
         # delete association objects or they will be orphaned
+        session.flush()
         session.delete(shot.container)
         session.delete(shot.taggable)
         session.delete(shot.annotable)
-
-        session.delete(shot)
 
         # invalidate project cache
         project.touch()

@@ -47,7 +47,7 @@ from versioning import db_upgrade, db_downgrade
 # Models import
 from auth import User, Group, Permission
 from misc import Taggable, Tag, Annotable, Note, Journal, Migrate
-from project import Project, Scene, Shot, Libgroup
+from project import Project, Scene, Shot, Libgroup, AssetContainer
 from project import Category, Supervisor, Artist, Asset, AssetVersion
 
 # Caching & helpers
