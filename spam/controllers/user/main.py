@@ -87,14 +87,12 @@ class Controller(RestController):
                                                     sidebar=('user', 'home'))
 
     @require(in_group('administrators'))
-    @expose('spam.templates.forms.form')
+    @expose('spam.templates.forms.form2')
     def new(self, **kwargs):
         """Display a NEW form."""
         tmpl_context.form = f_new
-        fargs = dict()
-        fcargs = dict()
-        return dict(title='Create a new user', args=fargs,
-                                                            child_args=fcargs)
+        form_args = dict()
+        return dict(title='Create a new user', form_args=form_args)
 
     @require(in_group('administrators'))
     @expose('json')

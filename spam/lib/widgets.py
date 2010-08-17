@@ -29,6 +29,8 @@ from tw.forms import CalendarDatePicker, SingleSelectField, FileField, Spacer
 from tw.forms import PasswordField, MultipleSelectField
 from tw.forms.validators import All, Any, Regex, MaxLength, NotEmpty, Int
 from tw.forms.validators import Schema
+import tw2.core as twc, tw2.forms as twf
+from tw2.core import StringLengthValidator as StringLength
 from spam.lib.validators import CategoryNamingConvention
 from livewidgets import LiveTable, LiveBox, LiveList
 from livewidgets import LiveWidget, Box, Button, Icon, Text, Link, Image
@@ -734,12 +736,11 @@ class BoxStatus(LiveBox):
 ############################################################
 
 # User
-class FormUserNew(TableForm):
+class FormUserNew(twf.TableForm):
     """New user form."""
-    class fields(WidgetsList):
-        user_name = TextField(validator=MaxLength(16, not_empty=True))
-        display_name = TextField(validator=MaxLength(255, not_empty=True))
-        password = PasswordField(validator=MaxLength(80, not_empty=True))
+    user_name = twf.TextField(validator=StringLength(max=16, required=True))
+    display_name = twf.TextField(validator=StringLength(max=255, required=True))
+    password = twf.PasswordField(validator=StringLength(max=80, required=True))
 
 
 class FormUserEdit(TableForm):

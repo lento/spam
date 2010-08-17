@@ -21,6 +21,9 @@ setup(
         #can be removed if use_toscawidgets = False
         "toscawidgets >= 0.9.7.1",
         "tw.forms >= 0.9.7.1",
+        "tw2.core",
+        "tw2.forms",
+        "tw2.dynforms",
         "zope.sqlalchemy >= 0.4 ",
         "repoze.tm2 >= 1.0a4",
         

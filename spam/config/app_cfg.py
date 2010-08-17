@@ -98,4 +98,8 @@ def on_shutdown():
 base_config.call_on_startup = [on_startup]
 base_config.call_on_shutdown = [on_shutdown]
 
+# ToscaWidgets
+base_config.use_toscawidgets = True
+base_config.use_toscawidgets2 = True
+
 
