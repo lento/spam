@@ -735,6 +735,9 @@ class BoxStatus(LiveBox):
 # Form widgets
 ############################################################
 
+# defaults for input fields
+SEL_SIZE = 10
+
 # User
 class FormUserNew(twf.TableForm):
     """New user form."""
@@ -743,47 +746,42 @@ class FormUserNew(twf.TableForm):
     password = twf.PasswordField(validator=StringLength(max=80, required=True))
 
 
-class FormUserEdit(TableForm):
+class FormUserEdit(twf.TableForm):
     """Edit user form."""
-    class fields(WidgetsList):
-        _method = HiddenField(default='PUT', validator=None)
-        user_id = HiddenField(validator=NotEmpty)
-        user_name_ = TextField(disabled=True, validator=None)
-        display_name = TextField(validator=MaxLength(255, not_empty=True))
+    method = 'PUT'
+    user_id = twf.HiddenField()
+    user_name_ = twf.LabelField()
+    display_name = twf.TextField(validator=StringLength(max=255, required=True))
 
 
-class FormUserConfirm(TableForm):
+class FormUserConfirm(twf.TableForm):
     """Generic user confirmation form."""
-    class fields(WidgetsList):
-        _method = HiddenField(default='', validator=None)
-        user_id = HiddenField(validator=NotEmpty)
-        user_name_ = TextField(disabled=True, validator=None)
-        display_name_ = TextField(disabled=True, validator=None)
+    custom_method = twf.IgnoredField(name='_method')
+    user_id = twf.HiddenField()
+    user_name_ = twf.LabelField()
+    display_name_ = twf.LabelField()
 
 
-class FormUserAddToGroup(TableForm):
+class FormUserAddToGroup(twf.TableForm):
     """Add user to group form."""
-    class fields(WidgetsList):
-        _method = HiddenField(default='ADD_TO_GROUP', validator=None)
-        group_id = HiddenField(validator=NotEmpty)
-        userids = MultipleSelectField(label_text='Users', options=[], size=20)
+    custom_method = twf.IgnoredField(name='_method', value='ADD_TO_GROUP')
+    group_id = twf.HiddenField()
+    userids = twf.MultipleSelectField(label='Users', options=[], size=SEL_SIZE)
 
 
-class FormUserAddAdmins(TableForm):
+class FormUserAddAdmins(twf.TableForm):
     """Add admin to project form."""
-    class fields(WidgetsList):
-        _method = HiddenField(default='ADD_ADMINS', validator=None)
-        proj = HiddenField(validator=NotEmpty)
-        userids = MultipleSelectField(label_text='Users', options=[], size=20)
+    custom_method = twf.IgnoredField(name='_method', value='ADD_ADMINS')
+    proj = twf.HiddenField()
+    userids = twf.MultipleSelectField(label='Users', options=[], size=SEL_SIZE)
 
 
-class FormUserAddToCategory(TableForm):
+class FormUserAddToCategory(twf.TableForm):
     """Add user to category form."""
-    class fields(WidgetsList):
-        _method = HiddenField(default='', validator=None)
-        proj = HiddenField(validator=NotEmpty)
-        category_id = HiddenField(validator=NotEmpty)
-        userids = MultipleSelectField(label_text='Users', options=[], size=20)
+    custom_method = twf.IgnoredField(name='_method', value='')
+    proj = twf.HiddenField()
+    category_id = twf.HiddenField()
+    userids = twf.MultipleSelectField(label='Users', options=[], size=SEL_SIZE)
 
 
 # Category

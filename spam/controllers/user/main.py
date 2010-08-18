@@ -91,8 +91,7 @@ class Controller(RestController):
     def new(self, **kwargs):
         """Display a NEW form."""
         tmpl_context.form = f_new
-        form_args = dict()
-        return dict(title='Create a new user', form_args=form_args)
+        return dict(title=_('Create a new user'))
 
     @require(in_group('administrators'))
     @expose('json')
@@ -118,16 +117,15 @@ class Controller(RestController):
         return dict(redirect_to=url('/user'))
 
     @require(in_group('administrators'))
-    @expose('spam.templates.forms.form')
+    @expose('spam.templates.forms.form2')
     def edit(self, user_id, **kwargs):
         """Display a EDIT form."""
-        tmpl_context.form = f_edit
         user = user_get(user_id)
-        fargs = dict(user_id=user.user_id, user_name_=user.user_name,
-                     display_name=user.display_name)
-        fcargs = dict()
-        return dict(title='Edit user "%s"' % user.user_id, args=fargs,
-                                                            child_args=fcargs)
+        f_edit.value = dict(user_id=user.user_id,
+                            user_name_=user.user_name,
+                            display_name=user.display_name)
+        tmpl_context.form = f_edit
+        return dict(title='%s %s' % (_('Edit user'), user.user_id))
         
     @require(in_group('administrators'))
     @expose('json')
@@ -160,17 +158,17 @@ class Controller(RestController):
         return dict(redirect_to=url('/user'))
 
     @require(in_group('administrators'))
-    @expose('spam.templates.forms.form')
+    @expose('spam.templates.forms.form2')
     def get_delete(self, user_id, **kwargs):
         """Display a DELETE confirmation form."""
-        tmpl_context.form = f_confirm
         user = user_get(user_id)
-        fargs = dict(_method='DELETE', user_id=user.user_id,
-                     user_name_=user.user_name, display_name_=user.display_name)
-        fcargs = dict()
-        return dict(
-                title='Are you sure you want to delete "%s"?' % user.user_id,
-                args=fargs, child_args=fcargs)
+        f_confirm.value = dict(custom_method='DELETE',
+                               user_id=user.user_id,
+                               user_name_=user.user_name,
+                               display_name_=user.display_name)
+        tmpl_context.form = f_confirm
+        return dict(title='%s %s?' % (_('Are you sure you want to delete'),
+                                                                user.user_id))
 
     @require(in_group('administrators'))
     @expose('json')
@@ -200,18 +198,17 @@ class Controller(RestController):
                      ]
 
     @require(in_group('administrators'))
-    @expose('spam.templates.forms.form')
+    @expose('spam.templates.forms.form2')
     def get_add_to_group(self, group_id, **kwargs):
         """Display a ADD users form."""
-        tmpl_context.form = f_add_to_group
         group = group_get(group_id)
         users = session_get().query(User)
         choices = [(u.user_id, '%-16s (%s)' % (u.user_id, u.display_name))
                                                                 for u in users]
-        fargs = dict(group_id=group.group_id,)
-        fcargs = dict(userids=dict(options=choices))
-        return dict(title='Add users to group "%s"' % group.group_id,
-                                                args=fargs, child_args=fcargs)
+        f_add_to_group.child.children.userids.options = choices
+        f_add_to_group.value = dict(group_id=group.group_id)
+        tmpl_context.form = f_add_to_group
+        return dict(title='%s %s' % (_('Add users to group'), group.group_id))
 
     @require(in_group('administrators'))
     @expose('json')
@@ -284,18 +281,17 @@ class Controller(RestController):
         
     @project_set_active
     @require(is_project_admin())
-    @expose('spam.templates.forms.form')
+    @expose('spam.templates.forms.form2')
     def get_add_admins(self, proj, **kwargs):
         """Display a ADD users form."""
-        tmpl_context.form = f_add_admins
         project = tmpl_context.project
         users = session_get().query(User)
         choices = [(u.user_id, '%-16s (%s)' % (u.user_id, u.display_name))
                                                                 for u in users]
-        fargs = dict(proj=project.id)
-        fcargs = dict(userids=dict(options=choices))
-        return dict(title='Add users to "%s" administrators' % project.id,
-                                                args=fargs, child_args=fcargs)
+        f_add_admins.value = dict(proj=project.id)
+        f_add_admins.child.children.userids.options = choices
+        tmpl_context.form = f_add_admins
+        return dict(title='%s %s' % (_('Add administrators for'), project.id))
 
     @project_set_active
     @require(is_project_admin())
@@ -369,20 +365,21 @@ class Controller(RestController):
 
     @project_set_active
     @require(is_project_admin())
-    @expose('spam.templates.forms.form')
+    @expose('spam.templates.forms.form2')
     def get_add_supervisors(self, proj, category_id, **kwargs):
         """Display a ADD supervisors form."""
-        tmpl_context.form = f_add_to_category
         project = tmpl_context.project
         category = category_get(category_id)
         users = session_get().query(User)
         choices = [(u.user_id, '%-16s (%s)' % (u.user_id, u.display_name))
                                                                 for u in users]
-        fargs = dict(_method='ADD_SUPERVISORS', proj=project.id,
-                                                        category_id=category.id)
-        fcargs = dict(userids=dict(options=choices))
-        return dict(title='Add "%s" supervisors for "%s"' %
-                    (category.id, project.id), args=fargs, child_args=fcargs)
+        f_add_to_category.value = dict(custom_method='ADD_SUPERVISORS',
+                                       proj=project.id,
+                                       category_id=category.id)
+        f_add_to_category.child.children.userids.options = choices
+        tmpl_context.form = f_add_to_category
+        return dict(title='%s %s/%s' % (_('Add supervisors for'), project.id,
+                                                                category.id))
 
     @project_set_active
     @require(is_project_admin())
@@ -464,20 +461,21 @@ class Controller(RestController):
 
     @project_set_active
     @require(is_project_admin())
-    @expose('spam.templates.forms.form')
+    @expose('spam.templates.forms.form2')
     def get_add_artists(self, proj, category_id, **kwargs):
         """Display a ADD artists form."""
-        tmpl_context.form = f_add_to_category
         project = tmpl_context.project
         category = category_get(category_id)
         users = session_get().query(User)
         choices = [(u.user_id, '%-16s (%s)' % (u.user_id, u.display_name))
                                                                 for u in users]
-        fargs = dict(_method='ADD_ARTISTS', proj=project.id,
-                                                        category_id=category.id)
-        fcargs = dict(userids=dict(options=choices))
-        return dict(title='Add "%s" artists for "%s"' %
-                    (category.id, project.id), args=fargs, child_args=fcargs)
+        f_add_to_category.value = dict(custom_method='ADD_ARTISTS',
+                                       proj=project.id,
+                                       category_id=category.id)
+        f_add_to_category.child.children.userids.options = choices
+        tmpl_context.form = f_add_to_category
+        return dict(title='%s %s/%s' % (_('Add artists for'), project.id,
+                                                                category.id))
 
     @project_set_active
     @require(is_project_admin())
