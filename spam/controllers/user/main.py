@@ -162,8 +162,8 @@ class Controller(RestController):
     def get_delete(self, user_id, **kwargs):
         """Display a DELETE confirmation form."""
         user = user_get(user_id)
-        f_confirm.value = dict(custom_method='DELETE',
-                               user_id=user.user_id,
+        f_confirm.custom_method = 'DELETE'
+        f_confirm.value = dict(user_id=user.user_id,
                                user_name_=user.user_name,
                                display_name_=user.display_name)
         tmpl_context.form = f_confirm
@@ -373,8 +373,8 @@ class Controller(RestController):
         users = session_get().query(User)
         choices = [(u.user_id, '%-16s (%s)' % (u.user_id, u.display_name))
                                                                 for u in users]
-        f_add_to_category.value = dict(custom_method='ADD_SUPERVISORS',
-                                       proj=project.id,
+        f_confirm.custom_method = 'ADD_SUPERVISORS'
+        f_add_to_category.value = dict(proj=project.id,
                                        category_id=category.id)
         f_add_to_category.child.children.userids.options = choices
         tmpl_context.form = f_add_to_category
@@ -469,8 +469,8 @@ class Controller(RestController):
         users = session_get().query(User)
         choices = [(u.user_id, '%-16s (%s)' % (u.user_id, u.display_name))
                                                                 for u in users]
-        f_add_to_category.value = dict(custom_method='ADD_ARTISTS',
-                                       proj=project.id,
+        f_confirm.custom_method = 'ADD_ARTISTS'
+        f_add_to_category.value = dict(proj=project.id,
                                        category_id=category.id)
         f_add_to_category.child.children.userids.options = choices
         tmpl_context.form = f_add_to_category

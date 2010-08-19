@@ -65,14 +65,11 @@ class Controller(RestController):
         return dict(category=category)
 
     @require(in_group('administrators'))
-    @expose('spam.templates.forms.form')
+    @expose('spam.templates.forms.form2')
     def new(self, **kwargs):
         """Display a NEW form."""
         tmpl_context.form = f_new
-        fargs = dict()
-        fcargs = dict()
-        return dict(title='Create a new category', args=fargs,
-                                                            child_args=fcargs)
+        return dict(title=_('Create a new category'))
 
     @require(in_group('administrators'))
     @expose('json')
@@ -97,17 +94,16 @@ class Controller(RestController):
                                                             category=category)
     
     @require(in_group('administrators'))
-    @expose('spam.templates.forms.form')
+    @expose('spam.templates.forms.form2')
     def edit(self, category_id, **kwargs):
         """Display a EDIT form."""
-        tmpl_context.form = f_edit
         category = category_get(category_id)
-        fargs = dict(category_id=category.id, id_=category.id,
-                     ordering=category.ordering,
-                     naming_convention=category.naming_convention)
-        fcargs = dict()
-        return dict(title='Edit category "%s"' % category.id, args=fargs,
-                                                            child_args=fcargs)
+        f_edit.value = dict(category_id=category.id,
+                            id_=category.id,
+                            ordering=category.ordering,
+                            naming_convention=category.naming_convention)
+        tmpl_context.form = f_edit
+        return dict(title='%s %s' % (_('Edit category'), category.id))
         
     @require(in_group('administrators'))
     @expose('json')
@@ -144,21 +140,20 @@ class Controller(RestController):
                                                 category_id, result='success')
 
     @require(in_group('administrators'))
-    @expose('spam.templates.forms.form')
+    @expose('spam.templates.forms.form2')
     def get_delete(self, category_id, **kwargs):
         """Display a DELETE confirmation form."""
-        tmpl_context.form = f_confirm
         category = category_get(category_id)
-        fargs = dict(_method='DELETE', category_id=category.id,
-                     id_=category.id,
-                     ordering_=category.ordering,
-                     naming_convention_=category.naming_convention)
-        fcargs = dict()
+        f_confirm.custom_method = 'DELETE'
+        f_confirm.value = dict(category_id=category.id,
+                               id_=category.id,
+                               ordering_=str(category.ordering),
+                               naming_convention_=category.naming_convention)
         warning = ('This will delete the category entry in the database. '
                    'All the assets in this category will be orphaned.')
-        return dict(
-                title='Are you sure you want to delete "%s"?' % category.id,
-                warning=warning, args=fargs, child_args=fcargs)
+        tmpl_context.form = f_confirm
+        return dict(title='%s %s?' % (_('Are you sure you want to delete'),
+                                                category.id), warning=warning)
 
     @require(in_group('administrators'))
     @expose('json')

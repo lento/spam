@@ -738,79 +738,89 @@ class BoxStatus(LiveBox):
 # defaults for input fields
 SEL_SIZE = 10
 
+# base class
+class RestForm(twf.TableForm):
+    """Base class for forms that submit data to a custom REST method via the
+    ``_method`` parameter
+    """
+    custom_method = twc.Param('The custom REST method to use for submitting '
+        'the form', default='POST')
+    custom_method_field = twf.IgnoredField(name='_method')
+
+    def prepare(self):
+        if not self.child.children.custom_method_field.value:
+            self.child.children.custom_method_field.value = self.custom_method
+        super(RestForm, self).prepare()
+
+
 # User
-class FormUserNew(twf.TableForm):
+class FormUserNew(RestForm):
     """New user form."""
     user_name = twf.TextField(validator=StringLength(max=16, required=True))
     display_name = twf.TextField(validator=StringLength(max=255, required=True))
     password = twf.PasswordField(validator=StringLength(max=80, required=True))
 
 
-class FormUserEdit(twf.TableForm):
+class FormUserEdit(RestForm):
     """Edit user form."""
-    method = 'PUT'
+    custom_method = 'PUT'
     user_id = twf.HiddenField()
     user_name_ = twf.LabelField()
     display_name = twf.TextField(validator=StringLength(max=255, required=True))
 
 
-class FormUserConfirm(twf.TableForm):
+class FormUserConfirm(RestForm):
     """Generic user confirmation form."""
-    custom_method = twf.IgnoredField(name='_method')
     user_id = twf.HiddenField()
     user_name_ = twf.LabelField()
     display_name_ = twf.LabelField()
 
 
-class FormUserAddToGroup(twf.TableForm):
+class FormUserAddToGroup(RestForm):
     """Add user to group form."""
-    custom_method = twf.IgnoredField(name='_method', value='ADD_TO_GROUP')
+    custom_method = 'ADD_TO_GROUP'
     group_id = twf.HiddenField()
     userids = twf.MultipleSelectField(label='Users', options=[], size=SEL_SIZE)
 
 
-class FormUserAddAdmins(twf.TableForm):
+class FormUserAddAdmins(RestForm):
     """Add admin to project form."""
-    custom_method = twf.IgnoredField(name='_method', value='ADD_ADMINS')
+    custom_method = 'ADD_ADMINS'
     proj = twf.HiddenField()
     userids = twf.MultipleSelectField(label='Users', options=[], size=SEL_SIZE)
 
 
-class FormUserAddToCategory(twf.TableForm):
+class FormUserAddToCategory(RestForm):
     """Add user to category form."""
-    custom_method = twf.IgnoredField(name='_method', value='')
     proj = twf.HiddenField()
     category_id = twf.HiddenField()
     userids = twf.MultipleSelectField(label='Users', options=[], size=SEL_SIZE)
 
 
 # Category
-class FormCategoryNew(TableForm):
+class FormCategoryNew(RestForm):
     """New category form."""
-    class fields(WidgetsList):
-        category_id = TextField(validator=All(
-                          Regex(G.pattern_name, not_empty=True), MaxLength(30)))
-        ordering = TextField(validator=Int)
-        naming_convention = TextField(validator=MaxLength(255))
+    category_id = twf.TextField(validator=twc.All(StringLength(max=30),
+                    twc.RegexValidator(regex=G.pattern_name), required=True))
+    ordering = twf.TextField(validator=twc.IntValidator)
+    naming_convention = twf.TextField(validator=StringLength(max=255))
 
-class FormCategoryEdit(TableForm):
+
+class FormCategoryEdit(RestForm):
     """Edit category form."""
-    class fields(WidgetsList):
-        _method = HiddenField(default='PUT', validator=None)
-        category_id = HiddenField(validator=NotEmpty)
-        id_ = TextField(disabled=True, validator=None)
-        ordering = TextField(validator=Int)
-        naming_convention = TextField(validator=MaxLength(255))
+    custom_method = 'PUT'
+    category_id = twf.HiddenField()
+    id_ = twf.LabelField()
+    ordering = twf.TextField(validator=twc.IntValidator)
+    naming_convention = twf.TextField(validator=StringLength(max=255))
 
 
-class FormCategoryConfirm(TableForm):
+class FormCategoryConfirm(RestForm):
     """Generic category confirmation form."""
-    class fields(WidgetsList):
-        _method = HiddenField(default='', validator=None)
-        category_id = HiddenField(validator=NotEmpty)
-        id_ = TextField(disabled=True, validator=None)
-        ordering_ = TextField(disabled=True, validator=None)
-        naming_convention_ = TextField(disabled=True, validator=None)
+    category_id = twf.HiddenField()
+    id_ = twf.LabelField()
+    ordering_ = twf.LabelField()
+    naming_convention_ = twf.LabelField()
 
 
 # Tags
