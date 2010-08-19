@@ -75,37 +75,36 @@ class Controller(RestController):
         return dict(tag=tag)
 
     @require(in_group('administrators'))
-    @expose('spam.templates.forms.form')
+    @expose('spam.templates.forms.form2')
     def new(self, taggable_id, **kwargs):
         """Display a NEW form."""
-        tmpl_context.form = f_new
         session = session_get()
         taggable = taggable_get(taggable_id)
         
-        fargs = dict(taggable_id=taggable.id,
-                     current_tags_=', '.join([t.id for t in taggable.tags]),
-                    )
+        f_new.value = dict(taggable_id=taggable.id,
+                       current_tags_=', '.join([t.id for t in taggable.tags]),
+                      )
         
         tags = session.query(Tag).order_by('id')
         choices = [t.id for t in tags if t not in taggable.tags]
-        fcargs = dict(tag_ids=dict(options=choices))
-        return dict(title='Add a tag to "%s"' % taggable.tagged.path,
-                                                args=fargs, child_args=fcargs)
+        f_new.child.children.tagids.options = choices
+        tmpl_context.form = f_new
+        return dict(title='%s %s' % (_('Add tags to'), taggable.tagged.path))
     
     @require(in_group('administrators'))
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_new, error_handler=new)
-    def post(self, taggable_id, tag_ids=[], new_tags=None):
+    def post(self, taggable_id, tagids=[], new_tags=None):
         """Add tags to a ``taggable`` obect."""
         session = session_get()
         user = tmpl_context.user
         taggable = taggable_get(taggable_id)
         
-        if isinstance(tag_ids, list):
-            tags = [tag_get(i) for i in tag_ids]
+        if isinstance(tagids, list):
+            tags = [tag_get(i) for i in tagids]
         else:
-            tags = [tag_get(tag_ids)]
+            tags = [tag_get(tagids)]
         
         if new_tags:
             tags.extend([tag_get(name) for name in new_tags.split(', ')])
@@ -130,18 +129,15 @@ class Controller(RestController):
                                 (added, taggable.tagged.path), result='success')
     
     @require(in_group('administrators'))
-    @expose('spam.templates.forms.form')
+    @expose('spam.templates.forms.form2')
     def get_delete(self, tag_id, **kwargs):
         """Display a DELETE confirmation form."""
-        tmpl_context.form = f_confirm
         tag = tag_get(tag_id)
-        fargs = dict(_method='DELETE', tag_id=tag.id)
-        fcargs = dict()
-        #warning = ('This will delete the category entry in the database. '
-        #           'All the assets in this category will be orphaned.')
-        return dict(
-                title='Are you sure you want to delete tag "%s"?' % tag.id,
-                warning=warning, args=fargs, child_args=fcargs)
+        f_confirm.custom_method = 'DELETE'
+        f_confirm.value = dict(tag_id=tag.id)
+        tmpl_context.form = f_confirm
+        return dict(title='%s %s?' % (_('Are you sure you want to delete tag'),
+                                                                        tag.id))
 
     @require(in_group('administrators'))
     @expose('json')
@@ -159,7 +155,7 @@ class Controller(RestController):
         journal.add(user, 'deleted %s' % tag)
         
         # send a stomp message to notify clients
-        notify.send(tag, update_type='deleted', taggable_id=taggable_id)
+        notify.send(tag, update_type='deleted')
         return dict(msg='deleted tag "%s"' % tag.id, result='success')
     
     # Custom REST-like actions
@@ -169,16 +165,16 @@ class Controller(RestController):
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_remove)
-    def remove(self, taggable_id, tag_ids=[]):
+    def remove(self, taggable_id, tagids=[]):
         """Remove tags from an object."""
         session = session_get()
         user = tmpl_context.user
         taggable = taggable_get(taggable_id)
         
-        if isinstance(tag_ids, list):
-            tags = [tag_get(i) for i in tag_ids]
+        if isinstance(tagids, list):
+            tags = [tag_get(i) for i in tagids]
         else:
-            tags = [tag_get(tag_ids)]
+            tags = [tag_get(tagids)]
         
         removed_tags = []
         for tag in tags:

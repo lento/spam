@@ -81,18 +81,17 @@ class Controller(RestController):
 
     @project_set_active
     @require(is_project_user())
-    @expose('spam.templates.forms.form')
+    @expose('spam.templates.forms.form2')
     def new(self, proj, annotable_id, **kwargs):
         """Display a NEW form."""
         project = tmpl_context.project
-        tmpl_context.form = f_new
         session = session_get()
         annotable = annotable_get(annotable_id)
         
-        fargs = dict(proj=project.id, annotable_id=annotable.id)
-        fcargs = dict()
-        return dict(title='Add a note to "%s"' % annotable.annotated.path,
-                                                args=fargs, child_args=fcargs)
+        f_new.value = dict(proj=project.id, annotable_id=annotable.id)
+        tmpl_context.form = f_new
+        return dict(title='%s %s' % (_('Add a note to'),
+                                                    annotable.annotated.path))
     
     @project_set_active
     @require(is_project_user())
@@ -120,18 +119,18 @@ class Controller(RestController):
     
     @project_set_active
     @require(is_project_admin())
-    @expose('spam.templates.forms.form')
+    @expose('spam.templates.forms.form2')
     def get_delete(self, proj, note_id, **kwargs):
         """Display a DELETE confirmation form."""
         project = tmpl_context.project
-        tmpl_context.form = f_confirm
         note = note_get(note_id)
-        fargs = dict(_method='DELETE', proj=project.id, note_id=note.id,
-                                                                text_=note.text)
-        fcargs = dict()
-        return dict(
-                title='Are you sure you want to delete note "%s"?' % note.id,
-                warning=warning, args=fargs, child_args=fcargs)
+        f_confirm.custom_method = 'DELETE'
+        f_confirm.value = dict(proj=project.id,
+                               note_id=note.id,
+                               text_=note.text)
+        tmpl_context.form = f_confirm
+        return dict(title='%s %s?' % (_('Are you sure you want to delete note'),
+                                                                    note.id))
 
     @project_set_active
     @require(is_project_admin())

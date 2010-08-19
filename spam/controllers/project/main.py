@@ -96,25 +96,23 @@ class Controller(RestController):
 
 
     @require(in_group('administrators'))
-    @expose('spam.templates.forms.form')
+    @expose('spam.templates.forms.form2')
     def new(self, **kwargs):
         """Display a NEW form."""
         tmpl_context.form = f_new
-        fargs = dict()
-        fcargs = dict()
-        return dict(title='Create a new project', args=fargs, child_args=fcargs)
+        return dict(title=_('Create a new project'))
 
     @require(in_group('administrators'))
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_new, error_handler=new)
-    def post(self, proj, name=None, description=None):
+    def post(self, proj, project_name=None, description=None):
         """Create a new project"""
         session = session_get()
         user = tmpl_context.user
         
         # add project to db
-        project = Project(proj, name=name, description=description)
+        project = Project(proj, name=project_name, description=description)
         session.add(project)
         
         # create directories and init hg repo
@@ -135,23 +133,23 @@ class Controller(RestController):
     
     @project_set_active
     @require(in_group('administrators'))
-    @expose('spam.templates.forms.form')
+    @expose('spam.templates.forms.form2')
     def edit(self, proj, **kwargs):
         """Display a EDIT form."""
-        tmpl_context.form = f_edit
         project = tmpl_context.project
-        fargs = dict(proj=project.id, id_=project.id, name=project.name,
-                                                description=project.description)
-        fcargs = dict()
-        return dict(title='Edit project "%s"' % proj, args=fargs,
-                                                            child_args=fcargs)
+        f_edit.value = dict(proj=project.id,
+                            id_=project.id,
+                            project_name=project.name,
+                            description=project.description)
+        tmpl_context.form = f_edit
+        return dict(title='%s %s' % (_('Edit project'), proj))
         
     @project_set_active
     @require(in_group('administrators'))
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_edit, error_handler=edit)
-    def put(self, proj, name=None, description=None):
+    def put(self, proj, project_name=None, description=None):
         """Edit a project"""
         project = tmpl_context.project
         old = project.__dict__.copy()
@@ -159,8 +157,8 @@ class Controller(RestController):
         user = tmpl_context.user
         
         modified = False
-        if name:
-            project.name = name
+        if project_name:
+            project.name = project_name
             modified = True
             
         if description:
@@ -184,22 +182,22 @@ class Controller(RestController):
 
     @project_set_active
     @require(in_group('administrators'))
-    @expose('spam.templates.forms.form')
+    @expose('spam.templates.forms.form2')
     def get_delete(self, proj, **kwargs):
         """Display a DELETE confirmation form."""
-        tmpl_context.form = f_confirm
         project = tmpl_context.project
-        fargs = dict(_method='DELETE', proj=project.id, id_=project.id,
-                     name_=project.name,
-                     description_=project.description,
-                    )
-        fcargs = dict()
-        warning = ('This will only delete the project entry in the database. '
+        f_confirm.custom_method = 'DELETE'
+        f_confirm.value = dict(proj=project.id,
+                               id_=project.id,
+                               project_name_=project.name,
+                               description_=project.description,
+                              )
+        warning = _('This will only delete the project entry in the database. '
                    'The data and history of the project must be deleted '
                    'manually if needed.')
-        return dict(
-                title='Are you sure you want to delete "%s"?' % project.name,
-                warning=warning, args=fargs, child_args=fcargs)
+        tmpl_context.form = f_confirm
+        return dict(title='%s %s?' % (_('Are you sure you want to delete'),
+                                                project.name), warning=warning)
 
     @project_set_active
     @require(in_group('administrators'))
@@ -236,23 +234,25 @@ class Controller(RestController):
     
     @project_set_active
     @require(in_group('administrators'))
-    @expose('spam.templates.forms.form')
+    @expose('spam.templates.forms.form2')
     def get_archive(self, proj, **kwargs):
         """Display a ARCHIVE confirmation form."""
-        tmpl_context.form = f_confirm
         project = tmpl_context.project
-        fargs = dict(_method='ARCHIVE', proj=project.id, id_=project.id,
-                     name_=project.name,
-                     description_=project.description,
-                    )
-        fcargs = dict()
-        return dict(title='Are you sure you want to archive "%s"' % proj,
-                                                args=fargs, child_args=fcargs)
+        f_confirm.custom_method = 'ARCHIVE'
+        f_confirm.value = dict(proj=project.id,
+                               id_=project.id,
+                               project_name_=project.name,
+                               description_=project.description,
+                              )
+        tmpl_context.form = f_confirm
+        return dict(title='%s %s?' % (_('Are you sure you want to archive'),
+                                                                project.name))
 
     @project_set_active
     @require(in_group('administrators'))
     @expose('json')
     @expose('spam.templates.forms.result')
+    @validate(f_confirm, error_handler=get_archive)
     def post_archive(self, proj):
         """Archive a project"""
         project = tmpl_context.project
@@ -272,24 +272,27 @@ class Controller(RestController):
         return dict(msg='archived project "%s"' % proj, result='success')
 
     @require(in_group('administrators'))
-    @expose('spam.templates.forms.form')
+    @expose('spam.templates.forms.form2')
     def get_activate(self, proj, **kwargs):
         """Display a ACTIVATE confirmation form."""
         tmpl_context.form = f_confirm
         query = query_projects_archived().filter_by(id=proj.decode('utf-8'))
         project = query.one()
         
-        fargs = dict(_method='ACTIVATE', proj=project.id, id_=project.id,
-                     name_=project.name,
-                     description_=project.description,
-                    )
-        fcargs = dict()
-        return dict(title='Are you sure you want to activate "%s"' % proj,
-                                                args=fargs, child_args=fcargs)
+        f_confirm.custom_method = 'ACTIVATE'
+        f_confirm.value = dict(proj=project.id,
+                               id_=project.id,
+                               project_name_=project.name,
+                               description_=project.description,
+                              )
+        tmpl_context.form = f_confirm
+        return dict(title='%s %s?' % (_('Are you sure you want to activate'),
+                                                                project.name))
 
     @require(in_group('administrators'))
     @expose('json')
     @expose('spam.templates.forms.result')
+    @validate(f_confirm, error_handler=get_activate)
     def post_activate(self, proj):
         """Activate a project"""
         query = query_projects_archived().filter_by(id=proj.decode('utf-8'))
@@ -311,24 +314,27 @@ class Controller(RestController):
 
     @project_set_active
     @require(in_group('administrators'))
-    @expose('spam.templates.forms.form')
+    @expose('spam.templates.forms.form2')
     def get_upgrade(self, proj, **kwargs):
         """Display a UPGRADE confirmation form."""
         tmpl_context.form = f_confirm
         project = tmpl_context.project
         
-        fargs = dict(_method='UPGRADE', proj=project.id, id_=project.id,
-                     name_=project.name,
-                     description_=project.description,
-                    )
-        fcargs = dict()
-        return dict(title='Are you sure you want to upgrade "%s" schema?' %
-                                            proj, args=fargs, child_args=fcargs)
+        f_confirm.custom_method = 'UPGRADE'
+        f_confirm.value = dict(proj=project.id,
+                               id_=project.id,
+                               project_name_=project.name,
+                               description_=project.description,
+                              )
+        tmpl_context.form = f_confirm
+        return dict(title='%s %s?' % (_('Are you sure you want to upgrade '
+                                        'database schema for'), project.name))
 
     @project_set_active
     @require(in_group('administrators'))
     @expose('json')
     @expose('spam.templates.forms.result')
+    @validate(f_confirm, error_handler=get_upgrade)
     def post_upgrade(self, proj):
         """Upgrade the DB schema for a project"""
         project = tmpl_context.project

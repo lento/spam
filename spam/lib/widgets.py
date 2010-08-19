@@ -737,6 +737,8 @@ class BoxStatus(LiveBox):
 
 # defaults for input fields
 SEL_SIZE = 10
+TEXT_AREA_COLS = 30
+TEXT_AREA_ROWS = 3
 
 # base class
 class RestForm(twf.TableForm):
@@ -746,6 +748,7 @@ class RestForm(twf.TableForm):
     custom_method = twc.Param('The custom REST method to use for submitting '
         'the form', default='POST')
     custom_method_field = twf.IgnoredField(name='_method')
+    submit = twf.SubmitButton(id='submit', value='Submit')
 
     def prepare(self):
         if not self.child.children.custom_method_field.value:
@@ -823,77 +826,67 @@ class FormCategoryConfirm(RestForm):
     naming_convention_ = twf.LabelField()
 
 
-# Tags
-class FormTagNew(TableForm):
+# Tag
+class FormTagNew(RestForm):
     """New tag form."""
-    class fields(WidgetsList):
-        taggable_id = HiddenField(validator=NotEmpty)
-        current_tags_ = TextField(validator=None, disabled=True)
-        tag_ids = MultipleSelectField(label_text='Tags', options=[], size=10)
-        new_tags = TextField(validator=Regex(G.pattern_tags))
+    taggable_id = twf.HiddenField()
+    current_tags_ = twf.LabelField()
+    tagids = twf.MultipleSelectField(label='Tags', options=[], size=SEL_SIZE)
+    new_tags = twf.TextField(validator=twc.RegexValidator(regex=G.pattern_tags))
 
 
-class FormTagConfirm(TableForm):
+class FormTagConfirm(RestForm):
     """Generic tag confirmation form."""
-    class fields(WidgetsList):
-        _method = HiddenField(default='', validator=None)
-        tag_id = HiddenField(validator=NotEmpty)
+    tag_id = twf.HiddenField()
 
 
-class FormTagRemove(TableForm):
+class FormTagRemove(RestForm):
     """Remove tag form."""
-    class fields(WidgetsList):
-        _method = HiddenField(default='REMOVE', validator=None)
-        taggable_id = HiddenField(validator=NotEmpty)
-        tag_ids = MultipleSelectField(label_text='Tags', options=[], size=10)
+    custom_method = 'REMOVE'
+    taggable_id = twf.HiddenField()
+    tagids = twf.MultipleSelectField(label='Tags', options=[], size=SEL_SIZE)
 
 
-# Notes
-class FormNoteNew(TableForm):
+# Note
+class FormNoteNew(RestForm):
     """New note form."""
-    class fields(WidgetsList):
-        proj = HiddenField(validator=NotEmpty)
-        annotable_id = HiddenField(validator=NotEmpty)
-        text = TextArea(cols=30, rows=3)
+    proj = twf.HiddenField()
+    annotable_id = twf.HiddenField()
+    text = twf.TextArea(cols=TEXT_AREA_COLS, rows=TEXT_AREA_ROWS,
+                                                        validator=twc.Required)
         
 
-class FormNoteConfirm(TableForm):
+class FormNoteConfirm(RestForm):
     """Generic note confirmation form."""
-    class fields(WidgetsList):
-        _method = HiddenField(default='', validator=None)
-        proj = HiddenField(validator=NotEmpty)
-        note_id = HiddenField(validator=NotEmpty)
-        text_ = TextArea(cols=30, rows=3, disabled=True, validator=None)
+    proj = twf.HiddenField()
+    note_id = twf.HiddenField()
+    text_ = twf.LabelField()
 
 
 # Project
-class FormProjectNew(TableForm):
+class FormProjectNew(RestForm):
     """New project form."""
-    class fields(WidgetsList):
-        proj = TextField(label_text='id', validator=All(Regex(G.pattern_name,
-                                                not_empty=True), MaxLength(15)))
-        name = TextField(validator=MaxLength(40))
-        description = TextArea(cols=30, rows=3)
+    proj = twf.TextField(label='id', validator=twc.All(StringLength(max=15),
+                    twc.RegexValidator(regex=G.pattern_name), required=True))
+    project_name = twf.TextField(label='Name', validator=StringLength(max=40))
+    description = twf.TextArea(cols=TEXT_AREA_COLS, rows=TEXT_AREA_ROWS)
 
 
-class FormProjectEdit(TableForm):
+class FormProjectEdit(RestForm):
     """Edit project form."""
-    class fields(WidgetsList):
-        _method = HiddenField(default='PUT', validator=None)
-        proj = HiddenField(validator=NotEmpty)
-        id_ = TextField(disabled=True, validator=None)
-        name = TextField(validator=MaxLength(40))
-        description = TextArea(cols=30, rows=3)
+    custom_method = 'PUT'
+    proj = twf.HiddenField()
+    id_ = twf.LabelField()
+    project_name = twf.TextField(label='Name', validator=StringLength(max=40))
+    description = twf.TextArea(cols=TEXT_AREA_COLS, rows=TEXT_AREA_ROWS)
 
 
-class FormProjectConfirm(TableForm):
+class FormProjectConfirm(RestForm):
     """Generic project confirmation form."""
-    class fields(WidgetsList):
-        _method = HiddenField(default='', validator=None)
-        proj = HiddenField(validator=NotEmpty)
-        id_ = TextField(disabled=True, validator=None)
-        name_ = TextField(disabled=True, validator=None)
-        description_ = TextArea(cols=30, rows=3, disabled=True, validator=None)
+    proj = twf.HiddenField()
+    id_ = twf.LabelField()
+    project_name_ = twf.LabelField(label='Name')
+    description_ = twf.LabelField()
 
 
 # Scene
