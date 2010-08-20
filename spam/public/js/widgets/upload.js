@@ -132,7 +132,8 @@ upload.file_upload = function(queue_id, fileData) {
     
 }
 
-$.fn.uploader = function(config){
+//$.fn.uploader = function(config){
+upload.activate = function(uploader, config){
     if (typeof(config)=='undefined' || config==null) config = {};
     if (!('queue' in config)) config.queue = "#upload_queue";
     if (!('target' in config)) config.target = "/upload";
@@ -140,21 +141,19 @@ $.fn.uploader = function(config){
     if (!('ext' in config)) config.ext = "";
     upload.config = config;
     
-    return this.each(function() {
-        $(this).bind("dragenter", function(e) {
-            return false;  
-        }).bind("dragover", function(e) {
-            return false;  
-        }).bind("drop", function(e) {
-            var dt = e.originalEvent.dataTransfer;
-            upload.handle_files(upload.config.queue, dt.files);
-            return false;
-        });
-        
-        $(this).bind("change", function(e) {
-            upload.handle_files(upload.config.queue, e.target.files);
-            return false;
-        });
+    uploader.bind("dragenter", function(e) {
+        return false;  
+    }).bind("dragover", function(e) {
+        return false;  
+    }).bind("drop", function(e) {
+        var dt = e.originalEvent.dataTransfer;
+        upload.handle_files(upload.config.queue, dt.files);
+        return false;
+    });
+    
+    uploader.bind("change", function(e) {
+        upload.handle_files(upload.config.queue, e.target.files);
+        return false;
     });
 }
 

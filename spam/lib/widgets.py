@@ -739,6 +739,7 @@ class BoxStatus(LiveBox):
 SEL_SIZE = 10
 TEXT_AREA_COLS = 30
 TEXT_AREA_ROWS = 3
+MAX_UPLOAD_FILES = None
 
 # base class
 class RestForm(twf.TableForm):
@@ -993,83 +994,86 @@ class FormLibgroupConfirm(RestForm):
 
 
 # Asset
-class FormAssetNew(TableForm):
+class FormAssetNew(RestForm):
     """New asset form."""
-    class fields(WidgetsList):
-        proj = HiddenField(validator=NotEmpty)
-        container_type = HiddenField(validator=NotEmpty)
-        container_id = HiddenField(validator=NotEmpty)
-        project_ = TextField(validator=None, disabled=True)
-        name = TextField(validator=Any(Regex(G.pattern_file, not_empty=True),
-                                       Regex(G.pattern_seq, not_empty=True)))
-        category_id = SingleSelectField(label_text='category', options=[],
-                validator=All(Regex(G.pattern_name, not_empty=True),
-                                                                MaxLength(30)),
-                default='')
-        comment = TextArea(cols=30, rows=3)
-    
-    validator = Schema(
-        chained_validators=[CategoryNamingConvention('category_id', 'name')],
-        )
+    proj = twf.HiddenField()
+    container_type = twf.HiddenField()
+    container_id = twf.HiddenField()
+    project_name = twf.LabelField()
+    category_id = twf.SingleSelectField(label='category', options=[],
+            validator=twc.All(twc.RegexValidator(regex=G.pattern_name),
+                                    StringLength(max=30), required=True),
+            default='')
+    name = twf.TextField(validator=twc.All(
+                        twc.Any(twc.RegexValidator(regex=G.pattern_file),
+                                twc.RegexValidator(regex=G.pattern_seq)),
+                        CategoryNamingConvention(category_field='category_id'),
+                        required=True))
+    comment = twf.TextArea(cols=TEXT_AREA_COLS, rows=TEXT_AREA_ROWS)
 
-class FormAssetEdit(TableForm):
+
+class FormAssetEdit(RestForm):
     """Edit asset form."""
-    class fields(WidgetsList):
-        _method = HiddenField(default='PUT', validator=None)
-        proj = HiddenField(validator=NotEmpty)
-        project_ = TextField(validator=None, disabled=True)
+    custom_method = 'PUT'
+    proj = twf.HiddenField()
+    project_name_ = twf.LabelField()
 
 
-class FormAssetConfirm(TableForm):
+class FormAssetConfirm(RestForm):
     """Generic asset confirmation form."""
-    class fields(WidgetsList):
-        _method = HiddenField(default='', validator=None)
-        proj = HiddenField(validator=NotEmpty)
-        project_ = TextField(validator=None, disabled=True)
-        asset_id = HiddenField(validator=NotEmpty)
-        container_ = TextField(validator=None, disabled=True)
-        category_ = TextField(validator=None, disabled=True)
-        name_ = TextField(validator=None, disabled=True)
+    proj = twf.HiddenField()
+    asset_id = twf.HiddenField()
+    project_name_ = twf.LabelField()
+    container_ = twf.LabelField()
+    category_id_ = twf.LabelField()
+    asset_name_ = twf.LabelField(label='Name')
 
 
-class Upload(FormField):
+class Upload(twf.FormField):
     """Advanced upload field for the publish asset form.
     
     An ``Upload`` field uploads file to the server as they are selected
     (or dragged onto it) and shows a progress bar for the upload."""
-    params = ['target', 'queue', 'submitter', 'ext']
+    target = twc.Param('Url of the controller that will receive the files',
+        default=url('/upload'))
+    queue = twc.Param('DOM id of the upload queue element',
+        default='#upload_queue')
+    submitter = twc.Param('DOM class of the submit button. It will be used to'
+        'disable the button while uploading files', default='.submitbutton')
+    ext = twc.Param('Restrict uploading to files with this extension. Use None'
+        'to allow all files', default=None)
+
     template = 'mako:spam.templates.widgets.upload'
-    upload_js = JSLink(link=url('/js/widgets/upload.js'))
-    javascript = [upload_js]
+    upload_js = twc.JSLink(link=url('/js/widgets/upload.js'))
+    resources = [upload_js]
     
-    target = url('/upload')
-    queue = '#upload_queue'
-    submitter = '.submitbutton'
-    ext = None
 
 
-class FormAssetPublish(TableForm):
+class FormAssetPublish(RestForm):
     """Publish asset form."""
-    class fields(WidgetsList):
-        _method = HiddenField(default='PUBLISH', validator=None)
-        proj = HiddenField(validator=NotEmpty)
-        asset_id = HiddenField(validator=NotEmpty)
-        uploaded = HiddenField(validator=NotEmpty(
-                    messages={'empty': 'Please choose the file(s) to upload'}))
-        uploader = Upload(label_text='File(s) to Upload')
-        spacer = Spacer(label_text='')
-        comment = TextArea(cols=30, rows=3)
+    custom_method = 'PUBLISH'
+    proj = twf.HiddenField()
+    asset_id = twf.HiddenField()
+    uploaded = twf.HiddenField(validator=twc.ListLengthValidator(
+                    min=1, max=MAX_UPLOAD_FILES,
+                    msgs={'tooshort': ('list_tooshort',
+                                       'Please choose the file(s) to upload'),
+                          'toolong': ('list_toolong',
+                                      'Too many files selected'),
+                         },
+                    required=True))
+    uploader = Upload(label='File(s) to Upload')
+    spacer = twf.Spacer()
+    comment = twf.TextArea(cols=TEXT_AREA_COLS, rows=TEXT_AREA_ROWS)
 
 
-class FormAssetStatus(TableForm):
+class FormAssetStatus(RestForm):
     """Asset status form."""
-    class fields(WidgetsList):
-        _method = HiddenField(default='', validator=None)
-        proj = HiddenField(validator=NotEmpty)
-        project_ = TextField(validator=None, disabled=True)
-        asset_id = HiddenField(validator=NotEmpty)
-        container_ = TextField(validator=None, disabled=True)
-        category_ = TextField(validator=None, disabled=True)
-        name_ = TextField(validator=None, disabled=True)
-        comment = TextArea(cols=30, rows=3)
+    proj = twf.HiddenField()
+    asset_id = twf.HiddenField()
+    project_name_ = twf.LabelField()
+    container_ = twf.LabelField()
+    category_id_ = twf.LabelField()
+    asset_name_ = twf.LabelField(label='Name')
+    comment = twf.TextArea(cols=TEXT_AREA_COLS, rows=TEXT_AREA_ROWS)
 

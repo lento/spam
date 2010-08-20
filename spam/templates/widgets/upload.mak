@@ -19,14 +19,16 @@
 
 <script type="text/javascript">
     $(function() {
-        $("#uploader").uploader({target: "${target}",
-                                 queue: "${queue}",
-                                 submitter: "${submitter}",
-                                 ext: "${ext}"});
+        upload.activate($("#uploader"),
+            {target: "${w.target}",
+             queue: "${w.queue}",
+             submitter: "${w.submitter}",
+             ext: "${w.ext}"
+            });
     });
 </script>
 
-<input id="uploader" name="${id}" type="file" multiple="true" id="input" />
+<input id="uploader" name="${w.id}" type="file" multiple="true" id="input" />
 <br/>
 <div id="upload_queue"></div>
 

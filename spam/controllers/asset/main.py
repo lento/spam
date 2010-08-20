@@ -131,24 +131,26 @@ class Controller(RestController):
 
     @project_set_active
     @require(is_project_admin())
-    @expose('spam.templates.forms.form')
+    @expose('spam.templates.forms.form2')
     def new(self, proj, container_type, container_id, **kwargs):
         """Display a NEW form."""
-        tmpl_context.form = f_new
         project = tmpl_context.project
         container = container_get(project.id, container_type, container_id)
         
-        fargs = dict(proj=project.id, project_=project.name,
-                     container_type=container_type, container_id=container_id,
-                    )
+        f_new.value = dict(proj=project.id,
+                           container_type=container_type,
+                           container_id=container_id,
+                           project_name_=project.name,
+                          )
 
         query = session_get().query(Category)
         categories = query.order_by('ordering', 'id')
         category_choices = ['']
         category_choices.extend([cat.id for cat in categories])
-        fcargs = dict(category_id=dict(options=category_choices))
+        f_new.child.children.category_id.options = category_choices
 
-        return dict(title='Create a new asset', args=fargs, child_args=fcargs)
+        tmpl_context.form = f_new
+        return dict(title=_('Create a new asset'))
 
     @project_set_active
     @require(is_project_admin())
@@ -183,25 +185,25 @@ class Controller(RestController):
     
     @project_set_active
     @require(is_project_admin())
-    @expose('spam.templates.forms.form')
+    @expose('spam.templates.forms.form2')
     def get_delete(self, proj, asset_id, **kwargs):
         """Display a DELETE confirmation form."""
-        tmpl_context.form = f_confirm
         asset = asset_get(proj, asset_id)
 
-        fargs = dict(_method='DELETE',
-                     proj=asset.project.id, project_=asset.project.name,
-                     asset_id=asset.id, name_=asset.name,
-                     container_=asset.parent.owner.path,
-                     category_=asset.category.id,
-                    )
+        f_confirm.custom_method = 'DELETE'
+        f_confirm.value = dict(proj=asset.project.id,
+                               project_name_=asset.project.name,
+                               container_=asset.parent.owner.path,
+                               category_id_=asset.category.id,
+                               asset_id=asset.id,
+                               asset_name_=asset.name,
+                              )
                      
-        fcargs = dict()
         warning = ('This will only delete the asset entry in the database. '
                    'The data must be deleted manually if needed.')
-        return dict(
-                title='Are you sure you want to delete "%s"?' % asset.path,
-                warning=warning, args=fargs, child_args=fcargs)
+        tmpl_context.form = f_confirm
+        return dict(title='%s %s?' % (_('Are you sure you want to delete'),
+                                                asset.path), warning=warning)
 
     @project_set_active
     @require(is_project_admin())
@@ -293,23 +295,25 @@ class Controller(RestController):
     @project_set_active
     @asset_set_active
     @require(is_asset_owner())
-    @expose('spam.templates.forms.form')
+    @expose('spam.templates.forms.form2')
     def get_publish(self, proj, asset_id, **kwargs):
         """Display a PUBLISH form."""
-        tmpl_context.form = f_publish
         asset = asset_get(proj, asset_id)
 
-        fargs = dict(_method='PUBLISH',
-                     proj=asset.project.id, project_=asset.project.name,
-                     asset_id=asset.id, name_=asset.name,
-                     container_=asset.parent.owner.path,
-                     category_=asset.category.id,
-                    )
+        f_publish.custom_method = 'PUBLISH'
+        f_publish.value = dict(proj=asset.project.id,
+                               asset_id=asset.id,
+                               project_name_=asset.project.name,
+                               container_=asset.parent.owner.path,
+                               category_id_=asset.category.id,
+                               asset_name_=asset.name,
+                              )
         
-        name, ext =os.path.splitext(asset.name)
-        fcargs = dict(uploader=dict(ext=ext))
-        return dict(title='Publish a new version for "%s"' % asset.path,
-                                        args=fargs, child_args=fcargs)
+        name, ext = os.path.splitext(asset.name)
+        f_publish.child.children.uploader.ext = ext
+        tmpl_context.form = f_publish
+        return dict(title='%s %s' % (_('Publish a new version for'),
+                                                                    asset.path))
 
     @project_set_active
     @asset_set_active
@@ -333,9 +337,8 @@ class Controller(RestController):
                                                             result='failed')
         
         if isinstance(uploaded, list):
-            if not uploaded[0]:
-                # the form send an empty string as first item, so we strip it
-                uploaded = uploaded[1:]
+            # the form might send empty strings, so we strip them
+            uploaded = [uf for uf in uploaded if uf]
         else:
             uploaded = [uploaded]
         
@@ -379,22 +382,22 @@ class Controller(RestController):
     @project_set_active
     @asset_set_active
     @require(is_asset_owner())
-    @expose('spam.templates.forms.form')
+    @expose('spam.templates.forms.form2')
     def get_submit(self, proj, asset_id, **kwargs):
         """Display a SUBMIT form."""
-        tmpl_context.form = f_status
         asset = asset_get(proj, asset_id)
 
-        fargs = dict(_method='SUBMIT',
-                     proj=asset.project.id, project_=asset.project.name,
-                     asset_id=asset.id, name_=asset.name,
-                     container_=asset.parent.owner.path,
-                     category_=asset.category.id,
-                    )
+        f_status.custom_method = 'SUBMIT'
+        f_status.value = dict(proj=asset.project.id,
+                              asset_id=asset.id,
+                              project_name_=asset.project.name,
+                              container_=asset.parent.owner.path,
+                              category_id_=asset.category.id,
+                              asset_name_=asset.name,
+                             )
                      
-        fcargs = dict()
-        return dict(title='Submit "%s" for approval' % asset.path,
-                                                args=fargs, child_args=fcargs)
+        tmpl_context.form = f_status
+        return dict(title='%s: %s' % (_('Submit for approval'), asset.path))
 
     @project_set_active
     @asset_set_active
@@ -429,22 +432,22 @@ class Controller(RestController):
     @project_set_active
     @asset_set_active
     @require(is_asset_owner())
-    @expose('spam.templates.forms.form')
+    @expose('spam.templates.forms.form2')
     def get_recall(self, proj, asset_id, **kwargs):
         """Display a RECALL form."""
-        tmpl_context.form = f_status
         asset = asset_get(proj, asset_id)
 
-        fargs = dict(_method='RECALL',
-                     proj=asset.project.id, project_=asset.project.name,
-                     asset_id=asset.id, name_=asset.name,
-                     container_=asset.parent.owner.path,
-                     category_=asset.category.id,
-                    )
+        f_status.custom_method = 'RECALL'
+        f_status.value = dict(proj=asset.project.id,
+                              asset_id=asset.id,
+                              project_name_=asset.project.name,
+                              container_=asset.parent.owner.path,
+                              category_id_=asset.category.id,
+                              asset_name_=asset.name,
+                             )
                      
-        fcargs = dict()
-        return dict(title='Recall submission for "%s"' % asset.path,
-                                                args=fargs, child_args=fcargs)
+        tmpl_context.form = f_status
+        return dict(title='%s: %s' % (_('Recall submission for'), asset.path))
 
     @project_set_active
     @asset_set_active
@@ -479,22 +482,22 @@ class Controller(RestController):
     @project_set_active
     @asset_set_active
     @require(is_asset_supervisor())
-    @expose('spam.templates.forms.form')
+    @expose('spam.templates.forms.form2')
     def get_sendback(self, proj, asset_id, **kwargs):
         """Display a SENDBACK form."""
-        tmpl_context.form = f_status
         asset = asset_get(proj, asset_id)
 
-        fargs = dict(_method='SENDBACK',
-                     proj=asset.project.id, project_=asset.project.name,
-                     asset_id=asset.id, name_=asset.name,
-                     container_=asset.parent.owner.path,
-                     category_=asset.category.id,
-                    )
+        f_status.custom_method = 'SENDBACK'
+        f_status.value = dict(proj=asset.project.id,
+                              asset_id=asset.id,
+                              project_name_=asset.project.name,
+                              container_=asset.parent.owner.path,
+                              category_id_=asset.category.id,
+                              asset_name_=asset.name,
+                             )
                      
-        fcargs = dict()
-        return dict(title='Send back "%s" for revisions' %
-                                    asset.path, args=fargs, child_args=fcargs)
+        tmpl_context.form = f_status
+        return dict(title='%s: %s' % (_('Send back for revisions'), asset.path))
 
     @project_set_active
     @asset_set_active
@@ -529,22 +532,22 @@ class Controller(RestController):
     @project_set_active
     @asset_set_active
     @require(is_asset_supervisor())
-    @expose('spam.templates.forms.form')
+    @expose('spam.templates.forms.form2')
     def get_approve(self, proj, asset_id, **kwargs):
         """Display a APPROVE form."""
-        tmpl_context.form = f_status
         asset = asset_get(proj, asset_id)
 
-        fargs = dict(_method='APPROVE',
-                     proj=asset.project.id, project_=asset.project.name,
-                     asset_id=asset.id, name_=asset.name,
-                     container_=asset.parent.owner.path,
-                     category_=asset.category.id,
-                    )
+        f_status.custom_method = 'APPROVE'
+        f_status.value = dict(proj=asset.project.id,
+                              asset_id=asset.id,
+                              project_name_=asset.project.name,
+                              container_=asset.parent.owner.path,
+                              category_id_=asset.category.id,
+                              asset_name_=asset.name,
+                             )
                      
-        fcargs = dict()
-        return dict(title='Approve "%s"' % asset.path,
-                                                args=fargs, child_args=fcargs)
+        tmpl_context.form = f_status
+        return dict(title='%s: %s' % (_('Approve'), asset.path))
 
     @project_set_active
     @asset_set_active
@@ -579,22 +582,22 @@ class Controller(RestController):
     @project_set_active
     @asset_set_active
     @require(is_asset_supervisor())
-    @expose('spam.templates.forms.form')
+    @expose('spam.templates.forms.form2')
     def get_revoke(self, proj, asset_id, **kwargs):
         """Display a REVOKE form."""
-        tmpl_context.form = f_status
         asset = asset_get(proj, asset_id)
 
-        fargs = dict(_method='REVOKE',
-                     proj=asset.project.id, project_=asset.project.name,
-                     asset_id=asset.id, name_=asset.name,
-                     container_=asset.parent.owner.path,
-                     category_=asset.category.id,
-                    )
+        f_status.custom_method = 'REVOKE'
+        f_status.value = dict(proj=asset.project.id,
+                              asset_id=asset.id,
+                              project_name_=asset.project.name,
+                              container_=asset.parent.owner.path,
+                              category_id_=asset.category.id,
+                              asset_name_=asset.name,
+                             )
                      
-        fcargs = dict()
-        return dict(title='Revoke approval for "%s"' % asset.path,
-                                                args=fargs, child_args=fcargs)
+        tmpl_context.form = f_status
+        return dict(title='%s: %s' % (_('Revoke approval for'), asset.path))
 
     @project_set_active
     @asset_set_active

@@ -24,39 +24,34 @@ import re
 from pylons.i18n import ugettext as _, lazy_ugettext as l_
 from formencode.api import Invalid
 from formencode.schema import format_compound_error
-from tw.forms.validators import FormValidator
+import tw2.core as twc
 from spam.model import category_get
+from spam.lib.exceptions import SPAMDBError, SPAMDBNotFound
 
-class CategoryNamingConvention(FormValidator):
-    """Validate an asset name against the naming convention for its category."""
 
-    category_field = None
-    name_field = None
-    __unpackargs__ = ('category_field', 'name_field')
-    
-    messages = {
-        'notDict': "Fields should be a dictionary",
-        }
+class CategoryNamingConvention(twc.Validator):
+    """Confirm an asset name matches the naming convention for its category.
 
-    def validate_partial(self, field_dict, state):
-        if self.category_field not in field_dict:
-            return
-        if self.name_field not in field_dict:
-            return
-        self.validate_python(field_dict, state)
+    `category_field`
+        Name of the sibling field this must match
+    """
+    msgs = {
+        'mismatch': "Must match category naming convention: $naming_convention"
+    }
 
-    def validate_python(self, field_dict, state):
+    def __init__(self, category_field, **kw):
+        super(CategoryNamingConvention, self).__init__(**kw)
+        self.category_field = category_field
+
+    def validate_python(self, value, state):
+        super(CategoryNamingConvention, self).validate_python(value, state)
+
         try:
-            category_id = field_dict[self.category_field]
-            asset_name = field_dict[self.name_field]
-        except TypeError:
-            # Generally because field_dict isn't a dict
-            raise Invalid(self.message('notDict', state), field_dict, state)
+            category = category_get(state[self.category_field])
+            self.naming_convention = category.naming_convention
+        except SPAMDBError, SPAMDBNotFound:
+            raise twc.ValidationError('mismatch', self)
 
-        category = category_get(category_id)
-        if not re.match(category.naming_convention, asset_name):
-            errors = dict(name='name does not follow naming convention for '
-                            'this category (%s)' % category.naming_convention)
-            raise Invalid(format_compound_error(errors),
-                          field_dict, state, error_dict=errors)
+        if not re.match(self.naming_convention, value):
+            raise twc.ValidationError('mismatch', self)
 
