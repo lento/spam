@@ -65,7 +65,7 @@ class Controller(RestController):
         return dict(category=category)
 
     @require(in_group('administrators'))
-    @expose('spam.templates.forms.form2')
+    @expose('spam.templates.forms.form')
     def new(self, **kwargs):
         """Display a NEW form."""
         tmpl_context.form = f_new
@@ -94,7 +94,7 @@ class Controller(RestController):
                                                             category=category)
     
     @require(in_group('administrators'))
-    @expose('spam.templates.forms.form2')
+    @expose('spam.templates.forms.form')
     def edit(self, category_id, **kwargs):
         """Display a EDIT form."""
         category = category_get(category_id)
@@ -140,7 +140,7 @@ class Controller(RestController):
                                                 category_id, result='success')
 
     @require(in_group('administrators'))
-    @expose('spam.templates.forms.form2')
+    @expose('spam.templates.forms.form')
     def get_delete(self, category_id, **kwargs):
         """Display a DELETE confirmation form."""
         category = category_get(category_id)

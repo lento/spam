@@ -23,12 +23,7 @@
 from tg import config, url
 from tg import app_globals as G
 from pylons.i18n import ugettext as _, lazy_ugettext as l_
-from tw.api import Widget, WidgetsList, JSLink, JSSource, js_function
-from tw.forms import TableForm, TextField, TextArea, HiddenField, FormField
-from tw.forms import CalendarDatePicker, SingleSelectField, FileField, Spacer
-from tw.forms import PasswordField, MultipleSelectField
-from tw.forms.validators import All, Any, Regex, MaxLength, NotEmpty, Int
-from tw.forms.validators import Schema
+from tw.api import WidgetsList, JSSource
 import tw2.core as twc, tw2.forms as twf
 from tw2.core import StringLengthValidator as StringLength
 from spam.lib.validators import CategoryNamingConvention

@@ -102,7 +102,7 @@ class Controller(RestController):
 
     @project_set_active
     @require(is_project_admin())
-    @expose('spam.templates.forms.form2')
+    @expose('spam.templates.forms.form')
     def new(self, proj, parent_id=None, **kwargs):
         """Display a NEW form."""
         project = tmpl_context.project
@@ -150,7 +150,7 @@ class Controller(RestController):
     
     @project_set_active
     @require(is_project_admin())
-    @expose('spam.templates.forms.form2')
+    @expose('spam.templates.forms.form')
     def edit(self, proj, libgroup_id, **kwargs):
         """Display a EDIT form."""
         libgroup = libgroup_get(proj, libgroup_id)
@@ -197,7 +197,7 @@ class Controller(RestController):
 
     @project_set_active
     @require(is_project_admin())
-    @expose('spam.templates.forms.form2')
+    @expose('spam.templates.forms.form')
     def get_delete(self, proj, libgroup_id, **kwargs):
         """Display a DELETE confirmation form."""
         libgroup = libgroup_get(proj, libgroup_id)

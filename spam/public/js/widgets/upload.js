@@ -50,14 +50,14 @@ upload.file_read = function(queue_id, file) {
 upload.handle_files = function(queue, files) {
     for (var i = 0; i < files.length; i++) {
         var file = files[i];
-        
+
         var splitted_name = file.name.split(".");
         var ext = "." + splitted_name[splitted_name.length-1];
         if (ext != upload.config.ext) {
             alert('"' + file.name + '" is not a "' + upload.config.ext + '" file');
             continue;
         }
-        
+
         if (!upload.queue.find(file.name)) {
             var n = upload.queue.add_file(file);
             var filediv = $('<div class="queue_item">' +
@@ -77,7 +77,7 @@ upload.file_upload = function(queue_id, fileData) {
     var progress = $("#upload_progress_" + queue_id);
     var file = upload.queue.files[queue_id];
     var xhr = new XMLHttpRequest();
-    
+
     $(xhr.upload).bind("progress", function(e) {
         var oe = e.originalEvent;
         //console.log('progress event', oe);
@@ -87,7 +87,7 @@ upload.file_upload = function(queue_id, fileData) {
         }
         return false;
     });
-  
+
     $(xhr).bind("load", function(e){
         console.log('FileUpload: load event', e, xhr);
         progress.progressbar('option', 'value', 100);
@@ -99,13 +99,13 @@ upload.file_upload = function(queue_id, fileData) {
             $(upload.config.submitter).removeAttr('disabled');
         }
     });
-  
+
     $(xhr.upload).bind("error", function(e){
         console.log('FileUpload: error event', e);
         progress.progressbar('option', 'value', 100);
         progress.addClass("error");
     });
-  
+
     var boundary = "S-P-A-M----u-p-l-o-a-d--X30";
 
     var fileData = file.getAsBinary();
@@ -124,15 +124,14 @@ upload.file_upload = function(queue_id, fileData) {
     content += fileData + '\r\n';
     content += '\r\n';
     content += '--' + boundary + '--\r\n';
-    
+
     xhr.open("POST", upload.config.target);
     xhr.setRequestHeader('Content-Type', 'multipart/form-data; boundary=' + boundary);
     xhr.setRequestHeader('Content-Length', content.length);
     xhr.sendAsBinary(content);
-    
+
 }
 
-//$.fn.uploader = function(config){
 upload.activate = function(uploader, config){
     if (typeof(config)=='undefined' || config==null) config = {};
     if (!('queue' in config)) config.queue = "#upload_queue";
@@ -140,17 +139,17 @@ upload.activate = function(uploader, config){
     if (!('submitter' in config)) config.submitter = ".submitbutton";
     if (!('ext' in config)) config.ext = "";
     upload.config = config;
-    
+
     uploader.bind("dragenter", function(e) {
-        return false;  
+        return false;
     }).bind("dragover", function(e) {
-        return false;  
+        return false;
     }).bind("drop", function(e) {
         var dt = e.originalEvent.dataTransfer;
         upload.handle_files(upload.config.queue, dt.files);
         return false;
     });
-    
+
     uploader.bind("change", function(e) {
         upload.handle_files(upload.config.queue, e.target.files);
         return false;

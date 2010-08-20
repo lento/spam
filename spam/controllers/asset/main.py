@@ -131,7 +131,7 @@ class Controller(RestController):
 
     @project_set_active
     @require(is_project_admin())
-    @expose('spam.templates.forms.form2')
+    @expose('spam.templates.forms.form')
     def new(self, proj, container_type, container_id, **kwargs):
         """Display a NEW form."""
         project = tmpl_context.project
@@ -185,7 +185,7 @@ class Controller(RestController):
     
     @project_set_active
     @require(is_project_admin())
-    @expose('spam.templates.forms.form2')
+    @expose('spam.templates.forms.form')
     def get_delete(self, proj, asset_id, **kwargs):
         """Display a DELETE confirmation form."""
         asset = asset_get(proj, asset_id)
@@ -295,7 +295,7 @@ class Controller(RestController):
     @project_set_active
     @asset_set_active
     @require(is_asset_owner())
-    @expose('spam.templates.forms.form2')
+    @expose('spam.templates.forms.form')
     def get_publish(self, proj, asset_id, **kwargs):
         """Display a PUBLISH form."""
         asset = asset_get(proj, asset_id)
@@ -382,7 +382,7 @@ class Controller(RestController):
     @project_set_active
     @asset_set_active
     @require(is_asset_owner())
-    @expose('spam.templates.forms.form2')
+    @expose('spam.templates.forms.form')
     def get_submit(self, proj, asset_id, **kwargs):
         """Display a SUBMIT form."""
         asset = asset_get(proj, asset_id)
@@ -432,7 +432,7 @@ class Controller(RestController):
     @project_set_active
     @asset_set_active
     @require(is_asset_owner())
-    @expose('spam.templates.forms.form2')
+    @expose('spam.templates.forms.form')
     def get_recall(self, proj, asset_id, **kwargs):
         """Display a RECALL form."""
         asset = asset_get(proj, asset_id)
@@ -482,7 +482,7 @@ class Controller(RestController):
     @project_set_active
     @asset_set_active
     @require(is_asset_supervisor())
-    @expose('spam.templates.forms.form2')
+    @expose('spam.templates.forms.form')
     def get_sendback(self, proj, asset_id, **kwargs):
         """Display a SENDBACK form."""
         asset = asset_get(proj, asset_id)
@@ -532,7 +532,7 @@ class Controller(RestController):
     @project_set_active
     @asset_set_active
     @require(is_asset_supervisor())
-    @expose('spam.templates.forms.form2')
+    @expose('spam.templates.forms.form')
     def get_approve(self, proj, asset_id, **kwargs):
         """Display a APPROVE form."""
         asset = asset_get(proj, asset_id)
@@ -582,7 +582,7 @@ class Controller(RestController):
     @project_set_active
     @asset_set_active
     @require(is_asset_supervisor())
-    @expose('spam.templates.forms.form2')
+    @expose('spam.templates.forms.form')
     def get_revoke(self, proj, asset_id, **kwargs):
         """Display a REVOKE form."""
         asset = asset_get(proj, asset_id)

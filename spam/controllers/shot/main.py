@@ -97,7 +97,7 @@ class Controller(RestController):
 
     @project_set_active
     @require(is_project_admin())
-    @expose('spam.templates.forms.form2')
+    @expose('spam.templates.forms.form')
     def new(self, proj, sc, **kwargs):
         """Display a NEW form."""
         scene = scene_get(proj, sc)
@@ -146,7 +146,7 @@ class Controller(RestController):
     
     @project_set_active
     @require(is_project_admin())
-    @expose('spam.templates.forms.form2')
+    @expose('spam.templates.forms.form')
     def edit(self, proj, sc, sh, **kwargs):
         """Display a EDIT form."""
         shot = shot_get(proj, sc, sh)
@@ -213,7 +213,7 @@ class Controller(RestController):
 
     @project_set_active
     @require(is_project_admin())
-    @expose('spam.templates.forms.form2')
+    @expose('spam.templates.forms.form')
     def get_delete(self, proj, sc, sh, **kwargs):
         """Display a DELETE confirmation form."""
         shot = shot_get(proj, sc, sh)

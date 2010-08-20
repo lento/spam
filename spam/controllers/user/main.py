@@ -87,7 +87,7 @@ class Controller(RestController):
                                                     sidebar=('user', 'home'))
 
     @require(in_group('administrators'))
-    @expose('spam.templates.forms.form2')
+    @expose('spam.templates.forms.form')
     def new(self, **kwargs):
         """Display a NEW form."""
         tmpl_context.form = f_new
@@ -117,7 +117,7 @@ class Controller(RestController):
         return dict(redirect_to=url('/user'))
 
     @require(in_group('administrators'))
-    @expose('spam.templates.forms.form2')
+    @expose('spam.templates.forms.form')
     def edit(self, user_id, **kwargs):
         """Display a EDIT form."""
         user = user_get(user_id)
@@ -158,7 +158,7 @@ class Controller(RestController):
         return dict(redirect_to=url('/user'))
 
     @require(in_group('administrators'))
-    @expose('spam.templates.forms.form2')
+    @expose('spam.templates.forms.form')
     def get_delete(self, user_id, **kwargs):
         """Display a DELETE confirmation form."""
         user = user_get(user_id)
@@ -198,7 +198,7 @@ class Controller(RestController):
                      ]
 
     @require(in_group('administrators'))
-    @expose('spam.templates.forms.form2')
+    @expose('spam.templates.forms.form')
     def get_add_to_group(self, group_id, **kwargs):
         """Display a ADD users form."""
         group = group_get(group_id)
@@ -281,7 +281,7 @@ class Controller(RestController):
         
     @project_set_active
     @require(is_project_admin())
-    @expose('spam.templates.forms.form2')
+    @expose('spam.templates.forms.form')
     def get_add_admins(self, proj, **kwargs):
         """Display a ADD users form."""
         project = tmpl_context.project
@@ -365,7 +365,7 @@ class Controller(RestController):
 
     @project_set_active
     @require(is_project_admin())
-    @expose('spam.templates.forms.form2')
+    @expose('spam.templates.forms.form')
     def get_add_supervisors(self, proj, category_id, **kwargs):
         """Display a ADD supervisors form."""
         project = tmpl_context.project
@@ -461,7 +461,7 @@ class Controller(RestController):
 
     @project_set_active
     @require(is_project_admin())
-    @expose('spam.templates.forms.form2')
+    @expose('spam.templates.forms.form')
     def get_add_artists(self, proj, category_id, **kwargs):
         """Display a ADD artists form."""
         project = tmpl_context.project

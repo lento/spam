@@ -81,7 +81,7 @@ class Controller(RestController):
 
     @project_set_active
     @require(is_project_user())
-    @expose('spam.templates.forms.form2')
+    @expose('spam.templates.forms.form')
     def new(self, proj, annotable_id, **kwargs):
         """Display a NEW form."""
         project = tmpl_context.project
@@ -119,7 +119,7 @@ class Controller(RestController):
     
     @project_set_active
     @require(is_project_admin())
-    @expose('spam.templates.forms.form2')
+    @expose('spam.templates.forms.form')
     def get_delete(self, proj, note_id, **kwargs):
         """Display a DELETE confirmation form."""
         project = tmpl_context.project

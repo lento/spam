@@ -75,7 +75,7 @@ class Controller(RestController):
         return dict(tag=tag)
 
     @require(in_group('administrators'))
-    @expose('spam.templates.forms.form2')
+    @expose('spam.templates.forms.form')
     def new(self, taggable_id, **kwargs):
         """Display a NEW form."""
         session = session_get()
@@ -129,7 +129,7 @@ class Controller(RestController):
                                 (added, taggable.tagged.path), result='success')
     
     @require(in_group('administrators'))
-    @expose('spam.templates.forms.form2')
+    @expose('spam.templates.forms.form')
     def get_delete(self, tag_id, **kwargs):
         """Display a DELETE confirmation form."""
         tag = tag_get(tag_id)

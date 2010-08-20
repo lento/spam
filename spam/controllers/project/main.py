@@ -96,7 +96,7 @@ class Controller(RestController):
 
 
     @require(in_group('administrators'))
-    @expose('spam.templates.forms.form2')
+    @expose('spam.templates.forms.form')
     def new(self, **kwargs):
         """Display a NEW form."""
         tmpl_context.form = f_new
@@ -133,7 +133,7 @@ class Controller(RestController):
     
     @project_set_active
     @require(in_group('administrators'))
-    @expose('spam.templates.forms.form2')
+    @expose('spam.templates.forms.form')
     def edit(self, proj, **kwargs):
         """Display a EDIT form."""
         project = tmpl_context.project
@@ -182,7 +182,7 @@ class Controller(RestController):
 
     @project_set_active
     @require(in_group('administrators'))
-    @expose('spam.templates.forms.form2')
+    @expose('spam.templates.forms.form')
     def get_delete(self, proj, **kwargs):
         """Display a DELETE confirmation form."""
         project = tmpl_context.project
@@ -234,7 +234,7 @@ class Controller(RestController):
     
     @project_set_active
     @require(in_group('administrators'))
-    @expose('spam.templates.forms.form2')
+    @expose('spam.templates.forms.form')
     def get_archive(self, proj, **kwargs):
         """Display a ARCHIVE confirmation form."""
         project = tmpl_context.project
@@ -272,7 +272,7 @@ class Controller(RestController):
         return dict(msg='archived project "%s"' % proj, result='success')
 
     @require(in_group('administrators'))
-    @expose('spam.templates.forms.form2')
+    @expose('spam.templates.forms.form')
     def get_activate(self, proj, **kwargs):
         """Display a ACTIVATE confirmation form."""
         tmpl_context.form = f_confirm
@@ -314,7 +314,7 @@ class Controller(RestController):
 
     @project_set_active
     @require(in_group('administrators'))
-    @expose('spam.templates.forms.form2')
+    @expose('spam.templates.forms.form')
     def get_upgrade(self, proj, **kwargs):
         """Display a UPGRADE confirmation form."""
         tmpl_context.form = f_confirm
