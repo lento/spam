@@ -23,6 +23,7 @@
 from tg import expose, url, tmpl_context, validate, require
 from tg.controllers import RestController
 from tg.decorators import with_trailing_slash
+from pylons.i18n import ugettext as _, lazy_ugettext as l_
 from spam.model import session_get, Project, User, Shot, Tag
 from spam.model import scene_get, shot_get, tag_get, diff_dicts
 from spam.lib.widgets import FormShotNew, FormShotEdit, FormShotConfirm
@@ -96,16 +97,18 @@ class Controller(RestController):
 
     @project_set_active
     @require(is_project_admin())
-    @expose('spam.templates.forms.form')
+    @expose('spam.templates.forms.form2')
     def new(self, proj, sc, **kwargs):
         """Display a NEW form."""
-        tmpl_context.form = f_new
         scene = scene_get(proj, sc)
         
-        fargs = dict(proj=scene.project.id, project_=scene.project.name,
-                     sc=scene.name, scene_=scene.name)
-        fcargs = dict()
-        return dict(title='Create a new shot', args=fargs, child_args=fcargs)
+        f_new.value = dict(proj=scene.project.id,
+                           sc=scene.name,
+                           project_name_=scene.project.name,
+                           scene_name_=scene.name,
+                          )
+        tmpl_context.form = f_new
+        return dict(title=_('Create a new shot'))
 
     @project_set_active
     @require(is_project_admin())
@@ -143,21 +146,25 @@ class Controller(RestController):
     
     @project_set_active
     @require(is_project_admin())
-    @expose('spam.templates.forms.form')
+    @expose('spam.templates.forms.form2')
     def edit(self, proj, sc, sh, **kwargs):
         """Display a EDIT form."""
-        tmpl_context.form = f_edit
         shot = shot_get(proj, sc, sh)
         
-        fargs = dict(proj=shot.project.id, project_=shot.project.name,
-                     sc=shot.parent.name, scene_=shot.parent.name,
-                     sh=shot.name, name_=shot.name,
-                     description=shot.description, action=shot.action,
-                     frames=shot.frames, handle_in=shot.handle_in,
-                     handle_out=shot.handle_out)
-        fcargs = dict()
-        return dict(title='Edit shot "%s"' % shot.path, args=fargs,
-                                                            child_args=fcargs)
+        f_edit.value = dict(proj=shot.project.id,
+                            sc=shot.parent.name,
+                            sh=shot.name,
+                            project_name_=shot.project.name,
+                            scene_name_=shot.parent.name,
+                            shot_name_=shot.name,
+                            description=shot.description,
+                            action=shot.action,
+                            frames=shot.frames,
+                            handle_in=shot.handle_in,
+                            handle_out=shot.handle_out,
+                           )
+        tmpl_context.form = f_edit
+        return dict(title='%s %s' % (_('Edit shot'), shot.path))
         
     @project_set_active
     @require(is_project_admin())
@@ -206,24 +213,24 @@ class Controller(RestController):
 
     @project_set_active
     @require(is_project_admin())
-    @expose('spam.templates.forms.form')
+    @expose('spam.templates.forms.form2')
     def get_delete(self, proj, sc, sh, **kwargs):
         """Display a DELETE confirmation form."""
-        tmpl_context.form = f_confirm
         shot = shot_get(proj, sc, sh)
-        fargs = dict(_method='DELETE',
-                     proj=shot.project.id, project_=shot.project.name,
-                     sc=shot.parent.name, scene_=shot.parent.name,
-                     sh=shot.name, name_=shot.name,
-                     description_=shot.description, action_=shot.action,
-                     frames_=shot.frames, handle_in_=shot.handle_in,
-                     handle_out_=shot.handle_out)
-        fcargs = dict()
+        f_confirm.custom_method = 'DELETE'
+        f_confirm.value = dict(proj=shot.project.id,
+                               sc=shot.parent.name,
+                               sh=shot.name,
+                               project_name_=shot.project.name,
+                               scene_name_=shot.parent.name,
+                               shot_name_=shot.name,
+                               description_=shot.description,
+                              )
         warning = ('This will only delete the shot entry in the database. '
                    'The data must be deleted manually if needed.')
-        return dict(
-                title='Are you sure you want to delete "%s"?' % shot.path,
-                warning=warning, args=fargs, child_args=fcargs)
+        tmpl_context.form = f_confirm
+        return dict(title='%s %s?' % (_('Are you sure you want to delete'),
+                                                    shot.path), warning=warning)
 
     @project_set_active
     @require(is_project_admin())

@@ -890,122 +890,106 @@ class FormProjectConfirm(RestForm):
 
 
 # Scene
-class FormSceneNew(TableForm):
+class FormSceneNew(RestForm):
     """New scene form."""
-    class fields(WidgetsList):
-        proj = HiddenField(validator=NotEmpty)
-        project_ = TextField(validator=None, disabled=True)
-        sc = TextField(label_text='name', validator=All(Regex(G.pattern_name,
-                                                not_empty=True), MaxLength(15)))
-        description = TextArea(cols=30, rows=3)
+    proj = twf.HiddenField()
+    project_name_ = twf.LabelField()
+    sc = twf.TextField(label='name', validator=twc.All(StringLength(max=15),
+                    twc.RegexValidator(regex=G.pattern_name), required=True))
+    description = twf.TextArea(cols=TEXT_AREA_COLS, rows=TEXT_AREA_ROWS)
 
 
-class FormSceneEdit(TableForm):
+class FormSceneEdit(RestForm):
     """Edit scene form."""
-    class fields(WidgetsList):
-        _method = HiddenField(default='PUT', validator=None)
-        proj = HiddenField(validator=NotEmpty)
-        sc = HiddenField(validator=NotEmpty)
-        project_ = TextField(validator=None, disabled=True)
-        name_ = TextField(validator=None, disabled=True)
-        description = TextArea(cols=30, rows=3)
+    custom_method = 'PUT'
+    proj = twf.HiddenField()
+    sc = twf.HiddenField()
+    project_name_ = twf.LabelField()
+    scene_name_ = twf.LabelField(label='Name')
+    description = twf.TextArea(cols=TEXT_AREA_COLS, rows=TEXT_AREA_ROWS)
 
 
-class FormSceneConfirm(TableForm):
+class FormSceneConfirm(RestForm):
     """Generic scene confirmation form."""
-    class fields(WidgetsList):
-        _method = HiddenField(default='', validator=None)
-        proj = HiddenField(validator=NotEmpty)
-        sc = HiddenField(validator=NotEmpty)
-        project_ = TextField(validator=None, disabled=True)
-        name_ = TextField(validator=None, disabled=True)
-        description_ = TextArea(cols=30, rows=3, disabled=True, validator=None)
+    proj = twf.HiddenField()
+    sc = twf.HiddenField()
+    project_name_ = twf.LabelField()
+    scene_name_ = twf.LabelField(label='Name')
+    description_ = twf.LabelField()
 
 
 # Shot
-class FormShotNew(TableForm):
+class FormShotNew(RestForm):
     """New shot form."""
-    class fields(WidgetsList):
-        proj = HiddenField(validator=NotEmpty)
-        sc = HiddenField(validator=NotEmpty)
-        project_ = TextField(validator=None, disabled=True)
-        scene_ = TextField(validator=None, disabled=True)
-        sh = TextField(label_text='name', validator=All(Regex(G.pattern_name,
-                                                not_empty=True), MaxLength(15)))
-        description = TextArea(cols=30, rows=3)
-        action = TextArea(cols=30, rows=3)
-        frames = TextField(validator=Int)
-        handle_in = TextField(validator=Int)
-        handle_out = TextField(validator=Int)
+    proj = twf.HiddenField()
+    sc = twf.HiddenField()
+    project_name_ = twf.LabelField()
+    scene_name_ = twf.LabelField()
+    sh = twf.TextField(label='Name', validator=twc.All(StringLength(max=15),
+                    twc.RegexValidator(regex=G.pattern_name), required=True))
+    description = twf.TextArea(cols=TEXT_AREA_COLS, rows=TEXT_AREA_ROWS)
+    action = twf.TextArea(cols=TEXT_AREA_COLS, rows=TEXT_AREA_ROWS)
+    frames = twf.TextField(validator=twc.IntValidator)
+    handle_in = twf.TextField(validator=twc.IntValidator)
+    handle_out = twf.TextField(validator=twc.IntValidator)
 
 
-class FormShotEdit(TableForm):
+class FormShotEdit(RestForm):
     """Edit shot form."""
-    class fields(WidgetsList):
-        _method = HiddenField(default='PUT', validator=None)
-        proj = HiddenField(validator=NotEmpty)
-        sc = HiddenField(validator=NotEmpty)
-        sh = HiddenField(validator=NotEmpty)
-        project_ = TextField(validator=None, disabled=True)
-        scene_ = TextField(validator=None, disabled=True)
-        name_ = TextField(validator=None, disabled=True)
-        description = TextArea(cols=30, rows=3)
-        action = TextArea(cols=30, rows=3)
-        frames = TextField(validator=Int)
-        handle_in = TextField(validator=Int)
-        handle_out = TextField(validator=Int)
+    custom_method = 'PUT'
+    proj = twf.HiddenField()
+    sc = twf.HiddenField()
+    sh = twf.HiddenField()
+    project_name_ = twf.LabelField()
+    scene_name_ = twf.LabelField()
+    shot_name_ = twf.LabelField(label='Name')
+    description = twf.TextArea(cols=TEXT_AREA_COLS, rows=TEXT_AREA_ROWS)
+    action = twf.TextArea(cols=TEXT_AREA_COLS, rows=TEXT_AREA_ROWS)
+    frames = twf.TextField(validator=twc.IntValidator)
+    handle_in = twf.TextField(validator=twc.IntValidator)
+    handle_out = twf.TextField(validator=twc.IntValidator)
 
 
-class FormShotConfirm(TableForm):
+class FormShotConfirm(RestForm):
     """Generic shot confirmation form."""
-    class fields(WidgetsList):
-        _method = HiddenField(default='', validator=None)
-        proj = HiddenField(validator=NotEmpty)
-        sc = HiddenField(validator=NotEmpty)
-        sh = HiddenField(validator=NotEmpty)
-        project_ = TextField(validator=None, disabled=True)
-        scene_ = TextField(validator=None, disabled=True)
-        name_ = TextField(validator=None, disabled=True)
-        description_ = TextArea(cols=30, rows=3, validator=None, disabled=True)
-        action_ = TextArea(cols=30, rows=3, validator=None, disabled=True)
-        frames_ = TextField(validator=None, disabled=True)
-        handle_in_ = TextField(validator=None, disabled=True)
-        handle_out_ = TextField(validator=None, disabled=True)
+    proj = twf.HiddenField()
+    sc = twf.HiddenField()
+    sh = twf.HiddenField()
+    project_name_ = twf.LabelField()
+    scene_name_ = twf.LabelField()
+    shot_name_ = twf.LabelField(label='Name')
+    description_ = twf.LabelField()
 
 
 # Libgroups
-class FormLibgroupNew(TableForm):
+class FormLibgroupNew(RestForm):
     """New libgroup form."""
-    class fields(WidgetsList):
-        proj = HiddenField(validator=NotEmpty)
-        parent_id = HiddenField()
-        project_ = TextField(validator=None, disabled=True)
-        parent_ = TextField(validator=None, disabled=True)
-        name = TextField(validator=All(Regex(G.pattern_name, not_empty=True),
-                                       MaxLength(15)))
-        description = TextArea(cols=30, rows=3)
+    proj = twf.HiddenField()
+    parent_id = twf.HiddenField()
+    project_name_ = twf.LabelField()
+    parent_ = twf.LabelField()
+    name = twf.TextField(validator=twc.All(StringLength(max=15),
+                    twc.RegexValidator(regex=G.pattern_name), required=True))
+    description = twf.TextArea(cols=TEXT_AREA_COLS, rows=TEXT_AREA_ROWS)
 
 
-class FormLibgroupEdit(TableForm):
+class FormLibgroupEdit(RestForm):
     """Edit libgroup form."""
-    class fields(WidgetsList):
-        _method = HiddenField(default='PUT', validator=None)
-        proj = HiddenField(validator=NotEmpty)
-        libgroup_id = HiddenField(validator=NotEmpty)
-        project_ = TextField(validator=None, disabled=True)
-        name_ = TextField(validator=None, disabled=True)
-        description = TextArea(cols=30, rows=3)
+    custom_method = 'PUT'
+    proj = twf.HiddenField()
+    libgroup_id = twf.HiddenField()
+    project_name_ = twf.LabelField()
+    libgroup_name_ = twf.LabelField(label='Name')
+    description = twf.TextArea(cols=TEXT_AREA_COLS, rows=TEXT_AREA_ROWS)
 
 
-class FormLibgroupConfirm(TableForm):
+class FormLibgroupConfirm(RestForm):
     """Generic libgroup confirmation form."""
-    class fields(WidgetsList):
-        _method = HiddenField(default='', validator=None)
-        proj = HiddenField(validator=NotEmpty)
-        libgroup_id = HiddenField(validator=NotEmpty)
-        project_ = TextField(validator=None, disabled=True)
-        name_ = TextField(validator=None, disabled=True)
-        description_ = TextArea(cols=30, rows=3, disabled=True, validator=None)
+    proj = twf.HiddenField()
+    libgroup_id = twf.HiddenField()
+    project_name_ = twf.LabelField()
+    libgroup_name_ = twf.LabelField(label='Name')
+    description_ = twf.LabelField()
 
 
 # Asset

@@ -23,6 +23,7 @@
 from tg import expose, url, tmpl_context, validate, require
 from tg.controllers import RestController
 from tg.decorators import with_trailing_slash
+from pylons.i18n import ugettext as _, lazy_ugettext as l_
 from spam.model import session_get, project_get, scene_get, Scene, diff_dicts
 from spam.lib.widgets import FormSceneNew, FormSceneEdit, FormSceneConfirm
 from spam.lib.widgets import TableScenes
@@ -92,15 +93,14 @@ class Controller(RestController):
 
     @project_set_active
     @require(is_project_admin())
-    @expose('spam.templates.forms.form')
+    @expose('spam.templates.forms.form2')
     def new(self, proj, **kwargs):
         """Display a NEW form."""
-        tmpl_context.form = f_new
         project = tmpl_context.project
 
-        fargs = dict(proj=project.id, project_=project.name)
-        fcargs = dict()
-        return dict(title='Create a new scene', args=fargs, child_args=fcargs)
+        f_new.value = dict(proj=project.id, project_name_=project.name)
+        tmpl_context.form = f_new
+        return dict(title=_('Create a new scene'))
 
     @project_set_active
     @require(is_project_admin())
@@ -135,18 +135,19 @@ class Controller(RestController):
     
     @project_set_active
     @require(is_project_admin())
-    @expose('spam.templates.forms.form')
+    @expose('spam.templates.forms.form2')
     def edit(self, proj, sc, **kwargs):
         """Display a EDIT form."""
-        tmpl_context.form = f_edit
         scene = scene_get(proj, sc)
 
-        fargs = dict(proj=scene.project.id, project_=scene.project.name,
-                     sc=scene.name, name_=scene.name,
-                     description=scene.description)
-        fcargs = dict()
-        return dict(title='Edit scene "%s"' % scene.path,
-                                                args=fargs, child_args=fcargs)
+        f_edit.value = dict(proj=scene.project.id,
+                            sc=scene.name,
+                            project_name_=scene.project.name,
+                            scene_name_=scene.name,
+                            description=scene.description,
+                           )
+        tmpl_context.form = f_edit
+        return dict(title='%s %s' % (_('Edit scene'), scene.path))
         
     @project_set_active
     @require(is_project_admin())
@@ -178,22 +179,23 @@ class Controller(RestController):
 
     @project_set_active
     @require(is_project_admin())
-    @expose('spam.templates.forms.form')
+    @expose('spam.templates.forms.form2')
     def get_delete(self, proj, sc, **kwargs):
         """Display a DELETE confirmation form."""
-        tmpl_context.form = f_confirm
         scene = scene_get(proj, sc)
 
-        fargs = dict(_method='DELETE',
-                     proj=scene.project.id, project_=scene.project.name,
-                     sc=scene.name, name_=scene.name,
-                     description_=scene.description)
-        fcargs = dict()
+        f_confirm.custom_method = 'DELETE'
+        f_confirm.value = dict(proj=scene.project.id,
+                               sc=scene.name,
+                               project_name_=scene.project.name,
+                               scene_name_=scene.name,
+                               description_=scene.description,
+                              )
         warning = ('This will only delete the scene entry in the database. '
                    'The data must be deleted manually if needed.')
-        return dict(
-                title='Are you sure you want to delete "%s"?' % scene.path,
-                warning=warning, args=fargs, child_args=fcargs)
+        tmpl_context.form = f_confirm
+        return dict(title='%s %s?' % (_('Are you sure you want to delete'),
+                                                scene.path), warning=warning)
 
     @project_set_active
     @require(is_project_admin())

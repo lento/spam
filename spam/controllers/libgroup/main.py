@@ -23,6 +23,7 @@
 from tg import expose, url, tmpl_context, validate, require
 from tg.controllers import RestController
 from tg.decorators import with_trailing_slash
+from pylons.i18n import ugettext as _, lazy_ugettext as l_
 from spam.model import session_get, Project, User, Libgroup, libgroup_get
 from spam.model import diff_dicts
 from spam.lib.widgets import FormLibgroupNew, FormLibgroupEdit
@@ -101,18 +102,19 @@ class Controller(RestController):
 
     @project_set_active
     @require(is_project_admin())
-    @expose('spam.templates.forms.form')
+    @expose('spam.templates.forms.form2')
     def new(self, proj, parent_id=None, **kwargs):
         """Display a NEW form."""
-        tmpl_context.form = f_new
         project = tmpl_context.project
         parent = parent_id and libgroup_get(project.id, parent_id) or None
 
-        fargs = dict(proj=project.id, project_=project.name,
-                     parent_id=parent_id, parent_=parent and parent.name or '')
-        fcargs = dict()
-        return dict(title='Create a new libgroup', args=fargs,
-                                                            child_args=fcargs)
+        f_new.value = dict(proj=project.id,
+                           parent_id=parent_id,
+                           project_name_=project.name,
+                           parent_=parent and parent.name or '',
+                          )
+        tmpl_context.form = f_new
+        return dict(title=_('Create a new libgroup'))
 
     @project_set_active
     @require(is_project_admin())
@@ -148,18 +150,19 @@ class Controller(RestController):
     
     @project_set_active
     @require(is_project_admin())
-    @expose('spam.templates.forms.form')
+    @expose('spam.templates.forms.form2')
     def edit(self, proj, libgroup_id, **kwargs):
         """Display a EDIT form."""
-        tmpl_context.form = f_edit
         libgroup = libgroup_get(proj, libgroup_id)
 
-        fargs = dict(proj=libgroup.project.id, project_=libgroup.project.name,
-                     libgroup_id=libgroup.id, name_=libgroup.name,
-                     description=libgroup.description)
-        fcargs = dict()
-        return dict(title='Edit libgroup "%s"' % libgroup.path,
-                                                args=fargs, child_args=fcargs)
+        f_edit.value = dict(proj=libgroup.project.id,
+                            libgroup_id=libgroup.id,
+                            project_name_=libgroup.project.name,
+                            libgroup_name_=libgroup.name,
+                            description=libgroup.description,
+                           )
+        tmpl_context.form = f_edit
+        return dict(title='%s %s' % (_('Edit libgroup'), libgroup.path))
         
     @project_set_active
     @require(is_project_admin())
@@ -194,22 +197,22 @@ class Controller(RestController):
 
     @project_set_active
     @require(is_project_admin())
-    @expose('spam.templates.forms.form')
+    @expose('spam.templates.forms.form2')
     def get_delete(self, proj, libgroup_id, **kwargs):
         """Display a DELETE confirmation form."""
-        tmpl_context.form = f_confirm
         libgroup = libgroup_get(proj, libgroup_id)
-
-        fargs = dict(_method='DELETE',
-                     proj=libgroup.project.id, project_=libgroup.project.name,
-                     libgroup_id=libgroup.id, name_=libgroup.name,
-                     description_=libgroup.description)
-        fcargs = dict()
+        f_confirm.custom_method = 'DELETE'
+        f_confirm.value = dict(proj=libgroup.project.id,
+                              libgroup_id=libgroup.id,
+                              project_name_=libgroup.project.name,
+                              libgroup_name_=libgroup.name,
+                              description_=libgroup.description,
+                             )
         warning = ('This will only delete the libgroup entry in the database. '
                    'The data must be deleted manually if needed.')
-        return dict(
-                title='Are you sure you want to delete "%s"?' % libgroup.path,
-                warning=warning, args=fargs, child_args=fcargs)
+        tmpl_context.form = f_confirm
+        return dict(title='%s %s?' % (_('Are you sure you want to delete'),
+                                                libgroup.path), warning=warning)
 
     @project_set_active
     @require(is_project_admin())
