@@ -373,7 +373,7 @@ class Controller(RestController):
         users = session_get().query(User)
         choices = [(u.user_id, '%-16s (%s)' % (u.user_id, u.display_name))
                                                                 for u in users]
-        f_confirm.custom_method = 'ADD_SUPERVISORS'
+        f_add_to_category.custom_method = 'ADD_SUPERVISORS'
         f_add_to_category.value = dict(proj=project.id,
                                        category_id=category.id)
         f_add_to_category.child.children.userids.options = choices
@@ -469,7 +469,7 @@ class Controller(RestController):
         users = session_get().query(User)
         choices = [(u.user_id, '%-16s (%s)' % (u.user_id, u.display_name))
                                                                 for u in users]
-        f_confirm.custom_method = 'ADD_ARTISTS'
+        f_add_to_category.custom_method = 'ADD_ARTISTS'
         f_add_to_category.value = dict(proj=project.id,
                                        category_id=category.id)
         f_add_to_category.child.children.userids.options = choices
