@@ -25,6 +25,7 @@ from tg import app_globals as G
 from pylons.i18n import ugettext as _, lazy_ugettext as l_
 from tw.api import WidgetsList, JSSource
 import tw2.core as twc, tw2.forms as twf
+import tw2.livewidgets as twl
 from tw2.core import StringLengthValidator as StringLength
 from spam.lib.validators import CategoryNamingConvention
 from livewidgets import LiveTable, LiveBox, LiveList
@@ -560,19 +561,23 @@ class TableNotes(LiveTable):
 ############################################################
 # Live lists
 ############################################################
-class ListProjects(LiveList):
+class ListProjects(twl.LiveList):
     """Project livelist."""
-    params = ['user_id']
+    user_id = twc.Param('User id used to filter update messages', default='')
     update_topic = notify.TOPIC_PROJECTS
-    class fields(WidgetsList):
-        name = Link(dest=url('/project/%(id)s'), field_class='%(id)s', fields=[
-            Text(id='name', label_text='%(description)s')
+
+    name = twl.Link(
+        dest=url('/project/%(id)s'),
+        css_class='%(id)s',
+        children=[
+            twl.Text(id='name',
+                 label='%(description)s')
         ])
-    
-    def update_params(self, d):
-        super(ListProjects, self).update_params(d)
-        d['update_condition'] = ('$.inArray("%s", msg.ob.user_ids) > -1' %
-                                                                d['user_id'])
+
+    def prepare(self):
+        super(ListProjects, self).prepare()
+        self.update_condition = ('$.inArray("%s", msg.ob.user_ids) > -1' %
+                                                                self.user_id)
 
 
 ############################################################

@@ -65,8 +65,9 @@
                     <span class="toggle_title">${_('projects')}</span>
                 </div>
                 <div class="toggleable">
-                    ${c.l_projects(id='projectslist', items=list(c.user.projects),
-                                                    user_id=c.user.user_id) | n}
+                    ${c.l_projects(id='projectslist',
+                                   value=list(c.user.projects),
+                                   user_id=c.user.user_id).display() | n}
                 </div>
             </div>
         </div>
