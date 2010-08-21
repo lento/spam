@@ -31,9 +31,10 @@
             <br/>
             <br/>
             ${c.t_group_users(id='users_%s' % group.group_name,
-                          extra_data=dict(group_name=group.group_name),
-                          items=list(group.users),
-                          update_listener_adder="notify.add_listener_tab") | n}
+                      value=list(group.users),
+                      extra_data=dict(group_name=group.group_name),
+                      update_listener_adder="notify.add_listener_tab",
+                  ).display() | n}
         </div>
     </div>
 % endfor

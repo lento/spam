@@ -23,6 +23,8 @@
 <br/>
 <br/>
 <h1>${_('Users')}</h1>
-${c.t_users(id='users', items=list(users),
-            update_listener_adder="notify.add_listener_tab") | n}
+${c.t_users(id='users',
+        value=list(users),
+        update_listener_adder="notify.add_listener_tab",
+    ).display() | n}
 

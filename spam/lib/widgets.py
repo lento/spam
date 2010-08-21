@@ -59,107 +59,116 @@ class StatusIconBox(LiveWidget):
 ############################################################
 # Live tables
 ############################################################
-class TableUsers(LiveTable):
+class TableUsers(twl.LiveTable):
     """User livetable."""
     update_topic = notify.TOPIC_USERS
-    class fields(WidgetsList):
-        domain = Text()
-        user_name = Text(sort_default=True)
-        display_name = Text()
-        actions = Box(fields=[
-            Button(id='edit',
-              action=url('/user/%(user_name)s/edit'),
-              fields=[Icon(id='edit', icon_class='edit',
-                label_text='edit'),
+    domain = twl.Text()
+    user_name = twl.Text(sort_default=True)
+    display_name = twl.Text()
+    actions = twl.Box(
+        children=[
+            twl.Button(id='edit',
+                action=url('/user/%(user_name)s/edit'),
+                overlay=True,
+                children=[
+                    twl.Icon(id='edit',
+                        icon_class='icon_edit',
+                        label='edit'),
             ]),
-            Button(id='delete',
-              action=url('/user/%(user_name)s/delete'),
-              fields=[Icon(id='delete', icon_class='delete',
-                label_text='delete'),
+            twl.Button(id='delete',
+                action=url('/user/%(user_name)s/delete'),
+                overlay=True,
+                children=[
+                    twl.Icon(id='delete',
+                        icon_class='icon_delete',
+                        label='delete'),
             ]),
-        ])
+    ])
 
 
-class TableGroupUsers(LiveTable):
+class TableGroupUsers(twl.LiveTable):
     """Group users livetable."""
     update_topic = notify.TOPIC_GROUPS
-    class fields(WidgetsList):
-        user_name = Text(sort_default=True)
-        display_name = Text()
-        actions = Box(fields=[
-            Button(id='remove',
-              action=url(
-                '/user/%(user_name)s/%(group_name)s/remove_from_group'),
-              fields=[Icon(id='delete', icon_class='delete',
-                label_text='remove'),
+    user_name = twl.Text(sort_default=True)
+    display_name = twl.Text()
+    actions = twl.Box(
+        children=[
+            twl.Button(id='remove',
+                action=url(
+                    '/user/%(user_name)s/%(group_name)s/remove_from_group'),
+                children=[
+                    twl.Icon(id='remove',
+                        icon_class='icon_delete',
+                        label='remove'),
             ]),
-        ])
-    
-    def update_params(self, d):
-        super(TableGroupUsers, self).update_params(d)
-        d['update_condition'] = 'msg.group_name=="%s"' % (
-                                                d['extra_data']['group_name'])
+    ])
+
+    def prepare(self):
+        super(TableGroupUsers, self).prepare()
+        self.update_condition = 'msg.group_name=="%s"' % (
+                                        self.extra_data.get('group_name', ''))
 
 
-class TableProjectAdmins(LiveTable):
+class TableProjectUsers(twl.LiveTable):
+    """Base class for project users livetables."""
+    user_name = twl.Text(sort_default=True)
+    display_name = twl.Text()
+    actions = twl.Box(
+        children=[
+            twl.Button(id='remove',
+                children=[
+                    twl.Icon(id='remove',
+                        icon_class='icon_delete',
+                        label='remove'),
+            ]),
+    ])
+
+
+class TableProjectAdmins(TableProjectUsers):
     """Project administrators livetable."""
     update_topic = notify.TOPIC_PROJECT_ADMINS
-    class fields(WidgetsList):
-        user_name = Text(sort_default=True)
-        display_name = Text()
-        actions = Box(fields=[
-            Button(id='remove',
-              action=url('/user/%(proj)s/%(user_name)s/remove_admin'),
-              fields=[Icon(id='delete', icon_class='delete',
-                label_text='remove'),
-            ]),
-        ])
-    
-    def update_params(self, d):
-        super(TableProjectAdmins, self).update_params(d)
-        d['update_condition'] = 'msg.proj=="%s"' % d['extra_data']['proj']
+
+    @classmethod
+    def post_define(cls):
+        cls.child.children[2].children[0].action = url(
+                    '/user/%(proj)s/%(user_name)s/remove_admin')
+
+    def prepare(self):
+        super(TableProjectAdmins, self).prepare()
+        self.update_condition = 'msg.proj=="%s"' % (
+                                            self.extra_data.get('proj', ''))
 
 
-class TableProjectSupervisors(LiveTable):
-    """Project supervisors livetable."""
+class TableProjectSupervisors(TableProjectUsers):
+    """Project users livetable."""
     update_topic = notify.TOPIC_PROJECT_SUPERVISORS
-    class fields(WidgetsList):
-        user_name = Text(sort_default=True)
-        display_name = Text()
-        actions = Box(fields=[
-            Button(id='remove',
-              action=url(
-                    '/user/%(proj)s/%(cat)s/%(user_name)s/remove_supervisor'),
-              fields=[Icon(id='delete', icon_class='delete',
-                label_text='remove'),
-            ]),
-        ])
-    
-    def update_params(self, d):
-        super(TableProjectSupervisors, self).update_params(d)
-        d['update_condition'] = 'msg.proj=="%s" && msg.cat=="%s"' % (
-                            (d['extra_data']['proj'], d['extra_data']['cat']))
+
+    @classmethod
+    def post_define(cls):
+        cls.child.children[2].children[0].action = url(
+                    '/user/%(proj)s/%(cat)s/%(user_name)s/remove_supervisor')
+
+    def prepare(self):
+        super(TableProjectSupervisors, self).prepare()
+        self.update_condition = 'msg.proj=="%s" && msg.cat=="%s"' % (
+                                            self.extra_data.get('proj', ''),
+                                            self.extra_data.get('cat', ''))
 
 
-class TableProjectArtists(LiveTable):
+class TableProjectArtists(TableProjectUsers):
     """Project artists livetable."""
     update_topic = notify.TOPIC_PROJECT_ARTISTS
-    class fields(WidgetsList):
-        user_name = Text(sort_default=True)
-        display_name = Text()
-        actions = Box(fields=[
-            Button(id='remove', icon_class='delete',
-              label_text='remove',
-              action=url('/user/%(proj)s/%(cat)s/%(user_name)s/remove_artist'),
-              fields=[Icon(id='delete', icon_class='delete',
-                label_text='remove'),
-            ]),
-        ])
-    
-    def update_params(self, d):
-        super(TableProjectArtists, self).update_params(d)
-        d['update_condition'] = 'msg.proj=="%s" && msg.cat=="%s"' % (
-                            (d['extra_data']['proj'], d['extra_data']['cat']))
+
+    @classmethod
+    def post_define(cls):
+        cls.child.children[2].children[0].action = url(
+                    '/user/%(proj)s/%(cat)s/%(user_name)s/remove_artist')
+
+    def prepare(self):
+        super(TableProjectArtists, self).prepare()
+        self.update_condition = 'msg.proj=="%s" && msg.cat=="%s"' % (
+                                            self.extra_data.get('proj', ''),
+                                            self.extra_data.get('cat', ''))
 
 
 class TableCategories(LiveTable):
