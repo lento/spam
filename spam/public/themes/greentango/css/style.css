@@ -94,27 +94,27 @@ body {
     -moz-box-shadow: inset 2px 2px 6px #888a85; /* Aluminium 4 */
 }
 
-.lw_icon.edit {background: url(../images/icons/16x16/edit.png) left center no-repeat;}
-.lw_icon.archive {background: url(../images/icons/16x16/undo.png) left center no-repeat;}
-.lw_icon.activate {background: url(../images/icons/16x16/redo.png) left center no-repeat;}
-.lw_icon.delete {background: url(../images/icons/16x16/delete.png) left center no-repeat;}
-.lw_icon.schema_uptodate {
+.lw_icon.icon_edit {background: url(../images/icons/16x16/edit.png) left center no-repeat;}
+.lw_icon.icon_archive {background: url(../images/icons/16x16/undo.png) left center no-repeat;}
+.lw_icon.icon_activate {background: url(../images/icons/16x16/redo.png) left center no-repeat;}
+.lw_icon.icon_delete {background: url(../images/icons/16x16/delete.png) left center no-repeat;}
+.lw_icon.icon_schema_uptodate {
     background: url(../images/icons/16x16/green.png) left center no-repeat;
     cursor: default;
 }
-.lw_icon.schema_outdated {background: url(../images/icons/16x16/urgent.png) left center no-repeat;}
-.lw_icon.checkout {background: url(../images/icons/16x16/checkout.png) left center no-repeat;}
-.lw_icon.release {background: url(../images/icons/16x16/release.png) left center no-repeat;}
-.lw_icon.publish {background: url(../images/icons/16x16/publish.png) left center no-repeat;}
-.lw_icon.submit {background: url(../images/icons/16x16/redo.png) left center no-repeat;}
-.lw_icon.sendback {background: url(../images/icons/16x16/sendback.png) left center no-repeat;}
-.lw_icon.recall {background: url(../images/icons/16x16/undo.png) left center no-repeat;}
-.lw_icon.approve {background: url(../images/icons/16x16/approve.png) left center no-repeat;}
-.lw_icon.revoke {background: url(../images/icons/16x16/revoke.png) left center no-repeat;}
-.lw_icon.history {background: url(../images/icons/16x16/history.png) left center no-repeat;}
-.lw_icon.download {background: url(../images/icons/16x16/download.png) left center no-repeat;}
-.lw_icon.pin {background: url(../images/icons/16x16/pin.png) left center no-repeat;}
-.lw_icon.unpin {background: url(../images/icons/16x16/unpin.png) left center no-repeat;}
+.lw_icon.icon_schema_outdated {background: url(../images/icons/16x16/urgent.png) left center no-repeat;}
+.lw_icon.icon_checkout {background: url(../images/icons/16x16/checkout.png) left center no-repeat;}
+.lw_icon.icon_release {background: url(../images/icons/16x16/release.png) left center no-repeat;}
+.lw_icon.icon_publish {background: url(../images/icons/16x16/publish.png) left center no-repeat;}
+.lw_icon.icon_submit {background: url(../images/icons/16x16/redo.png) left center no-repeat;}
+.lw_icon.icon_sendback {background: url(../images/icons/16x16/sendback.png) left center no-repeat;}
+.lw_icon.icon_recall {background: url(../images/icons/16x16/undo.png) left center no-repeat;}
+.lw_icon.icon_approve {background: url(../images/icons/16x16/approve.png) left center no-repeat;}
+.lw_icon.icon_revoke {background: url(../images/icons/16x16/revoke.png) left center no-repeat;}
+.lw_icon.icon_history {background: url(../images/icons/16x16/history.png) left center no-repeat;}
+.lw_icon.icon_download {background: url(../images/icons/16x16/download.png) left center no-repeat;}
+.lw_icon.icon_pin {background: url(../images/icons/16x16/pin.png) left center no-repeat;}
+.lw_icon.icon_unpin {background: url(../images/icons/16x16/unpin.png) left center no-repeat;}
 
 .thumbnail {
     width: 120px;
