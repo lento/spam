@@ -94,9 +94,9 @@ class SPAMBaseController(TGController):
         tmpl_context.theme = config.get('theme', 'default')
 
         # load javascripts
-        orbited_js.inject()
-        initsocket_js.inject()
-        stomp_js.inject()
+#        orbited_js.inject()
+#        initsocket_js.inject()
+#        stomp_js.inject()
 
         jquery_js.inject()
         jquery_ui_js.inject()

@@ -37,7 +37,7 @@ from tg.configuration import AppConfig
 import spam
 from spam import model
 from spam.lib import app_globals, helpers 
-from spam.lib.notifications import notify
+#from spam.lib.notifications import notify
 
 base_config = AppConfig()
 base_config.renderers = []
@@ -90,7 +90,8 @@ base_config.handle_status_codes.append(400)
 
 # Startup and shutdown
 def on_startup():
-    notify.connect()
+#    notify.connect()
+    pass
 
 def on_shutdown():
     pass

@@ -37,31 +37,31 @@ notify_init = function(host, port) {
     notify.listeners_tab = [];
 
     notify.add_listener = function(dest, callback) {
-        if (notify.is_connected) {
-            notify.listeners.push({'destination': dest, 'callback': callback});
-            console.log('stomp: add_listener ', dest, notify.listeners, notify.listeners_tab);
-            if (!(dest in notify.subscribes)) {
-                notify.client.subscribe(dest);
-                notify.subscribes[dest] = 1;
-                console.log('stomp: subscribed: ', dest);
-            }
-        } else {
-            setTimeout(function() {notify.add_listener(dest, callback);}, 250);
-        }
+//        if (notify.is_connected) {
+//            notify.listeners.push({'destination': dest, 'callback': callback});
+//            console.log('stomp: add_listener ', dest, notify.listeners, notify.listeners_tab);
+//            if (!(dest in notify.subscribes)) {
+//                notify.client.subscribe(dest);
+//                notify.subscribes[dest] = 1;
+//                console.log('stomp: subscribed: ', dest);
+//            }
+//        } else {
+//            setTimeout(function() {notify.add_listener(dest, callback);}, 250);
+//        }
     }
 
     notify.add_listener_tab = function(dest, callback) {
-        if (notify.is_connected) {
-            notify.listeners_tab.push({'destination': dest, 'callback': callback});
-            console.log('stomp: add_listener_tab ', dest, notify.listeners, notify.listeners_tab);
-            if (!(dest in notify.subscribes)) {
-                notify.client.subscribe(dest);
-                notify.subscribes[dest] = 1;
-                console.log('stomp: subscribed: ', dest);
-            }
-        } else {
-            setTimeout(function() {notify.add_listener_tab(dest, callback);}, 250);
-        }
+//        if (notify.is_connected) {
+//            notify.listeners_tab.push({'destination': dest, 'callback': callback});
+//            console.log('stomp: add_listener_tab ', dest, notify.listeners, notify.listeners_tab);
+//            if (!(dest in notify.subscribes)) {
+//                notify.client.subscribe(dest);
+//                notify.subscribes[dest] = 1;
+//                console.log('stomp: subscribed: ', dest);
+//            }
+//        } else {
+//            setTimeout(function() {notify.add_listener_tab(dest, callback);}, 250);
+//        }
     }
 
     notify.start_client = function(){

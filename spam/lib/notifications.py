@@ -39,6 +39,7 @@ class StompClient(object):
     StompClient can optionally start an ``Orbited`` server on the localhost."""
     def __init__(self):
         self.connection = None
+        self._setup_config()
     
     def _setup_config(self):
         self.ORBITED_AUTOSTART = config.get('orbited_autostart', False)
@@ -91,7 +92,6 @@ class StompClient(object):
 
     def connect(self):
         """Start the connection in a non-blocking thread."""
-        self._setup_config()
         if self.ORBITED_AUTOSTART in [True, 'True', 'true']:
             self.thread_orbited = threading.Thread(None, self._start_orbited)
             self.thread_orbited.start()
