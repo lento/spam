@@ -40,11 +40,13 @@ ${c.b_tags(id="taglist", items=c.scene.tags,
 
 <h2>${_('notes')}</h2>
 % if c.predicates.is_project_admin():
-<a href="${tg.url('/note/%s/new' % c.scene.id)}"
+<a href="${tg.url('/note/%s/%s/new' % (c.project.id, c.scene.id))}"
    rel="#overlay" class="overlay button">add note</a>
 % endif
-${c.t_notes(id="notestable", items=c.scene.notes,
-                    annotable_id=c.scene.annotable.id,
-                    extra_data=note_extra_data,
-                    update_listener_adder="notify.add_listener_tab") | n}
+${c.t_notes(id="notestable",
+        value=c.scene.notes,
+        annotable_id=c.scene.annotable.id,
+        extra_data=note_extra_data,
+        update_listener_adder="notify.add_listener_tab",
+    ).display() | n}
 

@@ -228,6 +228,10 @@ class Note(DeclarativeBase):
     def project(self):
         return self.annotable.annotated.project
 
+    @property
+    def user_name(self):
+        return self.user.user_name
+
     # Special methods
     def __init__(self, user, text):
         self.created = datetime.now()

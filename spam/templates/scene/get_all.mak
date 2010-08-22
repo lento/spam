@@ -25,6 +25,9 @@
 <br/>
 % endif
 
-${c.t_scenes(items=scenes, update_listener_adder="notify.add_listener_tab",
-             extra_data=extra_data) | n}
+${c.t_scenes(id='t_scenes',
+        value=scenes,
+        update_listener_adder="notify.add_listener_tab",
+        extra_data=extra_data
+    ).display() | n}
 

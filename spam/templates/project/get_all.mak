@@ -35,10 +35,10 @@
     <br/>
     <br/>
     <h1>${_('Active projects')}</h1>
-    ${c.projects_active(id='projects_active', items=list(active)) | n}
+    ${c.t_projects_active(id='t_projects_active', value=list(active)).display() | n}
     <br/>
     <br/>
     <h1>${_('Archived projects')}</h1>
-    ${c.projects_archived(id='projects_archived', items=list(archived)) | n}
+    ${c.t_projects_archived(id='t_projects_archived', value=list(archived)).display() | n}
 </div>
 

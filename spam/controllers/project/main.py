@@ -27,7 +27,7 @@ from pylons.i18n import ugettext as _, lazy_ugettext as l_
 from spam.model import session_get, project_get, Project, User
 from spam.model import query_projects, query_projects_archived, diff_dicts
 from spam.lib.widgets import FormProjectNew, FormProjectEdit, FormProjectConfirm
-from spam.lib.widgets import ProjectsActive, ProjectsArchived
+from spam.lib.widgets import TableProjectsActive, TableProjectsArchived
 from spam.lib import repo
 from spam.lib.notifications import notify
 from spam.lib.journaling import journal
@@ -46,8 +46,8 @@ f_edit = FormProjectEdit(action=url('/project/'))
 f_confirm = FormProjectConfirm(action=url('/project/'))
 
 # livetable widgets
-w_projects_active = ProjectsActive()
-w_projects_archived = ProjectsArchived()
+t_projects_active = TableProjectsActive()
+t_projects_archived = TableProjectsArchived()
 
 class Controller(RestController):
     """REST controller for managing projects.
@@ -69,8 +69,8 @@ class Controller(RestController):
         
         This page is linked from the `admin` sidebar.
         """
-        tmpl_context.projects_active = w_projects_active
-        tmpl_context.projects_archived = w_projects_archived
+        tmpl_context.t_projects_active = t_projects_active
+        tmpl_context.t_projects_archived = t_projects_archived
         active = query_projects()
         archived = query_projects_archived()
         return dict(page='admin/project', sidebar=('admin', 'projects'),

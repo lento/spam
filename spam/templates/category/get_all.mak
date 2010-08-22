@@ -24,6 +24,6 @@
     <br/>
     <br/>
     <h1>${_('Categories')}</h1>
-    ${c.t_categories(id='categories', items=list(categories)) | n}
+    ${c.t_categories(id='categories', value=list(categories)).display() | n}
 </div>
 
