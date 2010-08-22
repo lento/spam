@@ -67,7 +67,12 @@ class Controller(RestController):
         scene = scene_get(proj, sc)
         tmpl_context.scene = scene
         tmpl_context.t_shots = t_shots
-        extra_data = dict(project=project, user_id=user.user_id)
+        extra_data = dict(project=project,
+                          user_id=user.user_id,
+                          proj_id=project.id,
+                          parent_name=scene.name,
+                          container_type='shot',
+                         )
         return dict(page='shot', sidebar=('projects', scene.project.id),
                                     shots=scene.shots, extra_data=extra_data)
 

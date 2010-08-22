@@ -31,8 +31,10 @@
 <br/>
 % endif
 
-${c.t_libgroups(items=libgroups,
-                update_listener_adder="notify.add_listener_tab",
-                parent_id=parent_id,
-                extra_data=extra_data) | n}
+${c.t_libgroups(id='t_libgroups',
+        value=libgroups,
+        update_listener_adder='notify.add_listener_tab',
+        parent_id=parent_id,
+        extra_data=extra_data,
+    ).display() | n}
 

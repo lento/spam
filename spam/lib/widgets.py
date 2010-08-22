@@ -62,6 +62,7 @@ class StatusIconBox(LiveWidget):
 class TableUsers(twl.LiveTable):
     """User livetable."""
     update_topic = notify.TOPIC_USERS
+    show_headers = False
     domain = twl.Text()
     user_name = twl.Text(sort_default=True)
     display_name = twl.Text()
@@ -89,6 +90,7 @@ class TableUsers(twl.LiveTable):
 class TableGroupUsers(twl.LiveTable):
     """Group users livetable."""
     update_topic = notify.TOPIC_GROUPS
+    show_headers = False
     user_name = twl.Text(sort_default=True)
     display_name = twl.Text()
     actions = twl.Box(
@@ -111,6 +113,7 @@ class TableGroupUsers(twl.LiveTable):
 
 class TableProjectUsers(twl.LiveTable):
     """Base class for project users livetables."""
+    show_headers = False
     user_name = twl.Text(sort_default=True)
     display_name = twl.Text()
     actions = twl.Box(
@@ -207,6 +210,7 @@ class TableProjectsActive(twl.LiveTable):
                         ' "updated": lw.livetable.updaterow,'
                         ' "archived": lw.livetable.deleterow,'
                         ' "activated": lw.livetable.addrow}')
+    show_headers = False
 
     project_id = twl.Text(id='id')
     name = twl.Text()
@@ -249,6 +253,7 @@ class TableProjectsArchived(twl.LiveTable):
                         ' "updated": lw.livetable.updaterow,'
                         ' "archived": lw.livetable.addrow,'
                         ' "activated": lw.livetable.deleterow}')
+    show_headers = False
 
     project_id = twl.Text(id='id')
     name = twl.Text()
@@ -269,6 +274,7 @@ class TableProjectsArchived(twl.LiveTable):
 class TableScenes(twl.LiveTable):
     """Scene livetable."""
     update_topic = notify.TOPIC_SCENES
+    show_headers = False
     thumbnail = twl.Box(
         css_class='thumbnail',
         children=[
@@ -276,7 +282,7 @@ class TableScenes(twl.LiveTable):
                 help_text='thumbnail',
                 css_class='thumbnail',
                 condition='data.has_preview',
-#                src=url('/repo/%(thumbnail)s')
+                src=url('/repo/%(thumbnail)s')
             )
     ])
     namelink = twl.Link(
@@ -313,236 +319,340 @@ class TableScenes(twl.LiveTable):
     ])
 
 
-class TableShots(LiveTable):
+class TableShots(twl.LiveTable):
     """Shot livetable."""
     update_topic = notify.TOPIC_SHOTS
-    thumbnail = Box(css_class='thumbnail', children=[
-        Image(help_text='thumbnail', css_class='thumbnail',
-          condition='data.has_preview',
-          src=url('/repo/%(thumbnail)s'))
+    show_headers = False
+    thumbnail = twl.Box(
+        css_class='thumbnail',
+        children=[
+            twl.Image(id='thumbnail',
+                help_text='thumbnail',
+                css_class='thumbnail',
+                condition='data.has_preview',
+                src=url('/repo/%(thumbnail)s')
+            ),
     ])
-    namelink = Link(dest=url('/shot/%(proj_id)s/%(parent_name)s/%(name)s/'),
-                    sort_default=True,
-                    children=[Text(id='name', help_text='name')])
-    description = Text()
-    frames = Text()
-    categories = Box(css_class='statusiconbox', children=[
-        Link(dest='%s#%s' % (
+    namelink = twl.Link(
+        dest=url('/shot/%(proj_id)s/%(parent_name)s/%(name)s/'),
+        sort_default=True,
+        children=[
+            twl.Text(id='name', help_text='name')
+    ])
+    description = twl.Text()
+    frames = twl.Text()
+    categories = twl.Box(
+        css_class='statusiconbox',
+        children=[
+            twl.Link(
+                dest='%s#%s' % (
                       url('/shot/%(proj_id)s/%(parent_name)s/%(name)s'),
                       url('/asset/%(proj_id)s/%(container_type)s/%(id)s')),
-          children=[
-            StatusIcon(id='item_status', help_text='%(item_name)s: %(item_status)s')
-        ])
+                children=[
+#                    StatusIcon(id='item_status',
+#                        help_text='%(item_name)s: %(item_status)s'),
+            ])
     ])
-    actions = Box(
+    actions = twl.Box(
         condition='$.inArray(data.user_id, data.project.admin_ids)>=0',
         children=[
-        Button(id='edit',
-          action=url('/shot/%(proj_id)s/%(parent_name)s/%(name)s/edit'),
-          children=[Icon(id='edit', icon_class='icon_edit',
-            help_text='edit'),
-        ]),
-        Button(id='delete',
-          action=url('/shot/%(proj_id)s/%(parent_name)s/%(name)s/delete'),
-          children=[Icon(id='delete', icon_class='icon_delete',
-            help_text='delete'),
-        ]),
+            twl.Button(id='edit',
+                action=url('/shot/%(proj_id)s/%(parent_name)s/%(name)s/edit'),
+                overlay=True,
+                children=[
+                    twl.Icon(id='edit',
+                        icon_class='icon_edit',
+                        help_text='edit'),
+            ]),
+            twl.Button(id='delete',
+                action=url('/shot/%(proj_id)s/%(parent_name)s/%(name)s/delete'),
+                overlay=True,
+                children=[
+                    twl.Icon(id='delete',
+                        icon_class='icon_delete',
+                        help_text='delete'),
+            ]),
     ])
 
 
-class TableLibgroups(LiveTable):
+class TableLibgroups(twl.LiveTable):
     """Libgroup livetable."""
-    params = ['parent_id']
+    parent_id = twc.Param('Libgroup parent id', default=None)
     update_topic = notify.TOPIC_LIBGROUPS
-    thumbnail = Box(css_class='thumbnail', children=[
-        Image(help_text='thumbnail', css_class='thumbnail',
-          condition='data.has_preview',
-          src=url('/repo/%(thumbnail)s'))
-    ])
-    namelink = Link(dest=url('/libgroup/%(proj_id)s/%(id)s/'),
-                    sort_default=True,
-                    children=[Text(id='name', help_text='name')])
-    description = Text()
-    subgroups = StatusIconBox(
-        dest=url('/libgroup/%(proj_id)s/%(id)s'),
+    show_headers = False
+    thumbnail = twl.Box(
+        css_class='thumbnail',
         children=[
-          StatusIcon(help_text='')
+            twl.Image(
+                help_text='thumbnail',
+                css_class='thumbnail',
+                condition='data.has_preview',
+                src=url('/repo/%(thumbnail)s'))
     ])
-    categories = Box(css_class='statusiconbox', children=[
-        Link(dest='%s#%s' % (
+    namelink = twl.Link(
+        dest=url('/libgroup/%(proj_id)s/%(id)s/'),
+        sort_default=True,
+        children=[
+            twl.Text(id='name',
+                help_text='name')
+    ])
+    description = twl.Text()
+#    subgroups = StatusIconBox(
+#        dest=url('/libgroup/%(proj_id)s/%(id)s'),
+#        children=[
+#          StatusIcon(help_text='')
+#    ])
+    categories = twl.Box(
+        css_class='statusiconbox',
+        children=[
+            twl.Link(
+                dest='%s#%s' % (
                       url('/libgroup/%(proj_id)s/%(id)s'),
                       url('/asset/%(proj_id)s/%(container_type)s/%(id)s')),
-          children=[
-            StatusIcon(id='item_status', help_text='%(item_name)s: %(item_status)s')
-        ])
+                children=[
+#                    StatusIcon(id='item_status',
+#                        help_text='%(item_name)s: %(item_status)s')
+            ])
     ])
-    actions = Box(
+    actions = twl.Box(
         condition='$.inArray(data.user_id, data.project.admin_ids)>=0',
         children=[
-          Button(id='edit',
-            action=url('/libgroup/%(proj_id)s/%(id)s/edit'),
-            children=[Icon(id='edit', icon_class='icon_edit',
-              help_text='edit'),
-          ]),
-          Button(id='delete',
-            action=url('/libgroup/%(proj_id)s/%(id)s/delete'),
-            children=[Icon(id='delete', icon_class='icon_delete',
-              help_text='delete'),
-          ]),
+            twl.Button(id='edit',
+                action=url('/libgroup/%(proj_id)s/%(id)s/edit'),
+                overlay=True,
+                children=[
+                    twl.Icon(id='edit',
+                        icon_class='icon_edit',
+                        help_text='edit'),
+            ]),
+            twl.Button(id='delete',
+                action=url('/libgroup/%(proj_id)s/%(id)s/delete'),
+                overlay=True,
+                children=[
+                    twl.Icon(id='delete',
+                        icon_class='icon_delete',
+                        help_text='delete'),
+            ]),
     ])
     
-    def update_params(self, d):
-        super(TableLibgroups, self).update_params(d)
-        d['update_condition'] = 'msg.ob.parent_id==%s' % (
-                        d['parent_id'] and '"%s"' % d['parent_id'] or 'null')
+    def prepare(self):
+        super(TableLibgroups, self).prepare()
+        self.update_condition = 'msg.ob.parent_id==%s' % (
+                        self.parent_id and '"%s"' % self.parent_id or 'null')
 
 
-class TableAssets(LiveTable):
+class TableAssets(twl.LiveTable):
     """Asset livetable."""
-    params = ['category']
+    category = twc.Param('Asset category', default='')
     
     update_topic = notify.TOPIC_ASSETS
-    thumbnail = Box(css_class='thumbnail status %(status)s', children=[
-        Link(dest=url('/repo/%(proj_id)s/preview.png'),
-          condition='data.has_preview', children=[
-          Image(help_text='preview', css_class='thumbnail',
-            src=url('/repo/%(thumbnail)s'))
-        ])
+    show_headers = False
+    thumbnail = twl.Box(
+        css_class='thumbnail status %(status)s',
+        children=[
+            twl.Link(
+                dest=url('/repo/%(proj_id)s/preview.png'),
+                condition='data.has_preview',
+                children=[
+                    twl.Image(
+                        help_text='preview',
+                        css_class='thumbnail',
+                        src=url('/repo/%(thumbnail)s'))
+            ])
     ])
-    name = Box(css_class='status %(status)s', children=[
-        Text(id='name', sort_default=True),
-        Text(id='owner_id', css_class='owner',
-          condition='data.checkedout',
-          text='%s: %s' % ('checkedout by', '%(owner_user_name)s'),
-          help_text='%(owner_id)s (%(owner_display_name)s)',
-          )
-    ])
-    current_fmtver = Text(css_class='status %(status)s', help_text='version')
-    status = StatusIcon(css_class='status %(status)s', icon_class='asset',
-                                                help_text='status: ')
-    note = Box(css_class='status %(status)s', children=[
-        Text(id='current_header', css_class='note_header',
-          help_text='latest comment'),
-        Text(id='current_summary', help_text='latest comment'),
-    ])
-    actions = Box(css_class='status %(status)s', children=[
-        Button(id='history',
-          action=url('/asset/%(proj_id)s/%(id)s'),
-          children=[Icon(id='history', icon_class='history',
-            help_text='asset history'),
-        ]),
-        Button(id='addnote', icon_class='icon_edit',
-          help_text='add note',
-          action=url('/note/%(proj_id)s/%(current_id)s/new'),
-          children=[Icon(id='addnote', icon_class='icon_edit',
-            help_text='add note'),
-        ]),
-        Button(id='checkout',
-          condition=('!data.checkedout && !data.approved '
-                     '&& ($.inArray(data.user_id, data.supervisor_ids)>=0 '
-                     '|| $.inArray(data.user_id, data.artist_ids)>=0)'),
-          action=url('/asset/%(proj_id)s/%(id)s/checkout'),
-          children=[Icon(id='checkout', icon_class='checkout',
-            help_text='checkout'),
-        ]),
-        Button(id='release',
-          condition=('data.checkedout && !data.submitted && !data.approved '
-                     '&& (data.user_id==data.owner_id '
-                     '|| $.inArray(data.user_id, data.supervisor_ids)>=0)'),
-          action=url('/asset/%(proj_id)s/%(id)s/release'),
-          children=[Icon(id='release', icon_class='release',
-            help_text='release'),
-        ]),
-        Button(id='publish',
-          condition=('data.checkedout '
-                     '&& data.user_id==data.owner_id'),
-          action=url('/asset/%(proj_id)s/%(id)s/publish'),
-          children=[Icon(id='publish', icon_class='publish',
-            help_text='publish a new version'),
-        ]),
-        Button(id='submit', icon_class='submit',
-          condition=('data.checkedout && data.current_ver>0 '
-                     '&& !data.submitted && !data.approved '
-                     '&& data.user_id==data.owner_id'),
-          action=url('/asset/%(proj_id)s/%(id)s/submit'),
-          children=[Icon(id='submit', icon_class='submit',
-            help_text='submit for approval'),
-        ]),
-        Button(id='recall',
-          condition=('data.submitted && !data.approved '
-                     '&& data.user_id==data.owner_id'),
-          action=url('/asset/%(proj_id)s/%(id)s/recall'),
-          children=[Icon(id='recall', icon_class='recall',
-            help_text='recall submission'),
-        ]),
-        Button(id='sendback',
-          condition=('data.submitted && !data.approved '
-                     '&& $.inArray(data.user_id, data.supervisor_ids)>=0'),
-          action=url('/asset/%(proj_id)s/%(id)s/sendback'),
-          children=[Icon(id='sendback', icon_class='sendback',
-            help_text='send back for revisions'),
-        ]),
-        Button(id='approve',
-          condition=('data.submitted && !data.approved '
-                     '&& $.inArray(data.user_id, data.supervisor_ids)>=0'),
-          action=url('/asset/%(proj_id)s/%(id)s/approve'),
-          children=[Icon(id='approve', icon_class='approve',
-            help_text='approve'),
-        ]),
-        Button(id='revoke',
-          condition=('data.approved '
-                     '&& $.inArray(data.user_id, data.supervisor_ids)>=0'),
-          action=url('/asset/%(proj_id)s/%(id)s/revoke'),
-          children=[Icon(id='revoke', icon_class='revoke',
-            help_text='revoke approval'),
-        ]),
-        Link(id='download_link',
-          condition='data.current_ver && data.current_ver>0',
-          dest=url('/asset/%(proj_id)s/%(current_id)s/download'),
-          children=[
-            Icon(id='download', icon_class='download',
-              help_text='download',
+    name = twl.Box(
+        css_class='status %(status)s',
+        children=[
+            twl.Text(id='name', sort_default=True),
+            twl.Text(id='owner_id',
+                css_class='owner',
+                condition='data.checkedout',
+                text='%s: %s' % ('checkedout by', '%(owner_user_name)s'),
+                help_text='%(owner_id)s (%(owner_display_name)s)',
             )
-        ]),
-        Button(id='delete',
-          condition='$.inArray(data.user_id, data.project.admin_ids)>=0',
-          action=url('/asset/%(proj_id)s/%(id)s/delete'),
-          children=[Icon(id='delete', icon_class='icon_delete',
-            help_text='delete'),
-        ]),
+    ])
+    current_fmtver = twl.Text(
+        css_class='status %(status)s',
+        help_text='version')
+#    status = StatusIcon(
+#        css_class='status %(status)s',
+#        icon_class='asset',
+#        help_text='status: ')
+    note = twl.Box(
+        css_class='status %(status)s',
+        children=[
+            twl.Text(id='current_header',
+                css_class='note_header',
+                help_text='latest comment'),
+            twl.Text(id='current_summary',
+                help_text='latest comment'),
+    ])
+    actions = twl.Box(
+        css_class='status %(status)s',
+        children=[
+            twl.Button(id='history',
+                action=url('/asset/%(proj_id)s/%(id)s'),
+                overlay=True,
+                children=[
+                    twl.Icon(id='history',
+                        icon_class='icon_history',
+                        help_text='asset history'),
+            ]),
+            twl.Button(id='addnote',
+                action=url('/note/%(proj_id)s/%(current_id)s/new'),
+                icon_class='icon_edit',
+                help_text='add note',
+                overlay=True,
+                children=[
+                    twl.Icon(id='addnote',
+                        icon_class='icon_edit',
+                        help_text='add note'),
+            ]),
+            twl.Button(id='checkout',
+                condition=('!data.checkedout && !data.approved '
+                    '&& ($.inArray(data.user_id, data.supervisor_ids)>=0 '
+                    '|| $.inArray(data.user_id, data.artist_ids)>=0)'),
+                action=url('/asset/%(proj_id)s/%(id)s/checkout'),
+                children=[
+                    twl.Icon(id='checkout',
+                        icon_class='icon_checkout',
+                        help_text='checkout'),
+            ]),
+            twl.Button(id='release',
+                condition=('data.checkedout && !data.submitted && '
+                    '&& !data.approved && (data.user_id==data.owner_id '
+                    '|| $.inArray(data.user_id, data.supervisor_ids)>=0)'),
+                action=url('/asset/%(proj_id)s/%(id)s/release'),
+                children=[
+                    twl.Icon(id='release',
+                        icon_class='icon_release',
+                        help_text='release'),
+            ]),
+            twl.Button(id='publish',
+                condition=('data.checkedout '
+                    '&& data.user_id==data.owner_id'),
+                action=url('/asset/%(proj_id)s/%(id)s/publish'),
+                overlay=True,
+                children=[
+                    twl.Icon(id='publish',
+                        icon_class='icon_publish',
+                        help_text='publish a new version'),
+            ]),
+            twl.Button(id='submit', icon_class='submit',
+                condition=('data.checkedout && data.current_ver>0 '
+                    '&& !data.submitted && !data.approved '
+                    '&& data.user_id==data.owner_id'),
+                action=url('/asset/%(proj_id)s/%(id)s/submit'),
+                overlay=True,
+                children=[
+                    twl.Icon(id='submit',
+                        icon_class='icon_submit',
+                        help_text='submit for approval'),
+            ]),
+            twl.Button(id='recall',
+                condition=('data.submitted && !data.approved '
+                    '&& data.user_id==data.owner_id'),
+                action=url('/asset/%(proj_id)s/%(id)s/recall'),
+                overlay=True,
+                children=[
+                    twl.Icon(id='recall',
+                        icon_class='icon_recall',
+                        help_text='recall submission'),
+            ]),
+            twl.Button(id='sendback',
+                condition=('data.submitted && !data.approved '
+                    '&& $.inArray(data.user_id, data.supervisor_ids)>=0'),
+                action=url('/asset/%(proj_id)s/%(id)s/sendback'),
+                overlay=True,
+                children=[
+                    twl.Icon(id='sendback',
+                        icon_class='icon_sendback',
+                        help_text='send back for revisions'),
+            ]),
+            twl.Button(id='approve',
+                condition=('data.submitted && !data.approved '
+                    '&& $.inArray(data.user_id, data.supervisor_ids)>=0'),
+                action=url('/asset/%(proj_id)s/%(id)s/approve'),
+                overlay=True,
+                children=[
+                    twl.Icon(id='approve',
+                        icon_class='icon_approve',
+                        help_text='approve'),
+            ]),
+            twl.Button(id='revoke',
+                condition=('data.approved '
+                    '&& $.inArray(data.user_id, data.supervisor_ids)>=0'),
+                action=url('/asset/%(proj_id)s/%(id)s/revoke'),
+                overlay=True,
+                children=[
+                    twl.Icon(id='revoke',
+                        icon_class='icon_revoke',
+                        help_text='revoke approval'),
+            ]),
+            twl.Link(id='download_link',
+                condition='data.current_ver && data.current_ver>0',
+                dest=url('/asset/%(proj_id)s/%(current_id)s/download'),
+                children=[
+                    twl.Icon(id='download',
+                        icon_class='icon_download',
+                        help_text='download',
+                    )
+            ]),
+            twl.Button(id='delete',
+                condition='$.inArray(data.user_id, data.project.admin_ids)>=0',
+                action=url('/asset/%(proj_id)s/%(id)s/delete'),
+                overlay=True,
+                children=[
+                    twl.Icon(id='delete',
+                        icon_class='icon_delete',
+                        help_text='delete'),
+            ]),
     ])
     
-    def update_params(self, d):
-        super(TableAssets, self).update_params(d)
-        d['update_condition'] = 'msg.ob.category.id=="%s"' % d['category']
+    def prepare(self):
+        super(TableAssets, self).prepare()
+        self.update_condition = 'msg.ob.category.id=="%s"' % self.category
 
 
-class TableAssetHistory(LiveTable):
+class TableAssetHistory(twl.LiveTable):
     """Asset history livetable."""
-    thumbnail = Box(css_class='thumbnail', children=[
-        Link(dest=url('/repo/%(preview_path)s'),
-          condition='data.has_preview', children=[
-          Image(help_text='preview', css_class='thumbnail',
-            src=url('/repo/%(thumbnail)s'))
-        ])
+    show_headers = False
+    thumbnail = twl.Box(
+        css_class='thumbnail',
+        children=[
+            twl.Link(
+#                dest=url('/repo/%(preview_path)s'),
+                condition='data.has_preview',
+                children=[
+                    twl.Image(
+                        help_text='preview',
+                        css_class='thumbnail',
+                        src=url('/repo/%(thumbnail)s'))
+            ])
     ])
-    fmtver = Text(help_text='ver')
-    note = Box(children=[
-        Text(id='header', css_class='note_header',
-          help_text=''),
-        Box(id='lines', children=[
-            Text(id='item_line', help_text='')
-        ]),
+    fmtver = twl.Text(help_text='ver')
+    note = twl.Box(
+        children=[
+            twl.Text(id='header',
+                css_class='note_header',
+                help_text=''),
+            twl.Box(id='lines',
+                children=[
+                    twl.Text(id='item_line',
+                        help_text='')
+            ]),
     ])
-    actions = Box(children=[
-        Link(id='download_link',
-          condition='data.ver && data.ver>0',
-          dest=url('/asset/%(proj_id)s/%(id)s/download'),
-          children=[
-            Icon(id='download', icon_class='download',
-              help_text='download',
-            )
-        ]),
+    actions = twl.Box(
+        children=[
+            twl.Link(id='download_link',
+                condition='data.ver && data.ver>0',
+                dest=url('/asset/%(proj_id)s/%(id)s/download'),
+            children=[
+                twl.Icon(id='download',
+                    icon_class='icon_download',
+                    help_text='download',
+                )
+            ]),
     ])
 
 
