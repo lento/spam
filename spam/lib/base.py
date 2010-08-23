@@ -37,20 +37,14 @@ initsocket_js = JSLink(link=url('/js/init_TCPSocket.js'))
 stomp_js = JSLink(link='%s/static/protocols/stomp/stomp.js' % orbited_address)
 
 # JQuery and plugins
-jquery_js = JSLink(link=url('/js/jquery.js'))
-jquery_ui_js = JSLink(link=url('/js/jquery-ui.js'))
-jquery_tools_js = JSLink(link=url('/js/jquery.tools.js'))
-jquery_cookie_js = JSLink(link=url('/js/jquery.cookie.js'))
+jquery_spamkit_js = JSLink(link=url('/js/jquery.spamkit.js.gz'))
+#jquery_ui_js = JSLink(link=url('/js/jquery-ui.js'))
 jquery_treeview_js = JSLink(link=url('/js/jquery.treeview.js'))
-jquery_sprintf_js = JSLink(link=url('/js/jquery.sprintf.js'))
-jquery_tablesorter_js = JSLink(link=url('/js/jquery.tablesorter.js'))
+#jquery_tablesorter_js = JSLink(link=url('/js/jquery.tablesorter.js'))
 
 # SPAM
 spam_js = JSLink(link=url('/js/spam.js'))
 notify_client_js = JSLink(link=url('/js/notify_client.js'))
-
-# load Livewidgets js on every page, so we can use it in tabs
-livewidgets_js = JSLink(modname='livewidgets', filename='static/livewidgets.js')
 
 # widgets
 l_projects = ListProjects()
@@ -98,17 +92,13 @@ class SPAMBaseController(TGController):
 #        initsocket_js.inject()
 #        stomp_js.inject()
 
-        jquery_js.inject()
-        jquery_ui_js.inject()
-        jquery_tools_js.inject()
-        jquery_cookie_js.inject()
+#        jquery_ui_js.inject()
+        jquery_spamkit_js.inject()
         jquery_treeview_js.inject()
-        jquery_sprintf_js.inject()
-        jquery_tablesorter_js.inject()
+#        jquery_tablesorter_js.inject()
 
         spam_js.inject()
         notify_client_js.inject()
-        livewidgets_js.inject()
 
         # widgets
         tmpl_context.l_projects = l_projects

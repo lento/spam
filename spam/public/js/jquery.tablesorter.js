@@ -1,1 +1,0 @@
-extern/jquery.tablesorter-2.0.3.min.js

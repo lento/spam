@@ -1,0 +1,15 @@
+jQuery 1.4.2
+Sizzle.js
+
+jQuery Tools 1.2.4
+    tabs
+    tooltip
+    scrollable
+    overlay
+    toolbox.history
+    toolbox.expose
+    toolbox.mousewheel
+
+Cookie plugin
+sprintf and vsprintf for jQuery
+
