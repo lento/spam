@@ -194,9 +194,12 @@ table {
     border-spacing: 2px;
 }
 
+table tr {
+    background-color: #f6f6f4; /* Aluminium 0 */
+}
+
 table td {
     vertical-align: top;
-    background-color: #f6f6f4; /* Aluminium 0 */
 }
 
 table td.icon {
