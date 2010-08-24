@@ -15,3 +15,10 @@ jsTree
     themes
     html
     cookies
+UI
+    core
+    widget
+    position
+    dialog
+    progressbar
+    effects
