@@ -78,7 +78,8 @@ body {
     -moz-box-shadow: 1px 1px 10px #888a85; /* Aluminium 4 */
 }
 
-.lw_icon {
+/* icons */
+.icon, .lw_icon {
     display: block;
     float: left;
     padding: 1px;
@@ -94,27 +95,41 @@ body {
     -moz-box-shadow: inset 2px 2px 6px #888a85; /* Aluminium 4 */
 }
 
-.lw_icon.icon_edit {background: url(../images/icons/16x16/edit.png) left center no-repeat;}
-.lw_icon.icon_archive {background: url(../images/icons/16x16/undo.png) left center no-repeat;}
-.lw_icon.icon_activate {background: url(../images/icons/16x16/redo.png) left center no-repeat;}
-.lw_icon.icon_delete {background: url(../images/icons/16x16/delete.png) left center no-repeat;}
-.lw_icon.icon_schema_uptodate {
+.icon_edit {background: url(../images/icons/16x16/edit.png) left center no-repeat;}
+.icon_archive {background: url(../images/icons/16x16/undo.png) left center no-repeat;}
+.icon_activate {background: url(../images/icons/16x16/redo.png) left center no-repeat;}
+.icon_delete {background: url(../images/icons/16x16/delete.png) left center no-repeat;}
+.icon_schema_uptodate {
     background: url(../images/icons/16x16/green.png) left center no-repeat;
     cursor: default;
 }
-.lw_icon.icon_schema_outdated {background: url(../images/icons/16x16/urgent.png) left center no-repeat;}
-.lw_icon.icon_checkout {background: url(../images/icons/16x16/checkout.png) left center no-repeat;}
-.lw_icon.icon_release {background: url(../images/icons/16x16/release.png) left center no-repeat;}
-.lw_icon.icon_publish {background: url(../images/icons/16x16/publish.png) left center no-repeat;}
-.lw_icon.icon_submit {background: url(../images/icons/16x16/redo.png) left center no-repeat;}
-.lw_icon.icon_sendback {background: url(../images/icons/16x16/sendback.png) left center no-repeat;}
-.lw_icon.icon_recall {background: url(../images/icons/16x16/undo.png) left center no-repeat;}
-.lw_icon.icon_approve {background: url(../images/icons/16x16/approve.png) left center no-repeat;}
-.lw_icon.icon_revoke {background: url(../images/icons/16x16/revoke.png) left center no-repeat;}
-.lw_icon.icon_history {background: url(../images/icons/16x16/history.png) left center no-repeat;}
-.lw_icon.icon_download {background: url(../images/icons/16x16/download.png) left center no-repeat;}
-.lw_icon.icon_pin {background: url(../images/icons/16x16/pin.png) left center no-repeat;}
-.lw_icon.icon_unpin {background: url(../images/icons/16x16/unpin.png) left center no-repeat;}
+.icon_schema_outdated {background: url(../images/icons/16x16/urgent.png) left center no-repeat;}
+.icon_checkout {background: url(../images/icons/16x16/checkout.png) left center no-repeat;}
+.icon_release {background: url(../images/icons/16x16/release.png) left center no-repeat;}
+.icon_publish {background: url(../images/icons/16x16/publish.png) left center no-repeat;}
+.icon_submit {background: url(../images/icons/16x16/redo.png) left center no-repeat;}
+.icon_sendback {background: url(../images/icons/16x16/sendback.png) left center no-repeat;}
+.icon_recall {background: url(../images/icons/16x16/undo.png) left center no-repeat;}
+.icon_approve {background: url(../images/icons/16x16/approve.png) left center no-repeat;}
+.icon_revoke {background: url(../images/icons/16x16/revoke.png) left center no-repeat;}
+.icon_history {background: url(../images/icons/16x16/history.png) left center no-repeat;}
+.icon_download {background: url(../images/icons/16x16/download.png) left center no-repeat;}
+.icon_pin {background: url(../images/icons/16x16/pin.png) left center no-repeat;}
+.icon_unpin {background: url(../images/icons/16x16/unpin.png) left center no-repeat;}
+
+/* loading feedback */
+.icon.icon_loading_white, .icon.icon_loading_black {
+    float: right;
+    background-image: none;
+}
+
+.loading .icon.icon_loading_white {
+    background-image: url(../images/icons/16x16/animated-throbber-white.png);
+}
+
+.loading .icon.icon_loading_black {
+    background-image: url(../images/icons/16x16/animated-throbber-black.png);
+}
 
 .thumbnail {
     width: 120px;
@@ -490,64 +505,9 @@ div.note_header {
     min-width: 180px;
 }
 
-#sb_project .title .icon {
-    float: right;
-    width: 16px;
-    height: 16px;
-    background-image: none;
-}
-
-#sb_project.loading .title .icon {
-    background-image: url(../images/icons/16x16/animated-throbber-white.png);
-}
-
 #sb_project .title a:hover {
     color: inherit;
 }
-
-/**********************************************************************
- * TreeView
- **********************************************************************/
-.treeview, .treeview ul {
-    padding: 0;
-    margin: 0;
-    list-style: none;
-}
-
-.treeview ul {
-    margin-top: 2px;
-}
-
-.treeview .hitarea {
-    background: url(../images/treeview/treeview-default.gif) -64px -25px no-repeat;
-    height: 16px;
-    width: 16px;
-    margin-left: -16px;
-    float: left;
-    cursor: pointer;
-}
-
-.treeview li {
-    margin: 0;
-    padding: 0px 0pt 3px 16px;
-}
-
-.treeview a.selected {
-    background-color: #eee;
-}
-
-.treeview li { background: url(../images/treeview/treeview-default-line.gif) 0 0 no-repeat; }
-.treeview li.collapsable, .treeview li.expandable { background-position: 0 -177px; }
-
-.treeview .expandable-hitarea { background-position: -80px -1px; }
-
-.treeview li.last { background-position: 0 -1766px }
-.treeview li.lastCollapsable, .treeview li.lastExpandable { background-image: url(../images/treeview/treeview-default.gif); }  
-.treeview li.lastCollapsable { background-position: 0 -111px }
-.treeview li.lastExpandable { background-position: -32px -67px }
-
-.treeview div.lastCollapsable-hitarea, .treeview div.lastExpandable-hitarea { background-position: 0; }
-
 
 /****************************************
  * Content
@@ -601,7 +561,7 @@ ul.tabs li {
 /* link inside the tab */
 ul.tabs a {
     display: block;
-    padding: 4px 15px;    
+    padding: 4px 2px 2px 14px;
     border: 2px solid #73d216; /* Chameleon 2 */
     border-bottom: 0px;
     background-color: #babdb6; /* Aluminium 3 */

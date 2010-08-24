@@ -121,9 +121,6 @@ spam_init = function (cookiebase) {
                 $("#flash div").slideUp();
             }, 2500);
         });
-
-        // setup tabs 
-        $(".tabs").tabs(".content > .pane", {effect: 'ajax'}).history();
     });
 }
 

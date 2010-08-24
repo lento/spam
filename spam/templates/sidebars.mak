@@ -79,7 +79,7 @@
         <div id="sb_project" class="sidebar">
             <div class="title">
                 <a href="${tg.url('/project/%s' % c.project.id)}">${c.project.name}</a>
-                <div class="icon"></div>
+                <div class="icon icon_loading_white"></div>
             </div>
             <div id="sb_project_content"></div>
         </div>

@@ -19,17 +19,41 @@
 
 <%inherit file="spam.templates.master"/>
 
+<script type="text/javascript">
+    $(function() {
+        // activate tabs
+        $(".tabs").tabs(".content > .pane", {
+		    effect: 'fade',
+		    onBeforeClick: function(event, i) {
+			    var pane = this.getPanes().eq(i);
+			    var tab = this.getTabs().eq(i);
+			    tab.addClass('loading');
+			    pane.load(tab.attr("href"), function() {
+			        tab.removeClass('loading');
+		        });
+		    }
+	    }).history();
+    });
+</script>
+
 <div id="tabbed_content_wrapper"> 
     <!-- the tabs --> 
     <ul class="tabs">
         % for name, dest in tabs:
-            <li><a href="${dest}">${name}</a></li>
+            <li>
+                <a href="${dest}">
+                    <div class="icon icon_loading_black"></div>
+                    ${name}
+                </a>
+            </li>
         % endfor
     </ul> 
      
     <!-- tab "panes" --> 
-    <div class="content"> 
-        <div class="pane ajax"></div> 
+    <div class="content">
+        % for name, dest in tabs:
+            <div class="pane"></div>
+        % endfor
     </div>
 </div>
 
