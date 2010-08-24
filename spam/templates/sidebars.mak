@@ -87,12 +87,12 @@
             $(function() {
                 $("#sb_project").addClass("loading");
                 $("#sb_project_content").load("${tg.url('/project/%s/sidebar' % c.project.id)}", function() {
-                    notify.add_listener("/topic/projects", function(msg) {
-                        console.log("#sb_project listener", msg)
-                        if (msg.ob.id=="${c.project.id}" && msg.update_type=="updated") {
-                            $("#sb_project").load("${tg.url('/project/%s/sidebar' % c.project.id)}");
-                        }
-                    });
+##                    notify.add_listener("/topic/projects", function(msg) {
+##                        console.log("#sb_project listener", msg)
+##                        if (msg.ob.id=="${c.project.id}" && msg.update_type=="updated") {
+##                            $("#sb_project").load("${tg.url('/project/%s/sidebar' % c.project.id)}");
+##                        }
+##                    });
                     $("#sb_project").removeClass("loading");
                 });
             });

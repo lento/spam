@@ -33,56 +33,64 @@
 </%def>    
 
 
-<ul id="sb_project_tree" class="hidden">
-    <li>
-        <%
-            tab_scenes_url = tg.url('/scene/%s' % c.project.id)
-            scenes_url = tg.url('/project/%s/#%s' % (c.project.id, tab_scenes_url))
-            tab_library_url = tg.url('/libgroup/%s' % c.project.id)
-            library_url = tg.url('/project/%s/#%s' % (c.project.id, tab_library_url))
-        %>
-        <a href="${scenes_url}">scenes</a>
-        % if c.project.scenes:
-            <ul id="sb_project_scenes">
-                % for scene in c.project.scenes:
-                <li>
-                    <a href="${tg.url('/scene/%s/%s/' % (c.project.id, scene.name))}">
-                        ${scene.name}
-                    </a>
-                    % if scene.shots:
-                        <ul>
-                            % for shot in scene.shots:
-                            <li>
-                                <a href="${tg.url('/shot/%s/%s/%s/' % (c.project.id, scene.name, shot.name))}">
-                                    ${shot.name}
-                                </a>
-                            </li>
-                            % endfor
-                        </ul>
-                    % endif
-                </li>
-                % endfor
-            </ul>
-        % endif
-    </li>
-    <li>
-        <a href="${library_url}">library</a>
-        % if c.project.libgroups:
-            <ul id="sb_project_libgroups">
-                % for libgroup in c.project.libgroups:
-                    ${insert_libgroup(libgroup)}
-                % endfor
-            </ul>
-        % endif
-    </li>
-</ul>
+<div id="sb_project_tree" class="hidden">
+    <ul>
+        <li>
+            <%
+                tab_scenes_url = tg.url('/scene/%s' % c.project.id)
+                scenes_url = tg.url('/project/%s/#%s' % (c.project.id, tab_scenes_url))
+                tab_library_url = tg.url('/libgroup/%s' % c.project.id)
+                library_url = tg.url('/project/%s/#%s' % (c.project.id, tab_library_url))
+            %>
+            <a href="${scenes_url}">scenes</a>
+            % if c.project.scenes:
+                <ul id="sb_project_scenes">
+                    % for scene in c.project.scenes:
+                    <li>
+                        <a href="${tg.url('/scene/%s/%s/' % (c.project.id, scene.name))}">
+                            ${scene.name}
+                        </a>
+                        % if scene.shots:
+                            <ul>
+                                % for shot in scene.shots:
+                                <li>
+                                    <a href="${tg.url('/shot/%s/%s/%s/' % (c.project.id, scene.name, shot.name))}">
+                                        ${shot.name}
+                                    </a>
+                                </li>
+                                % endfor
+                            </ul>
+                        % endif
+                    </li>
+                    % endfor
+                </ul>
+            % endif
+        </li>
+        <li>
+            <a href="${library_url}">library</a>
+            % if c.project.libgroups:
+                <ul id="sb_project_libgroups">
+                    % for libgroup in c.project.libgroups:
+                        ${insert_libgroup(libgroup)}
+                    % endfor
+                </ul>
+            % endif
+        </li>
+    </ul>
+</div>
 
 <script type="text/javascript">
-    $("#sb_project_tree").treeview({
-        persist: "cookie",
-        cookieId: "project_treeview",
-        cookieOptions: {path: "${tg.url('/')}"},
-        collapsed: true
+    $.jstree._themes = "${tg.url('/themes/%s/jstree/' % c.theme)}";
+    $("#sb_project_tree").jstree({
+        "core": {
+            "animation": 100,
+        },
+		"themes" : {
+			"theme" : "default",
+			"dots" : true,
+			"icons" : false
+		},
+        "plugins" : [ "themes", "html_data", "cookies" ]
     }).show();
 </script>
 

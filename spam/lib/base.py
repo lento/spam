@@ -39,7 +39,6 @@ stomp_js = JSLink(link='%s/static/protocols/stomp/stomp.js' % orbited_address)
 # JQuery and plugins
 jquery_spamkit_js = JSLink(link=url('/js/jquery.spamkit.js.gz'))
 #jquery_ui_js = JSLink(link=url('/js/jquery-ui.js'))
-jquery_treeview_js = JSLink(link=url('/js/jquery.treeview.js'))
 #jquery_tablesorter_js = JSLink(link=url('/js/jquery.tablesorter.js'))
 
 # SPAM
@@ -94,7 +93,6 @@ class SPAMBaseController(TGController):
 
 #        jquery_ui_js.inject()
         jquery_spamkit_js.inject()
-        jquery_treeview_js.inject()
 #        jquery_tablesorter_js.inject()
 
         spam_js.inject()
