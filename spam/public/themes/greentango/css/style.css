@@ -343,6 +343,58 @@ div.note_header {
 }
 
 
+/**********************************************************************
+ * Dialog
+ **********************************************************************/
+.ui-dialog {
+    width: 600px;
+    height: 450px;
+    border: 2px solid #73d216; /* Chameleon 2 */
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+    -moz-box-shadow: 0 0 25px 5px #333;
+    background-color: #eeeeec; /* Aluminium 1 */
+}
+
+/* overlay mask */
+.ui-widget-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: black;
+    opacity: 0.5;
+}
+
+/* titlebar */
+.ui-dialog-titlebar {
+    clear: left;
+    padding: 8px 4px 4px 10px;
+    background-color: #babdb6; /* Aluminium 3 */
+    color: #f6f6f4; /* Aluminium 0 */
+    font-size: large;
+    -moz-border-radius: 8px 8px 0 0;
+    -webkit-border-radius: 8px 8px 0 0;
+    cursor: move;
+}
+
+.ui-dialog-titlebar-close {
+    display: block;
+    float: right;
+    background:url(../images/close.png) no-repeat;
+    position: absolute;
+    top: -20px;
+    right: -20px;
+    width: 35px;
+    height: 35px;
+    cursor: pointer;
+}
+
+/* dialog content */
+.ui-dialog-content {
+    padding: 0 30px;
+}
+
+
 /****************************************
  * Header
  ****************************************/

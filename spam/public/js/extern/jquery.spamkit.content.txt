@@ -18,7 +18,10 @@ jsTree
 UI
     core
     widget
+    mouse
     position
+    draggable
+    resizable
     dialog
     progressbar
     effects

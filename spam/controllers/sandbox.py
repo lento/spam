@@ -92,3 +92,6 @@ class SandboxController(SPAMBaseController):
         tmpl_context.t_users = t_users
         return dict(users=users)
 
+    @expose('spam.templates.sandbox.dialog')
+    def dialog(self):
+        return dict()
