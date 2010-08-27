@@ -85,10 +85,10 @@ class Controller(RestController):
                                             naming_convention=naming_convention)
         session.add(category)
 
-        msg = '%s %s' % (_('Created category'), category_id)
+        msg = '%s %s' % (_('Created category:'), category_id)
 
         # log into Journal
-        journal.add(user, '%s %s' % (msg, category))
+        journal.add(user, '%s - %s' % (msg, category))
 
         # notify clients
         notify.send(category, update_type='added')
@@ -134,7 +134,7 @@ class Controller(RestController):
             msg = '%s %s' % (_('Updated category:'), category_id)
 
             # log into Journal
-            journal.add(user, '%s: %s' % (msg, diff_dicts(old, new)))
+            journal.add(user, '%s - %s' % (msg, diff_dicts(old, new)))
         
             # notify clients
             notify.send(category, update_type='updated')
@@ -177,7 +177,7 @@ class Controller(RestController):
         msg = '%s %s' % (_('Deleted category:'), category.id)
 
         # log into Journal
-        journal.add(user, '%s: %s' % (msg, category))
+        journal.add(user, '%s - %s' % (msg, category))
 
         # notify clients
         notify.send(category, update_type='deleted')
