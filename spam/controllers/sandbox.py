@@ -20,7 +20,7 @@
 #
 """Sandbox controller"""
 
-import logging, os
+import logging, os, time
 from tg import request
 from tg import url, expose, validate, tmpl_context
 from spam.lib.base import SPAMBaseController
@@ -95,3 +95,9 @@ class SandboxController(SPAMBaseController):
     @expose('spam.templates.sandbox.dialog')
     def dialog(self):
         return dict()
+
+    @expose()
+    def echo(self, **kw):
+        time.sleep(5)
+        return kw
+

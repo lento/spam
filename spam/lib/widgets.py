@@ -30,7 +30,7 @@ from tw2.core import StringLengthValidator as StringLength
 from spam.lib.validators import CategoryNamingConvention
 from livewidgets import LiveTable, LiveBox, LiveList
 from livewidgets import LiveWidget, Box, Button, Icon, Text, Link, Image
-from spam.lib.notifications import notify
+from spam.lib import notifications
 
 
 ############################################################
@@ -61,7 +61,7 @@ class StatusIconBox(LiveWidget):
 ############################################################
 class TableUsers(twl.LiveTable):
     """User livetable."""
-    update_topic = notify.TOPIC_USERS
+    update_topic = notifications.TOPIC_USERS
     show_headers = False
     domain = twl.Text()
     user_name = twl.Text(sort_default=True)
@@ -70,7 +70,7 @@ class TableUsers(twl.LiveTable):
         children=[
             twl.Button(id='edit',
                 action=url('/user/%(user_name)s/edit'),
-                overlay=True,
+                dialog=True,
                 children=[
                     twl.Icon(id='edit',
                         icon_class='icon_edit',
@@ -78,7 +78,7 @@ class TableUsers(twl.LiveTable):
             ]),
             twl.Button(id='delete',
                 action=url('/user/%(user_name)s/delete'),
-                overlay=True,
+                dialog=True,
                 children=[
                     twl.Icon(id='delete',
                         icon_class='icon_delete',
@@ -89,7 +89,7 @@ class TableUsers(twl.LiveTable):
 
 class TableGroupUsers(twl.LiveTable):
     """Group users livetable."""
-    update_topic = notify.TOPIC_GROUPS
+    update_topic = notifications.TOPIC_GROUPS
     show_headers = False
     user_name = twl.Text(sort_default=True)
     display_name = twl.Text()
@@ -129,7 +129,7 @@ class TableProjectUsers(twl.LiveTable):
 
 class TableProjectAdmins(TableProjectUsers):
     """Project administrators livetable."""
-    update_topic = notify.TOPIC_PROJECT_ADMINS
+    update_topic = notifications.TOPIC_PROJECT_ADMINS
 
     @classmethod
     def post_define(cls):
@@ -144,7 +144,7 @@ class TableProjectAdmins(TableProjectUsers):
 
 class TableProjectSupervisors(TableProjectUsers):
     """Project users livetable."""
-    update_topic = notify.TOPIC_PROJECT_SUPERVISORS
+    update_topic = notifications.TOPIC_PROJECT_SUPERVISORS
 
     @classmethod
     def post_define(cls):
@@ -160,7 +160,7 @@ class TableProjectSupervisors(TableProjectUsers):
 
 class TableProjectArtists(TableProjectUsers):
     """Project artists livetable."""
-    update_topic = notify.TOPIC_PROJECT_ARTISTS
+    update_topic = notifications.TOPIC_PROJECT_ARTISTS
 
     @classmethod
     def post_define(cls):
@@ -176,7 +176,7 @@ class TableProjectArtists(TableProjectUsers):
 
 class TableCategories(twl.LiveTable):
     """Category livetable."""
-    update_topic = notify.TOPIC_CATEGORIES
+    update_topic = notifications.TOPIC_CATEGORIES
     ordering = twl.Text(sort_default=True)
     category_id = twl.Text(id='id')
     naming_convention = twl.Text()
@@ -184,7 +184,7 @@ class TableCategories(twl.LiveTable):
         children=[
             twl.Button(id='edit',
                 action=url('/category/%(id)s/edit'),
-                overlay=True,
+                dialog=True,
                 children=[
                     twl.Icon(id='edit',
                         icon_class='icon_edit',
@@ -192,7 +192,7 @@ class TableCategories(twl.LiveTable):
             ]),
             twl.Button(id='delete',
                 action=url('/category/%(id)s/delete'),
-                overlay=True,
+                dialog=True,
                 children=[
                     twl.Icon(id='delete',
                         icon_class='icon_delete',
@@ -203,7 +203,7 @@ class TableCategories(twl.LiveTable):
 
 class TableProjectsActive(twl.LiveTable):
     """Active projects livetable."""
-    update_topic = notify.TOPIC_PROJECTS
+    update_topic = notifications.TOPIC_PROJECTS
     update_condition = '!msg.ob.archived || msg.update_type=="archived"'
     update_functions = ('{"added": lw.livetable.addrow,'
                         ' "deleted": lw.livetable.deleterow,'
@@ -219,7 +219,7 @@ class TableProjectsActive(twl.LiveTable):
         children=[
             twl.Button(id='archive',
                 action='%(id)s/archive',
-                overlay=True,
+                dialog=True,
                 children=[
                     twl.Icon(id='archive',
                         icon_class='icon_archive',
@@ -227,7 +227,7 @@ class TableProjectsActive(twl.LiveTable):
             ]),
             twl.Button(id='edit',
                 action='%(id)s/edit',
-                overlay=True,
+                dialog=True,
                 children=[
                     twl.Icon(id='edit',
                         icon_class='icon_edit',
@@ -235,7 +235,7 @@ class TableProjectsActive(twl.LiveTable):
             ]),
             twl.Button(id='delete',
                 action='%(id)s/delete',
-                overlay=True,
+                dialog=True,
                 children=[
                     twl.Icon(id='delete',
                         icon_class='icon_delete',
@@ -246,7 +246,7 @@ class TableProjectsActive(twl.LiveTable):
 
 class TableProjectsArchived(twl.LiveTable):
     """Archived projects livetable."""
-    update_topic = notify.TOPIC_PROJECTS
+    update_topic = notifications.TOPIC_PROJECTS
     update_condition = 'msg.ob.archived || msg.update_type=="activated"'
     update_functions = ('{"added": lw.livetable.addrow,'
                         ' "deleted": lw.livetable.deleterow,'
@@ -262,7 +262,7 @@ class TableProjectsArchived(twl.LiveTable):
         children=[
             twl.Button(id='activate',
                 action='%(id)s/activate',
-                overlay=True,
+                dialog=True,
                 children=[
                     twl.Icon(id='activate',
                         icon_class='icon_activate',
@@ -273,7 +273,7 @@ class TableProjectsArchived(twl.LiveTable):
 
 class TableScenes(twl.LiveTable):
     """Scene livetable."""
-    update_topic = notify.TOPIC_SCENES
+    update_topic = notifications.TOPIC_SCENES
     show_headers = False
     thumbnail = twl.Box(
         css_class='thumbnail',
@@ -302,7 +302,7 @@ class TableScenes(twl.LiveTable):
         children=[
             twl.Button(id='edit',
                 action=url('/scene/%(proj_id)s/%(name)s/edit'),
-                overlay=True,
+                dialog=True,
                 children=[
                     twl.Icon(id='edit',
                         icon_class='icon_edit',
@@ -310,7 +310,7 @@ class TableScenes(twl.LiveTable):
             ]),
             twl.Button(id='delete',
                 action=url('/scene/%(proj_id)s/%(name)s/delete'),
-                overlay=True,
+                dialog=True,
                 children=[
                     twl.Icon(id='delete',
                         icon_class='icon_delete',
@@ -321,7 +321,7 @@ class TableScenes(twl.LiveTable):
 
 class TableShots(twl.LiveTable):
     """Shot livetable."""
-    update_topic = notify.TOPIC_SHOTS
+    update_topic = notifications.TOPIC_SHOTS
     show_headers = False
     thumbnail = twl.Box(
         css_class='thumbnail',
@@ -358,7 +358,7 @@ class TableShots(twl.LiveTable):
         children=[
             twl.Button(id='edit',
                 action=url('/shot/%(proj_id)s/%(parent_name)s/%(name)s/edit'),
-                overlay=True,
+                dialog=True,
                 children=[
                     twl.Icon(id='edit',
                         icon_class='icon_edit',
@@ -366,7 +366,7 @@ class TableShots(twl.LiveTable):
             ]),
             twl.Button(id='delete',
                 action=url('/shot/%(proj_id)s/%(parent_name)s/%(name)s/delete'),
-                overlay=True,
+                dialog=True,
                 children=[
                     twl.Icon(id='delete',
                         icon_class='icon_delete',
@@ -378,7 +378,7 @@ class TableShots(twl.LiveTable):
 class TableLibgroups(twl.LiveTable):
     """Libgroup livetable."""
     parent_id = twc.Param('Libgroup parent id', default=None)
-    update_topic = notify.TOPIC_LIBGROUPS
+    update_topic = notifications.TOPIC_LIBGROUPS
     show_headers = False
     thumbnail = twl.Box(
         css_class='thumbnail',
@@ -419,7 +419,7 @@ class TableLibgroups(twl.LiveTable):
         children=[
             twl.Button(id='edit',
                 action=url('/libgroup/%(proj_id)s/%(id)s/edit'),
-                overlay=True,
+                dialog=True,
                 children=[
                     twl.Icon(id='edit',
                         icon_class='icon_edit',
@@ -427,7 +427,7 @@ class TableLibgroups(twl.LiveTable):
             ]),
             twl.Button(id='delete',
                 action=url('/libgroup/%(proj_id)s/%(id)s/delete'),
-                overlay=True,
+                dialog=True,
                 children=[
                     twl.Icon(id='delete',
                         icon_class='icon_delete',
@@ -445,7 +445,7 @@ class TableAssets(twl.LiveTable):
     """Asset livetable."""
     category = twc.Param('Asset category', default='')
     
-    update_topic = notify.TOPIC_ASSETS
+    update_topic = notifications.TOPIC_ASSETS
     show_headers = False
     thumbnail = twl.Box(
         css_class='thumbnail status %(status)s',
@@ -492,7 +492,7 @@ class TableAssets(twl.LiveTable):
         children=[
             twl.Button(id='history',
                 action=url('/asset/%(proj_id)s/%(id)s'),
-                overlay=True,
+                dialog=True,
                 children=[
                     twl.Icon(id='history',
                         icon_class='icon_history',
@@ -502,7 +502,7 @@ class TableAssets(twl.LiveTable):
                 action=url('/note/%(proj_id)s/%(current_id)s/new'),
                 icon_class='icon_edit',
                 help_text='add note',
-                overlay=True,
+                dialog=True,
                 children=[
                     twl.Icon(id='addnote',
                         icon_class='icon_edit',
@@ -532,7 +532,7 @@ class TableAssets(twl.LiveTable):
                 condition=('data.checkedout '
                     '&& data.user_id==data.owner_id'),
                 action=url('/asset/%(proj_id)s/%(id)s/publish'),
-                overlay=True,
+                dialog=True,
                 children=[
                     twl.Icon(id='publish',
                         icon_class='icon_publish',
@@ -543,7 +543,7 @@ class TableAssets(twl.LiveTable):
                     '&& !data.submitted && !data.approved '
                     '&& data.user_id==data.owner_id'),
                 action=url('/asset/%(proj_id)s/%(id)s/submit'),
-                overlay=True,
+                dialog=True,
                 children=[
                     twl.Icon(id='submit',
                         icon_class='icon_submit',
@@ -553,7 +553,7 @@ class TableAssets(twl.LiveTable):
                 condition=('data.submitted && !data.approved '
                     '&& data.user_id==data.owner_id'),
                 action=url('/asset/%(proj_id)s/%(id)s/recall'),
-                overlay=True,
+                dialog=True,
                 children=[
                     twl.Icon(id='recall',
                         icon_class='icon_recall',
@@ -563,7 +563,7 @@ class TableAssets(twl.LiveTable):
                 condition=('data.submitted && !data.approved '
                     '&& $.inArray(data.user_id, data.supervisor_ids)>=0'),
                 action=url('/asset/%(proj_id)s/%(id)s/sendback'),
-                overlay=True,
+                dialog=True,
                 children=[
                     twl.Icon(id='sendback',
                         icon_class='icon_sendback',
@@ -573,7 +573,7 @@ class TableAssets(twl.LiveTable):
                 condition=('data.submitted && !data.approved '
                     '&& $.inArray(data.user_id, data.supervisor_ids)>=0'),
                 action=url('/asset/%(proj_id)s/%(id)s/approve'),
-                overlay=True,
+                dialog=True,
                 children=[
                     twl.Icon(id='approve',
                         icon_class='icon_approve',
@@ -583,7 +583,7 @@ class TableAssets(twl.LiveTable):
                 condition=('data.approved '
                     '&& $.inArray(data.user_id, data.supervisor_ids)>=0'),
                 action=url('/asset/%(proj_id)s/%(id)s/revoke'),
-                overlay=True,
+                dialog=True,
                 children=[
                     twl.Icon(id='revoke',
                         icon_class='icon_revoke',
@@ -601,7 +601,7 @@ class TableAssets(twl.LiveTable):
             twl.Button(id='delete',
                 condition='$.inArray(data.user_id, data.project.admin_ids)>=0',
                 action=url('/asset/%(proj_id)s/%(id)s/delete'),
-                overlay=True,
+                dialog=True,
                 children=[
                     twl.Icon(id='delete',
                         icon_class='icon_delete',
@@ -659,7 +659,7 @@ class TableAssetHistory(twl.LiveTable):
 class TableJournal(twl.LiveTable):
     """Journal entries livetable."""
     curpage = twc.Param('Current displayed page', default='')
-    update_topic = notify.TOPIC_JOURNAL
+    update_topic = notifications.TOPIC_JOURNAL
     show_headers = False
     strftime = twl.Text(
         sort_default=True,
@@ -676,7 +676,7 @@ class TableJournal(twl.LiveTable):
 class TableNotes(twl.LiveTable):
     """Note livetable."""
     annotable_id = twc.Param('Annotable id', default='')
-    update_topic = notify.TOPIC_NOTES
+    update_topic = notifications.TOPIC_NOTES
     show_headers = False
     user_name = twl.Text(
         css_class='note_header',
@@ -722,7 +722,7 @@ class TableNotes(twl.LiveTable):
 class ListProjects(twl.LiveList):
     """Project livelist."""
     user_id = twc.Param('User id used to filter update messages', default='')
-    update_topic = notify.TOPIC_PROJECTS
+    update_topic = notifications.TOPIC_PROJECTS
 
     name = twl.Link(
         dest=url('/project/%(id)s'),
@@ -745,7 +745,7 @@ class BoxTags(LiveBox):
     """Tag livebox."""
     params = ['taggable_id']
     container_class = 'tagbox'
-    update_topic = notify.TOPIC_TAGS
+    update_topic = notifications.TOPIC_TAGS
     id = Box(children=[
         Text(id='id', help_text=''),
         Button(id='remove',
@@ -794,7 +794,7 @@ class BoxScenesStatus(LiveBox):
     """Scene status livebox."""
     params = ['proj_id']
     container_class = 'statusbox'
-    update_topic = notify.TOPIC_SCENES
+    update_topic = notifications.TOPIC_SCENES
     show_update = False
     
     link = Link(dest=url('/scene/%(proj_id)s/%(name)s'),
@@ -811,7 +811,7 @@ class BoxShotsStatus(LiveBox):
     """Shot status livebox."""
     params = ['scene_id']
     container_class = 'statusbox'
-    update_topic = notify.TOPIC_SHOTS
+    update_topic = notifications.TOPIC_SHOTS
     show_update = False
     
     link = Link(dest=url('/shot/%(proj_id)s/%(parent_name)s/%(name)s'),
@@ -828,7 +828,7 @@ class BoxLibgroupsStatus(LiveBox):
     """Libgroup status livebox."""
     params = ['libgroup_id']
     container_class = 'statusbox'
-    update_topic = notify.TOPIC_LIBGROUPS
+    update_topic = notifications.TOPIC_LIBGROUPS
     show_update = False
     
     link = Link(dest=url('/libgroup/%(proj_id)s/%(id)s'),
@@ -847,7 +847,7 @@ class BoxCategoriesStatus(LiveBox):
     params = ['container_id']
     javascript = [statusbox_js]
     container_class = 'statusbox'
-    update_topic = notify.TOPIC_ASSETS
+    update_topic = notifications.TOPIC_ASSETS
     update_functions = ('{"added": add_categories,'
                         ' "deleted": delete_categories,'
                         ' "updated": update_categories}')
@@ -869,7 +869,7 @@ class BoxStatus(LiveBox):
     params = ['container_id', 'category_id']
     javascript = [statusbox_js]
     container_class = 'statusbox'
-    update_topic = notify.TOPIC_ASSETS
+    update_topic = notifications.TOPIC_ASSETS
     update_functions = ('{"added": add_categories,'
                         ' "deleted": delete_categories,'
                         ' "updated": update_categories}')
@@ -893,7 +893,12 @@ TEXT_AREA_COLS = 30
 TEXT_AREA_ROWS = 3
 MAX_UPLOAD_FILES = None
 
-# base class
+# base classes
+class SubmitWithFeedback(twf.SubmitButton):
+    """A submit button with a loading icon"""
+    template = 'mako:spam.templates.forms.submit_feedback'
+
+
 class RestForm(twf.TableForm):
     """Base class for forms that submit data to a custom REST method via the
     ``_method`` parameter
@@ -901,7 +906,7 @@ class RestForm(twf.TableForm):
     custom_method = twc.Param('The custom REST method to use for submitting '
         'the form', default='POST')
     custom_method_field = twf.IgnoredField(name='_method')
-    submit = twf.SubmitButton(id='submit', value='Submit')
+    submit = SubmitWithFeedback(id='submit', value='Submit')
 
     def prepare(self):
         if not self.child.children.custom_method_field.value:

@@ -20,7 +20,7 @@
 <%inherit file="spam.templates.master"/>
 
 <div class="content">
-    <a href="${tg.url('./new')}" rel="#overlay" class="overlay button">new category</a>
+    <a href="${tg.url('./new')}" class="button dialog">new category</a>
     <br/>
     <br/>
     <h1>${_('Categories')}</h1>

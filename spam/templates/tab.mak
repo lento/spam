@@ -22,7 +22,6 @@
 
 <script type="text/javascript">
     spam.toggles_activate("#tab_content");
-    spam.overlays_activate("#tab_content");
     if (typeof(notify)!='undefined') {
         notify.listeners_tab = [];
     }

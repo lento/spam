@@ -44,13 +44,14 @@
 </head>
 
 <body>
-    <div id="overlay">
-        <div class="wrap"></div>
-        <iframe src="about:blank"></iframe>
-    </div>
+    <div id="dialog" title=""></div>
 
     ${self.header()}
     ${self.flash_wrapper()}
+
+    <div id="notify">
+        <div class="hidden"></div>
+    </div>
 
     <div id="side">
     % if request.identity:

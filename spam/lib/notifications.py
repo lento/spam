@@ -31,6 +31,32 @@ from spam.model import Project, Scene, Shot, Asset, Libgroup
 import logging
 log = logging.getLogger(__name__)
 
+ORBITED_AUTOSTART = config.get('orbited_autostart', False)
+ORBITED_CONFIG = config.get('orbited_config', 'orbited.cfg')
+
+TOPIC_USERS = config.get('stomp_topic_users', 'users')
+TOPIC_GROUPS = config.get('stomp_topic_groups', 'groups')
+TOPIC_CATEGORIES = config.get('stomp_topic_categories',
+                                   'categories')
+TOPIC_PROJECTS = config.get('stomp_topic_projects',
+                                 'projects')
+TOPIC_SCENES = config.get('stomp_topic_scenes', 'scenes')
+TOPIC_SHOTS = config.get('stomp_topic_shots', 'shots')
+TOPIC_ASSETS = config.get('stomp_topic_assets', 'assets')
+TOPIC_LIBGROUPS = config.get('stomp_topic_libgroups',
+                                  'libgroups')
+TOPIC_PROJECT_ADMINS = config.get('stomp_topic_project_admins',
+                                       'project_admins')
+TOPIC_PROJECT_SUPERVISORS = config.get(
+                                    'stomp_topic_project_supervisors',
+                                    'project_supervisors')
+TOPIC_PROJECT_ARTISTS = config.get('stomp_topic_project_artists',
+                                        'project_artists')
+TOPIC_JOURNAL = config.get('stomp_topic_journal', 'journal')
+TOPIC_NOTES = config.get('stomp_topic_notesl', 'notes')
+TOPIC_TAGS = config.get('stomp_topic_tags', 'tags')
+
+
 class StompClient(object):
     """A client to connect to a stomp server and send messages.
     
@@ -42,46 +68,21 @@ class StompClient(object):
         self._setup_config()
     
     def _setup_config(self):
-        self.ORBITED_AUTOSTART = config.get('orbited_autostart', False)
-        self.ORBITED_CONFIG = config.get('orbited_config', 'orbited.cfg')
-
-        self.TOPIC_USERS = config.get('stomp_topic_users', '/topic/users')
-        self.TOPIC_GROUPS = config.get('stomp_topic_groups', '/topic/groups')
-        self.TOPIC_CATEGORIES = config.get('stomp_topic_categories',
-                                           '/topic/categories')
-        self.TOPIC_PROJECTS = config.get('stomp_topic_projects',
-                                         '/topic/projects')
-        self.TOPIC_SCENES = config.get('stomp_topic_scenes', '/topic/scenes')
-        self.TOPIC_SHOTS = config.get('stomp_topic_shots', '/topic/shots')
-        self.TOPIC_ASSETS = config.get('stomp_topic_assets', '/topic/assets')
-        self.TOPIC_LIBGROUPS = config.get('stomp_topic_libgroups',
-                                          '/topic/libgroups')
-        self.TOPIC_PROJECT_ADMINS = config.get('stomp_topic_project_admins',
-                                               '/topic/project_admins')
-        self.TOPIC_PROJECT_SUPERVISORS = config.get(
-                                            'stomp_topic_project_supervisors',
-                                            '/topic/project_supervisors')
-        self.TOPIC_PROJECT_ARTISTS = config.get('stomp_topic_project_artists',
-                                                '/topic/project_artists')
-        self.TOPIC_JOURNAL = config.get('stomp_topic_journal', '/topic/journal')
-        self.TOPIC_NOTES = config.get('stomp_topic_notesl', '/topic/notes')
-        self.TOPIC_TAGS = config.get('stomp_topic_tags', '/topic/tags')
-
-        self.topics = {User: self.TOPIC_USERS,
-                       Category: self.TOPIC_CATEGORIES,
-                       Project: self.TOPIC_PROJECTS,
-                       Scene: self.TOPIC_SCENES,
-                       Shot: self.TOPIC_SHOTS,
-                       Asset: self.TOPIC_ASSETS,
-                       Libgroup: self.TOPIC_LIBGROUPS,
-                       Journal: self.TOPIC_JOURNAL,
-                       Note: self.TOPIC_NOTES,
-                       Tag: self.TOPIC_TAGS,
+        self.topics = {User: TOPIC_USERS,
+                       Category: TOPIC_CATEGORIES,
+                       Project: TOPIC_PROJECTS,
+                       Scene: TOPIC_SCENES,
+                       Shot: TOPIC_SHOTS,
+                       Asset: TOPIC_ASSETS,
+                       Libgroup: TOPIC_LIBGROUPS,
+                       Journal: TOPIC_JOURNAL,
+                       Note: TOPIC_NOTES,
+                       Tag: TOPIC_TAGS,
                       }
     
     def _start_orbited(self):
         oldargv = sys.argv[:]
-        sys.argv[1:] = ['--config', self.ORBITED_CONFIG]
+        sys.argv[1:] = ['--config', ORBITED_CONFIG]
         orbited.start.main()
         sys.argv = oldargv
 
@@ -92,7 +93,7 @@ class StompClient(object):
 
     def connect(self):
         """Start the connection in a non-blocking thread."""
-        if self.ORBITED_AUTOSTART in [True, 'True', 'true']:
+        if ORBITED_AUTOSTART in [True, 'True', 'true']:
             self.thread_orbited = threading.Thread(None, self._start_orbited)
             self.thread_orbited.start()
         self.thread_connect = threading.Thread(None, self._start_connection)

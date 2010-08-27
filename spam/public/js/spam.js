@@ -29,6 +29,7 @@ spam_init = function (cookiebase) {
         console.log = function() {};
     }
 
+
     /**********************************************************************
      * Toggles
      **********************************************************************/
@@ -69,31 +70,6 @@ spam_init = function (cookiebase) {
     }
 
 
-    /**********************************************************************
-     * Overlays
-     **********************************************************************/
-    spam.overlays_activate = function(select) {
-        if (typeof(select)=="undefined" || select==null) {
-            select = "";
-        }
-
-        $(select + " .overlay").overlay({
-            onBeforeLoad: function(event) { 
-                trigger = this.getTrigger();
-                target = trigger.attr("href");
-                iframe = $("#overlay iframe")[0];
-                iframe.src = target;
-            },
-            onClose: function(event) { 
-                iframe = $("#overlay iframe")[0];
-                iframe.src = "about:blank";
-            },
-            expose: {
-                color: '#333'
-            }
-        });
-    }
-
     /****************************************
      * Sidebar
      ****************************************/
@@ -109,19 +85,75 @@ spam_init = function (cookiebase) {
 
 
     /****************************************
+     * Notification
+     ****************************************/
+    spam.notify = function(msg, status) {
+        $("#notify div").attr("class", status).html(msg).slideDown(function() {
+            setTimeout(function() {
+                $("#notify div").slideUp();
+            }, 2500);
+        });
+    }
+
+
+    /****************************************
+     * Dialog
+     ****************************************/
+	spam.dialog_load = function(elem) {
+        $("#dialog").dialog("destroy").dialog({
+	        modal: true,
+            width: 500,
+	        height: 350,
+	        closeText: '',
+        });
+        $(".ui-dialog").addClass("loading");
+        $("#dialog").hide().html("").load(elem.href, function(response, status, xhr) {
+            $(".ui-dialog").removeClass("loading");
+            if (status=='error') {
+	            $(".ui-dialog-titlebar > span").html("error: " + xhr.status);
+                $("#dialog").html(xhr.statusText);
+            } else {
+                $("#dialog h1").hide();
+                $(".ui-dialog-titlebar > span").html($("#dialog h1").html());
+            }
+            $("#dialog").fadeIn();
+        });
+    }
+
+
+    /****************************************
+     * tw2.livewidgets
+     ****************************************/
+    if (typeof(lw)!='undefined') {
+        spam.widget_add = lw.add;
+        spam.widget_update = lw.update;
+        spam.widget_delete = lw.delete;
+    } else {
+        spam.widget_add = function() {};
+        spam.widget_update = function() {};
+        spam.widget_delete = function() {};
+    }
+
+
+    /****************************************
      * Startup function
      ****************************************/
     $(function() {
         spam.toggles_activate();
-        spam.overlays_activate();
-        
+
         /* make #flash slide in and out */
         $("#flash div").hide().slideDown(function() {
             setTimeout(function() {
                 $("#flash div").slideUp();
             }, 2500);
         });
-    });
+
+	    /* instrument dialog */
+	    $(".dialog").live("click", function(e) {
+	        spam.dialog_load(this);
+	        return false;
+        });
+     });
 }
 
 

@@ -28,7 +28,7 @@
 </head>
 
 <body>
-    <div class="result ${result}"></div>
+    <div class="result ${status}"></div>
     <div class="msg">${msg}</div>
 </body>
 

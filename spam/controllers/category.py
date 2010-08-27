@@ -26,7 +26,7 @@ from pylons.i18n import ugettext as _, lazy_ugettext as l_
 from spam.model import session_get, Category, category_get, diff_dicts
 from spam.lib.widgets import FormCategoryNew, FormCategoryEdit
 from spam.lib.widgets import FormCategoryConfirm, TableCategories
-from spam.lib.notifications import notify
+from spam.lib.notifications import notify, TOPIC_CATEGORIES
 from spam.lib.journaling import journal
 from repoze.what.predicates import in_group
 
@@ -34,9 +34,9 @@ import logging
 log = logging.getLogger(__name__)
 
 # form widgets
-f_new = FormCategoryNew(action=url('/category/'))
-f_edit = FormCategoryEdit(action=url('/category/'))
-f_confirm = FormCategoryConfirm(action=url('/category/'))
+f_new = FormCategoryNew(action=url('/category'))
+f_edit = FormCategoryEdit(action=url('/category'))
+f_confirm = FormCategoryConfirm(action=url('/category'))
 
 # livetable widgets
 t_categories = TableCategories()
@@ -79,19 +79,21 @@ class Controller(RestController):
         """Create a new category"""
         session = session_get()
         user = tmpl_context.user
-        
+
         # add category to shared db
         category = Category(category_id, ordering=ordering,
                                             naming_convention=naming_convention)
         session.add(category)
-        
+
+        msg = '%s %s' % (_('Created category'), category_id)
+
         # log into Journal
-        journal.add(user, 'created %s' % category)
-        
-        # send a stomp message to notify clients
+        journal.add(user, '%s %s' % (msg, category))
+
+        # notify clients
         notify.send(category, update_type='added')
-        return dict(msg='created category "%s"' % category_id, result='success',
-                                                            category=category)
+        return dict(msg=msg, status='ok', item=category,
+                        update_type='added', update_topic=TOPIC_CATEGORIES)
     
     @require(in_group('administrators'))
     @expose('spam.templates.forms.form')
@@ -103,7 +105,7 @@ class Controller(RestController):
                             ordering=category.ordering,
                             naming_convention=category.naming_convention)
         tmpl_context.form = f_edit
-        return dict(title='%s %s' % (_('Edit category'), category.id))
+        return dict(title='%s %s' % (_('Edit category:'), category.id))
         
     @require(in_group('administrators'))
     @expose('json')
@@ -115,29 +117,31 @@ class Controller(RestController):
         user = tmpl_context.user
         category = category_get(category_id)
         old = category.__dict__.copy()
-        
+
         modified = False
-        if ordering:
+        if ordering is not None and not ordering == category.ordering:
             category.ordering = ordering
             modified = True
-        
-        if naming_convention:
+
+        if (naming_convention is not None and
+                        not naming_convention == category.naming_convention):
             category.naming_convention = naming_convention
             modified = True
-        
+
         if modified:
             new = category.__dict__.copy()
-            
+
+            msg = '%s %s' % (_('Updated category:'), category_id)
+
             # log into Journal
-            journal.add(user, 'modified %s: %s' %
-                                            (category, diff_dicts(old, new)))
+            journal.add(user, '%s: %s' % (msg, diff_dicts(old, new)))
         
-            # send a stomp message to notify clients
+            # notify clients
             notify.send(category, update_type='updated')
-            return dict(msg='updated category "%s"' %
-                                                category_id, result='success')
-        return dict(msg='category "%s" unchanged' %
-                                                category_id, result='success')
+            return dict(msg=msg, status='ok', item=category,
+                        update_type='updated', update_topic=TOPIC_CATEGORIES)
+        return dict(msg='%s %s' % (_('Category is unchanged:'), category_id),
+                                                                status='info')
 
     @require(in_group('administrators'))
     @expose('spam.templates.forms.form')
@@ -152,7 +156,7 @@ class Controller(RestController):
         warning = ('This will delete the category entry in the database. '
                    'All the assets in this category will be orphaned.')
         tmpl_context.form = f_confirm
-        return dict(title='%s %s?' % (_('Are you sure you want to delete'),
+        return dict(title='%s %s?' % (_('Are you sure you want to delete:'),
                                                 category.id), warning=warning)
 
     @require(in_group('administrators'))
@@ -161,7 +165,7 @@ class Controller(RestController):
     @validate(f_confirm, error_handler=get_delete)
     def post_delete(self, category_id):
         """Delete a category.
-        
+
         Only delete the category record from the common db, all the assets
         in this category will be orphaned, and must be removed manually.
         """
@@ -170,14 +174,16 @@ class Controller(RestController):
         category = category_get(category_id)
         session.delete(category)
 
+        msg = '%s %s' % (_('Deleted category:'), category.id)
+
         # log into Journal
-        journal.add(user, 'deleted %s' % category)
-        
-        # send a stomp message to notify clients
+        journal.add(user, '%s: %s' % (msg, category))
+
+        # notify clients
         notify.send(category, update_type='deleted')
-        return dict(msg='deleted category "%s"' % category.id,
-                                                            result='success')
-    
+        return dict(msg=msg, status='ok', item=category,
+                        update_type='deleted', update_topic=TOPIC_CATEGORIES)
+
     # Custom REST-like actions
     _custom_actions = []
 
