@@ -30,13 +30,15 @@
         if (xhr.status == 200) {
             if (xhr.getResponseHeader("Content-Type") == 'application/json; charset=utf-8') {
                 var result = JSON.parse(xhr.responseText);
-                if (result.update_type == 'added') {
-                    spam.widget_add(result.update_topic, result.item, true);
-                } else if (result.update_type == 'updated') {
-                    spam.widget_update(result.update_topic, result.item, true);
-                } else if (result.update_type == 'deleted') {
-                    spam.widget_delete(result.update_topic, result.item, true);
-                }
+                $.each(result.updates, function() {
+                    if (this.type == 'added') {
+                        spam.widget_add(this.topic, this.item, true);
+                    } else if (this.type == 'updated') {
+                        spam.widget_update(this.topic, this.item, true);
+                    } else if (this.type == 'deleted') {
+                        spam.widget_delete(this.topic, this.item, true);
+                    }
+                });
                 spam.notify(result.msg, result.status);
                 $("#dialog").dialog("destroy");
             } else if (xhr.getResponseHeader("Content-Type") == 'text/html; charset=utf-8') {

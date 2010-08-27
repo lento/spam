@@ -91,9 +91,10 @@ class Controller(RestController):
         journal.add(user, '%s - %s' % (msg, category))
 
         # notify clients
-        notify.send(category, update_type='added')
-        return dict(msg=msg, status='ok', item=category,
-                        update_type='added', update_topic=TOPIC_CATEGORIES)
+        updates = [dict(item=category, type='added', topic=TOPIC_CATEGORIES)]
+        notify.send(updates)
+
+        return dict(msg=msg, status='ok', updates=updates)
     
     @require(in_group('administrators'))
     @expose('spam.templates.forms.form')
@@ -135,13 +136,17 @@ class Controller(RestController):
 
             # log into Journal
             journal.add(user, '%s - %s' % (msg, diff_dicts(old, new)))
-        
+
             # notify clients
-            notify.send(category, update_type='updated')
-            return dict(msg=msg, status='ok', item=category,
-                        update_type='updated', update_topic=TOPIC_CATEGORIES)
+            updates = [
+                dict(item=category, type='updated', topic=TOPIC_CATEGORIES)
+                ]
+            notify.send(updates)
+
+            return dict(msg=msg, status='ok', updates=updates)
+
         return dict(msg='%s %s' % (_('Category is unchanged:'), category_id),
-                                                                status='info')
+                                                    status='info', updates=[])
 
     @require(in_group('administrators'))
     @expose('spam.templates.forms.form')
@@ -180,9 +185,10 @@ class Controller(RestController):
         journal.add(user, '%s - %s' % (msg, category))
 
         # notify clients
-        notify.send(category, update_type='deleted')
-        return dict(msg=msg, status='ok', item=category,
-                        update_type='deleted', update_topic=TOPIC_CATEGORIES)
+        updates = [dict(item=category, type='deleted', topic=TOPIC_CATEGORIES)]
+        notify.send(updates)
+
+        return dict(msg=msg, status='ok', updates=updates)
 
     # Custom REST-like actions
     _custom_actions = []

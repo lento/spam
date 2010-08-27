@@ -107,17 +107,18 @@ class StompClient(object):
         Update_type can be "updated", "added", "removed" or a custom string.
         If not given, "destination" will be derived from the type of "instance".
         """
-        if not destination:
-            destination = self.topics.get(type(instance), None)
-        content = dict(ob=instance, update_type=update_type)
-        content.update(kwargs)
-        msg = json_encode(content)
-        
-        try:
-            self.connection.send(msg, destination=destination)
-        except (AttributeError, ConnectionClosedException,
-                                                        NotConnectedException):
-            log.debug('STOMP not connected')
+        pass
+#        if not destination:
+#            destination = self.topics.get(type(instance), None)
+#        content = dict(ob=instance, update_type=update_type)
+#        content.update(kwargs)
+#        msg = json_encode(content)
+#        
+#        try:
+#            self.connection.send(msg, destination=destination)
+#        except (AttributeError, ConnectionClosedException,
+#                                                        NotConnectedException):
+#            log.debug('STOMP not connected')
 
     def ancestors(self, instance, update_type="updated", **kwargs):
         """Recursively send notifications to an instance's ancestors.
