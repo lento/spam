@@ -29,7 +29,8 @@ from spam.model import diff_dicts
 from spam.lib.widgets import FormLibgroupNew, FormLibgroupEdit
 from spam.lib.widgets import FormLibgroupConfirm, TableLibgroups
 from spam.lib import repo
-from spam.lib.notifications import notify
+from spam.lib.notifications import notify, TOPIC_LIBGROUPS
+from spam.lib.notifications import TOPIC_PROJECT_STRUCTURE
 from spam.lib.journaling import journal
 from spam.lib.decorators import project_set_active
 from spam.lib.predicates import is_project_user, is_project_admin
@@ -40,9 +41,9 @@ import logging
 log = logging.getLogger(__name__)
 
 # form widgets
-f_new = FormLibgroupNew(action=url('/libgroup/'))
-f_edit = FormLibgroupEdit(action=url('/libgroup/'))
-f_confirm = FormLibgroupConfirm(action=url('/libgroup/'))
+f_new = FormLibgroupNew(action=url('/libgroup'))
+f_edit = FormLibgroupEdit(action=url('/libgroup'))
+f_confirm = FormLibgroupConfirm(action=url('/libgroup'))
 
 # livetable widgets
 t_libgroups = TableLibgroups()
@@ -138,15 +139,20 @@ class Controller(RestController):
         
         # invalidate project cache
         project.touch()
-        
+
+        msg = '%s %s' % (_('Created libgroup'), libgroup.path)
+
         # log into Journal
-        journal.add(user, 'created %s' % libgroup)
+        journal.add(user, '%s - %s' % (msg, libgroup))
         
-        # send a stomp message to notify clients
-        notify.send(libgroup, update_type='added')
-        notify.send(project)
-        return dict(msg='created libgroup "%s"' % libgroup.path,
-                                            result='success', libgroup=libgroup)
+        # notify clients
+        updates = [
+            dict(item=libgroup, type='added', topic=TOPIC_LIBGROUPS),
+            dict(item=project, type='updated', topic=TOPIC_PROJECT_STRUCTURE),
+            ]
+        notify.send(updates)
+
+        return dict(msg=msg, status='ok', updates=updates)
     
     @project_set_active
     @require(is_project_admin())
@@ -162,7 +168,7 @@ class Controller(RestController):
                             description=libgroup.description,
                            )
         tmpl_context.form = f_edit
-        return dict(title='%s %s' % (_('Edit libgroup'), libgroup.path))
+        return dict(title='%s %s' % (_('Edit libgroup:'), libgroup.path))
         
     @project_set_active
     @require(is_project_admin())
@@ -177,23 +183,27 @@ class Controller(RestController):
         old = libgroup.__dict__.copy()
 
         modified = False
-        if description:
+        if description is not None and not libgroup.description == description:
             libgroup.description = description
             modified = True
         
         if modified:
             new = libgroup.__dict__.copy()
-            
+
+            msg = '%s %s' % (_('Updated libgroup:'), libgroup.path)
+
             # log into Journal
-            journal.add(user, 'modified %s: %s' %
-                                            (libgroup, diff_dicts(old, new)))
+            journal.add(user, '%s - %s' % (msg, diff_dicts(old, new)))
             
-            # send a stomp message to notify clients
-            notify.send(libgroup)
-            return dict(msg='updated libgroup "%s"' %
-                                                libgroup.path, result='success')
-        return dict(msg='libgroup "%s" unchanged' %
-                                                libgroup.path, result='success')
+            # notify clients
+            updates = [
+                dict(item=libgroup, type='updated', topic=TOPIC_LIBGROUPS),
+                ]
+            notify.send(updates)
+
+            return dict(msg=msg, status='ok', updates=updates)
+        return dict(msg='%s %s' % (_('Libgroup is unchanged:'), libgroup.path),
+                                                    status='info', updates=[])
 
     @project_set_active
     @require(is_project_admin())
@@ -211,7 +221,7 @@ class Controller(RestController):
         warning = ('This will only delete the libgroup entry in the database. '
                    'The data must be deleted manually if needed.')
         tmpl_context.form = f_confirm
-        return dict(title='%s %s?' % (_('Are you sure you want to delete'),
+        return dict(title='%s %s?' % (_('Are you sure you want to delete:'),
                                                 libgroup.path), warning=warning)
 
     @project_set_active
@@ -231,13 +241,15 @@ class Controller(RestController):
         user = tmpl_context.user
         libgroup = libgroup_get(proj, libgroup_id)
         if libgroup.subgroups:
-            return dict(msg='cannot delete libgroup "%s" because it contains '
-                            'subgroups' % libgroup.path,
-                        result='failed')
+            return dict(msg='%s %s' % (
+                    _('Cannot delete libgroup because it contains subgroups'),
+                    libgroup.path),
+                status='error')
         if libgroup.assets:
-            return dict(msg='cannot delete libgroup "%s" because it contains '
-                            'assets' % libgroup.path,
-                        result='failed')
+            return dict(msg='%s %s' % (
+                    _('Cannot delete libgroup because it contains assets'),
+                    libgroup.path),
+                status='error')
 
         session.delete(libgroup)
 
@@ -249,15 +261,20 @@ class Controller(RestController):
 
         # invalidate project cache
         project.touch()
-        
+
+        msg = '%s %s' % (_('Deleted libgroup:'), libgroup.path)
+
         # log into Journal
-        journal.add(user, 'deleted %s' % libgroup)
+        journal.add(user, '%s - %s' % (msg, libgroup))
         
-        # send a stomp message to notify clients
-        notify.send(libgroup, update_type='deleted')
-        notify.send(project)
-        return dict(msg='deleted libgroup "%s"' % libgroup.path,
-                                                            result='success')
+        # notify clients
+        updates = [
+            dict(item=libgroup, type='deleted', topic=TOPIC_LIBGROUPS),
+            dict(item=project, type='updated', topic=TOPIC_PROJECT_STRUCTURE),
+            ]
+        notify.send(updates)
+
+        return dict(msg=msg, status='ok', updates=updates)
     
 
     # Custom REST-like actions

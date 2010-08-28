@@ -24,7 +24,7 @@
 %>
 
 % if c.predicates.is_project_admin():
-<a href="${tg.url('/libgroup/%s/new' % new_url)}" rel="#overlay" class="overlay button">
+<a href="${tg.url('/libgroup/%s/new' % new_url)}" class="button dialog">
     new libgroup
 </a>
 <br/>

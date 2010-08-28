@@ -244,7 +244,7 @@ class Controller(RestController):
         # log into Journal
         journal.add(user, '%s - %s' % (msg, scene))
         
-        # send a stomp message to notify clients
+        # notify clients
         updates = [
             dict(item=scene, type='deleted', topic=TOPIC_SCENES),
             dict(item=project, type='updated', topic=TOPIC_PROJECT_STRUCTURE),
