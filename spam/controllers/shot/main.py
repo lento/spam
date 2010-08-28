@@ -29,7 +29,7 @@ from spam.model import scene_get, shot_get, tag_get, diff_dicts
 from spam.lib.widgets import FormShotNew, FormShotEdit, FormShotConfirm
 from spam.lib.widgets import TableShots
 from spam.lib import repo
-from spam.lib.notifications import notify
+from spam.lib.notifications import notify, TOPIC_SHOTS, TOPIC_PROJECT_STRUCTURE
 from spam.lib.journaling import journal
 from spam.lib.decorators import project_set_active
 from spam.lib.predicates import is_project_user, is_project_admin
@@ -40,12 +40,12 @@ import logging
 log = logging.getLogger(__name__)
 
 # form widgets
-f_new = FormShotNew(action=url('/shot/'))
-f_edit = FormShotEdit(action=url('/shot/'))
-f_confirm = FormShotConfirm(action=url('/shot/'))
+f_new = FormShotNew(action=url('/shot'))
+f_edit = FormShotEdit(action=url('/shot'))
+f_confirm = FormShotConfirm(action=url('/shot'))
 
 # livetable widgets
-t_shots = TableShots()
+t_shots = TableShots(id='t_shots')
 
 class Controller(RestController):
     """REST controller for managing shots."""
@@ -58,7 +58,7 @@ class Controller(RestController):
     def get_all(self, proj, sc):
         """Return a `tab` page with a list of shots for a scene and a button to
         add new shots.
-        
+
         This page is used as the `shots` tab in the scene view:
         :meth:`spam.controllers.scene.main.get_one`.
         """
@@ -66,15 +66,16 @@ class Controller(RestController):
         user = tmpl_context.user
         scene = scene_get(proj, sc)
         tmpl_context.scene = scene
+
+        t_shots.value = scene.shots
+        t_shots.extra_data = dict(project=project,
+                                  user_id=user.user_id,
+                                  proj_id=project.id,
+                                  parent_name=scene.name,
+                                  container_type='shot',
+                                 )
         tmpl_context.t_shots = t_shots
-        extra_data = dict(project=project,
-                          user_id=user.user_id,
-                          proj_id=project.id,
-                          parent_name=scene.name,
-                          container_type='shot',
-                         )
-        return dict(page='shot', sidebar=('projects', scene.project.id),
-                                    shots=scene.shots, extra_data=extra_data)
+        return dict(page='shot', sidebar=('projects', scene.project.id))
 
     @expose('spam.templates.shot.get_all')
     def _default(self, proj, sc, *args, **kwargs):
@@ -139,15 +140,20 @@ class Controller(RestController):
         
         # invalidate project cache
         project.touch()
-        
+
+        msg = '%s %s' % (_('Created shot:'), shot.path)
+
         # log into Journal
-        journal.add(user, 'created %s' % shot)
+        journal.add(user, '%s - %s' % (msg, shot))
         
-        # send a stomp message to notify clients
-        notify.send(shot, update_type='added')
-        notify.send(project)
-        return dict(msg='created shot "%s"' % shot.path, result='success',
-                                                                    shot=shot)
+        # notify clients
+        updates = [
+            dict(item=shot, type='added', topic=TOPIC_SHOTS),
+            dict(item=project, type='updated', topic=TOPIC_PROJECT_STRUCTURE),
+            ]
+        notify.send(updates)
+
+        return dict(msg=msg, status='ok', updates=updates)
     
     @project_set_active
     @require(is_project_admin())
@@ -169,7 +175,7 @@ class Controller(RestController):
                             handle_out=shot.handle_out,
                            )
         tmpl_context.form = f_edit
-        return dict(title='%s %s' % (_('Edit shot'), shot.path))
+        return dict(title='%s %s' % (_('Edit shot:'), shot.path))
         
     @project_set_active
     @require(is_project_admin())
@@ -185,36 +191,42 @@ class Controller(RestController):
         old = shot.__dict__.copy()
         
         modified = False
-        if description:
+        if description is not None and not shot.description == description:
             shot.description = description
             modified = True
         
-        if action:
+        if action is not None and not shot.action == action:
             shot.action = action
             modified = True
         
-        if frames:
+        if frames is not None and not shot.frames == frames:
             shot.frames = frames
             modified = True
         
-        if handle_in:
+        if handle_in is not None and not shot.handle_in == handle_in:
             shot.handle_in = handle_in
             modified = True
         
-        if handle_out:
+        if handle_out is not None and not shot.handle_out == handle_out:
             shot.handle_out = handle_out
             modified = True
         
         if modified:
             new = shot.__dict__.copy()
-        
+
+            msg = '%s %s' % (_('Updated shot:'), shot.path)
+
             # log into Journal
-            journal.add(user, 'modified %s: %s' % (shot, diff_dicts(old, new)))
+            journal.add(user, '%s - %s' % (msg, diff_dicts(old, new)))
             
-            # send a stomp message to notify clients
-            notify.send(shot)
-            return dict(msg='updated shot "%s"' % shot.path, result='success')
-        return dict(msg='shot "%s" unchanged' % shot.path, result='success')
+            # notify clients
+            updates = [dict(item=shot, type='updated', topic=TOPIC_SHOTS)]
+            notify.send(updates)
+
+            return dict(msg=msg, status='ok', updates=updates)
+
+        return dict(msg='%s %s' % (_('Shot is unchanged:'), shot.path),
+                                                    status='info', updates=[])
 
     @project_set_active
     @require(is_project_admin())
@@ -234,7 +246,7 @@ class Controller(RestController):
         warning = ('This will only delete the shot entry in the database. '
                    'The data must be deleted manually if needed.')
         tmpl_context.form = f_confirm
-        return dict(title='%s %s?' % (_('Are you sure you want to delete'),
+        return dict(title='%s %s?' % (_('Are you sure you want to delete:'),
                                                     shot.path), warning=warning)
 
     @project_set_active
@@ -255,9 +267,10 @@ class Controller(RestController):
         shot = shot_get(proj, sc, sh)
         
         if shot.assets:
-            return dict(msg='cannot delete shot "%s" because it contains '
-                            'assets' % shot.path,
-                        result='failed')
+            return dict(msg='%s %s' % (
+                    _('Cannot delete shot "%s" because it contains assets'),
+                    shot.path),
+                status='error')
 
         session.delete(shot)
 
@@ -269,15 +282,20 @@ class Controller(RestController):
 
         # invalidate project cache
         project.touch()
-        
-        
+
+        msg = '%s %s' % (_('Deleted shot:'), shot.path)
+
         # log into Journal
-        journal.add(user, 'deleted %s' % shot)
+        journal.add(user, '%s - %s' % (msg, shot))
         
-        # send a stomp message to notify clients
-        notify.send(shot, update_type='deleted')
-        notify.send(project)
-        return dict(msg='deleted shot "%s"' % shot.path, result='success')
+        # notify clients
+        updates = [
+            dict(item=shot, type='deleted', topic=TOPIC_SHOTS),
+            dict(item=project, type='updated', topic=TOPIC_PROJECT_STRUCTURE),
+            ]
+        notify.send(updates)
+
+        return dict(msg=msg, status='ok', updates=updates)
     
     # Custom REST-like actions
     _custom_actions = []

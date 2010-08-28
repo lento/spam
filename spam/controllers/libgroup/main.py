@@ -46,7 +46,7 @@ f_edit = FormLibgroupEdit(action=url('/libgroup'))
 f_confirm = FormLibgroupConfirm(action=url('/libgroup'))
 
 # livetable widgets
-t_libgroups = TableLibgroups()
+t_libgroups = TableLibgroups(id='t_libgroups')
 
 class Controller(RestController):
     """REST controller for managing library groups.
@@ -70,10 +70,12 @@ class Controller(RestController):
         """
         project = tmpl_context.project
         user = tmpl_context.user
+
+        t_libgroups.value = project.libgroups
+        t_libgroups.parent_id = None
+        t_libgroups.extra_data = dict(project=project, user_id=user.user_id)
         tmpl_context.t_libgroups = t_libgroups
-        extra_data = dict(project=project, user_id=user.user_id)
-        return dict(page='libgroups', sidebar=('projects', project.id),
-            libgroups=project.libgroups, parent_id=None, extra_data=extra_data)
+        return dict(page='libgroups', sidebar=('projects', project.id))
 
     @expose('spam.templates.libgroup.get_all')
     def _default(self, proj, *args, **kwargs):
@@ -140,7 +142,7 @@ class Controller(RestController):
         # invalidate project cache
         project.touch()
 
-        msg = '%s %s' % (_('Created libgroup'), libgroup.path)
+        msg = '%s %s' % (_('Created libgroup:'), libgroup.path)
 
         # log into Journal
         journal.add(user, '%s - %s' % (msg, libgroup))
@@ -285,17 +287,19 @@ class Controller(RestController):
     @expose('spam.templates.libgroup.get_all')
     def get_subgroups(self, proj, parent_id):
         """Return a `tab` page with a list of subgroups for a libgroup.
-        
+
         This page is used as the `subgroups` tab in the libgroup view:
         :meth:`spam.controllers.libgroup.main.get_one`.
         """
         project = tmpl_context.project
         user = tmpl_context.user
         parent = libgroup_get(proj, parent_id)
-        tmpl_context.t_libgroups = t_libgroups
         tmpl_context.parent = parent
-        extra_data = dict(project=project, user_id=user.user_id)
-        return dict(libgroups=parent.subgroups, parent_id=parent_id,
-                                                        extra_data=extra_data)
+
+        t_libgroups.value = parent.subgroups
+        t_libgroups.parent_id = parent_id
+        t_libgroups.extra_data = dict(project=project, user_id=user.user_id)
+        tmpl_context.t_libgroups = t_libgroups
+        return dict()
 
 

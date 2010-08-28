@@ -57,6 +57,17 @@ TOPIC_JOURNAL = config.get('stomp_topic_journal', 'journal')
 TOPIC_NOTES = config.get('stomp_topic_notesl', 'notes')
 TOPIC_TAGS = config.get('stomp_topic_tags', 'tags')
 
+TOPICS = {User: TOPIC_USERS,
+          Category: TOPIC_CATEGORIES,
+          Project: TOPIC_PROJECTS_ACTIVE,
+          Scene: TOPIC_SCENES,
+          Shot: TOPIC_SHOTS,
+          Asset: TOPIC_ASSETS,
+          Libgroup: TOPIC_LIBGROUPS,
+          Journal: TOPIC_JOURNAL,
+          Note: TOPIC_NOTES,
+          Tag: TOPIC_TAGS,
+         }
 
 class StompClient(object):
     """A client to connect to a stomp server and send messages.
@@ -69,17 +80,7 @@ class StompClient(object):
         self._setup_config()
     
     def _setup_config(self):
-        self.topics = {User: TOPIC_USERS,
-                       Category: TOPIC_CATEGORIES,
-                       Project: TOPIC_PROJECTS_ACTIVE,
-                       Scene: TOPIC_SCENES,
-                       Shot: TOPIC_SHOTS,
-                       Asset: TOPIC_ASSETS,
-                       Libgroup: TOPIC_LIBGROUPS,
-                       Journal: TOPIC_JOURNAL,
-                       Note: TOPIC_NOTES,
-                       Tag: TOPIC_TAGS,
-                      }
+        pass
     
     def _start_orbited(self):
         oldargv = sys.argv[:]

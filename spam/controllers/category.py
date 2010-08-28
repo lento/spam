@@ -39,7 +39,7 @@ f_edit = FormCategoryEdit(action=url('/category'))
 f_confirm = FormCategoryConfirm(action=url('/category'))
 
 # livetable widgets
-t_categories = TableCategories()
+t_categories = TableCategories(id='t_categories')
 
 class Controller(RestController):
     """REST controller for managing categories."""
@@ -49,11 +49,12 @@ class Controller(RestController):
     def get_all(self):
         """Return a `full` page with a list of all categories and a button to
         add new categories."""
-        tmpl_context.t_categories = t_categories
         query = session_get().query(Category)
         categories = query.order_by('ordering', 'id')
-        return dict(page='admin/categories', sidebar=('admin', 'categories'),
-                                                        categories=categories)
+
+        t_categories.value = categories.all()
+        tmpl_context.t_categories = t_categories
+        return dict(page='admin/categories', sidebar=('admin', 'categories'))
 
     @require(in_group('administrators'))
     @expose('json')

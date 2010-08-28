@@ -45,7 +45,7 @@ f_edit = FormSceneEdit(action=url('/scene'))
 f_confirm = FormSceneConfirm(action=url('/scene'))
 
 # livetable widgets
-t_scenes = TableScenes()
+t_scenes = TableScenes(id='t_scenes')
 
 class Controller(RestController):
     """REST controller for managing scenes."""
@@ -58,16 +58,17 @@ class Controller(RestController):
     def get_all(self, proj):
         """Return a `tab` page with a list of scenes for a project and a
         button to add new scenes.
-        
+
         This page is used as the `scenes` tab in the project view:
         :meth:`spam.controllers.project.main.get_one`.
         """
         project = tmpl_context.project
         user = tmpl_context.user
+
+        t_scenes.value = project.scenes
+        t_scenes.extra_data = dict(project=project, user_id=user.user_id)
         tmpl_context.t_scenes = t_scenes
-        extra_data = dict(project=project, user_id=user.user_id)
-        return dict(page='scenes', sidebar=('projects', project.id),
-                                scenes=project.scenes, extra_data=extra_data)
+        return dict(page='scenes', sidebar=('projects', project.id))
 
     @expose('spam.templates.scene.get_all')
     def _default(self, proj, *args, **kwargs):

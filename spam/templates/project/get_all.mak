@@ -19,26 +19,15 @@
 
 <%inherit file="spam.templates.master"/>
 
-<script type="text/javascript">
-    $(function() {
-        $(".overlay").overlay(function() { 
-            trigger = this.getTrigger();
-            target = trigger.attr("href");
-            iframe = $("#overlay iframe")[0];
-            iframe.src = target
-        });
-    });
-</script>
-
 <div class="content">
-    <a href="${tg.url('./new')}" rel="#overlay" class="overlay button">new project</a>
+    <a href="${tg.url('./new')}" class="button dialog">new project</a>
     <br/>
     <br/>
     <h1>${_('Active projects')}</h1>
-    ${c.t_projects_active(id='t_projects_active', value=list(active)).display() | n}
+    ${c.t_projects_active.display() | n}
     <br/>
     <br/>
     <h1>${_('Archived projects')}</h1>
-    ${c.t_projects_archived(id='t_projects_archived', value=list(archived)).display() | n}
+    ${c.t_projects_archived.display() | n}
 </div>
 

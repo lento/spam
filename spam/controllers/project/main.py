@@ -29,7 +29,8 @@ from spam.model import query_projects, query_projects_archived, diff_dicts
 from spam.lib.widgets import FormProjectNew, FormProjectEdit, FormProjectConfirm
 from spam.lib.widgets import TableProjectsActive, TableProjectsArchived
 from spam.lib import repo
-from spam.lib.notifications import notify
+from spam.lib.notifications import notify, TOPIC_PROJECTS_ACTIVE
+from spam.lib.notifications import TOPIC_PROJECTS_ARCHIVED
 from spam.lib.journaling import journal
 from spam.lib.decorators import project_set_active
 from spam.lib.predicates import is_project_user, is_project_admin
@@ -41,13 +42,13 @@ import logging
 log = logging.getLogger(__name__)
 
 # form widgets
-f_new = FormProjectNew(action=url('/project/'))
-f_edit = FormProjectEdit(action=url('/project/'))
-f_confirm = FormProjectConfirm(action=url('/project/'))
+f_new = FormProjectNew(action=url('/project'))
+f_edit = FormProjectEdit(action=url('/project'))
+f_confirm = FormProjectConfirm(action=url('/project'))
 
 # livetable widgets
-t_projects_active = TableProjectsActive()
-t_projects_archived = TableProjectsArchived()
+t_projects_active = TableProjectsActive(id='t_projects_active')
+t_projects_archived = TableProjectsArchived(id='t_projects_archived')
 
 class Controller(RestController):
     """REST controller for managing projects.
@@ -66,15 +67,14 @@ class Controller(RestController):
     @expose('spam.templates.project.get_all')
     def get_all(self):
         """Return a `full` page for managing active and archived projects.
-        
+
         This page is linked from the `admin` sidebar.
         """
+        t_projects_active.value = query_projects().all()
+        t_projects_archived.value = query_projects_archived().all()
         tmpl_context.t_projects_active = t_projects_active
         tmpl_context.t_projects_archived = t_projects_archived
-        active = query_projects()
-        archived = query_projects_archived()
-        return dict(page='admin/project', sidebar=('admin', 'projects'),
-                                            active=active, archived=archived)
+        return dict(page='admin/project', sidebar=('admin', 'projects'))
 
     @project_set_active
     @require(is_project_user())
@@ -110,26 +110,31 @@ class Controller(RestController):
         """Create a new project"""
         session = session_get()
         user = tmpl_context.user
-        
+
         # add project to db
         project = Project(proj, name=project_name, description=description)
         session.add(project)
-        
+
         # create directories and init hg repo
         repo.project_create_dirs(project.id)
         repo.repo_init(project.id)
-        
+
         # grant project rights to user "admin"
         admin = session.query(User).filter_by(user_name=u'admin').one()
         project.admins.append(admin)
-        
+
+        msg = '%s %s' % (_('Created project:'), project.id)
+
         # log into Journal
-        journal.add(user, 'created %s' % project)
-        
-        # send a stomp message to notify clients
-        notify.send(project, update_type='added')
-        return dict(msg='created project "%s"' % project.id, result='success',
-                                                                project=project)
+        journal.add(user, '%s %s' % (msg, project))
+
+        # notify clients
+        updates = [
+            dict(item=project, type='added', topic=TOPIC_PROJECTS_ACTIVE),
+            ]
+        notify.send(updates)
+
+        return dict(msg=msg, status='ok', updates=updates)
     
     @project_set_active
     @require(in_group('administrators'))
@@ -142,7 +147,7 @@ class Controller(RestController):
                             project_name=project.name,
                             description=project.description)
         tmpl_context.form = f_edit
-        return dict(title='%s %s' % (_('Edit project'), proj))
+        return dict(title='%s %s' % (_('Edit project:'), proj))
         
     @project_set_active
     @require(in_group('administrators'))
@@ -155,30 +160,37 @@ class Controller(RestController):
         old = project.__dict__.copy()
         session = session_get()
         user = tmpl_context.user
-        
+
         modified = False
-        if project_name:
+        if project_name is not None and not project.name == project_name:
             project.name = project_name
             modified = True
-            
-        if description:
+
+        if description is not None and not project.description == description:
             project.description = description
             modified = True
-        
+
         if modified:
             new = project.__dict__.copy()
-        
+
             # invalidate cache
             project.touch()
 
+            msg = '%s %s' % (_('Updated project:'), proj)
+
             # log into Journal
-            journal.add(user, u'modified %s: %s' %
-                                            (project, diff_dicts(old, new)))
-        
-            # send a stomp message to notify clients
-            notify.send(project, update_type='updated')
-            return dict(msg='updated project "%s"' % proj, result='success')
-        return dict(msg='project "%s" unchanged' % proj, result='success')
+            journal.add(user, u'%s - %s' % (msg, diff_dicts(old, new)))
+
+            # notify clients
+            updates = [
+                dict(item=project, type='updated', topic=TOPIC_PROJECTS_ACTIVE),
+                ]
+            notify.send(updates)
+
+            return dict(msg=msg, status='ok', updates=updates)
+
+        return dict(msg='%s %s' % (_('Project is unchanged:'), proj),
+                                                    status='info', updates=[])
 
     @project_set_active
     @require(in_group('administrators'))
@@ -193,10 +205,10 @@ class Controller(RestController):
                                description_=project.description,
                               )
         warning = _('This will only delete the project entry in the database. '
-                   'The data and history of the project must be deleted '
-                   'manually if needed.')
+                    'The data and history of the project must be deleted '
+                    'manually if needed.')
         tmpl_context.form = f_confirm
-        return dict(title='%s %s?' % (_('Are you sure you want to delete'),
+        return dict(title='%s %s?' % (_('Are you sure you want to delete:'),
                                                 project.name), warning=warning)
 
     @project_set_active
@@ -206,7 +218,7 @@ class Controller(RestController):
     @validate(f_confirm, error_handler=get_delete)
     def post_delete(self, proj):
         """Delete a project.
-        
+
         Only delete the project record from the common db, the project
         repository must be removed manually.
         (This should help prevent awful accidents) ;)
@@ -214,20 +226,28 @@ class Controller(RestController):
         session = session_get()
         user = tmpl_context.user
         project = tmpl_context.project
-        
+
         if project.scenes or project.libgroups:
-            return dict(msg='cannot delete project "%s" because it contains '
-                            'scenes or libgroups' % project.id,
-                        result='failed')
+            return dict(msg='%s %s' % (
+                    _('Cannot delete project because it contains scenes or '
+                      'libgroups:'),
+                    project.id),
+                status='error', updates=[])
 
         session.delete(project)
-        
+
+        msg = '%s %s' % (_('Deleted project:'), proj)
+
         # log into Journal
-        journal.add(user, 'deleted %s' % project)
-        
-        # send a stomp message to notify clients
-        notify.send(project, update_type='deleted')
-        return dict(msg='deleted project "%s"' % proj, result='success')
+        journal.add(user, '%s %s' % (msg, project))
+
+        # notify clients
+        updates = [
+            dict(item=project, type='deleted', topic=TOPIC_PROJECTS_ACTIVE),
+            ]
+        notify.send(updates)
+
+        return dict(msg=msg, status='ok', updates=updates)
     
     # Custom REST-like actions
     _custom_actions = ['archive', 'activate', 'upgrade', 'sidebar']
@@ -245,7 +265,7 @@ class Controller(RestController):
                                description_=project.description,
                               )
         tmpl_context.form = f_confirm
-        return dict(title='%s %s?' % (_('Are you sure you want to archive'),
+        return dict(title='%s %s?' % (_('Are you sure you want to archive:'),
                                                                 project.name))
 
     @project_set_active
@@ -264,12 +284,19 @@ class Controller(RestController):
         # invalidate cache
         project.touch()
 
+        msg = '%s %s' % (_('Archived project:'), proj)
+
         # log into Journal
-        journal.add(user, 'archived %s' % project)
-        
-        # send a stomp message to notify clients
-        notify.send(project, update_type='archived')
-        return dict(msg='archived project "%s"' % proj, result='success')
+        journal.add(user, '%s %s' % (msg, project))
+
+        # notify clients
+        updates = [
+            dict(item=project, type='deleted', topic=TOPIC_PROJECTS_ACTIVE),
+            dict(item=project, type='added', topic=TOPIC_PROJECTS_ARCHIVED),
+            ]
+        notify.send(updates)
+
+        return dict(msg=msg, status='ok', updates=updates)
 
     @require(in_group('administrators'))
     @expose('spam.templates.forms.form')
@@ -278,7 +305,7 @@ class Controller(RestController):
         tmpl_context.form = f_confirm
         query = query_projects_archived().filter_by(id=proj.decode('utf-8'))
         project = query.one()
-        
+
         f_confirm.custom_method = 'ACTIVATE'
         f_confirm.value = dict(proj=project.id,
                                id_=project.id,
@@ -286,7 +313,7 @@ class Controller(RestController):
                                description_=project.description,
                               )
         tmpl_context.form = f_confirm
-        return dict(title='%s %s?' % (_('Are you sure you want to activate'),
+        return dict(title='%s %s?' % (_('Are you sure you want to activate:'),
                                                                 project.name))
 
     @require(in_group('administrators'))
@@ -305,12 +332,19 @@ class Controller(RestController):
         # invalidate cache
         project.touch()
 
+        msg = '%s %s' % (_('Activated project:'), proj)
+
         # log into Journal
-        journal.add(user, 'activated %s' % project)
-        
-        # send a stomp message to notify clients
-        notify.send(project, update_type='activated')
-        return dict(msg='activated project "%s"' % proj, result='success')
+        journal.add(user, '%s %s' % (msg, project))
+
+        # notify clients
+        updates = [
+            dict(item=project, type='added', topic=TOPIC_PROJECTS_ACTIVE),
+            dict(item=project, type='deleted', topic=TOPIC_PROJECTS_ARCHIVED),
+            ]
+        notify.send(updates)
+
+        return dict(msg=msg, status='ok', updates=updates)
 
     @project_set_active
     @require(in_group('administrators'))
@@ -328,7 +362,7 @@ class Controller(RestController):
                               )
         tmpl_context.form = f_confirm
         return dict(title='%s %s?' % (_('Are you sure you want to upgrade '
-                                        'database schema for'), project.name))
+                                        'database schema for:'), project.name))
 
     @project_set_active
     @require(in_group('administrators'))
@@ -340,8 +374,19 @@ class Controller(RestController):
         project = tmpl_context.project
         project.schema_upgrade()
         project.touch()
-        notify.send(project, update_type='updated')
-        return dict(msg='upgraded project "%s" schema' % proj, result='success')
+
+        msg = '%s %s' % (_('Upgraded project schema:'), proj)
+
+        # log into Journal
+        journal.add(user, '%s %s' % (msg, project))
+
+        # notify clients
+        updates = [
+            dict(item=project, type='updated', topic=TOPIC_PROJECTS_ACTIVE),
+            ]
+        notify.send(updates)
+
+        return dict(msg=msg, status='ok', updates=updates)
 
     @project_set_active
     @require(is_project_user())
