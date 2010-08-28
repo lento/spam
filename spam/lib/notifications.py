@@ -36,22 +36,23 @@ ORBITED_CONFIG = config.get('orbited_config', 'orbited.cfg')
 
 TOPIC_USERS = config.get('stomp_topic_users', 'users')
 TOPIC_GROUPS = config.get('stomp_topic_groups', 'groups')
-TOPIC_CATEGORIES = config.get('stomp_topic_categories',
-                                   'categories')
-TOPIC_PROJECTS = config.get('stomp_topic_projects',
-                                 'projects')
+TOPIC_CATEGORIES = config.get('stomp_topic_categories', 'categories')
+TOPIC_PROJECTS_ACTIVE = config.get('stomp_topic_projects_active',
+    'projects_active')
+TOPIC_PROJECTS_ARCHIVED = config.get('stomp_topic_projects_archived',
+    'projects_archived')
 TOPIC_SCENES = config.get('stomp_topic_scenes', 'scenes')
 TOPIC_SHOTS = config.get('stomp_topic_shots', 'shots')
 TOPIC_ASSETS = config.get('stomp_topic_assets', 'assets')
-TOPIC_LIBGROUPS = config.get('stomp_topic_libgroups',
-                                  'libgroups')
+TOPIC_LIBGROUPS = config.get('stomp_topic_libgroups', 'libgroups')
+TOPIC_PROJECT_STRUCTURE = config.get('stomp_topic_project_structure',
+    'projects_structure')
 TOPIC_PROJECT_ADMINS = config.get('stomp_topic_project_admins',
-                                       'project_admins')
-TOPIC_PROJECT_SUPERVISORS = config.get(
-                                    'stomp_topic_project_supervisors',
-                                    'project_supervisors')
+    'project_admins')
+TOPIC_PROJECT_SUPERVISORS = config.get('stomp_topic_project_supervisors',
+    'project_supervisors')
 TOPIC_PROJECT_ARTISTS = config.get('stomp_topic_project_artists',
-                                        'project_artists')
+    'project_artists')
 TOPIC_JOURNAL = config.get('stomp_topic_journal', 'journal')
 TOPIC_NOTES = config.get('stomp_topic_notesl', 'notes')
 TOPIC_TAGS = config.get('stomp_topic_tags', 'tags')
@@ -70,7 +71,7 @@ class StompClient(object):
     def _setup_config(self):
         self.topics = {User: TOPIC_USERS,
                        Category: TOPIC_CATEGORIES,
-                       Project: TOPIC_PROJECTS,
+                       Project: TOPIC_PROJECTS_ACTIVE,
                        Scene: TOPIC_SCENES,
                        Shot: TOPIC_SHOTS,
                        Asset: TOPIC_ASSETS,

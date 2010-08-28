@@ -20,7 +20,7 @@
 <%inherit file="spam.templates.tab"/>
 
 % if c.predicates.is_project_admin():
-<a href="${tg.url('/scene/%s/new' % c.project.id)}" rel="#overlay" class="overlay button">new scene</a>
+<a href="${tg.url('/scene/%s/new' % c.project.id)}" class="button dialog">new scene</a>
 <br/>
 <br/>
 % endif

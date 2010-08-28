@@ -203,7 +203,7 @@ class TableCategories(twl.LiveTable):
 
 class TableProjectsActive(twl.LiveTable):
     """Active projects livetable."""
-    update_topic = notifications.TOPIC_PROJECTS
+    update_topic = notifications.TOPIC_PROJECTS_ACTIVE
     update_condition = '!msg.ob.archived || msg.update_type=="archived"'
     update_functions = ('{"added": lw.livetable.addrow,'
                         ' "deleted": lw.livetable.deleterow,'
@@ -246,7 +246,7 @@ class TableProjectsActive(twl.LiveTable):
 
 class TableProjectsArchived(twl.LiveTable):
     """Archived projects livetable."""
-    update_topic = notifications.TOPIC_PROJECTS
+    update_topic = notifications.TOPIC_PROJECTS_ARCHIVED
     update_condition = 'msg.ob.archived || msg.update_type=="activated"'
     update_functions = ('{"added": lw.livetable.addrow,'
                         ' "deleted": lw.livetable.deleterow,'
@@ -722,7 +722,7 @@ class TableNotes(twl.LiveTable):
 class ListProjects(twl.LiveList):
     """Project livelist."""
     user_id = twc.Param('User id used to filter update messages', default='')
-    update_topic = notifications.TOPIC_PROJECTS
+    update_topic = notifications.TOPIC_PROJECTS_ACTIVE
 
     name = twl.Link(
         dest=url('/project/%(id)s'),
