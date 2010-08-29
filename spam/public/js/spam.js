@@ -125,13 +125,9 @@ spam_init = function (cookiebase) {
      * tw2.livewidgets
      ****************************************/
     if (typeof(lw)!='undefined') {
-        spam.widget_add = lw.add;
         spam.widget_update = lw.update;
-        spam.widget_delete = lw.delete;
     } else {
-        spam.widget_add = function() {};
         spam.widget_update = function() {};
-        spam.widget_delete = function() {};
     }
 
 

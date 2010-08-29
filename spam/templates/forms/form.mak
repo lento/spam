@@ -31,13 +31,13 @@
             if (xhr.getResponseHeader("Content-Type") == 'application/json; charset=utf-8') {
                 var result = JSON.parse(xhr.responseText);
                 $.each(result.updates, function() {
-                    if (this.type == 'added') {
-                        spam.widget_add(this.topic, this.item, true);
-                    } else if (this.type == 'updated') {
-                        spam.widget_update(this.topic, this.item, true);
-                    } else if (this.type == 'deleted') {
-                        spam.widget_delete(this.topic, this.item, true);
-                    }
+                    var topic = this.topic;
+                    var item = this.item;
+                    var type = this.type!=null ? this.type : 'updated';
+                    var show_updates = this.show_updates!=null ? this.show_updates : true;
+                    var extra_data = this.extra_data!=null ? this.extra_data : {};
+                    var filter = this.filter!=null ? this.filter : '';
+                    spam.widget_update(topic, type, item, show_updates, extra_data, filter);
                 });
                 spam.notify(result.msg, result.status);
                 $("#dialog").dialog("destroy");
