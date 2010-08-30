@@ -28,6 +28,7 @@
     <!-- document.domain is needed by orbited for cross-port deployment
     <script> document.domain = document.domain; </script>-->
     ${self.meta()}
+    ${c.w_startup_js.display()}
     <title>${self.title()}</title>
     <link rel="stylesheet" type="text/css" media="screen" href="${tg.url('/themes/%s/css/style.css' % c.theme)}" />
 

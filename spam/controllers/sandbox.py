@@ -25,13 +25,11 @@ from tg import request
 from tg import url, expose, validate, tmpl_context
 from spam.lib.base import SPAMBaseController
 from spam.lib.widgets import TableScenes
-from spam.lib.widgets import BoxTags
 from spam.model import project_get, shot_get, session_get, User
 from spam.lib.widgets import TableUsers, TableGroupUsers
 
 t_users = TableUsers(id='t_users')
 t_scenes = TableScenes()
-b_tags = BoxTags()
 
 log = logging.getLogger(__name__)
 
@@ -76,13 +74,6 @@ class SandboxController(SPAMBaseController):
             #tmpf.write(request.body_file.read())
             tmpf.close()
         return dict()
-
-    @expose('spam.templates.sandbox.taglist')
-    def taglist(self, proj, sc, sh):
-        tmpl_context.b_tags = b_tags
-        shot = shot_get(proj, sc, sh)
-        tags = shot.tags
-        return dict(page='sandbox/taglist', shot=shot, tags=tags)
 
     @expose('spam.templates.sandbox.update')
     def update(self):

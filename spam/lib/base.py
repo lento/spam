@@ -24,27 +24,31 @@ from tg import TGController, tmpl_context, config, url
 from tg.render import render
 from tg import request
 from pylons.i18n import _, ungettext, N_
-from tw.api import WidgetBunch, JSLink
+import tw2.core as twc
 import spam.model as model
 from spam.lib.widgets import ListProjects
 from spam.lib import predicates 
 
 # Orbited
-orbited_address = config.get('orbited_address', 'http://localhost:9000')
+#orbited_address = config.get('orbited_address', 'http://localhost:9000')
 
-orbited_js = JSLink(link='%s/static/Orbited.js' % orbited_address)
-initsocket_js = JSLink(link=url('/js/init_TCPSocket.js'))
-stomp_js = JSLink(link='%s/static/protocols/stomp/stomp.js' % orbited_address)
+#orbited_js = twc.JSLink(link='%s/static/Orbited.js' % orbited_address)
+#initsocket_js = twc.JSLink(link=url('/js/init_TCPSocket.js'))
+#stomp_js = twc.JSLink(link='%s/static/protocols/stomp/stomp.js' % orbited_address)
 
 # JQuery and plugins
-jquery_spamkit_js = JSLink(link=url('/js/jquery.spamkit.js.gz'))
-#jquery_tablesorter_js = JSLink(link=url('/js/jquery.tablesorter.js'))
+js_jquery_spamkit = twc.JSLink(link=url('/js/jquery.spamkit.js.gz'))
+#jquery_tablesorter_js = twc.JSLink(link=url('/js/jquery.tablesorter.js'))
 
 # SPAM
-spam_js = JSLink(link=url('/js/spam.js'))
-notify_client_js = JSLink(link=url('/js/notify_client.js'))
+js_spam = twc.JSLink(link=url('/js/spam.js'))
+js_notify_client = twc.JSLink(link=url('/js/notify_client.js'))
 
 # widgets
+w_startup_js = twc.Widget(
+    template='mako:spam.templates.widgets.startup_js',
+    resources=[js_jquery_spamkit, js_spam, js_notify_client],
+    )
 l_projects = ListProjects()
 
 
@@ -90,13 +94,14 @@ class SPAMBaseController(TGController):
 #        initsocket_js.inject()
 #        stomp_js.inject()
 
-        jquery_spamkit_js.inject()
+#        jquery_spamkit_js.inject()
 #        jquery_tablesorter_js.inject()
 
-        spam_js.inject()
-        notify_client_js.inject()
+#        spam_js.inject()
+#        notify_client_js.inject()
 
         # widgets
+        tmpl_context.w_startup_js = w_startup_js
         tmpl_context.l_projects = l_projects
 
         # custom predicates

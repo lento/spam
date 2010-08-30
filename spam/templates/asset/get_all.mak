@@ -33,10 +33,10 @@
         <div class="toggle_header title">
             <span class="toggle_arrow"/>
             <h2 class="toggle_title">${cat.id}</h2>
-            ${c.b_status(id="status_%s_%s_%s" % (container_type, container_id, cat.id),
-                         items=container.assets[cat], container_id=container_id,
-                         category_id=cat.id,
-                         update_listener_adder="notify.add_listener_tab") | n}
+##            ${c.b_status(id="status_%s_%s_%s" % (container_type, container_id, cat.id),
+##                         items=container.assets[cat], container_id=container_id,
+##                         category_id=cat.id,
+##                         update_listener_adder="notify.add_listener_tab") | n}
         </div>
         <div class="toggleable">
             ${c.t_assets(id="assets_%s_%s_%s" % (container_type, container_id, cat.id),

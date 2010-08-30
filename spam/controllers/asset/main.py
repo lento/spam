@@ -25,13 +25,13 @@ from tg import expose, url, tmpl_context, validate, require, response
 from tg.controllers import RestController
 from tg.decorators import with_trailing_slash
 from pylons.i18n import ugettext as _, lazy_ugettext as l_
-from tw.forms import validators
 from spam.model import session_get, Asset, AssetVersion, Category, Note
 from spam.model import project_get, container_get, asset_get, category_get
 from spam.model import assetversion_get
 from spam.lib.widgets import FormAssetNew, FormAssetEdit, FormAssetConfirm
-from spam.lib.widgets import FormAssetPublish, FormAssetStatus, BoxStatus
+from spam.lib.widgets import FormAssetPublish, FormAssetStatus
 from spam.lib.widgets import TableAssets, TableAssetHistory
+#from spam.lib.widgets import BoxStatus
 from spam.lib import repo, preview
 from spam.lib.notifications import notify
 from spam.lib.journaling import journal
@@ -54,7 +54,7 @@ f_status = FormAssetStatus(action=url('/asset/'))
 # livewidgets
 t_assets = TableAssets()
 t_history = TableAssetHistory()
-b_status = BoxStatus()
+#b_status = BoxStatus()
 
 
 class Controller(RestController):
@@ -86,7 +86,7 @@ class Controller(RestController):
         """
         project = tmpl_context.project
         tmpl_context.t_assets = t_assets
-        tmpl_context.b_status = b_status
+#        tmpl_context.b_status = b_status
         container = container_get(proj, container_type, container_id)
         
         return dict(page='assets', sidebar=('projects', project.id),

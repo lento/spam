@@ -23,37 +23,34 @@
 from tg import config, url
 from tg import app_globals as G
 from pylons.i18n import ugettext as _, lazy_ugettext as l_
-from tw.api import WidgetsList, JSSource
 import tw2.core as twc, tw2.forms as twf
 import tw2.livewidgets as twl
 from tw2.core import StringLengthValidator as StringLength
 from spam.lib.validators import CategoryNamingConvention
-from livewidgets import LiveTable, LiveBox, LiveList
-from livewidgets import LiveWidget, Box, Button, Icon, Text, Link, Image
 from spam.lib import notifications
 
 
 ############################################################
 # Custom Live widgets
 ############################################################
-class StatusIcon(LiveWidget):
-    """Custom livewidget to show a status icon."""
-    params = ['icon_class']
-    template = 'mako:spam.templates.widgets.statusicon'
-    
-    css_class = 'lw_status'
-    show_header = False
-    sortable = False
+#class StatusIcon(LiveWidget):
+#    """Custom livewidget to show a status icon."""
+#    params = ['icon_class']
+#    template = 'mako:spam.templates.widgets.statusicon'
+#    
+#    css_class = 'lw_status'
+#    show_header = False
+#    sortable = False
 
 
-class StatusIconBox(LiveWidget):
-    """Custom livewidget to show a box of status icons."""
-    params = ['icon_class', 'dest']
-    template = 'mako:spam.templates.widgets.statusiconbox'
-    
-    css_class = 'statusiconbox'
-    show_header = False
-    sortable = False
+#class StatusIconBox(LiveWidget):
+#    """Custom livewidget to show a box of status icons."""
+#    params = ['icon_class', 'dest']
+#    template = 'mako:spam.templates.widgets.statusiconbox'
+#    
+#    css_class = 'statusiconbox'
+#    show_header = False
+#    sortable = False
 
 
 ############################################################
@@ -745,146 +742,146 @@ class ListProjects(twl.LiveList):
 ############################################################
 # Live boxes
 ############################################################
-class BoxTags(LiveBox):
-    """Tag livebox."""
-    params = ['taggable_id']
-    container_class = 'tagbox'
-    update_topic = notifications.TOPIC_TAGS
-    id = Box(children=[
-        Text(id='id', help_text=''),
-        Button(id='remove',
-          condition='$.inArray(data.user_id, data.project.admin_ids)>=0',
-          action=url('/tag/%(taggable_id)s/%(id)s/remove'),
-          children=[Icon(id='remove', icon_class='icon_delete',
-            help_text='remove'),
-        ]),
-        Text(id='separator', help_text='', text=', '),
-    ])
-    
-    def update_params(self, d):
-        super(BoxTags, self).update_params(d)
-        d['update_condition'] = 'msg.taggable_id=="%s"' % d['taggable_id']
+#class BoxTags(LiveBox):
+#    """Tag livebox."""
+#    params = ['taggable_id']
+#    container_class = 'tagbox'
+#    update_topic = notifications.TOPIC_TAGS
+#    id = Box(children=[
+#        Text(id='id', help_text=''),
+#        Button(id='remove',
+#          condition='$.inArray(data.user_id, data.project.admin_ids)>=0',
+#          action=url('/tag/%(taggable_id)s/%(id)s/remove'),
+#          children=[Icon(id='remove', icon_class='icon_delete',
+#            help_text='remove'),
+#        ]),
+#        Text(id='separator', help_text='', text=', '),
+#    ])
+#    
+#    def update_params(self, d):
+#        super(BoxTags, self).update_params(d)
+#        d['update_condition'] = 'msg.taggable_id=="%s"' % d['taggable_id']
 
 
-statusbox_js = JSSource(src='''
-    wrap_functions = function(func, box_id, item, show_update, extra_data) {
-        $.each(item.parent.categories, function (i, parent_cat) {
-            if (parent_cat.id==item.category.id)
-                cat = parent_cat;
-        });
-        if (typeof(cat) != 'udefined')
-            func(box_id, cat, show_update, extra_data);
-    }
-    
-    add_categories = function(box_id, item, show_update, extra_data) {
-        if (typeof(item.ordering)!='undefined')   // 'item' is a category
-            lw.livebox.add(box_id, item, show_update, extra_data);
-        else    // 'item' is an asset
-            wrap_functions(lw.livebox.add, box_id, item, false, extra_data);
-    }
-    delete_categories = function(box_id, item, show_update, extra_data) {
-        if (typeof(item.ordering)!='undefined')   // 'item' is a category
-            lw.livebox.delete(box_id, item, show_update, extra_data);
-        else    // 'item' is an asset
-            wrap_functions(lw.livebox.delete, box_id, item, false, extra_data);
-    }
-    update_categories = function(box_id, item, show_update, extra_data) {
-        wrap_functions(lw.livebox.update, box_id, item, false, extra_data);
-    }
-''')
+#statusbox_js = JSSource(src='''
+#    wrap_functions = function(func, box_id, item, show_update, extra_data) {
+#        $.each(item.parent.categories, function (i, parent_cat) {
+#            if (parent_cat.id==item.category.id)
+#                cat = parent_cat;
+#        });
+#        if (typeof(cat) != 'udefined')
+#            func(box_id, cat, show_update, extra_data);
+#    }
+#    
+#    add_categories = function(box_id, item, show_update, extra_data) {
+#        if (typeof(item.ordering)!='undefined')   // 'item' is a category
+#            lw.livebox.add(box_id, item, show_update, extra_data);
+#        else    // 'item' is an asset
+#            wrap_functions(lw.livebox.add, box_id, item, false, extra_data);
+#    }
+#    delete_categories = function(box_id, item, show_update, extra_data) {
+#        if (typeof(item.ordering)!='undefined')   // 'item' is a category
+#            lw.livebox.delete(box_id, item, show_update, extra_data);
+#        else    // 'item' is an asset
+#            wrap_functions(lw.livebox.delete, box_id, item, false, extra_data);
+#    }
+#    update_categories = function(box_id, item, show_update, extra_data) {
+#        wrap_functions(lw.livebox.update, box_id, item, false, extra_data);
+#    }
+#''')
 
 
-class BoxScenesStatus(LiveBox):
-    """Scene status livebox."""
-    params = ['proj_id']
-    container_class = 'statusbox'
-    update_topic = notifications.TOPIC_SCENES
-    show_update = False
-    
-    link = Link(dest=url('/scene/%(proj_id)s/%(name)s'),
-        children=[
-          StatusIcon(id='status', help_text='%(name)s: %(status)s')
-    ])
-    
-    def update_params(self, d):
-        super(BoxScenesStatus, self).update_params(d)
-        d['update_condition'] = 'msg.ob.proj_id=="%s"' % d['proj_id']
+#class BoxScenesStatus(LiveBox):
+#    """Scene status livebox."""
+#    params = ['proj_id']
+#    container_class = 'statusbox'
+#    update_topic = notifications.TOPIC_SCENES
+#    show_update = False
+#    
+#    link = Link(dest=url('/scene/%(proj_id)s/%(name)s'),
+#        children=[
+#          StatusIcon(id='status', help_text='%(name)s: %(status)s')
+#    ])
+#    
+#    def update_params(self, d):
+#        super(BoxScenesStatus, self).update_params(d)
+#        d['update_condition'] = 'msg.ob.proj_id=="%s"' % d['proj_id']
 
 
-class BoxShotsStatus(LiveBox):
-    """Shot status livebox."""
-    params = ['scene_id']
-    container_class = 'statusbox'
-    update_topic = notifications.TOPIC_SHOTS
-    show_update = False
-    
-    link = Link(dest=url('/shot/%(proj_id)s/%(parent_name)s/%(name)s'),
-        children=[
-          StatusIcon(id='status', help_text='%(name)s: %(status)s')
-    ])
-    
-    def update_params(self, d):
-        super(BoxShotsStatus, self).update_params(d)
-        d['update_condition'] = 'msg.ob.parent_id=="%s"' % d['scene_id']
+#class BoxShotsStatus(LiveBox):
+#    """Shot status livebox."""
+#    params = ['scene_id']
+#    container_class = 'statusbox'
+#    update_topic = notifications.TOPIC_SHOTS
+#    show_update = False
+#    
+#    link = Link(dest=url('/shot/%(proj_id)s/%(parent_name)s/%(name)s'),
+#        children=[
+#          StatusIcon(id='status', help_text='%(name)s: %(status)s')
+#    ])
+#    
+#    def update_params(self, d):
+#        super(BoxShotsStatus, self).update_params(d)
+#        d['update_condition'] = 'msg.ob.parent_id=="%s"' % d['scene_id']
 
 
-class BoxLibgroupsStatus(LiveBox):
-    """Libgroup status livebox."""
-    params = ['libgroup_id']
-    container_class = 'statusbox'
-    update_topic = notifications.TOPIC_LIBGROUPS
-    show_update = False
-    
-    link = Link(dest=url('/libgroup/%(proj_id)s/%(id)s'),
-        children=[
-          StatusIcon(id='status', help_text='%(name)s: %(status)s')
-    ])
-    
-    def update_params(self, d):
-        super(BoxLibgroupsStatus, self).update_params(d)
-        libgroup_id = d['libgroup_id'] and '"%s"' % d['libgroup_id'] or 'null'
-        d['update_condition'] = 'msg.ob.parent_id==%s' % libgroup_id
+#class BoxLibgroupsStatus(LiveBox):
+#    """Libgroup status livebox."""
+#    params = ['libgroup_id']
+#    container_class = 'statusbox'
+#    update_topic = notifications.TOPIC_LIBGROUPS
+#    show_update = False
+#    
+#    link = Link(dest=url('/libgroup/%(proj_id)s/%(id)s'),
+#        children=[
+#          StatusIcon(id='status', help_text='%(name)s: %(status)s')
+#    ])
+#    
+#    def update_params(self, d):
+#        super(BoxLibgroupsStatus, self).update_params(d)
+#        libgroup_id = d['libgroup_id'] and '"%s"' % d['libgroup_id'] or 'null'
+#        d['update_condition'] = 'msg.ob.parent_id==%s' % libgroup_id
 
 
-class BoxCategoriesStatus(LiveBox):
-    """Asset categories status livebox."""
-    params = ['container_id']
-    javascript = [statusbox_js]
-    container_class = 'statusbox'
-    update_topic = notifications.TOPIC_ASSETS
-    update_functions = ('{"added": add_categories,'
-                        ' "deleted": delete_categories,'
-                        ' "updated": update_categories}')
-    show_update = False
-    
-    category = Link(
-          dest='#/asset/%(proj_id)s/%(container_type)s/%(container_id)s',
-          children=[
-            StatusIcon(id='status', help_text='%(name)s: %(status)s')
-    ])
-    
-    def update_params(self, d):
-        super(BoxCategoriesStatus, self).update_params(d)
-        d['update_condition'] = 'msg.ob.parent_id=="%s"' % d['container_id']
+#class BoxCategoriesStatus(LiveBox):
+#    """Asset categories status livebox."""
+#    params = ['container_id']
+#    javascript = [statusbox_js]
+#    container_class = 'statusbox'
+#    update_topic = notifications.TOPIC_ASSETS
+#    update_functions = ('{"added": add_categories,'
+#                        ' "deleted": delete_categories,'
+#                        ' "updated": update_categories}')
+#    show_update = False
+#    
+#    category = Link(
+#          dest='#/asset/%(proj_id)s/%(container_type)s/%(container_id)s',
+#          children=[
+#            StatusIcon(id='status', help_text='%(name)s: %(status)s')
+#    ])
+#    
+#    def update_params(self, d):
+#        super(BoxCategoriesStatus, self).update_params(d)
+#        d['update_condition'] = 'msg.ob.parent_id=="%s"' % d['container_id']
 
 
-class BoxStatus(LiveBox):
-    """Category status livebox."""
-    params = ['container_id', 'category_id']
-    javascript = [statusbox_js]
-    container_class = 'statusbox'
-    update_topic = notifications.TOPIC_ASSETS
-    update_functions = ('{"added": add_categories,'
-                        ' "deleted": delete_categories,'
-                        ' "updated": update_categories}')
-    show_update = False
-    
-    status = StatusIcon(help_text='%(name)s: %(status)s')
-    
-    def update_params(self, d):
-        super(BoxStatus, self).update_params(d)
-        d['update_condition'] = ('msg.ob.parent_id=="%s" && '
-            'msg.ob.category.id=="%s"' % (d['container_id'], d['category_id']))
+#class BoxStatus(LiveBox):
+#    """Category status livebox."""
+#    params = ['container_id', 'category_id']
+#    javascript = [statusbox_js]
+#    container_class = 'statusbox'
+#    update_topic = notifications.TOPIC_ASSETS
+#    update_functions = ('{"added": add_categories,'
+#                        ' "deleted": delete_categories,'
+#                        ' "updated": update_categories}')
+#    show_update = False
+#    
+#    status = StatusIcon(help_text='%(name)s: %(status)s')
+#    
+#    def update_params(self, d):
+#        super(BoxStatus, self).update_params(d)
+#        d['update_condition'] = ('msg.ob.parent_id=="%s" && '
+#            'msg.ob.category.id=="%s"' % (d['container_id'], d['category_id']))
 
 
 ############################################################

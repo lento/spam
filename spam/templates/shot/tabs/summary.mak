@@ -20,9 +20,9 @@
 <%inherit file="spam.templates.tab"/>
 
 <h2>${_('assets')}</h2>
-${c.b_categories_status(id="status_%s" % c.shot.id, items=c.shot.categories,
-                    container_id=c.shot.id, extra_data=cat_extra_data,
-                    update_listener_adder="notify.add_listener_tab") | n}
+##${c.b_categories_status(id="status_%s" % c.shot.id, items=c.shot.categories,
+##                    container_id=c.shot.id, extra_data=cat_extra_data,
+##                    update_listener_adder="notify.add_listener_tab") | n}
 <br/>
 <br/>
 
@@ -31,10 +31,10 @@ ${c.b_categories_status(id="status_%s" % c.shot.id, items=c.shot.categories,
 <a href="${tg.url('/tag/%s/new' % c.shot.id)}"
    rel="#overlay" class="overlay button">add tags</a>
 % endif
-${c.b_tags(id="taglist", items=c.shot.tags,
-                    taggable_id=c.shot.taggable.id,
-                    extra_data=tag_extra_data,
-                    update_listener_adder="notify.add_listener_tab") | n}
+##${c.b_tags(id="taglist", items=c.shot.tags,
+##                    taggable_id=c.shot.taggable.id,
+##                    extra_data=tag_extra_data,
+##                    update_listener_adder="notify.add_listener_tab") | n}
 <br/>
 <br/>
 

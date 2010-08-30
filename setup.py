@@ -18,9 +18,6 @@ setup(
     install_requires=[
         "TurboGears2 >= 2.1b2",
         "Babel >=0.9.4",
-        #can be removed if use_toscawidgets = False
-        "toscawidgets >= 0.9.7.1",
-        "tw.forms >= 0.9.7.1",
         "tw2.core",
         "tw2.forms",
         "tw2.dynforms",

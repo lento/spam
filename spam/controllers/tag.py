@@ -25,7 +25,7 @@ from tg.controllers import RestController
 from pylons.i18n import ugettext as _, lazy_ugettext as l_
 from spam.model import session_get, taggable_get, tag_get, Tag
 from spam.lib.widgets import FormTagNew, FormTagConfirm, FormTagRemove
-from spam.lib.widgets import BoxTags
+#from spam.lib.widgets import BoxTags
 from spam.lib.notifications import notify
 from spam.lib.journaling import journal
 from repoze.what.predicates import in_group
@@ -39,7 +39,7 @@ f_confirm = FormTagConfirm(action=url('/tag/'))
 f_remove = FormTagRemove(action=url('/tag/'))
 
 # live widgets
-b_tags = BoxTags()
+#b_tags = BoxTags()
 
 class Controller(RestController):
     """REST controller for managing tags.
@@ -53,7 +53,7 @@ class Controller(RestController):
     @expose('spam.templates.tags.get_all')
     def get_all(self, taggable_id):
         """Return a html fragment with a list of tags for this object."""
-        tmpl_context.b_tags = b_tags
+#        tmpl_context.b_tags = b_tags
         taggable = taggable_get(taggable_id)
         return dict(tags=taggable.tags)
 

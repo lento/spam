@@ -25,6 +25,7 @@
 <head>
     <meta content="text/html; charset=UTF-8" http-equiv="content-type"/>
     ${self.style()}
+    ${c.w_startup_js.display()}
 </head>
 
 <body>
