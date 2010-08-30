@@ -28,8 +28,8 @@ setup(
         "mercurial",
         "MySQL-python",
         "sqlalchemy-migrate",
+        "PasteScript >= 1.7"
                 ],
-    setup_requires=["PasteScript >= 1.7"],
     paster_plugins=['PasteScript', 'Pylons', 'TurboGears2', 'spam'],
     packages=find_packages(exclude=['ez_setup']),
     include_package_data=True,
