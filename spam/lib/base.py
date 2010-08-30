@@ -29,13 +29,6 @@ import spam.model as model
 from spam.lib.widgets import ListProjects
 from spam.lib import predicates 
 
-# Orbited
-#orbited_address = config.get('orbited_address', 'http://localhost:9000')
-
-#orbited_js = twc.JSLink(link='%s/static/Orbited.js' % orbited_address)
-#initsocket_js = twc.JSLink(link=url('/js/init_TCPSocket.js'))
-#stomp_js = twc.JSLink(link='%s/static/protocols/stomp/stomp.js' % orbited_address)
-
 # JQuery and plugins
 js_jquery_spamkit = twc.JSLink(link=url('/js/jquery.spamkit.js.gz'))
 #jquery_tablesorter_js = twc.JSLink(link=url('/js/jquery.tablesorter.js'))
@@ -88,17 +81,6 @@ class SPAMBaseController(TGController):
 
         # set the theme
         tmpl_context.theme = config.get('theme', 'default')
-
-        # load javascripts
-#        orbited_js.inject()
-#        initsocket_js.inject()
-#        stomp_js.inject()
-
-#        jquery_spamkit_js.inject()
-#        jquery_tablesorter_js.inject()
-
-#        spam_js.inject()
-#        notify_client_js.inject()
 
         # widgets
         tmpl_context.w_startup_js = w_startup_js

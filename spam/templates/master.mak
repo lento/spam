@@ -25,8 +25,6 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <!-- document.domain is needed by orbited for cross-port deployment
-    <script> document.domain = document.domain; </script>-->
     ${self.meta()}
     ${c.w_startup_js.display()}
     <title>${self.title()}</title>
@@ -37,9 +35,6 @@
         spam_init("${tg.url('/')}");
         spam.sidebar_set_active("${sidebar and sidebar[0] or ''}",
                                 "${sidebar and sidebar[1] or ''}");
-
-        notify_init("${tg.config.get('stomp_host', 'localhost')}",
-                    ${tg.config.get('stomp_port', '61613')});
     });
     </script>
 </head>

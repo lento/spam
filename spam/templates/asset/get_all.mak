@@ -49,22 +49,22 @@
     </div>
 % endfor
 
-<script type="text/javascript">
-    spam.temp.reload_tab = function() {
-        $(".pane.ajax").load("${tg.url('/asset/%s/%s/%s/' % (c.project.id, container_type, container_id))}");
-    }
-    spam.temp.current_categories = [];
-    % for cat in container.categories:
-        spam.temp.current_categories.push("${cat.id}");
-    % endfor
-    
-    $(function() {
-        notify.add_listener_tab("/topic/assets", function(msg) {
-            if ($.inArray(msg.ob.category.id, spam.temp.current_categories)<0) {
-                spam.temp.current_categories.push(msg.ob.category.id);
-                spam.temp.reload_tab();
-            }
-        })
-    });
-</script>
+##<script type="text/javascript">
+##    spam.temp.reload_tab = function() {
+##        $(".pane.ajax").load("${tg.url('/asset/%s/%s/%s/' % (c.project.id, container_type, container_id))}");
+##    }
+##    spam.temp.current_categories = [];
+##    % for cat in container.categories:
+##        spam.temp.current_categories.push("${cat.id}");
+##    % endfor
+##    
+##    $(function() {
+##        notify.add_listener_tab("/topic/assets", function(msg) {
+##            if ($.inArray(msg.ob.category.id, spam.temp.current_categories)<0) {
+##                spam.temp.current_categories.push(msg.ob.category.id);
+##                spam.temp.reload_tab();
+##            }
+##        })
+##    });
+##</script>
 
