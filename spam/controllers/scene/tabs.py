@@ -32,7 +32,7 @@ from spam.lib.widgets import BoxTags, TableNotes, BoxShotsStatus
 # live widgets
 b_shots_status = BoxShotsStatus()
 b_tags = BoxTags()
-t_notes = TableNotes()
+t_notes = TableNotes(id='t_notes')
 
 class TabController(SPAMBaseController):
     """The controller for scene tabs."""
@@ -54,10 +54,11 @@ class TabController(SPAMBaseController):
         scene = tmpl_context.scene
         tmpl_context.b_shots_status = b_shots_status
         tmpl_context.b_tags = b_tags
-        tmpl_context.t_notes = t_notes
         tag_extra_data = dict(taggable_id=scene.id, user_id=user.user_id,
                                                                 project=project)
-        note_extra_data = dict(user_id=user.user_id)
-        return dict(tag_extra_data=tag_extra_data,
-                                                note_extra_data=note_extra_data)
+        t_notes.value = scene.notes
+        t_notes.update_filter = scene.annotable.id
+        t_notes.extra_data = dict(proj=project.id, user_id=user.user_id)
+        tmpl_context.t_notes = t_notes
+        return dict(tag_extra_data=tag_extra_data)
 

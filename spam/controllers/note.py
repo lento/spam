@@ -26,7 +26,7 @@ from pylons.i18n import ugettext as _, lazy_ugettext as l_
 from spam.model import session_get, annotable_get, note_get, Note, AssetVersion
 from spam.lib.widgets import FormNoteNew, FormNoteConfirm
 from spam.lib.widgets import TableNotes
-from spam.lib.notifications import notify
+from spam.lib.notifications import notify, TOPIC_NOTES, TOPICS
 from repoze.what.predicates import in_group
 from spam.lib.decorators import project_set_active
 from spam.lib.predicates import is_project_user, is_project_admin
@@ -35,11 +35,11 @@ import logging
 log = logging.getLogger(__name__)
 
 # form widgets
-f_new = FormNoteNew(action=url('/note/'))
-f_confirm = FormNoteConfirm(action=url('/note/'))
+f_new = FormNoteNew(action=url('/note'))
+f_confirm = FormNoteConfirm(action=url('/note'))
 
 # live widgets
-t_notes = TableNotes()
+t_notes = TableNotes(id='t_notes')
 
 class Controller(RestController):
     """REST controller for managing notes.
@@ -55,9 +55,12 @@ class Controller(RestController):
     @expose('spam.templates.notes.get_all')
     def get_all(self, proj, annotable_id):
         """Return a html fragment with a list of notes for this object."""
-        tmpl_context.t_notes = t_notes
         annotable = annotable_get(annotable_id)
-        return dict(notes=annotable.notes, annotable_id=annotable.id)
+        t_notes.value = annotable.notes
+        t_notes.update_filter = annotable.id
+        t_notes.extra_data = dict(proj=tmpl_context.project.id)
+        tmpl_context.t_notes = t_notes
+        return dict()
 
     @project_set_active
     @require(is_project_user())
@@ -90,7 +93,7 @@ class Controller(RestController):
         
         f_new.value = dict(proj=project.id, annotable_id=annotable.id)
         tmpl_context.form = f_new
-        return dict(title='%s %s' % (_('Add a note to'),
+        return dict(title='%s %s' % (_('Add a note to:'),
                                                     annotable.annotated.path))
     
     @project_set_active
@@ -104,18 +107,22 @@ class Controller(RestController):
         user = tmpl_context.user
         annotable = annotable_get(annotable_id)
         ob = annotable.annotated
-        
+
         note = Note(user, text)
         annotable.notes.append(note)
         session.refresh(annotable)
-        
-        notify.send(note, update_type='added', annotable_id=ob.annotable.id)
+
+        msg = '%s %s' % (_('Added note to:'), annotable.annotated.path)
+
+        updates = [dict(item=note, type='added', topic=TOPIC_NOTES,
+                                                        filter=ob.annotable.id)]
         if isinstance(ob, AssetVersion):
-            notify.send(ob.asset)
+            updates.append(dict(item=ob.asset, topic=TOPIC_ASSETS))
         else:
-            notify.send(ob)
-        return dict(msg='added note to "%s"' % annotable.annotated.path,
-                                                    result='success', note=note)
+            updates.append(dict(item=ob, topic=TOPICS[ob.__class__]))
+        notify.send(updates)
+
+        return dict(msg=msg, status='ok', updates=updates)
     
     @project_set_active
     @require(is_project_admin())
@@ -129,8 +136,8 @@ class Controller(RestController):
                                note_id=note.id,
                                text_=note.text)
         tmpl_context.form = f_confirm
-        return dict(title='%s %s?' % (_('Are you sure you want to delete note'),
-                                                                    note.id))
+        return dict(title='%s %s?' % (
+                        _('Are you sure you want to delete note:'), note.id))
 
     @project_set_active
     @require(is_project_admin())
@@ -146,12 +153,17 @@ class Controller(RestController):
         session.delete(note)
         session.refresh(ob.annotable)
         
-        notify.send(note, update_type='deleted', annotable_id=ob.annotable.id)
+        msg = '%s %s' % (_('Deleted note:'), note.id)
+
+        updates = [dict(item=note, type='deleted', topic=TOPIC_NOTES,
+                                                        filter=ob.annotable.id)]
         if isinstance(ob, AssetVersion):
-            notify.send(ob.asset)
+            updates.append(dict(item=ob.asset, topic=TOPIC_ASSETS))
         else:
-            notify.send(ob)
-        return dict(msg='deleted note "%s"' % note.id, result='success')
+            updates.append(dict(item=ob, topic=TOPICS[ob.__class__]))
+        notify.send(updates)
+
+        return dict(msg=msg, status='ok', updates=updates)
     
     # Custom REST-like actions
     _custom_actions = ['pin', 'unpin']
@@ -159,37 +171,55 @@ class Controller(RestController):
     @project_set_active
     @require(is_project_admin())
     @expose('json')
-    @expose('spam.templates.forms.result')
     @validate(f_confirm)
     def pin(self, proj, note_id):
         """Pin a note."""
         session = session_get()
         note = note_get(note_id)
         ob = note.annotated
-        
+
+        if note.sticky:
+            msg = '%s %s' % (_('Note is already pinned:'), note.id)
+            return dict(msg=msg, status='info', updates=[])
+
         note.sticky = True
         session.refresh(ob.annotable)
-        
-        notify.send(note, update_type='updated', annotable_id=ob.annotable.id)
-        notify.send(ob)
-        return dict(msg='pinned note "%s"' % note.id, result='success')
+
+        msg = '%s %s' % (_('Pinned note:'), note.id)
+
+        updates = [
+            dict(item=note, topic=TOPIC_NOTES, filter=ob.annotable.id),
+            dict(item=ob, topic=TOPICS[ob.__class__]),
+            ]
+        notify.send(updates)
+
+        return dict(msg=msg, status='ok', updates=updates)
     
     @project_set_active
     @require(is_project_admin())
     @expose('json')
-    @expose('spam.templates.forms.result')
     @validate(f_confirm)
     def unpin(self, proj, note_id):
         """Un-pin a note."""
         session = session_get()
         note = note_get(note_id)
         ob = note.annotated
-        
+
+        if not note.sticky:
+            msg = '%s %s' % (_('Note is not pinned:'), note.id)
+            return dict(msg=msg, status='info', updates=[])
+
         note.sticky = False
         session.refresh(ob.annotable)
-        
-        notify.send(note, update_type='updated', annotable_id=ob.annotable.id)
-        notify.send(ob)
-        return dict(msg='un-pinned note "%s"' % note.id, result='success')
+
+        msg = '%s %s' % (_('Un-pinned note:'), note.id)
+
+        updates = [
+            dict(item=note, topic=TOPIC_NOTES, filter=ob.annotable.id),
+            dict(item=ob, topic=TOPICS[ob.__class__]),
+            ]
+        notify.send(updates)
+
+        return dict(msg=msg, status='ok', updates=updates)
     
 

@@ -675,7 +675,6 @@ class TableJournal(twl.LiveTable):
 
 class TableNotes(twl.LiveTable):
     """Note livetable."""
-    annotable_id = twc.Param('Annotable id', default='')
     update_topic = notifications.TOPIC_NOTES
     show_headers = False
     user_name = twl.Text(
@@ -695,7 +694,7 @@ class TableNotes(twl.LiveTable):
         children=[
             twl.Button(id='pin',
                 condition='!data.sticky',
-                action=url('/note/%(id)s/pin'),
+                action=url('/note/%(proj)s/%(id)s/pin'),
                 children=[
                     twl.Icon(id='pin',
                         icon_class='icon_pin',
@@ -703,17 +702,22 @@ class TableNotes(twl.LiveTable):
             ]),
             twl.Button(id='unpin',
                 condition='data.sticky',
-                action=url('/note/%(id)s/unpin'),
+                action=url('/note/%(proj)s/%(id)s/unpin'),
                 children=[
                     twl.Icon(id='unpin',
                         icon_class='icon_unpin',
                         help_text='un-pin note'),
-          ]),
+            ]),
+            twl.Button(id='delete',
+                condition='$.inArray(data.user_id, data.project.admin_ids)>=0',
+                action=url('/note/%(proj)s/%(id)s/delete'),
+                dialog=True,
+                children=[
+                    twl.Icon(id='delete',
+                        icon_class='icon_delete',
+                        help_text='delete'),
+            ]),
     ])
-    
-    def prepare(self):
-        super(TableNotes, self).prepare()
-        self.update_condition = 'msg.annotable_id=="%s"' % self.annotable_id
 
 
 ############################################################

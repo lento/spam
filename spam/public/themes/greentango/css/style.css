@@ -485,7 +485,7 @@ th {
 
 
 /****************************************
- * Flash
+ * Flash and Notifications
  ****************************************/
 #flash, #notify {
     position: relative;
@@ -513,8 +513,9 @@ th {
     -webkit-border-radius: 0 0 10px 10px;
 }
 
-#flash .error #notify .error {
+#flash .error, #notify .error {
     background:#ef2929 url(../images/error.png) no-repeat scroll 10px center; /* Scarlet Red 1 */
+    color: #f6f6f4; /* Aluminium 0 */
     -moz-border-radius: 0 0 10px 10px;
     -webkit-border-radius: 0 0 10px 10px;
 }

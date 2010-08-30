@@ -97,6 +97,49 @@ spam_init = function (cookiebase) {
 
 
     /****************************************
+     * tw2.livewidgets
+     ****************************************/
+    if (typeof(lw)!='undefined') {
+        spam.widget_update = lw.update;
+    } else {
+        spam.widget_update = function() {};
+    }
+
+
+    /****************************************
+     * Actions
+     ****************************************/
+    spam.action = function(target, formdata) {
+        formdata = typeof(formdata)!='undefined' ? formdata : null;
+        var xhr = new XMLHttpRequest();
+        var method = formdata ? "POST" : "GET"
+        xhr.open(method, target, false);
+        xhr.send(formdata);
+        if (xhr.status == 200 || xhr.status == 0) {
+            if (xhr.getResponseHeader("Content-Type") == 'application/json; charset=utf-8') {
+                var result = JSON.parse(xhr.responseText);
+                $.each(result.updates, function() {
+                    var topic = this.topic;
+                    var item = this.item;
+                    var type = this.type!=null ? this.type : 'updated';
+                    var show_updates = this.show_updates!=null ? this.show_updates : true;
+                    var extra_data = this.extra_data!=null ? this.extra_data : {};
+                    var filter = this.filter!=null ? this.filter : '';
+                    spam.widget_update(topic, type, item, show_updates, extra_data, filter);
+                });
+                spam.notify(result.msg, result.status);
+                return {'status':'ok', 'xhr': xhr};
+            } else {
+                return {'status':'notjson', 'xhr': xhr};
+            }
+        } else {
+            spam.notify(xhr.statusText, 'error');
+            return {'status':'error', 'xhr': xhr};
+        }
+    }
+
+
+    /****************************************
      * Dialog
      ****************************************/
 	spam.dialog_load = function(elem) {
@@ -120,14 +163,24 @@ spam_init = function (cookiebase) {
         });
     }
 
+    spam.submit_dialog = function(form) {
+        $(form).addClass("loading");
+        $("#submit", form).attr("disabled", "disabled");
+        var target = $(form).attr("action") + '.json';
+        var formdata = form.getFormData();
+        var result = spam.action(target, formdata);
+        $(form).removeClass("loading");
+        $("#submit", form).removeAttr("disabled");
 
-    /****************************************
-     * tw2.livewidgets
-     ****************************************/
-    if (typeof(lw)!='undefined') {
-        spam.widget_update = lw.update;
-    } else {
-        spam.widget_update = function() {};
+        if (result.status=='ok') {
+            $("#dialog").dialog("destroy");
+        } else if (result.status=='notjson') {
+            $("#dialog").hide().html(xhr.responseText);
+            $("#dialog h1").hide();
+            $("#dialog").fadeIn();
+        } else {
+            $("#dialog").dialog("destroy");
+        }
     }
 
 
@@ -144,7 +197,13 @@ spam_init = function (cookiebase) {
             }, 2500);
         });
 
-	    /* instrument dialog */
+	    /* instrument action buttons */
+	    $(".action").live("click", function(e) {
+	        spam.action($(this).attr("href"));
+	        return false;
+        });
+
+	    /* instrument dialog buttons */
 	    $(".dialog").live("click", function(e) {
 	        spam.dialog_load(this);
 	        return false;

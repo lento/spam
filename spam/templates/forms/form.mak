@@ -18,42 +18,6 @@
 ##
 
 <script type="text/javascript">
-    spam.submit_dialog = function(form) {
-        $(form).addClass("loading");
-        $("#submit", form).attr("disabled", "disabled");
-        var action = $(form).attr("action") + '.json';
-        var xhr = new XMLHttpRequest();
-        xhr.open("POST", action, false);
-        xhr.send(form.getFormData());
-        $(form).removeClass("loading");
-        $("#submit", form).removeAttr("disabled");
-        if (xhr.status == 200) {
-            if (xhr.getResponseHeader("Content-Type") == 'application/json; charset=utf-8') {
-                var result = JSON.parse(xhr.responseText);
-                $.each(result.updates, function() {
-                    var topic = this.topic;
-                    var item = this.item;
-                    var type = this.type!=null ? this.type : 'updated';
-                    var show_updates = this.show_updates!=null ? this.show_updates : true;
-                    var extra_data = this.extra_data!=null ? this.extra_data : {};
-                    var filter = this.filter!=null ? this.filter : '';
-                    spam.widget_update(topic, type, item, show_updates, extra_data, filter);
-                });
-                spam.notify(result.msg, result.status);
-                $("#dialog").dialog("destroy");
-            } else if (xhr.getResponseHeader("Content-Type") == 'text/html; charset=utf-8') {
-                console.log(xhr.getResponseHeader("Content-Type"));
-                $("#dialog").hide().html(xhr.responseText);
-                $("#dialog h1").hide();
-                $("#dialog").fadeIn();
-            } else {
-                spam.notify('error', 'error');
-            }
-        } else {
-            spam.notify(xhr.statusText, 'error');
-        }
-    }
-
     $(function() {
         $("#dialog form").bind("submit", function() {
             spam.submit_dialog(this);
