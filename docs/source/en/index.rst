@@ -1,5 +1,3 @@
-.. SPAM documentation master file.
-
 Welcome to SPAM's documentation!
 ================================
 
@@ -8,15 +6,18 @@ The *Spark Project & Asset Manager* is a web application originally developed at
 production workflow of a 3d animation or VFX pipeline.
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
     
-   en/index
-   it/index
+   basics
+   artists
+   administrators
+   developers
    
 Indices and tables
-==================
+------------------
 
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
 
