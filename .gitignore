@@ -11,9 +11,6 @@
 # backup files
 *~
 
-# built docs
-docs/build/
-
 # turbogears local files
 data/
 development_*.ini
