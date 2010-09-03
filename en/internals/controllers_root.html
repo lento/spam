@@ -1,0 +1,152 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>root &mdash; SPAM v0.3dev documentation</title>
+    <link rel="stylesheet" href="../../static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.3dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../static/jquery.js"></script>
+    <script type="text/javascript" src="../../static/underscore.js"></script>
+    <script type="text/javascript" src="../../static/doctools.js"></script>
+    <link rel="top" title="SPAM v0.3dev documentation" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">SPAM v0.3dev documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-spam.controllers.root">
+<span id="root"></span><h1><tt class="xref py py-mod docutils literal"><span class="pre">root</span></tt><a class="headerlink" href="#module-spam.controllers.root" title="Permalink to this headline">¶</a></h1>
+<p>Main Controller</p>
+<dl class="class">
+<dt id="spam.controllers.root.RootController">
+<em class="property">class </em><tt class="descclassname">spam.controllers.root.</tt><tt class="descname">RootController</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#spam.controllers.root.RootController" title="Permalink to this definition">¶</a></dt>
+<dd><p>The root controller for the SPAM application.</p>
+<p>It manages login and logout, parsed javascripts and upload-to/download-from
+the projects repository.
+All other functionalities are mounted as subcontrollers.</p>
+<dl class="method">
+<dt id="spam.controllers.root.RootController.index">
+<tt class="descname">index</tt><big>(</big><big>)</big><a class="headerlink" href="#spam.controllers.root.RootController.index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Redirect to the user home.</p>
+<p>If no user is logged in it will fire up the login form.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spam.controllers.root.RootController.login">
+<tt class="descname">login</tt><big>(</big><em>came_from='/'</em><big>)</big><a class="headerlink" href="#spam.controllers.root.RootController.login" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start the user login.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spam.controllers.root.RootController.post_login">
+<tt class="descname">post_login</tt><big>(</big><em>came_from='/'</em><big>)</big><a class="headerlink" href="#spam.controllers.root.RootController.post_login" title="Permalink to this definition">¶</a></dt>
+<dd><p>Redirect the user to the initially requested page on successful
+authentication or redirect her back to the login page if login failed.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spam.controllers.root.RootController.post_logout">
+<tt class="descname">post_logout</tt><big>(</big><em>came_from='/'</em><big>)</big><a class="headerlink" href="#spam.controllers.root.RootController.post_logout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Redirect the user to the initially requested page on logout and say
+goodbye as well.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spam.controllers.root.RootController.repo">
+<tt class="descname">repo</tt><big>(</big><em>*args</em><big>)</big><a class="headerlink" href="#spam.controllers.root.RootController.repo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a file from the repository. We retrive file like that instead of
+serving them statically so we can use authorization (a project file can
+only be requested by a valid project user).</p>
+<p>The path for the projects repository can be configured in the .ini file
+with the &#8220;repository&#8221; variable.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spam.controllers.root.RootController.upload">
+<tt class="descname">upload</tt><big>(</big><em>uploadfile</em>, <em>uploader=None</em><big>)</big><a class="headerlink" href="#spam.controllers.root.RootController.upload" title="Permalink to this definition">¶</a></dt>
+<dd><p>Upload a file (or a list of files) to a temporary storage area as a
+first step for publishing an asset. The file can then be moved to the
+repository and versioned with the asset controller&#8217;s &#8220;publish&#8221; method.</p>
+<p>The path for this storage area can be configured in the .ini file with
+the &#8220;upload_dir&#8221; variable.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../../sources/en/internals/controllers_root.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">SPAM v0.3dev documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Lorenzo Pierfederici.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.3.
+    </div>
+  </body>
+</html>

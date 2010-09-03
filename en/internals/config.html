@@ -1,0 +1,158 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>WSGI Configuration &mdash; SPAM v0.3dev documentation</title>
+    <link rel="stylesheet" href="../../static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.3dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../static/jquery.js"></script>
+    <script type="text/javascript" src="../../static/underscore.js"></script>
+    <script type="text/javascript" src="../../static/doctools.js"></script>
+    <link rel="top" title="SPAM v0.3dev documentation" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">SPAM v0.3dev documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="wsgi-configuration">
+<h1>WSGI Configuration<a class="headerlink" href="#wsgi-configuration" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-spam.config.app_cfg">
+<span id="app-cfg"></span><h2><cite>app_cfg</cite><a class="headerlink" href="#module-spam.config.app_cfg" title="Permalink to this headline">¶</a></h2>
+<p>Global configuration file for TG2-specific settings in SPAM.</p>
+<p>This file complements development/deployment.ini.</p>
+<p>Please note that <strong>all the argument values are strings</strong>. If you want to
+convert them into boolean, for example, you should use the
+<tt class="xref py py-func docutils literal"><span class="pre">paste.deploy.converters.asbool()</span></tt> function, as in:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">paste.deploy.converters</span> <span class="kn">import</span> <span class="n">asbool</span>
+<span class="n">setting</span> <span class="o">=</span> <span class="n">asbool</span><span class="p">(</span><span class="n">global_conf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;the_setting&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="module-spam.config.environment">
+<span id="environment"></span><h2><cite>environment</cite><a class="headerlink" href="#module-spam.config.environment" title="Permalink to this headline">¶</a></h2>
+<p>WSGI environment setup for SPAM.</p>
+<dl class="function">
+<dt id="spam.config.environment.load_environment">
+<tt class="descclassname">spam.config.environment.</tt><tt class="descname">load_environment</tt><big>(</big><em>global_conf</em>, <em>app_conf</em><big>)</big><a class="headerlink" href="#spam.config.environment.load_environment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Configure the Pylons environment via <tt class="docutils literal"><span class="pre">pylons.configuration.config</span></tt>.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-spam.config.middleware">
+<span id="middleware"></span><h2><cite>middleware</cite><a class="headerlink" href="#module-spam.config.middleware" title="Permalink to this headline">¶</a></h2>
+<p>WSGI middleware initialization for the SPAM application.</p>
+<dl class="function">
+<dt id="spam.config.middleware.make_app">
+<tt class="descclassname">spam.config.middleware.</tt><tt class="descname">make_app</tt><big>(</big><em>global_conf</em>, <em>full_stack=True</em>, <em>**app_conf</em><big>)</big><a class="headerlink" href="#spam.config.middleware.make_app" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set SPAM up with the settings found in the PasteDeploy configuration
+file used.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>global_conf</strong> (<em>dict</em>) &#8211; The global settings for spam (those
+defined under the <tt class="docutils literal"><span class="pre">[DEFAULT]</span></tt> section).</li>
+<li><strong>full_stack</strong> (<em>str or bool</em>) &#8211; Should the whole TG2 stack be set up?</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The spam application with all the relevant middleware
+loaded.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>This is the PasteDeploy factory for the spam application.</p>
+<p><tt class="docutils literal"><span class="pre">app_conf</span></tt> contains all the application-specific settings (those defined
+under <tt class="docutils literal"><span class="pre">[app:main]</span></tt>.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">WSGI Configuration</a><ul>
+<li><a class="reference internal" href="#module-spam.config.app_cfg"><cite>app_cfg</cite></a></li>
+<li><a class="reference internal" href="#module-spam.config.environment"><cite>environment</cite></a></li>
+<li><a class="reference internal" href="#module-spam.config.middleware"><cite>middleware</cite></a></li>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../../sources/en/internals/config.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">SPAM v0.3dev documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Lorenzo Pierfederici.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.3.
+    </div>
+  </body>
+</html>

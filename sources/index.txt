@@ -8,16 +8,10 @@ The *Spark Project & Asset Manager* is a web application originally developed at
 production workflow of a 3d animation or VFX pipeline.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
     
-   deploy
-   admin
-   projects
-   assets
-   
-   internals
-   
-   spamclient
+   en/index
+   it/index
    
 Indices and tables
 ==================
