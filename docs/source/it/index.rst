@@ -7,12 +7,13 @@ flusso di produzione di una pipeline per l'animazione 3d o gli effetti visivi.
 
 .. toctree::
    :maxdepth: 2
-    
+
    basics
    artists
+   supervisors
    administrators
    developers
-   
+
 Indici e tavole
 ---------------
 
