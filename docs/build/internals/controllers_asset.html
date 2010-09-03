@@ -1,0 +1,297 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>asset &mdash; SPAM v0.3dev documentation</title>
+    <link rel="stylesheet" href="../static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.3dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../static/jquery.js"></script>
+    <script type="text/javascript" src="../static/underscore.js"></script>
+    <script type="text/javascript" src="../static/doctools.js"></script>
+    <link rel="top" title="SPAM v0.3dev documentation" href="../index.html" />
+    <link rel="up" title="Controllers" href="controllers.html" />
+    <link rel="next" title="tag" href="controllers_tag.html" />
+    <link rel="prev" title="shot" href="controllers_shot.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="controllers_tag.html" title="tag"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="controllers_shot.html" title="shot"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">SPAM v0.3dev documentation</a> &raquo;</li>
+          <li><a href="../internals.html" >SPAM internals</a> &raquo;</li>
+          <li><a href="controllers.html" accesskey="U">Controllers</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="asset">
+<h1><tt class="xref py py-mod docutils literal"><span class="pre">asset</span></tt><a class="headerlink" href="#asset" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-spam.controllers.asset.main">
+<span id="main"></span><h2><cite>main</cite><a class="headerlink" href="#module-spam.controllers.asset.main" title="Permalink to this headline">¶</a></h2>
+<p>Asset controller</p>
+<dl class="class">
+<dt id="spam.controllers.asset.main.Controller">
+<em class="property">class </em><tt class="descclassname">spam.controllers.asset.main.</tt><tt class="descname">Controller</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#spam.controllers.asset.main.Controller" title="Permalink to this definition">¶</a></dt>
+<dd><p>REST controller for managing assets.</p>
+<p>In addition to the standard REST verbs this controller defines the following
+REST-like methods:</p>
+<blockquote>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">checkout</span></tt>  (<a class="reference internal" href="#spam.controllers.asset.main.Controller.checkout" title="spam.controllers.asset.main.Controller.checkout"><tt class="xref py py-meth docutils literal"><span class="pre">checkout()</span></tt></a>)</li>
+<li><tt class="docutils literal"><span class="pre">release</span></tt> (<a class="reference internal" href="#spam.controllers.asset.main.Controller.release" title="spam.controllers.asset.main.Controller.release"><tt class="xref py py-meth docutils literal"><span class="pre">release()</span></tt></a>)</li>
+<li><tt class="docutils literal"><span class="pre">publish</span></tt>  (<a class="reference internal" href="#spam.controllers.asset.main.Controller.get_publish" title="spam.controllers.asset.main.Controller.get_publish"><tt class="xref py py-meth docutils literal"><span class="pre">get_publish()</span></tt></a>, <a class="reference internal" href="#spam.controllers.asset.main.Controller.post_publish" title="spam.controllers.asset.main.Controller.post_publish"><tt class="xref py py-meth docutils literal"><span class="pre">post_publish()</span></tt></a>)</li>
+<li><tt class="docutils literal"><span class="pre">submit</span></tt>  (<a class="reference internal" href="#spam.controllers.asset.main.Controller.get_submit" title="spam.controllers.asset.main.Controller.get_submit"><tt class="xref py py-meth docutils literal"><span class="pre">get_submit()</span></tt></a>, <a class="reference internal" href="#spam.controllers.asset.main.Controller.post_submit" title="spam.controllers.asset.main.Controller.post_submit"><tt class="xref py py-meth docutils literal"><span class="pre">post_submit()</span></tt></a>)</li>
+<li><tt class="docutils literal"><span class="pre">recall</span></tt>  (<a class="reference internal" href="#spam.controllers.asset.main.Controller.get_recall" title="spam.controllers.asset.main.Controller.get_recall"><tt class="xref py py-meth docutils literal"><span class="pre">get_recall()</span></tt></a>, <a class="reference internal" href="#spam.controllers.asset.main.Controller.post_recall" title="spam.controllers.asset.main.Controller.post_recall"><tt class="xref py py-meth docutils literal"><span class="pre">post_recall()</span></tt></a>)</li>
+<li><tt class="docutils literal"><span class="pre">sendback</span></tt>  (<a class="reference internal" href="#spam.controllers.asset.main.Controller.get_sendback" title="spam.controllers.asset.main.Controller.get_sendback"><tt class="xref py py-meth docutils literal"><span class="pre">get_sendback()</span></tt></a>, <a class="reference internal" href="#spam.controllers.asset.main.Controller.post_sendback" title="spam.controllers.asset.main.Controller.post_sendback"><tt class="xref py py-meth docutils literal"><span class="pre">post_sendback()</span></tt></a>)</li>
+<li><tt class="docutils literal"><span class="pre">approve</span></tt>  (<a class="reference internal" href="#spam.controllers.asset.main.Controller.get_approve" title="spam.controllers.asset.main.Controller.get_approve"><tt class="xref py py-meth docutils literal"><span class="pre">get_approve()</span></tt></a>, <a class="reference internal" href="#spam.controllers.asset.main.Controller.post_approve" title="spam.controllers.asset.main.Controller.post_approve"><tt class="xref py py-meth docutils literal"><span class="pre">post_approve()</span></tt></a>)</li>
+<li><tt class="docutils literal"><span class="pre">revoke</span></tt>  (<a class="reference internal" href="#spam.controllers.asset.main.Controller.get_revoke" title="spam.controllers.asset.main.Controller.get_revoke"><tt class="xref py py-meth docutils literal"><span class="pre">get_revoke()</span></tt></a>, <a class="reference internal" href="#spam.controllers.asset.main.Controller.post_revoke" title="spam.controllers.asset.main.Controller.post_revoke"><tt class="xref py py-meth docutils literal"><span class="pre">post_revoke()</span></tt></a>)</li>
+<li><tt class="docutils literal"><span class="pre">download</span></tt>  (<a class="reference internal" href="#spam.controllers.asset.main.Controller.download" title="spam.controllers.asset.main.Controller.download"><tt class="xref py py-meth docutils literal"><span class="pre">download()</span></tt></a>)</li>
+</ul>
+</blockquote>
+<dl class="method">
+<dt id="spam.controllers.asset.main.Controller.checkout">
+<tt class="descname">checkout</tt><big>(</big><em>proj</em>, <em>asset_id</em><big>)</big><a class="headerlink" href="#spam.controllers.asset.main.Controller.checkout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checkout an asset.</p>
+<p>The asset will be blocked and only the current owner will be able to
+publish new versions until it is released.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spam.controllers.asset.main.Controller.download">
+<tt class="descname">download</tt><big>(</big><em>proj</em>, <em>assetver_id</em><big>)</big><a class="headerlink" href="#spam.controllers.asset.main.Controller.download" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a version of an asset from the repository as a file 
+attachment in the response body.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spam.controllers.asset.main.Controller.get_all">
+<tt class="descname">get_all</tt><big>(</big><em>proj</em>, <em>container_type</em>, <em>container_id</em><big>)</big><a class="headerlink" href="#spam.controllers.asset.main.Controller.get_all" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a <cite>tab</cite> page  with a list of all categories and a button to
+add new assets.</p>
+<dl class="docutils">
+<dt>This page is used as the <cite>assets</cite> tab in the shot and libgroup view:</dt>
+<dd><ul class="first last simple">
+<li><tt class="xref py py-meth docutils literal"><span class="pre">spam.controllers.shot.main.get_one()</span></tt></li>
+<li><tt class="xref py py-meth docutils literal"><span class="pre">spam.controllers.libgroup.main.get_one()</span></tt>.</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="spam.controllers.asset.main.Controller.get_approve">
+<tt class="descname">get_approve</tt><big>(</big><em>proj</em>, <em>asset_id</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#spam.controllers.asset.main.Controller.get_approve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Display a APPROVE form.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spam.controllers.asset.main.Controller.get_delete">
+<tt class="descname">get_delete</tt><big>(</big><em>proj</em>, <em>asset_id</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#spam.controllers.asset.main.Controller.get_delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Display a DELETE confirmation form.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spam.controllers.asset.main.Controller.get_one">
+<tt class="descname">get_one</tt><big>(</big><em>proj</em>, <em>asset_id</em><big>)</big><a class="headerlink" href="#spam.controllers.asset.main.Controller.get_one" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a <cite>standalone</cite> page with the asset history</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spam.controllers.asset.main.Controller.get_publish">
+<tt class="descname">get_publish</tt><big>(</big><em>proj</em>, <em>asset_id</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#spam.controllers.asset.main.Controller.get_publish" title="Permalink to this definition">¶</a></dt>
+<dd><p>Display a PUBLISH form.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spam.controllers.asset.main.Controller.get_recall">
+<tt class="descname">get_recall</tt><big>(</big><em>proj</em>, <em>asset_id</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#spam.controllers.asset.main.Controller.get_recall" title="Permalink to this definition">¶</a></dt>
+<dd><p>Display a RECALL form.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spam.controllers.asset.main.Controller.get_revoke">
+<tt class="descname">get_revoke</tt><big>(</big><em>proj</em>, <em>asset_id</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#spam.controllers.asset.main.Controller.get_revoke" title="Permalink to this definition">¶</a></dt>
+<dd><p>Display a REVOKE form.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spam.controllers.asset.main.Controller.get_sendback">
+<tt class="descname">get_sendback</tt><big>(</big><em>proj</em>, <em>asset_id</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#spam.controllers.asset.main.Controller.get_sendback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Display a SENDBACK form.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spam.controllers.asset.main.Controller.get_submit">
+<tt class="descname">get_submit</tt><big>(</big><em>proj</em>, <em>asset_id</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#spam.controllers.asset.main.Controller.get_submit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Display a SUBMIT form.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spam.controllers.asset.main.Controller.new">
+<tt class="descname">new</tt><big>(</big><em>proj</em>, <em>container_type</em>, <em>container_id</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#spam.controllers.asset.main.Controller.new" title="Permalink to this definition">¶</a></dt>
+<dd><p>Display a NEW form.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spam.controllers.asset.main.Controller.post">
+<tt class="descname">post</tt><big>(</big><em>proj</em>, <em>container_type</em>, <em>container_id</em>, <em>category_id</em>, <em>name</em>, <em>comment=None</em><big>)</big><a class="headerlink" href="#spam.controllers.asset.main.Controller.post" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new asset</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spam.controllers.asset.main.Controller.post_approve">
+<tt class="descname">post_approve</tt><big>(</big><em>proj</em>, <em>asset_id</em>, <em>comment=None</em><big>)</big><a class="headerlink" href="#spam.controllers.asset.main.Controller.post_approve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Approve an asset submitted for approval.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spam.controllers.asset.main.Controller.post_delete">
+<tt class="descname">post_delete</tt><big>(</big><em>proj</em>, <em>asset_id</em><big>)</big><a class="headerlink" href="#spam.controllers.asset.main.Controller.post_delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete an asset.</p>
+<p>Only delete the asset record from the db, the asset file(s) must be
+removed manually.
+(This should help prevent awful accidents) ;)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spam.controllers.asset.main.Controller.post_publish">
+<tt class="descname">post_publish</tt><big>(</big><em>proj</em>, <em>asset_id</em>, <em>uploaded</em>, <em>comment=None</em>, <em>uploader=None</em><big>)</big><a class="headerlink" href="#spam.controllers.asset.main.Controller.post_publish" title="Permalink to this definition">¶</a></dt>
+<dd><p>Publish a new version of an asset.</p>
+<p>This will commit to the repo the file(s) already uploaded in a temporary
+storage area, and create a thumbnail and preview if required.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spam.controllers.asset.main.Controller.post_recall">
+<tt class="descname">post_recall</tt><big>(</big><em>proj</em>, <em>asset_id</em>, <em>comment=None</em><big>)</big><a class="headerlink" href="#spam.controllers.asset.main.Controller.post_recall" title="Permalink to this definition">¶</a></dt>
+<dd><p>Recall an asset submitted for approval.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spam.controllers.asset.main.Controller.post_revoke">
+<tt class="descname">post_revoke</tt><big>(</big><em>proj</em>, <em>asset_id</em>, <em>comment=None</em><big>)</big><a class="headerlink" href="#spam.controllers.asset.main.Controller.post_revoke" title="Permalink to this definition">¶</a></dt>
+<dd><p>Revoke approval for an asset.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spam.controllers.asset.main.Controller.post_sendback">
+<tt class="descname">post_sendback</tt><big>(</big><em>proj</em>, <em>asset_id</em>, <em>comment=None</em><big>)</big><a class="headerlink" href="#spam.controllers.asset.main.Controller.post_sendback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send back an asset for revision.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spam.controllers.asset.main.Controller.post_submit">
+<tt class="descname">post_submit</tt><big>(</big><em>proj</em>, <em>asset_id</em>, <em>comment=None</em><big>)</big><a class="headerlink" href="#spam.controllers.asset.main.Controller.post_submit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Submit an asset to supervisors for approval.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spam.controllers.asset.main.Controller.release">
+<tt class="descname">release</tt><big>(</big><em>proj</em>, <em>asset_id</em><big>)</big><a class="headerlink" href="#spam.controllers.asset.main.Controller.release" title="Permalink to this definition">¶</a></dt>
+<dd><p>Release an asset.</p>
+<p>The asset will be unblocked and available for other users to checkout.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><tt class="docutils literal"><span class="pre">asset</span></tt></a><ul>
+<li><a class="reference internal" href="#module-spam.controllers.asset.main"><cite>main</cite></a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="controllers_shot.html"
+                        title="previous chapter"><tt class="docutils literal"><span class="pre">shot</span></tt></a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="controllers_tag.html"
+                        title="next chapter"><tt class="docutils literal"><span class="pre">tag</span></tt></a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../sources/internals/controllers_asset.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="controllers_tag.html" title="tag"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="controllers_shot.html" title="shot"
+             >previous</a> |</li>
+        <li><a href="../index.html">SPAM v0.3dev documentation</a> &raquo;</li>
+          <li><a href="../internals.html" >SPAM internals</a> &raquo;</li>
+          <li><a href="controllers.html" >Controllers</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Lorenzo Pierfederici.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.3.
+    </div>
+  </body>
+</html>

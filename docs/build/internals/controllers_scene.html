@@ -1,0 +1,210 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>scene &mdash; SPAM v0.3dev documentation</title>
+    <link rel="stylesheet" href="../static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.3dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../static/jquery.js"></script>
+    <script type="text/javascript" src="../static/underscore.js"></script>
+    <script type="text/javascript" src="../static/doctools.js"></script>
+    <link rel="top" title="SPAM v0.3dev documentation" href="../index.html" />
+    <link rel="up" title="Controllers" href="controllers.html" />
+    <link rel="next" title="shot" href="controllers_shot.html" />
+    <link rel="prev" title="libgroup" href="controllers_libgroup.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="controllers_shot.html" title="shot"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="controllers_libgroup.html" title="libgroup"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">SPAM v0.3dev documentation</a> &raquo;</li>
+          <li><a href="../internals.html" >SPAM internals</a> &raquo;</li>
+          <li><a href="controllers.html" accesskey="U">Controllers</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="scene">
+<h1><tt class="xref py py-mod docutils literal"><span class="pre">scene</span></tt><a class="headerlink" href="#scene" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-spam.controllers.scene.main">
+<span id="main"></span><h2><cite>main</cite><a class="headerlink" href="#module-spam.controllers.scene.main" title="Permalink to this headline">¶</a></h2>
+<p>Scene main controller</p>
+<dl class="class">
+<dt id="spam.controllers.scene.main.Controller">
+<em class="property">class </em><tt class="descclassname">spam.controllers.scene.main.</tt><tt class="descname">Controller</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#spam.controllers.scene.main.Controller" title="Permalink to this definition">¶</a></dt>
+<dd><p>REST controller for managing scenes.</p>
+<dl class="method">
+<dt id="spam.controllers.scene.main.Controller.edit">
+<tt class="descname">edit</tt><big>(</big><em>proj</em>, <em>sc</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#spam.controllers.scene.main.Controller.edit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Display a EDIT form.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spam.controllers.scene.main.Controller.get_all">
+<tt class="descname">get_all</tt><big>(</big><em>proj</em><big>)</big><a class="headerlink" href="#spam.controllers.scene.main.Controller.get_all" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a <cite>tab</cite> page with a list of scenes for a project and a
+button to add new scenes.</p>
+<p>This page is used as the <cite>scenes</cite> tab in the project view:
+<tt class="xref py py-meth docutils literal"><span class="pre">spam.controllers.project.main.get_one()</span></tt>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spam.controllers.scene.main.Controller.get_delete">
+<tt class="descname">get_delete</tt><big>(</big><em>proj</em>, <em>sc</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#spam.controllers.scene.main.Controller.get_delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Display a DELETE confirmation form.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spam.controllers.scene.main.Controller.get_one">
+<tt class="descname">get_one</tt><big>(</big><em>proj</em>, <em>sc</em><big>)</big><a class="headerlink" href="#spam.controllers.scene.main.Controller.get_one" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a <cite>tabbed</cite> page for scene tabs.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spam.controllers.scene.main.Controller.new">
+<tt class="descname">new</tt><big>(</big><em>proj</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#spam.controllers.scene.main.Controller.new" title="Permalink to this definition">¶</a></dt>
+<dd><p>Display a NEW form.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spam.controllers.scene.main.Controller.post">
+<tt class="descname">post</tt><big>(</big><em>proj</em>, <em>sc</em>, <em>description=None</em><big>)</big><a class="headerlink" href="#spam.controllers.scene.main.Controller.post" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new scene</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spam.controllers.scene.main.Controller.post_delete">
+<tt class="descname">post_delete</tt><big>(</big><em>proj</em>, <em>sc</em><big>)</big><a class="headerlink" href="#spam.controllers.scene.main.Controller.post_delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete a scene.</p>
+<p>Only delete the scene record from the db, the scene directories must be
+removed manually.
+(This should help prevent awful accidents) ;)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="spam.controllers.scene.main.Controller.put">
+<tt class="descname">put</tt><big>(</big><em>proj</em>, <em>sc</em>, <em>description=None</em><big>)</big><a class="headerlink" href="#spam.controllers.scene.main.Controller.put" title="Permalink to this definition">¶</a></dt>
+<dd><p>Edit a scene</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-spam.controllers.scene.tabs">
+<span id="tabs"></span><h2><cite>tabs</cite><a class="headerlink" href="#module-spam.controllers.scene.tabs" title="Permalink to this headline">¶</a></h2>
+<p>Scene tabs</p>
+<dl class="class">
+<dt id="spam.controllers.scene.tabs.TabController">
+<em class="property">class </em><tt class="descclassname">spam.controllers.scene.tabs.</tt><tt class="descname">TabController</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#spam.controllers.scene.tabs.TabController" title="Permalink to this definition">¶</a></dt>
+<dd><p>The controller for scene tabs.</p>
+<dl class="method">
+<dt id="spam.controllers.scene.tabs.TabController.summary">
+<tt class="descname">summary</tt><big>(</big><big>)</big><a class="headerlink" href="#spam.controllers.scene.tabs.TabController.summary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle the &#8216;summary&#8217; tab.</p>
+<p>This tab offers a quick view on the current status of the scene.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><tt class="docutils literal"><span class="pre">scene</span></tt></a><ul>
+<li><a class="reference internal" href="#module-spam.controllers.scene.main"><cite>main</cite></a></li>
+<li><a class="reference internal" href="#module-spam.controllers.scene.tabs"><cite>tabs</cite></a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="controllers_libgroup.html"
+                        title="previous chapter"><tt class="docutils literal docutils literal docutils literal"><span class="pre">libgroup</span></tt></a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="controllers_shot.html"
+                        title="next chapter"><tt class="docutils literal docutils literal"><span class="pre">shot</span></tt></a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../sources/internals/controllers_scene.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="controllers_shot.html" title="shot"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="controllers_libgroup.html" title="libgroup"
+             >previous</a> |</li>
+        <li><a href="../index.html">SPAM v0.3dev documentation</a> &raquo;</li>
+          <li><a href="../internals.html" >SPAM internals</a> &raquo;</li>
+          <li><a href="controllers.html" >Controllers</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Lorenzo Pierfederici.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.3.
+    </div>
+  </body>
+</html>

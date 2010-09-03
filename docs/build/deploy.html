@@ -1,0 +1,259 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Deploying SPAM &mdash; SPAM v0.3dev documentation</title>
+    <link rel="stylesheet" href="static/default.css" type="text/css" />
+    <link rel="stylesheet" href="static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.3dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="static/jquery.js"></script>
+    <script type="text/javascript" src="static/underscore.js"></script>
+    <script type="text/javascript" src="static/doctools.js"></script>
+    <link rel="top" title="SPAM v0.3dev documentation" href="index.html" />
+    <link rel="next" title="Administration" href="admin.html" />
+    <link rel="prev" title="Welcome to SPAM’s documentation!" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="admin.html" title="Administration"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to SPAM’s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">SPAM v0.3dev documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="deploying-spam">
+<h1>Deploying SPAM<a class="headerlink" href="#deploying-spam" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>MySQL</li>
+<li>Apache + mod_wsgi</li>
+</ul>
+</div>
+<div class="section" id="setup-mysql-on-the-dbserver">
+<h2>Setup MySQL (on the dbserver)<a class="headerlink" href="#setup-mysql-on-the-dbserver" title="Permalink to this headline">¶</a></h2>
+<p>set INNODB as default table engine
+(add the following line to the [mysqld] section of /etc/my.cnf)</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">default</span><span class="o">-</span><span class="n">storage</span><span class="o">-</span><span class="n">engine</span><span class="o">=</span><span class="n">INNODB</span>
+</pre></div>
+</div>
+<p>restart mysql</p>
+<div class="highlight-python"><pre>service mysqld restart</pre>
+</div>
+<p>connect to mysql as root</p>
+<div class="highlight-python"><pre>mysql -u root -p
+(enter password)</pre>
+</div>
+<p>create a database for SPAM</p>
+<div class="highlight-python"><pre>CREATE DATABASE spam;</pre>
+</div>
+<p>create a db user for spam on localhost</p>
+<div class="highlight-python"><pre>GRANT ALL ON spam.* to 'spamuser'@'localhost' IDENTIFIED BY '&lt;db password&gt;';</pre>
+</div>
+<p>(optional) grant spamuser permission to connect from a different host if MySQL
+and Apache are not on the same server</p>
+<div class="highlight-python"><pre>GRANT ALL ON spam.* to 'spamuser'@'&lt;webserver&gt;' IDENTIFIED BY '&lt;db password&gt;';</pre>
+</div>
+</div>
+<div class="section" id="create-a-virtualenv-on-the-webserver">
+<h2>Create a virtualenv (on the webserver)<a class="headerlink" href="#create-a-virtualenv-on-the-webserver" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><pre>mkdir -p /var/www/wsgi/virtualenv
+cd /var/www/wsgi/virtualenv
+virtualenv tg21env</pre>
+</div>
+</div>
+<div class="section" id="activate-the-virtualenv">
+<h2>Activate the virtualenv<a class="headerlink" href="#activate-the-virtualenv" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">source</span> <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">www</span><span class="o">/</span><span class="n">wsgi</span><span class="o">/</span><span class="n">virtualenv</span><span class="o">/</span><span class="n">tg21env</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">activate</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="install-turbogears">
+<h2>Install TurboGears<a class="headerlink" href="#install-turbogears" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><pre>easy_install -i http://www.turbogears.org/2.1/downloads/current/index tg.devtools</pre>
+</div>
+</div>
+<div class="section" id="install-spam">
+<h2>Install SPAM<a class="headerlink" href="#install-spam" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><pre>mkdir -p /var/www/wsgi/apps
+cd /var/www/wsgi/apps
+(copiare la directory livewidgets/ in /var/www/wsgi/apps)
+cd livewidgets
+python setup.py develop
+
+cd /var/www/wsgi/apps
+(copiare la directory mrClientMaker/ in /var/www/wsgi/apps)
+cd mrClientMaker
+python setup.py develop
+
+cd /var/www/wsgi/apps
+(copiare la directory spam/ in /var/www/wsgi/apps)
+cd spam
+python setup.py develop</pre>
+</div>
+</div>
+<div class="section" id="create-data-dirs-for-spam">
+<h2>Create data dirs for SPAM<a class="headerlink" href="#create-data-dirs-for-spam" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><pre>mkdir -p /var/www/wsgi/data/spam/{data,templates}</pre>
+</div>
+</div>
+<div class="section" id="initialize-spam">
+<h2>Initialize SPAM<a class="headerlink" href="#initialize-spam" title="Permalink to this headline">¶</a></h2>
+<p>create local configuration files</p>
+<div class="highlight-python"><pre>cd /var/www/wsgi/apps/spam
+cp deployment.ini deployment_local.ini
+cp orbited.cfg orbited_local.cfg</pre>
+</div>
+<p>update config file with &lt;db password&gt;
+(change the following line in /var/www/wsgi/apps/spam/deployment_local.ini,
+if Apache and MySQL are not on the same server change <cite>localhost</cite> to
+the correct &lt;dbserver&gt; name)</p>
+<div class="highlight-python"><pre>sqlalchemy.url=mysql://spamuser:&lt;db password&gt;@localhost:3306/spam</pre>
+</div>
+<p>update orbited config file with &lt;webserver&gt;
+(change the following line in the [access] section of
+/var/www/wsgi/apps/spam/orbited_local.cfg)</p>
+<div class="highlight-python"><pre>* -&gt; &lt;webserver&gt;:61613</pre>
+</div>
+<p>init database</p>
+<div class="highlight-python"><pre>paster setup-app --name=SPAM deployment_local.ini</pre>
+</div>
+</div>
+<div class="section" id="allow-apache-to-access-the-dirs-it-needs">
+<h2>Allow Apache to access the dirs it needs<a class="headerlink" href="#allow-apache-to-access-the-dirs-it-needs" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><pre>chown -R apache:apache /var/www/wsgi/apps/spam/apache
+chown -R apache:apache /var/www/wsgi/data/spam</pre>
+</div>
+</div>
+<div class="section" id="configure-apache-to-serve-spam">
+<h2>Configure apache to serve SPAM<a class="headerlink" href="#configure-apache-to-serve-spam" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><pre>ln -s /var/www/wsgi/apps/spam/apache/spam.conf /etc/httpd/conf.d/</pre>
+</div>
+</div>
+<div class="section" id="configure-orbited-to-run-at-startup">
+<h2>Configure orbited to run at startup<a class="headerlink" href="#configure-orbited-to-run-at-startup" title="Permalink to this headline">¶</a></h2>
+<p>(this is just an example, you can use your distribution&#8217;s init scripts to
+manage the orbited deamon)</p>
+<div class="highlight-python"><pre>cat &gt;&gt; /etc/rc.local &lt;&lt; EOF
+
+source /var/www/wsgi/virtualenv/tg21env/bin/activate
+orbited --config /var/www/wsgi/apps/spam/orbited_local.cfg &amp;
+deactivate
+EOF</pre>
+</div>
+</div>
+<div class="section" id="start-orbited-and-apache">
+<h2>Start orbited and Apache<a class="headerlink" href="#start-orbited-and-apache" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><pre>orbited --config /var/www/wsgi/apps/spam/orbited_local.cfg
+service httpd start</pre>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Deploying SPAM</a><ul>
+<li><a class="reference internal" href="#requirements">Requirements</a></li>
+<li><a class="reference internal" href="#setup-mysql-on-the-dbserver">Setup MySQL (on the dbserver)</a></li>
+<li><a class="reference internal" href="#create-a-virtualenv-on-the-webserver">Create a virtualenv (on the webserver)</a></li>
+<li><a class="reference internal" href="#activate-the-virtualenv">Activate the virtualenv</a></li>
+<li><a class="reference internal" href="#install-turbogears">Install TurboGears</a></li>
+<li><a class="reference internal" href="#install-spam">Install SPAM</a></li>
+<li><a class="reference internal" href="#create-data-dirs-for-spam">Create data dirs for SPAM</a></li>
+<li><a class="reference internal" href="#initialize-spam">Initialize SPAM</a></li>
+<li><a class="reference internal" href="#allow-apache-to-access-the-dirs-it-needs">Allow Apache to access the dirs it needs</a></li>
+<li><a class="reference internal" href="#configure-apache-to-serve-spam">Configure apache to serve SPAM</a></li>
+<li><a class="reference internal" href="#configure-orbited-to-run-at-startup">Configure orbited to run at startup</a></li>
+<li><a class="reference internal" href="#start-orbited-and-apache">Start orbited and Apache</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Welcome to SPAM&#8217;s documentation!</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="admin.html"
+                        title="next chapter">Administration</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="sources/deploy.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="admin.html" title="Administration"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to SPAM’s documentation!"
+             >previous</a> |</li>
+        <li><a href="index.html">SPAM v0.3dev documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Lorenzo Pierfederici.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.3.
+    </div>
+  </body>
+</html>
