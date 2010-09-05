@@ -21,3 +21,7 @@
     ${self.body()}
 </div>
 
+<script type="text/javascript">
+    spam.toggles_activate("#tab_content");
+</script>
+
