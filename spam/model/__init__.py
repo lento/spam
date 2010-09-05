@@ -23,7 +23,6 @@
 from zope.sqlalchemy import ZopeTransactionExtension
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import scoped_session, sessionmaker, lazyload, eagerload
-from sqlalchemy.orm.shard import ShardedSession
 
 # Base class for all of our model classes (SQLAlchemy's declarative extension)
 DeclarativeBase = declarative_base()
