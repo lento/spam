@@ -26,11 +26,11 @@
     </div>
     <div class="toggleable">
         <a href="${tg.url('/user/%s/add_admins' % c.project.id)}"
-           rel="#overlay" class="overlay button">add</a>
+           class="button dialog">add</a>
         ${c.t_project_admins(id='admins_%s' % c.project.id,
                 value=list(c.project.admins),
                 extra_data=dict(proj=c.project.id),
-                update_listener_adder="notify.add_listener_tab",
+                update_filter=c.project.id,
             ).display() | n}
     </div>
 </div>
@@ -49,12 +49,12 @@
                 </div>
                 <div class="toggleable">
                     <a href="${tg.url('/user/%s/%s/add_supervisors' % (c.project.id, cat.id))}"
-                       rel="#overlay" class="overlay button">add</a>
+                       class="button dialog">add</a>
                     ${c.t_project_supervisors(
                             id='supervisors_%s_%s' % (c.project.id, cat.id),
                             value=list(supervisors[cat.id]),
                             extra_data=dict(proj=c.project.id, cat=cat.id),
-                            update_listener_adder="notify.add_listener_tab",
+                            update_filter='%s-%s' % (c.project.id, cat.id),
                         ).display() | n}
                 </div>
             </div>
@@ -76,12 +76,12 @@
                 </div>
                 <div class="toggleable">
                     <a href="${tg.url('/user/%s/%s/add_artists' % (c.project.id, cat.id))}"
-                       rel="#overlay" class="overlay button">add</a>
+                       class="button dialog">add</a>
                     ${c.t_project_artists(
-                            id='artists_%s_%s' % (c.project.id, cat.id),
+                            id='artists_%s-%s' % (c.project.id, cat.id),
                             value=list(artists[cat.id]),
                             extra_data=dict(proj=c.project.id, cat=cat.id),
-                            update_listener_adder="notify.add_listener_tab"
+                            update_filter='%s-%s' % (c.project.id, cat.id),
                         ).display() | n}
                 </div>
             </div>

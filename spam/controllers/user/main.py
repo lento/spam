@@ -31,7 +31,9 @@ from spam.lib.exceptions import SPAMDBError, SPAMDBNotFound
 from spam.lib.widgets import FormUserNew, FormUserEdit
 from spam.lib.widgets import FormUserConfirm, FormUserAddToGroup
 from spam.lib.widgets import FormUserAddAdmins, FormUserAddToCategory
-from spam.lib.notifications import notify
+from spam.lib.notifications import notify, TOPIC_USERS, TOPIC_GROUPS
+from spam.lib.notifications import TOPIC_PROJECT_ADMINS, TOPIC_PROJECT_ARTISTS
+from spam.lib.notifications import TOPIC_PROJECT_SUPERVISORS
 from spam.lib.journaling import journal
 from spam.lib.decorators import project_set_active
 from spam.lib.predicates import is_project_user, is_project_admin
@@ -43,12 +45,12 @@ import logging
 log = logging.getLogger(__name__)
 
 # form widgets
-f_new = FormUserNew(action=url('/user/'))
-f_edit = FormUserEdit(action=url('/user/'))
-f_confirm = FormUserConfirm(action=url('/user/'))
-f_add_to_group = FormUserAddToGroup(action=url('/user/'))
-f_add_admins = FormUserAddAdmins(action=url('/user/'))
-f_add_to_category = FormUserAddToCategory(action=url('/user/'))
+f_new = FormUserNew(action=url('/user'))
+f_edit = FormUserEdit(action=url('/user'))
+f_confirm = FormUserConfirm(action=url('/user'))
+f_add_to_group = FormUserAddToGroup(action=url('/user'))
+f_add_admins = FormUserAddAdmins(action=url('/user'))
+f_add_to_category = FormUserAddToCategory(action=url('/user'))
 
 class Controller(RestController):
     """REST controller for managing users.
@@ -95,26 +97,29 @@ class Controller(RestController):
 
     @require(in_group('administrators'))
     @expose('json')
-    @expose('spam.templates.redirect_parent')
+    @expose('spam.templates.forms.result')
     @validate(f_new, error_handler=new)
     def post(self, user_name, display_name, password):
         """Create a new user"""
         session = session_get()
         user = tmpl_context.user
-        
+
         # add user to shared db
         newuser = User(user_name, display_name=display_name)
         newuser.password = password
         session.add(newuser)
         session.flush()
-        
+
+        msg = '%s %s' % (_('Created User:'), newuser.id)
+
         # log into Journal
-        journal.add(user, 'created %s' % newuser)
-        
-        # send a stomp message to notify clients
-        notify.send(newuser, update_type='added')
-        flash('%s %s' % (_('Created User:'), newuser.id), 'ok')
-        return dict(redirect_to=url('/user'))
+        journal.add(user, '%s - %s' % (msg, newuser))
+
+        # notify clients
+        updates = [dict(item=newuser, type='added', topic=TOPIC_USERS)]
+        notify.send(updates)
+
+        return dict(msg=msg, status='ok', updates=updates)
 
     @require(in_group('administrators'))
     @expose('spam.templates.forms.form')
@@ -125,11 +130,11 @@ class Controller(RestController):
                             user_name_=user.user_name,
                             display_name=user.display_name)
         tmpl_context.form = f_edit
-        return dict(title='%s %s' % (_('Edit user'), user.user_id))
+        return dict(title='%s %s' % (_('Edit user:'), user.user_id))
         
     @require(in_group('administrators'))
     @expose('json')
-    @expose('spam.templates.redirect_parent')
+    @expose('spam.templates.forms.result')
     @validate(f_edit, error_handler=edit)
     def put(self, user_id, display_name=None):
         """Edit a user"""
@@ -139,23 +144,28 @@ class Controller(RestController):
         old = edituser.__dict__.copy()
         
         modified = False
-        if display_name:
+        if display_name and not edituser.display_name == display_name:
             edituser.display_name = display_name
             modified = True
         
         if modified:
             new = edituser.__dict__.copy()
 
+            msg = '%s %s' % (_('Updated user:'), edituser.user_id)
+
             # log into Journal
-            journal.add(user, 'modified %s: %s' %
-                                            (edituser, diff_dicts(old, new)))
-            
-            # send a stomp message to notify clients
-            notify.send(edituser)
-            flash('%s %s' % (_('Updated User:'), edituser.user_id), 'ok')
-        else:
-            flash('%s %s' % (_('User is unchanged:'), edituser.user_id), 'info')
-        return dict(redirect_to=url('/user'))
+            journal.add(user, '%s - %s' % (msg, diff_dicts(old, new)))
+
+            # notify clients
+            updates = [
+                dict(item=edituser, type='updated', topic=TOPIC_USERS)
+                ]
+            notify.send(updates)
+
+            return dict(msg=msg, status='ok', updates=updates)
+
+        return dict(msg='%s %s' % (_('User is unchanged:'), edituser.user_id),
+                                                    status='info', updates=[])
 
     @require(in_group('administrators'))
     @expose('spam.templates.forms.form')
@@ -167,12 +177,12 @@ class Controller(RestController):
                                user_name_=user.user_name,
                                display_name_=user.display_name)
         tmpl_context.form = f_confirm
-        return dict(title='%s %s?' % (_('Are you sure you want to delete'),
+        return dict(title='%s %s?' % (_('Are you sure you want to delete:'),
                                                                 user.user_id))
 
     @require(in_group('administrators'))
     @expose('json')
-    @expose('spam.templates.redirect_parent')
+    @expose('spam.templates.forms.result')
     @validate(f_confirm, error_handler=get_delete)
     def post_delete(self, user_id):
         """Delete a user."""
@@ -182,13 +192,16 @@ class Controller(RestController):
 
         session.delete(deluser)
 
+        msg = '%s %s' % (_('Deleted user:'), deluser.user_id)
+
         # log into Journal
-        journal.add(user, 'deleted %s' % deluser)
-        
-        # send a stomp message to notify clients
-        notify.send(deluser, update_type='deleted')
-        flash('%s %s' % (_('Deleted User:'), deluser.user_id), 'ok')
-        return dict(redirect_to=url('/user'))
+        journal.add(user, '%s - %s' % (msg, deluser))
+
+        # notify clients
+        updates = [dict(item=deluser, type='deleted', topic=TOPIC_USERS)]
+        notify.send(updates)
+
+        return dict(msg=msg, status='ok', updates=updates)
 
     # Custom REST-like actions
     _custom_actions = ['add_to_group', 'remove_from_group',
@@ -208,11 +221,11 @@ class Controller(RestController):
         f_add_to_group.child.children.userids.options = choices
         f_add_to_group.value = dict(group_id=group.group_id)
         tmpl_context.form = f_add_to_group
-        return dict(title='%s %s' % (_('Add users to group'), group.group_id))
+        return dict(title='%s %s' % (_('Add users to group:'), group.group_id))
 
     @require(in_group('administrators'))
     @expose('json')
-    @expose('spam.templates.redirect_parent')
+    @expose('spam.templates.forms.result')
     @validate(f_add_to_group, error_handler=get_add_to_group)
     def post_add_to_group(self, group_id, userids):
         """Add users to a group"""
@@ -220,6 +233,7 @@ class Controller(RestController):
         user = tmpl_context.user
         group = group_get(group_id)
         added = []
+        updates = []
         
         for uid in userids:
             adduser = user_get(uid)
@@ -227,57 +241,54 @@ class Controller(RestController):
                 group.users.append(adduser)
                 added.append(adduser.user_id)
                 
-                # send a stomp message to notify clients
-                notify.send(adduser, update_type='added',
-                            destination=notify.TOPIC_GROUPS,
-                            group_name=group.group_name)
+                # prepare updates to notify clients
+                updates.append(dict(item=adduser, type='added',
+                            topic=TOPIC_GROUPS, filter=group.group_name))
         
         added = ', '.join(added)
 
         if added:
             # log into Journal
             msg = '%s %s %s' % (added,
-                                n_('added to group',
-                                   'added to group', len(added)),
+                                n_('added to group:',
+                                   'added to group:', len(added)),
                                 group.group_id)
             journal.add(user, msg)
-            flash(msg, 'ok')
-        else:
-            msg = '%s %s' % (_('Selected users are already in group'),
-                             group.group_id)
-            flash(msg, 'info')
-        return dict(redirect_to=url('/user#tab/groups'))
+            notify.send(updates)
+
+            return dict(msg=msg, status='ok', updates=updates)
+
+        return dict(msg='%s %s' % (_('Selected users are already in group:'),
+                                    group.group_id), status='info', updates=[])
 
     @expose('json')
-    @expose('spam.templates.redirect_parent')
+#    @expose('spam.templates.forms.result')
     def remove_from_group(self, user_id, group_id):
         """Remove a user from a group"""
         session = session_get()
         user = tmpl_context.user
         remuser = user_get(user_id)
         group = group_get(group_id)
+        updates = []
         
         if remuser in group.users:
             group.users.remove(remuser)
             
-            # send a stomp message to notify clients
-            notify.send(remuser, update_type='deleted',
-                        destination=notify.TOPIC_GROUPS,
-                        group_name=group.group_name)
+            # prepare updates to notify clients
+            updates.append(dict(item=remuser, type='deleted',
+                        topic=TOPIC_GROUPS, filter=group.group_name))
 
             # log into Journal
             msg = '%s %s %s' % (remuser.user_id,
                                 _('removed from group'),
                                 group.group_id)
             journal.add(user, msg)
+            notify.send(updates)
 
-            flash(msg, 'ok')
-        else:
-            msg = '%s %s %s' % (remuser.user_id,
-                                _('is not in group'),
-                                group.group_id)
-            flash(msg, 'error')
-        return dict(redirect_to=url('/user#tab/groups'))
+            return dict(msg=msg, status='ok', updates=updates)
+
+        return dict(msg='%s %s %s' % (remuser.user_id, _('is not in group:'),
+                                    group.group_id), status='error', updates=[])
         
     @project_set_active
     @require(is_project_admin())
@@ -291,12 +302,12 @@ class Controller(RestController):
         f_add_admins.value = dict(proj=project.id)
         f_add_admins.child.children.userids.options = choices
         tmpl_context.form = f_add_admins
-        return dict(title='%s %s' % (_('Add administrators for'), project.id))
+        return dict(title='%s %s' % (_('Add administrators for:'), project.id))
 
     @project_set_active
     @require(is_project_admin())
     @expose('json')
-    @expose('spam.templates.redirect_parent')
+    @expose('spam.templates.forms.result')
     @validate(f_add_admins, error_handler=get_add_admins)
     def post_add_admins(self, proj, userids):
         """Add administrators to a project"""
@@ -304,6 +315,7 @@ class Controller(RestController):
         user = tmpl_context.user
         project = tmpl_context.project
         added = []
+        updates = []
 
         for uid in userids:
             adduser = user_get(uid)
@@ -311,57 +323,58 @@ class Controller(RestController):
                 project.admins.append(adduser)
                 added.append(adduser.user_id)
                 
-                # send a stomp message to notify clients
-                notify.send(adduser, update_type='added', proj=project.id,
-                            destination=notify.TOPIC_PROJECT_ADMINS)
+                # prepare updates to notify clients
+                updates.append(dict(item=adduser, type='added',
+                            topic=TOPIC_PROJECT_ADMINS, filter=project.id))
             
         added = ', '.join(added)
         
         if added:
             # log into Journal
             msg = '%s %s %s' % (added,
-                                n_('set as administrator for',
-                                   'set as administrators for', len(added)),
+                                n_('set as administrator for:',
+                                   'set as administrators for:', len(added)),
                                 project.id)
             journal.add(user, msg)
-            flash(msg, 'ok')
-        else:
-            msg = '%s %s' % (_('Selected users are already administrators for'),
-                             project.id)
-            flash(msg, 'info')
-        return dict(redirect_to=url('/project/%s#tab/users' % project.id))
+            notify.send(updates)
+
+            return dict(msg=msg, status='ok', updates=updates)
+
+        return dict(msg='%s %s' % (
+            _('Selected users are already administrators for:'), project.id),
+            status='info', updates=[])
 
     @project_set_active
     @require(is_project_admin())
     @expose('json')
-    @expose('spam.templates.redirect_parent')
+#    @expose('spam.templates.forms.result')
     def remove_admin(self, proj, user_id):
         """Remove an administrator from a project"""
         session = session_get()
         user = tmpl_context.user
         project = tmpl_context.project
         remuser = user_get(user_id)
+        updates = []
         
         if remuser in project.admins:
             project.admins.remove(remuser)
             
-            # send a stomp message to notify clients
-            notify.send(remuser, update_type='deleted', proj=project.id,
-                        destination=notify.TOPIC_PROJECT_ADMINS)
+            # prepare updates to notify clients
+            updates.append(dict(item=remuser, type='deleted',
+                        topic=TOPIC_PROJECT_ADMINS, filter=project.id))
 
             # log into Journal
             msg = '%s %s %s' % (remuser.user_id,
-                                _('is not an administrator for'),
+                                _('revoked as administrator for:'),
                                 project.id)
             journal.add(user, msg)
+            notify.send(updates)
 
-            flash(msg, 'ok')
-        else:
-            msg = '%s %s %s' % (remuser.user_id,
-                                _('is not an administrator for'),
-                                project.id)
-            flash(msg, 'error')
-        return dict(redirect_to=url('/project/%s#tab/users' % project.id))
+            return dict(msg=msg, status='ok', updates=updates)
+
+        return dict(msg='%s %s %s' % (
+                remuser.user_id, _('is not an administrator for:'), project.id),
+                status='error', updates=[])
 
     @project_set_active
     @require(is_project_admin())
@@ -378,13 +391,13 @@ class Controller(RestController):
                                        category_id=category.id)
         f_add_to_category.child.children.userids.options = choices
         tmpl_context.form = f_add_to_category
-        return dict(title='%s %s/%s' % (_('Add supervisors for'), project.id,
+        return dict(title='%s %s/%s' % (_('Add supervisors for:'), project.id,
                                                                 category.id))
 
     @project_set_active
     @require(is_project_admin())
     @expose('json')
-    @expose('spam.templates.redirect_parent')
+    @expose('spam.templates.forms.result')
     @validate(f_add_to_category, error_handler=get_add_supervisors)
     def post_add_supervisors(self, proj, category_id, userids):
         """Add supervisors to a category"""
@@ -393,38 +406,40 @@ class Controller(RestController):
         project = tmpl_context.project
         category = category_get(category_id)
         added = []
-        
+        updates = []
+
         users = [user_get(uid) for uid in userids]
         supervisors = [Supervisor(project.id, category, adduser) for adduser in
                         users if adduser not in project.supervisors[category]]
         for supervisor in supervisors:
             added.append(supervisor.user.user_id)
 
-            # send a stomp message to notify clients
-            notify.send(supervisor.user, update_type='added', proj=project.id,
-                        cat=category.id,
-                        destination=notify.TOPIC_PROJECT_SUPERVISORS)
-        
+            # prepare updates to notify clients
+            updates.append(dict(item=supervisor.user, type='added',
+                        topic=TOPIC_PROJECT_SUPERVISORS,
+                        filter='%s-%s' % (project.id, category.id)))
+
         added = ', '.join(added)
 
         if added:
             # log into Journal
             msg = '%s %s %s/%s' % (added,
-                                   n_('set as supervisor for',
-                                      'set as supervisors for', len(added)),
+                                   n_('set as supervisor for:',
+                                      'set as supervisors for:', len(added)),
                                    project.id, category.id)
             journal.add(user, msg)
-            flash(msg, 'ok')
-        else:
-            msg = '%s %s/%s' % (_('Selected users are already supervisors for'),
-                                project.id, category.id)
-            flash(msg, 'info')
-        return dict(redirect_to=url('/project/%s#tab/users' % project.id))
+            notify.send(updates)
+
+            return dict(msg=msg, status='ok', updates=updates)
+
+        return dict(msg='%s %s' % (
+                _('Selected users are already supervisors for:'), project.id),
+                status='info', updates=[])
 
     @project_set_active
     @require(is_project_admin())
     @expose('json')
-    @expose('spam.templates.redirect_parent')
+#    @expose('spam.templates.forms.result')
     def remove_supervisor(self, proj, category_id, user_id):
         """Remove a supervisor from a category"""
         session = session_get()
@@ -432,7 +447,8 @@ class Controller(RestController):
         project = tmpl_context.project
         category = category_get(category_id)
         remuser = user_get(user_id)
-        
+        updates = []
+
         if remuser in project.supervisors[category]:
             query = session.query(Supervisor).filter_by(proj_id=project.id)
             query = query.filter_by(category_id=category.id)
@@ -440,24 +456,23 @@ class Controller(RestController):
             sup = query.one()
             session.delete(sup)
 
-            # send a stomp message to notify clients
-            notify.send(remuser, update_type='deleted', proj=project.id,
-                        cat=category.id,
-                        destination=notify.TOPIC_PROJECT_SUPERVISORS)
+            # prepare updates to notify clients
+            updates.append(dict(item=remuser, type='deleted',
+                        topic=TOPIC_PROJECT_SUPERVISORS,
+                        filter='%s-%s' % (project.id, category.id)))
 
             # log into Journal
             msg = '%s %s %s/%s' % (remuser.user_id,
-                                   _('revoked as supervisor from'),
+                                   _('revoked as supervisor from:'),
                                    project.id, category.id)
             journal.add(user, msg)
+            notify.send(updates)
 
-            flash(msg, 'ok')
-        else:
-            msg = '%s %s %s/%s' % (remuser.user_id,
-                                   _('is not a supervisor for'),
-                                   project.id, category.id)
-            flash(msg, 'error')
-        return dict(redirect_to=url('/project/%s#tab/users' % project.id))
+            return dict(msg=msg, status='ok', updates=updates)
+
+        return dict(msg='%s %s %s' % (
+                remuser.user_id, _('is not a supervisor for:'), project.id),
+                status='error', updates=[])
 
     @project_set_active
     @require(is_project_admin())
@@ -474,13 +489,13 @@ class Controller(RestController):
                                        category_id=category.id)
         f_add_to_category.child.children.userids.options = choices
         tmpl_context.form = f_add_to_category
-        return dict(title='%s %s/%s' % (_('Add artists for'), project.id,
+        return dict(title='%s %s/%s' % (_('Add artists for:'), project.id,
                                                                 category.id))
 
     @project_set_active
     @require(is_project_admin())
     @expose('json')
-    @expose('spam.templates.redirect_parent')
+    @expose('spam.templates.forms.result')
     @validate(f_add_to_category, error_handler=get_add_artists)
     def post_add_artists(self, proj, category_id, userids):
         """Add artists to a category"""
@@ -489,38 +504,40 @@ class Controller(RestController):
         project = tmpl_context.project
         category = category_get(category_id)
         added = []
-        
+        updates = []
+
         users = [user_get(uid) for uid in userids]
         artists = [Artist(project.id, category, adduser) for adduser in users if
                                     adduser not in project.artists[category]]
         for artist in artists:
             added.append(artist.user.user_id)
 
-            # send a stomp message to notify clients
-            notify.send(artist.user, update_type='added', proj=project.id,
-                            cat=category.id,
-                            destination=notify.TOPIC_PROJECT_ARTISTS)
-        
+            # prepare updates to notify clients
+            updates.append(dict(item=artist.user, type='added',
+                        topic=TOPIC_PROJECT_ARTISTS,
+                        filter='%s-%s' % (project.id, category.id)))
+
         added = ', '.join(added)
 
         if added:
             # log into Journal
             msg = '%s %s %s/%s' % (added,
-                                   n_('set as artist for',
-                                      'set as artists for', len(added)),
+                                   n_('set as artist for:',
+                                      'set as artists for:', len(added)),
                                    project.id, category.id)
             journal.add(user, msg)
-            flash(msg, 'ok')
-        else:
-            msg = '%s %s/%s' % (_('Selected users are already artists for'),
-                                project.id, category.id)
-            flash(msg, 'info')
-        return dict(redirect_to=url('/project/%s#tab/users' % project.id))
+            notify.send(updates)
+
+            return dict(msg=msg, status='ok', updates=updates)
+
+        return dict(msg='%s %s' % (
+                _('Selected users are already artists for:'), project.id),
+                status='info', updates=[])
 
     @project_set_active
     @require(is_project_admin())
     @expose('json')
-    @expose('spam.templates.redirect_parent')
+#    @expose('spam.templates.forms.result')
     def remove_artist(self, proj, category_id, user_id):
         """Remove an artist from a category"""
         session = session_get()
@@ -528,6 +545,7 @@ class Controller(RestController):
         project = project_get(proj)
         category = category_get(category_id)
         remuser = user_get(user_id)
+        updates = []
 
         if remuser in project.artists[category]:
             query = session.query(Artist).filter_by(proj_id=project.id)
@@ -536,22 +554,21 @@ class Controller(RestController):
             artist = query.one()
             session.delete(artist)
 
-            # send a stomp message to notify clients
-            notify.send(remuser, update_type='deleted', proj=project.id,
-                        cat=category.id,
-                        destination=notify.TOPIC_PROJECT_ARTISTS)
+            # prepare updates to notify clients
+            updates.append(dict(item=remuser, type='deleted',
+                        topic=TOPIC_PROJECT_ARTISTS,
+                        filter='%s-%s' % (project.id, category.id)))
 
             # log into Journal
             msg = '%s %s %s/%s' % (remuser.user_id,
-                                   _('revoked as artist from'),
+                                   _('revoked as artist from:'),
                                    project.id, category.id)
             journal.add(user, msg)
+            notify.send(updates)
 
-            flash(msg, 'ok')
-        else:
-            msg = '%s %s %s/%s' % (remuser.user_id,
-                                   _('is not an artist for'),
-                                   project.id, category.id)
-            flash(msg, 'error')
-        return dict(redirect_to=url('/project/%s#tab/users' % project.id))
+            return dict(msg=msg, status='ok', updates=updates)
+
+        return dict(msg='%s %s %s' % (
+                remuser.user_id, _('is not an artist for:'), project.id),
+                status='error', updates=[])
 
