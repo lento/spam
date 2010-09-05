@@ -22,3 +22,5 @@ While developing you may want the server to reload after changes in package file
     $ paster serve --reload development.ini
 
 Then you are ready to go.
+
+this is a test off git services by MrPetru
