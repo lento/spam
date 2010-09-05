@@ -102,11 +102,6 @@ class TableGroupUsers(twl.LiveTable):
             ]),
     ])
 
-    def prepare(self):
-        super(TableGroupUsers, self).prepare()
-        self.update_condition = 'msg.group_name=="%s"' % (
-                                        self.extra_data.get('group_name', ''))
-
 
 class TableProjectUsers(twl.LiveTable):
     """Base class for project users livetables."""
@@ -133,11 +128,6 @@ class TableProjectAdmins(TableProjectUsers):
         cls.child.children[2].children[0].action = url(
                     '/user/%(proj)s/%(user_name)s/remove_admin')
 
-    def prepare(self):
-        super(TableProjectAdmins, self).prepare()
-        self.update_condition = 'msg.proj=="%s"' % (
-                                            self.extra_data.get('proj', ''))
-
 
 class TableProjectSupervisors(TableProjectUsers):
     """Project users livetable."""
@@ -148,12 +138,6 @@ class TableProjectSupervisors(TableProjectUsers):
         cls.child.children[2].children[0].action = url(
                     '/user/%(proj)s/%(cat)s/%(user_name)s/remove_supervisor')
 
-    def prepare(self):
-        super(TableProjectSupervisors, self).prepare()
-        self.update_condition = 'msg.proj=="%s" && msg.cat=="%s"' % (
-                                            self.extra_data.get('proj', ''),
-                                            self.extra_data.get('cat', ''))
-
 
 class TableProjectArtists(TableProjectUsers):
     """Project artists livetable."""
@@ -163,12 +147,6 @@ class TableProjectArtists(TableProjectUsers):
     def post_define(cls):
         cls.child.children[2].children[0].action = url(
                     '/user/%(proj)s/%(cat)s/%(user_name)s/remove_artist')
-
-    def prepare(self):
-        super(TableProjectArtists, self).prepare()
-        self.update_condition = 'msg.proj=="%s" && msg.cat=="%s"' % (
-                                            self.extra_data.get('proj', ''),
-                                            self.extra_data.get('cat', ''))
 
 
 class TableCategories(twl.LiveTable):

@@ -27,13 +27,13 @@
         </div>
         <div class="toggleable">
             <a href="${tg.url('/user/%s/add_to_group' % group.group_name)}"
-               rel="#overlay" class="overlay button">add to group</a>
+               class="button dialog">add to group</a>
             <br/>
             <br/>
             ${c.t_group_users(id='users_%s' % group.group_name,
                       value=list(group.users),
                       extra_data=dict(group_name=group.group_name),
-                      update_listener_adder="notify.add_listener_tab",
+                      update_filter=group.group_name,
                   ).display() | n}
         </div>
     </div>

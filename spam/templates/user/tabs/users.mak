@@ -19,7 +19,7 @@
 
 <%inherit file="spam.templates.tab"/>
 
-<a href="${tg.url('./new')}" rel="#overlay" class="overlay button">new user</a>
+<a href="${tg.url('./new')}" class="button dialog">new user</a>
 <br/>
 <br/>
 <h1>${_('Users')}</h1>

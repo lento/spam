@@ -35,12 +35,11 @@ js_jquery_spamkit = twc.JSLink(link=url('/js/jquery.spamkit.js.gz'))
 
 # SPAM
 js_spam = twc.JSLink(link=url('/js/spam.js'))
-js_notify_client = twc.JSLink(link=url('/js/notify_client.js'))
 
 # widgets
 w_startup_js = twc.Widget(
     template='mako:spam.templates.widgets.startup_js',
-    resources=[js_jquery_spamkit, js_spam, js_notify_client],
+    resources=[js_jquery_spamkit, js_spam],
     )
 l_projects = ListProjects()
 
