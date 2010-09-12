@@ -214,20 +214,17 @@ class Controller(RestController):
     @expose('spam.templates.forms.form')
     def get_new_password(self, **kwargs):
         """Display a NEW form."""
-        curent_user = tmpl_context.user
         tmpl_context.form = f_new_password
-        return dict(title=_('Change Password for %s' % curent_user.id))
+        return dict(title=_('Change Password'))
 
     @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_new_password, error_handler=get_new_password)
-    def post_new_password(self, new_password):
+    def put_new_password(self, new_password):
         """Change password to user"""
         user = tmpl_context.user
-        from spam.model import DBSesion, User
         session = session_get()
-        q = DBSession.query(User)
-        u = q.filter_by(id=user.id).all()
+        u = DBSession.query(User).filter_by(id=user.id).all()        
         u.password = new_password
         return dict(msg='fatto', status='ok', updates=[])
 
