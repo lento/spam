@@ -1,24 +1,46 @@
-This file is for you to describe the spam application. Typically
-you would include information such as the information below:
+This file is describe the spam application.
 
 Installation and Setup
 ======================
 
-Install ``spam`` using the setup.py script::
+Create a directory where you want to install SPAM, e.g.
+    $ mkdir ~/spam_directory
+    
+Move to newly created directory
+    $ cd ~/spam_directory
+    
+Create new virtual environment
+    $ virtualenv --no-site-packages spamenv
 
+Activate virtual environment
+    $ source spamenv/bin/activate
+
+Clone SPAM repository    
+    $ git clone http://lorenzopierfederici.net/git/spam.git
+    or
+    $ git clone http://github.com/lento/spam.git
+
+Move to newly created directory with spam source
     $ cd spam
-    $ python setup.py install
 
-Create the project database for any model classes defined::
+Install all requires
+    $ python setup.py develop -i http://lorenzopierfederici.net/download/spam/index/simple
+    
+First time setup - this step is required for installation non for update
+    $ paster setup-app --name=SPAM development.ini
 
-    $ paster setup-app development.ini
+Open access to local installed tools
+    $ rm ../spamenv/lib/python2.6/no-global-site-packages.txt
 
-Start the paste http server::
-
-    $ paster serve development.ini
-
-While developing you may want the server to reload after changes in package files (or its dependencies) are saved. This can be achieved easily by adding the --reload option::
-
+Start SPAM server
     $ paster serve --reload development.ini
 
-Then you are ready to go.
+Acces spam - insert in web-browser
+    http://localhost:8080
+    
+For login use
+    Username:admin
+    Password:none
+             * advice: change admin password after first login
+
+Enjoy.
