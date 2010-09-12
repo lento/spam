@@ -899,6 +899,11 @@ class FormUserNew(RestForm):
     user_name = twf.TextField(validator=StringLength(max=16, required=True))
     display_name = twf.TextField(validator=StringLength(max=255, required=True))
     password = twf.PasswordField(validator=StringLength(max=80, required=True))
+   
+class FormUserNewPassword(RestForm):
+    """Change User Password."""
+    new_password = twf.PasswordField(validator=StringLength(max=80, required=True))
+    #repeat_password = twf.PasswordField(validator=StringLength(max=80, required=True))
 
 
 class FormUserEdit(RestForm):

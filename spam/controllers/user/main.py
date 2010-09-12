@@ -28,7 +28,7 @@ from spam.model import session_get, User, user_get, group_get, project_get
 from spam.model import category_get, Supervisor, Artist, diff_dicts
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 from spam.lib.exceptions import SPAMDBError, SPAMDBNotFound
-from spam.lib.widgets import FormUserNew, FormUserEdit
+from spam.lib.widgets import FormUserNew, FormUserEdit, FormUserNewPassword
 from spam.lib.widgets import FormUserConfirm, FormUserAddToGroup
 from spam.lib.widgets import FormUserAddAdmins, FormUserAddToCategory
 from spam.lib.notifications import notify, TOPIC_USERS, TOPIC_GROUPS
@@ -46,6 +46,7 @@ log = logging.getLogger(__name__)
 
 # form widgets
 f_new = FormUserNew(action=url('/user'))
+f_new_password = FormUserNewPassword(action=url('/user'))
 f_edit = FormUserEdit(action=url('/user'))
 f_confirm = FormUserConfirm(action=url('/user'))
 f_add_to_group = FormUserAddToGroup(action=url('/user'))
@@ -208,7 +209,27 @@ class Controller(RestController):
                       'add_admins', 'remove_admin',
                       'add_supervisors', 'remove_supervisor',
                       'add_artists', 'remove_artist',
+                      'new_password'
                      ]
+    @expose('spam.templates.forms.form')
+    def get_new_password(self, **kwargs):
+        """Display a NEW form."""
+        curent_user = tmpl_context.user
+        tmpl_context.form = f_new_password
+        return dict(title=_('Change Password for %s' % curent_user.id))
+
+    @expose('json')
+    @expose('spam.templates.forms.result')
+    @validate(f_new_password, error_handler=get_new_password)
+    def post_new_password(self, new_password):
+        """Change password to user"""
+        user = tmpl_context.user
+        from spam.model import DBSesion, User
+        session = session_get()
+        q = DBSession.query(User)
+        u = q.filter_by(id=user.id).all()
+        u.password = new_password
+        return dict(msg='fatto', status='ok', updates=[])
 
     @require(in_group('administrators'))
     @expose('spam.templates.forms.form')
