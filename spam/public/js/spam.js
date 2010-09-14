@@ -175,7 +175,7 @@ spam_init = function (cookiebase) {
         if (result.status=='ok') {
             $("#dialog").dialog("destroy");
         } else if (result.status=='notjson') {
-            $("#dialog").hide().html(xhr.responseText);
+            $("#dialog").hide().html(result.xhr.responseText);
             $("#dialog h1").hide();
             $("#dialog").fadeIn();
         } else {
