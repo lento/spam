@@ -211,22 +211,22 @@ class Controller(RestController):
                       'add_artists', 'remove_artist',
                       'new_password'
                      ]
+    
+#    @require(in_group('administrators'))
     @expose('spam.templates.forms.form')
     def get_new_password(self, **kwargs):
         """Display a NEW form."""
         tmpl_context.form = f_new_password
         return dict(title=_('Change Password'))
 
-    @expose('json')
+#    @expose('json')
     @expose('spam.templates.forms.result')
     @validate(f_new_password, error_handler=get_new_password)
-    def put_new_password(self, new_password):
+    def post_new_password(self, new_password, retype_password):
         """Change password to user"""
         user = tmpl_context.user
-        session = session_get()
-        u = DBSession.query(User).filter_by(id=user.id).all()        
-        u.password = new_password
-        return dict(msg='fatto', status='ok', updates=[])
+        user._set_password(new_password)
+        return dict(msg='done', status='info', updates=[])
 
     @require(in_group('administrators'))
     @expose('spam.templates.forms.form')
