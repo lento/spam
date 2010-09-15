@@ -1,9 +1,9 @@
-This file is describe the spam application.
+This file describe the spam application.
 
 Installation and Setup
 ======================
 
-Create a directory where you want to install SPAM, e.g.
+Create a directory where you want to install SPAM, egg.
     $ mkdir ~/spam_directory
     
 Move to newly created directory
@@ -16,8 +16,6 @@ Activate virtual environment
     $ source spamenv/bin/activate
 
 Clone SPAM repository    
-    $ git clone http://lorenzopierfederici.net/git/spam.git
-    or
     $ git clone http://github.com/lento/spam.git
 
 Move to newly created directory with spam source
@@ -35,12 +33,12 @@ Open access to local installed tools
 Start SPAM server
     $ paster serve --reload development.ini
 
-Acces spam - insert in web-browser
+Access spam - insert in web-browser
     http://localhost:8080
     
-For login use
-    Username:admin
-    Password:none
-             * advice: change admin password after first login
+For log-in use
+    User name:  admin
+    Password:   none
+             * advice: change admin password after first log-in
 
 Enjoy.
