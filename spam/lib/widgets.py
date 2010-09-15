@@ -25,7 +25,7 @@ from tg import app_globals as G
 from pylons.i18n import ugettext as _, lazy_ugettext as l_
 import tw2.core as twc, tw2.forms as twf
 import tw2.livewidgets as twl
-from tw2.core import StringLengthValidator as StringLength, MatchValidator
+from tw2.core import StringLengthValidator as StringLength
 from spam.lib.validators import CategoryNamingConvention
 from spam.lib import notifications
 
@@ -900,11 +900,11 @@ class FormUserNew(RestForm):
     display_name = twf.TextField(validator=StringLength(max=255, required=True))
     password = twf.PasswordField(validator=StringLength(max=80, required=True))
    
-class FormUserNewPassword(RestForm):
+class FormUserChangePassword(RestForm):
     """Change User Password."""
-    custom_method = 'NEW_PASSWORD'
+    custom_method = 'CHANGE_PASSWORD'
     new_password = twf.PasswordField(validator=StringLength(max=80, required=True))
-    retype_password = twf.PasswordField(validator=MatchValidator("new_password", required=True))
+    retype_password = twf.PasswordField(validator=twc.MatchValidator("new_password", required=True))
 
 
 class FormUserEdit(RestForm):
