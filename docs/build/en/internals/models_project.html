@@ -1,0 +1,159 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>project &mdash; SPAM v0.3dev documentation</title>
+    <link rel="stylesheet" href="../../static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.3dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../static/jquery.js"></script>
+    <script type="text/javascript" src="../../static/underscore.js"></script>
+    <script type="text/javascript" src="../../static/doctools.js"></script>
+    <link rel="top" title="SPAM v0.3dev documentation" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">SPAM v0.3dev documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-spam.model.project">
+<span id="project"></span><h1><tt class="xref py py-mod docutils literal"><span class="pre">project</span></tt><a class="headerlink" href="#module-spam.model.project" title="Permalink to this headline">¶</a></h1>
+<p>Project data model.</p>
+<p>This is where the model for the project structure is defined.</p>
+<dl class="class">
+<dt id="spam.model.project.Artist">
+<em class="property">class </em><tt class="descclassname">spam.model.project.</tt><tt class="descname">Artist</tt><big>(</big><em>proj</em>, <em>category</em>, <em>user</em><big>)</big><a class="headerlink" href="#spam.model.project.Artist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Category artist</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="spam.model.project.Asset">
+<em class="property">class </em><tt class="descclassname">spam.model.project.</tt><tt class="descname">Asset</tt><big>(</big><em>parent</em>, <em>category</em>, <em>name</em>, <em>user</em><big>)</big><a class="headerlink" href="#spam.model.project.Asset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Asset</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="spam.model.project.AssetContainer">
+<em class="property">class </em><tt class="descclassname">spam.model.project.</tt><tt class="descname">AssetContainer</tt><big>(</big><em>id</em>, <em>association_type</em><big>)</big><a class="headerlink" href="#spam.model.project.AssetContainer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Association class for object containers</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="spam.model.project.AssetVersion">
+<em class="property">class </em><tt class="descclassname">spam.model.project.</tt><tt class="descname">AssetVersion</tt><big>(</big><em>asset</em>, <em>ver</em>, <em>user</em>, <em>repoid</em>, <em>has_preview=False</em>, <em>preview_ext=None</em><big>)</big><a class="headerlink" href="#spam.model.project.AssetVersion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Asset version</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="spam.model.project.Category">
+<em class="property">class </em><tt class="descclassname">spam.model.project.</tt><tt class="descname">Category</tt><big>(</big><em>id</em>, <em>ordering=0</em>, <em>naming_convention=''</em><big>)</big><a class="headerlink" href="#spam.model.project.Category" title="Permalink to this definition">¶</a></dt>
+<dd><p>Asset category</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="spam.model.project.Libgroup">
+<em class="property">class </em><tt class="descclassname">spam.model.project.</tt><tt class="descname">Libgroup</tt><big>(</big><em>proj</em>, <em>name</em>, <em>parent=None</em>, <em>description=None</em><big>)</big><a class="headerlink" href="#spam.model.project.Libgroup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Library group</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="spam.model.project.Project">
+<em class="property">class </em><tt class="descclassname">spam.model.project.</tt><tt class="descname">Project</tt><big>(</big><em>id</em>, <em>name=None</em>, <em>description=None</em><big>)</big><a class="headerlink" href="#spam.model.project.Project" title="Permalink to this definition">¶</a></dt>
+<dd><p>Project definition.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="spam.model.project.Scene">
+<em class="property">class </em><tt class="descclassname">spam.model.project.</tt><tt class="descname">Scene</tt><big>(</big><em>proj</em>, <em>name</em>, <em>description=None</em><big>)</big><a class="headerlink" href="#spam.model.project.Scene" title="Permalink to this definition">¶</a></dt>
+<dd><p>The scene container.</p>
+<p>This represents a &#8220;film scene&#8221; that acts as a container for Shot objects.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="spam.model.project.Shot">
+<em class="property">class </em><tt class="descclassname">spam.model.project.</tt><tt class="descname">Shot</tt><big>(</big><em>parent</em>, <em>name</em>, <em>description=None</em>, <em>action=None</em>, <em>location=None</em>, <em>frames=0</em>, <em>handle_in=0</em>, <em>handle_out=0</em><big>)</big><a class="headerlink" href="#spam.model.project.Shot" title="Permalink to this definition">¶</a></dt>
+<dd><p>The shot container.</p>
+<p>This represents a &#8220;film shot&#8221; that acts as a container for Asset objects.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="spam.model.project.Supervisor">
+<em class="property">class </em><tt class="descclassname">spam.model.project.</tt><tt class="descname">Supervisor</tt><big>(</big><em>proj</em>, <em>category</em>, <em>user</em><big>)</big><a class="headerlink" href="#spam.model.project.Supervisor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Category supervisor</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../../sources/en/internals/models_project.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">SPAM v0.3dev documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Lorenzo Pierfederici.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.3.
+    </div>
+  </body>
+</html>
