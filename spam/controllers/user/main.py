@@ -217,7 +217,7 @@ class Controller(RestController):
     def get_change_password(self, **kwargs):
         """Display a NEW form."""
         tmpl_context.form = f_change_password
-        return dict(title=_('Change Password for - %s' % tmpl_context.user.user_name))
+        return dict(title='%s %s' % (_('Change password for User:'), tmpl_context.user.user_name))
 
     @expose('json')
     @expose('spam.templates.forms.result')
