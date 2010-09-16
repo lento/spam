@@ -20,7 +20,7 @@
 <%inherit file="spam.templates.master"/>
 
 <div class="content">
-    <a href="${tg.url('./new')}" class="button dialog">new project</a>
+    <a href="new" class="button dialog">new project</a>
     <br/>
     <br/>
     <h1>${_('Active projects')}</h1>
