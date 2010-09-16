@@ -1,44 +1,75 @@
-This file describe the spam application.
+The *Spark Project & Asset Manager* is a web application originally developed at
+[Spark Digital Entertainment](http://www.sparkde.com) to help manage the
+production workflow of a 3d animation or VFX pipeline
 
-Installation and Setup
-======================
 
-Create a directory where you want to install SPAM, egg.
-    $ mkdir ~/spam_directory
+Installation and Setup of a development environment for SPAM
+============================================================
+
+Create a directory where to install SPAM
+
+    $ mkdir ~/spam_development
     
-Move to newly created directory
-    $ cd ~/spam_directory
+
+Move to the newly created directory
+
+    $ cd ~/spam_development
     
-Create new virtual environment
+
+Create a virtual environment
+
     $ virtualenv --no-site-packages spamenv
 
-Activate virtual environment
+
+Activate the virtual environment
+
     $ source spamenv/bin/activate
 
+
 Clone SPAM repository    
+
     $ git clone http://github.com/lento/spam.git
 
-Move to newly created directory with spam source
+
+Move to the newly created spam source directory
+
     $ cd spam
 
-Install all requires
+
+Install all requirements, create egginfo and install in the virtualenv in
+*develop* mode
+
     $ python setup.py develop -i http://lorenzopierfederici.net/download/spam/index/simple
     
-First time setup - this step is required for installation non for update
+
+Edit the configuration file *development.ini* for your environment
+
+
+Setup the application (this setup a database and creates data directories)
+
     $ paster setup-app --name=SPAM development.ini
 
-Open access to local installed tools
+
+Allow the virtualenv to access locally installed packages (needed for
+gstreamer-python)
+
     $ rm ../spamenv/lib/python2.6/no-global-site-packages.txt
 
-Start SPAM server
+
+Serve SPAM through a paste server
+
     $ paster serve --reload development.ini
 
-Access spam - insert in web-browser
+
+Access spam from a web-browser
+
     http://localhost:8080
     
-For log-in use
+
+Log-in as:
+
     User name:  admin
     Password:   none
-             * advice: change admin password after first log-in
 
-Enjoy.
+
+Enjoy :)
