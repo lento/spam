@@ -36,7 +36,8 @@ class CategoryNamingConvention(twc.Validator):
         Name of the sibling field this must match
     """
     msgs = {
-        'mismatch': "Must match category naming convention: $naming_convention"
+        'mismatch': "Must match category naming convention: $naming_convention",
+        'nocategory': "Invalid category"
     }
 
     def __init__(self, category_field, **kw):
@@ -46,11 +47,15 @@ class CategoryNamingConvention(twc.Validator):
     def validate_python(self, value, state):
         super(CategoryNamingConvention, self).validate_python(value, state)
 
+        categoryid = state[self.category_field]
+        if issubclass(categoryid, twc.validation.Invalid):
+            raise twc.ValidationError('nocategory', self)
+
         try:
-            category = category_get(state[self.category_field])
+            category = category_get(categoryid)
             self.naming_convention = category.naming_convention
         except SPAMDBError, SPAMDBNotFound:
-            raise twc.ValidationError('mismatch', self)
+            raise twc.ValidationError('nocategory', self)
 
         if not re.match(self.naming_convention, value):
             raise twc.ValidationError('mismatch', self)
