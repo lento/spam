@@ -28,7 +28,7 @@ from spam.model import session_get, User, user_get, group_get, project_get
 from spam.model import category_get, Supervisor, Artist, diff_dicts
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 from spam.lib.exceptions import SPAMDBError, SPAMDBNotFound
-from spam.lib.widgets import FormUserNew, FormUserEdit
+from spam.lib.widgets import FormUserNew, FormUserEdit, FormUserChangePassword
 from spam.lib.widgets import FormUserConfirm, FormUserAddToGroup
 from spam.lib.widgets import FormUserAddAdmins, FormUserAddToCategory
 from spam.lib.notifications import notify, TOPIC_USERS, TOPIC_GROUPS
@@ -46,6 +46,7 @@ log = logging.getLogger(__name__)
 
 # form widgets
 f_new = FormUserNew(action=url('/user'))
+f_change_password = FormUserChangePassword(action=url('/user'))
 f_edit = FormUserEdit(action=url('/user'))
 f_confirm = FormUserConfirm(action=url('/user'))
 f_add_to_group = FormUserAddToGroup(action=url('/user'))
@@ -208,7 +209,32 @@ class Controller(RestController):
                       'add_admins', 'remove_admin',
                       'add_supervisors', 'remove_supervisor',
                       'add_artists', 'remove_artist',
+                      'change_password',
                      ]
+                     
+    @require(not_anonymous())
+    @expose('spam.templates.forms.form')
+    def get_change_password(self, **kwargs):
+        """Display a NEW form."""
+        tmpl_context.form = f_change_password
+        return dict(title=_('Change Password for - %s' % tmpl_context.user.user_name))
+
+    @expose('json')
+    @expose('spam.templates.forms.result')
+    @validate(f_change_password, error_handler=get_change_password)
+    def post_change_password(self, new_password, retype_password):
+        """Change the current user password"""
+        user = tmpl_context.user
+        user.password = new_password
+        msg = '%s %s' % (_('Changed password for User:'), user.user_id)
+
+        # log into Journal
+        journal.add(user, '%s' % msg)
+
+        # notify clients
+        updates = [dict(item=user, type='updated', topic=TOPIC_USERS)]
+        notify.send(updates)
+        return dict(msg=msg, status='ok', updates=updates)
 
     @require(in_group('administrators'))
     @expose('spam.templates.forms.form')
