@@ -16,7 +16,11 @@
 ## Original Copyright (c) 2010, Lorenzo Pierfederici <lpierfederici@gmail.com>
 ## Contributor(s): 
 ##
+<%!
+    from tg import url
+%>
 
+<script type="text/javascript" src="${url('/js/widgets/upload.js')}"></script>
 <script type="text/javascript">
     $(function() {
         upload.activate($("#uploader"),

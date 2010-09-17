@@ -384,10 +384,9 @@ class Controller(RestController):
 
         # create a new version
         newver = AssetVersion(asset, asset.current.ver+1, user, repo_id)
-        text = u'[%s v%03d]\n%s' % (_('published'), asset.current.ver+1,
-                                                                        comment)
+        text = u'[%s v%03d]\n%s' % (_('published'), newver.ver, comment)
         newver.notes.append(Note(user, text))
-        session.add(newver)
+        session.flush()
         session.refresh(asset)
 
         # create thumbnail and preview

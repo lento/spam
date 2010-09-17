@@ -48,7 +48,7 @@ class CategoryNamingConvention(twc.Validator):
         super(CategoryNamingConvention, self).validate_python(value, state)
 
         categoryid = state[self.category_field]
-        if issubclass(categoryid, twc.validation.Invalid):
+        if not isinstance(categoryid, basestring):
             raise twc.ValidationError('nocategory', self)
 
         try:

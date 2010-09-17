@@ -18,6 +18,7 @@
  * Original Copyright (c) 2010, Lorenzo Pierfederici <lpierfederici@gmail.com>
  * Contributor(s): 
  */
+
 var upload = new Object;
 upload.uploading = 0;
 
@@ -155,4 +156,3 @@ upload.activate = function(uploader, config){
         return false;
     });
 }
-
