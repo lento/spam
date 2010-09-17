@@ -422,19 +422,19 @@ class TableAssets(twl.LiveTable):
     
     update_topic = notifications.TOPIC_ASSETS
     show_headers = False
-    thumbnail = twl.Box(
-        css_class='thumbnail status %(status)s',
-        children=[
-            twl.Link(
-                dest=url('/repo/%(proj_id)s/preview.png'),
-                condition='data.has_preview',
-                children=[
-                    twl.Image(
-                        help_text='preview',
-                        css_class='thumbnail',
-                        src=url('/repo/%(thumbnail)s'))
-            ])
-    ])
+#    thumbnail = twl.Box(
+#        css_class='thumbnail status %(status)s',
+#        children=[
+#            twl.Link(
+#                dest=url('/repo/%(proj_id)s/preview.png'),
+#                condition='data.has_preview',
+#                children=[
+#                    twl.Image(
+#                        help_text='preview',
+#                        css_class='thumbnail',
+#                        src=url('/repo/%(thumbnail)s'))
+#            ])
+#    ])
     name = twl.Box(
         css_class='status %(status)s',
         children=[
@@ -1141,7 +1141,7 @@ class FormAssetNew(RestForm):
     proj = twf.HiddenField()
     container_type = twf.HiddenField()
     container_id = twf.HiddenField()
-    project_name = twf.LabelField()
+    project_name_ = twf.LabelField()
     category_id = twf.SingleSelectField(label='category', options=[],
             validator=twc.All(twc.RegexValidator(regex=G.pattern_name),
                                     StringLength(max=30), required=True),

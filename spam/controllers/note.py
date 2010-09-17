@@ -26,7 +26,7 @@ from pylons.i18n import ugettext as _, lazy_ugettext as l_
 from spam.model import session_get, annotable_get, note_get, Note, AssetVersion
 from spam.lib.widgets import FormNoteNew, FormNoteConfirm
 from spam.lib.widgets import TableNotes
-from spam.lib.notifications import notify, TOPIC_NOTES, TOPICS
+from spam.lib.notifications import notify, TOPIC_NOTES, TOPIC_ASSETS, TOPICS
 from repoze.what.predicates import in_group
 from spam.lib.decorators import project_set_active
 from spam.lib.predicates import is_project_user, is_project_admin

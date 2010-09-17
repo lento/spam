@@ -870,8 +870,8 @@ class AssetVersion(DeclarativeBase):
         self.annotable = Annotable(self.id, u'asset_version')
 
     def __repr__(self):
-        return '<AssetVersion: %s (%s_v%03d)>' % (self.asset_id,
-                                                    self.asset.path, self.ver)
+        return '<AssetVersion: %s v%03d (%s)>' % (self.asset_id, self.ver,
+                                                                self.asset.path)
 
     def __json__(self):
         return dict(id=self.id,

@@ -23,7 +23,7 @@
 
 % if c.predicates.is_project_admin():
 <a href="${tg.url('/asset/%s/%s/%s/new' % (c.project.id, container_type, container_id))}"
-   rel="#overlay" class="overlay button">new asset</a>
+   class="button dialog">new asset</a>
 <br/>
 <br/>
 % endif
@@ -42,7 +42,6 @@
             ${c.t_assets(id="assets_%s_%s_%s" % (container_type, container_id, cat.id),
                     value=container.assets[cat],
                     category=cat.id,
-                    update_listener_adder="notify.add_listener_tab",
                     extra_data=dict(user_id=c.user.id),
                 ).display() | n}
         </div>
