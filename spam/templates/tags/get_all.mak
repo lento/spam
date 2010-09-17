@@ -19,7 +19,7 @@
 
 <div class="tags">
     <a href="${tg.url('/tag/' % ())}"
-       rel="#overlay" class="overlay button">add tag</a>
+       class="button dialog">add tags</a>
 ##    ${c.b_tags(id="taglist", items=tags) | n}
 </div>
 

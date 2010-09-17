@@ -22,11 +22,11 @@
 
 from tg import expose, url, tmpl_context, redirect, validate, require
 from tg.controllers import RestController
-from pylons.i18n import ugettext as _, lazy_ugettext as l_
+from pylons.i18n import ugettext as _, ungettext as n_, lazy_ugettext as l_
 from spam.model import session_get, taggable_get, tag_get, Tag
 from spam.lib.widgets import FormTagNew, FormTagConfirm, FormTagRemove
 #from spam.lib.widgets import BoxTags
-from spam.lib.notifications import notify
+from spam.lib.notifications import notify, TOPIC_TAGS
 from spam.lib.journaling import journal
 from repoze.what.predicates import in_group
 
@@ -34,9 +34,9 @@ import logging
 log = logging.getLogger(__name__)
 
 # form widgets
-f_new = FormTagNew(action=url('/tag/'))
-f_confirm = FormTagConfirm(action=url('/tag/'))
-f_remove = FormTagRemove(action=url('/tag/'))
+f_new = FormTagNew(action=url('/tag'))
+f_confirm = FormTagConfirm(action=url('/tag'))
+f_remove = FormTagRemove(action=url('/tag'))
 
 # live widgets
 #b_tags = BoxTags()
@@ -89,8 +89,8 @@ class Controller(RestController):
         choices = [t.id for t in tags if t not in taggable.tags]
         f_new.child.children.tagids.options = choices
         tmpl_context.form = f_new
-        return dict(title='%s %s' % (_('Add tags to'), taggable.tagged.path))
-    
+        return dict(title='%s %s' % (_('Add tags to:'), taggable.tagged.path))
+
     @require(in_group('administrators'))
     @expose('json')
     @expose('spam.templates.forms.result')
@@ -100,34 +100,45 @@ class Controller(RestController):
         session = session_get()
         user = tmpl_context.user
         taggable = taggable_get(taggable_id)
-        
+
         if isinstance(tagids, list):
             tags = [tag_get(i) for i in tagids]
         else:
             tags = [tag_get(tagids)]
-        
+
         if new_tags:
             tags.extend([tag_get(name) for name in new_tags.split(', ')])
-        
+
         added_tags = []
+        updates = []
         for tag in tags:
             if tag not in taggable.tags:
                 taggable.tags.append(tag)
                 added_tags.append(tag)
-        
-        # send a stomp message to notify clients
-        for tag in added_tags:
-            notify.send(tag, update_type='added', taggable_id=taggable_id)
 
-        added = ', '.join([t.id for t in added_tags])
+                # prepare updates to notify clients
+                updates.append(dict(item=tag, type='added', topic=TOPIC_TAGS,
+                                                            filter=taggable_id))
 
-        # log into Journal
-        journal.add(user, 'added tag(s) "%s" to %s' %
-                                                    (added, taggable.tagged))
-        
-        return dict(msg='added tag(s) "%s" to %s' % 
-                                (added, taggable.tagged.path), result='success')
-    
+        if added_tags:
+            added = ', '.join([t.id for t in added_tags])
+            msg = '%s %s %s' % (added,
+                                n_('tag added to:',
+                                   'tags added to:', len(added_tags)),
+                                taggable_id)
+            status = 'ok'
+
+            # notify clients
+            notify.send(updates)
+
+            # log into Journal
+            journal.add(user, '%s - %s' % (msg, taggable.tagged))
+        else:
+            msg = _('No new tag applied')
+            status = 'info'
+
+        return dict(msg=msg, status=status, updates=updates)
+
     @require(in_group('administrators'))
     @expose('spam.templates.forms.form')
     def get_delete(self, tag_id, **kwargs):
@@ -136,7 +147,7 @@ class Controller(RestController):
         f_confirm.custom_method = 'DELETE'
         f_confirm.value = dict(tag_id=tag.id)
         tmpl_context.form = f_confirm
-        return dict(title='%s %s?' % (_('Are you sure you want to delete tag'),
+        return dict(title='%s %s?' % (_('Are you sure you want to delete tag:'),
                                                                         tag.id))
 
     @require(in_group('administrators'))
@@ -148,19 +159,23 @@ class Controller(RestController):
         session = session_get()
         user = tmpl_context.user
         tag = tag_get(tag_id)
-        
+
         session.delete(tag)
-        
+
+        msg = '%s %s' % (_('Deleted tag:'), tag.id)
+
         # log into Journal
-        journal.add(user, 'deleted %s' % tag)
+        journal.add(user, '%s - %s' % (msg, tag))
         
-        # send a stomp message to notify clients
-        notify.send(tag, update_type='deleted')
-        return dict(msg='deleted tag "%s"' % tag.id, result='success')
-    
+        # notify clients
+        updates = [dict(item=tag, type='deleted', topic=TOPIC_TAGS)]
+        notify.send(updates)
+
+        return dict(msg=msg, status='ok', updates=updates)
+
     # Custom REST-like actions
     _custom_actions = ['remove']
-    
+
     @require(in_group('administrators'))
     @expose('json')
     @expose('spam.templates.forms.result')
@@ -170,28 +185,39 @@ class Controller(RestController):
         session = session_get()
         user = tmpl_context.user
         taggable = taggable_get(taggable_id)
-        
+
         if isinstance(tagids, list):
             tags = [tag_get(i) for i in tagids]
         else:
             tags = [tag_get(tagids)]
-        
+
         removed_tags = []
+        updates = []
         for tag in tags:
             if tag in taggable.tags:
                 taggable.tags.remove(tag)
                 removed_tags.append(tag)
 
-        # send a stomp message to notify clients
-        for tag in removed_tags:
-            notify.send(tag, update_type='deleted', taggable_id=taggable_id)
+                # prepare updates
+                updates.append(dict(item=tag, type='deleted', topic=TOPIC_TAGS,
+                                                            filter=taggable_id))
 
-        removed = ', '.join([t.id for t in removed_tags])
-        
-        # log into Journal
-        journal.add(user, 'removed tag(s) "%s" from %s' %
-                                                    (removed, taggable.tagged))
-        
-        return dict(msg='removed tag(s) "%s" from %s' %
-                            (removed, taggable.tagged.path), result='success')
+        if removed_tags:
+            removed = ', '.join([t.id for t in removed_tags])
+            msg = '%s %s %s' % (removed,
+                                n_('tag removed from:',
+                                   'tags removed from:', len(removed_tags)),
+                                taggable_id)
+            status = 'ok'
+
+            # notify clients
+            notify.send(updates)
+
+            # log into Journal
+            journal.add(user, '%s - %s' % (msg, taggable.tagged))
+        else:
+            msg = _('No tag removed')
+            status = 'info'
+
+        return dict(msg=msg, status=status, updates=updates)
 

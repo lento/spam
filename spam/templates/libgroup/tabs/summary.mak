@@ -41,7 +41,7 @@
 <h2>${_('tags')}</h2>
 % if c.predicates.is_project_admin():
 <a href="${tg.url('/tag/%s/new' % c.libgroup.id)}"
-   rel="#overlay" class="overlay button">add tags</a>
+   class="button dialog">add tags</a>
 % endif
 ##${c.b_tags(id="taglist", items=c.libgroup.tags,
 ##                    taggable_id=c.libgroup.taggable.id,
