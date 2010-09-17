@@ -265,7 +265,7 @@ class Controller(RestController):
         if not asset.checkedout:
             asset.checkout(user)
 
-            msg = '%s %s' % (_('Checked-out Asset:'), asset.path)
+            msg = '%s %s' % (_('Checkedout Asset:'), asset.path)
             updates = [dict(item=asset, type='updated', topic=TOPIC_ASSETS)]
             status = 'ok'
 
@@ -275,7 +275,7 @@ class Controller(RestController):
             # notify clients
             notify.send(updates)
         else:
-            msg = '%s %s' % (_('Asset is already checked-out'), asset.path)
+            msg = '%s %s' % (_('Asset is already checkedout:'), asset.path)
             updates = []
             status = 'error'
 
@@ -308,7 +308,7 @@ class Controller(RestController):
             # notify clients
             notify.send(updates)
         else:
-            msg = '%s %s' % (_('Asset is not checked-out'), asset.path)
+            msg = '%s %s' % (_('Asset is not checkedout:'), asset.path)
             updates = []
             status = 'error'
 
@@ -334,19 +334,18 @@ class Controller(RestController):
         name, ext = os.path.splitext(asset.name)
         f_publish.child.children.uploader.ext = ext
         tmpl_context.form = f_publish
-        return dict(title='%s %s' % (_('Publish a new version for'),
+        return dict(title='%s %s' % (_('Publish a new version for Asset:'),
                                                                     asset.path))
 
     @project_set_active
     @asset_set_active
     @require(is_asset_owner())
     @expose('json')
-    @expose('spam.templates.forms.result')
     @validate(f_publish, error_handler=get_publish)
     def post_publish(self, proj, asset_id, uploaded, comment=None,
                                                                 uploader=None):
         """Publish a new version of an asset.
-        
+
         This will commit to the repo the file(s) already uploaded in a temporary
         storage area, and create a thumbnail and preview if required.
         """
@@ -355,51 +354,56 @@ class Controller(RestController):
         user = tmpl_context.user
 
         if not asset.checkedout or user != asset.owner:
-            return dict(msg='cannot publish asset "%s"' % asset_id,
-                                                            result='failed')
-        
+            msg = '%s %s' % (_('Cannot publish Asset:'), asset.path)
+            return dict(msg=msg, status='error', updates=[])
+
         if isinstance(uploaded, list):
             # the form might send empty strings, so we strip them
             uploaded = [uf for uf in uploaded if uf]
         else:
             uploaded = [uploaded]
-        
+
         # check that uploaded file extension matches asset name
         name, ext = os.path.splitext(asset.name)
         for uf in uploaded:
             uf_name, uf_ext = os.path.splitext(uf)
             if not uf_ext == ext:
-                return dict(msg='uploaded file is not a "%s" file' % ext,
-                                                                result='failed')
-        
+                msg = '%s %s' % (_('Uploaded file must be of type:'), ext)
+                return dict(msg=msg, status='error', updates=[])
+
         # commit file to repo
         if comment is None or comment=='None':
             comment = ''
-        header = u'[published %s v%03d]' % (asset.path, asset.current.ver+1)
+        header = u'[%s %s v%03d]' % (_('published'), asset.path,
+                                                            asset.current.ver+1)
         text = comment and u'%s\n%s' % (header, comment) or header
         repo_id = repo.commit(proj, asset, uploaded, text, user.user_name)
         if not repo_id:
-            return dict(msg='%s is already the latest version' %
-                                                    uploaded, result='failed')
-        
+            msg = '%s %s' % (_('The latest version is already:'), uploaded)
+            return dict(msg=msg, status='info', updates=[])
+
         # create a new version
         newver = AssetVersion(asset, asset.current.ver+1, user, repo_id)
-        text = u'[published v%03d]\n%s' % (asset.current.ver+1, comment)
+        text = u'[%s v%03d]\n%s' % (_('published'), asset.current.ver+1,
+                                                                        comment)
         newver.notes.append(Note(user, text))
         session.add(newver)
         session.refresh(asset)
-        
+
         # create thumbnail and preview
         preview.make_thumb(asset)
         preview.make_preview(asset)
-        
+
+        msg = '%s %s v%03d' % (_('Published'), asset.path, newver.ver)
+        updates = [dict(item=asset, type='updated', topic=TOPIC_ASSETS)]
+
         # log into Journal
-        journal.add(user, 'published %s: v%03d' % (asset, newver.ver))
-        
-        # send a stomp message to notify clients
-        notify.send(asset)
-        return dict(msg='published asset "%s"' % asset.path, result='success',
-                                                                version=newver)
+        journal.add(user, '%s - %s' % (msg, asset))
+
+        # notify clients
+        notify.send(updates)
+
+        return dict(msg=msg, status='ok', updates=updates)
 
     @project_set_active
     @asset_set_active
@@ -417,7 +421,7 @@ class Controller(RestController):
                               category_id_=asset.category.id,
                               asset_name_=asset.name,
                              )
-                     
+
         tmpl_context.form = f_status
         return dict(title='%s: %s' % (_('Submit for approval'), asset.path))
 
@@ -425,31 +429,35 @@ class Controller(RestController):
     @asset_set_active
     @require(is_asset_owner())
     @expose('json')
-    @expose('spam.templates.forms.result')
     @validate(f_status, error_handler=get_submit)
     def post_submit(self, proj, asset_id, comment=None):
         """Submit an asset to supervisors for approval."""
         session = session_get()
         user = tmpl_context.user
         asset = asset_get(proj, asset_id)
-        
+
         if not asset.submitted and not asset.approved:
             asset.submit(user)
             text = u'[%s v%03d]\n%s' % (_('submitted'), asset.current.ver,
                                                                 comment or '')
             asset.current.notes.append(Note(user, text))
             session.refresh(asset.current.annotable)
-            
+
+            msg = '%s %s' % (_('Submitted Asset:'), asset.path)
+            updates = [dict(item=asset, type='updated', topic=TOPIC_ASSETS)]
+            status = 'ok'
+
             # log into Journal
-            journal.add(user, 'submitted %s' % asset)
-            
-            # send a stomp message to notify clients
-            notify.send(asset)
-            notify.ancestors(asset)
-            return dict(msg='submitted asset "%s"' % asset.path,
-                                                            result='success')
-        return dict(msg='asset "%s" cannot be submitted' % asset.path,
-                                                            result='failed')
+            journal.add(user, '%s - %s' % (msg, asset))
+
+            # notify clients
+            notify.send(updates)
+        else:
+            msg = '%s %s' % (_('Asset cannot be submitted:'), asset.path)
+            updates = []
+            status = 'error'
+
+        return dict(msg=msg, status=status, updates=updates)
     
     @project_set_active
     @asset_set_active
@@ -467,7 +475,7 @@ class Controller(RestController):
                               category_id_=asset.category.id,
                               asset_name_=asset.name,
                              )
-                     
+
         tmpl_context.form = f_status
         return dict(title='%s: %s' % (_('Recall submission for'), asset.path))
 
@@ -475,14 +483,13 @@ class Controller(RestController):
     @asset_set_active
     @require(is_asset_owner())
     @expose('json')
-    @expose('spam.templates.forms.result')
     @validate(f_status, error_handler=get_submit)
     def post_recall(self, proj, asset_id, comment=None):
         """Recall an asset submitted for approval."""
         session = session_get()
         user = tmpl_context.user
         asset = asset_get(proj, asset_id)
-        
+
         if asset.submitted and not asset.approved:
             asset.recall(user)
             text = u'[%s v%03d]\n%s' % (_('recalled'), asset.current.ver,
@@ -490,16 +497,22 @@ class Controller(RestController):
             asset.current.notes.append(Note(user, text))
             session.refresh(asset.current.annotable)
 
+            msg = '%s %s' % (_('Recall submission for Asset:'), asset.path)
+            updates = [dict(item=asset, type='updated', topic=TOPIC_ASSETS)]
+            status = 'ok'
+
             # log into Journal
-            journal.add(user, 'recall submission for %s' % asset)
-        
-            # send a stomp message to notify clients
-            notify.send(asset)
-            notify.ancestors(asset)
-            return dict(msg='recalled submission for asset "%s"' % asset.path,
-                                                            result='success')
-        return dict(msg='submission for asset "%s" cannot be recalled' %
-                                                    asset.path, result='failed')
+            journal.add(user, '%s - %s' % (msg, asset))
+
+            # notify clients
+            notify.send(updates)
+        else:
+            msg = '%s %s' % (_('Submission cannot be recalled for Asset:'),
+                                                                    asset.path)
+            updates = []
+            status = 'error'
+
+        return dict(msg=msg, status=status, updates=updates)
 
     @project_set_active
     @asset_set_active
@@ -517,7 +530,7 @@ class Controller(RestController):
                               category_id_=asset.category.id,
                               asset_name_=asset.name,
                              )
-                     
+
         tmpl_context.form = f_status
         return dict(title='%s: %s' % (_('Send back for revisions'), asset.path))
 
@@ -525,14 +538,13 @@ class Controller(RestController):
     @asset_set_active
     @require(is_asset_supervisor())
     @expose('json')
-    @expose('spam.templates.forms.result')
     @validate(f_status, error_handler=get_submit)
     def post_sendback(self, proj, asset_id, comment=None):
         """Send back an asset for revision."""
         session = session_get()
         user = tmpl_context.user
         asset = asset_get(proj, asset_id)
-        
+
         if asset.submitted and not asset.approved:
             asset.sendback(user)
             text = u'[%s v%03d]\n%s' % (_('sent back for revisions'),
@@ -540,16 +552,22 @@ class Controller(RestController):
             asset.current.notes.append(Note(user, text))
             session.refresh(asset.current.annotable)
 
+            msg = '%s %s' % (_('Asset sent back for revisions:'), asset.path)
+            updates = [dict(item=asset, type='updated', topic=TOPIC_ASSETS)]
+            status = 'ok'
+
             # log into Journal
-            journal.add(user, 'send back for revisions %s' % asset)
-        
-            # send a stomp message to notify clients
-            notify.send(asset)
-            notify.ancestors(asset)
-            return dict(msg='asset "%s" sent back for revisions' % asset.path,
-                                                            result='success')
-        return dict(msg='asset "%s" cannot be sent back for revisions' %
-                                                    asset.path, result='failed')
+            journal.add(user, '%s - %s' % (msg, asset))
+
+            # notify clients
+            notify.send(updates)
+        else:
+            msg = '%s %s' % (_('Asset cannot be sent back for revisions:'),
+                                                                    asset.path)
+            updates = []
+            status = 'error'
+
+        return dict(msg=msg, status=status, updates=updates)
 
     @project_set_active
     @asset_set_active
@@ -575,14 +593,13 @@ class Controller(RestController):
     @asset_set_active
     @require(is_asset_supervisor())
     @expose('json')
-    @expose('spam.templates.forms.result')
     @validate(f_status, error_handler=get_submit)
     def post_approve(self, proj, asset_id, comment=None):
         """Approve an asset submitted for approval."""
         session = session_get()
         user = tmpl_context.user
         asset = asset_get(proj, asset_id)
-        
+
         if asset.submitted and not asset.approved:
             asset.approve(user)
             text = u'[%s v%03d]\n%s' % (_('approved'), asset.current.ver,
@@ -590,16 +607,21 @@ class Controller(RestController):
             asset.current.notes.append(Note(user, text))
             session.refresh(asset.current.annotable)
 
+            msg = '%s %s' % (_('Approved Asset:'), asset.path)
+            updates = [dict(item=asset, type='updated', topic=TOPIC_ASSETS)]
+            status = 'ok'
+
             # log into Journal
-            journal.add(user, 'approved %s' % asset)
-        
-            # send a stomp message to notify clients
-            notify.send(asset)
-            notify.ancestors(asset)
-            return dict(msg='approved asset "%s"' % asset.path,
-                                                            result='success')
-        return dict(msg='asset "%s" cannot be approved' % asset.path,
-                                                            result='failed')
+            journal.add(user, '%s - %s' % (msg, asset))
+
+            # notify clients
+            notify.send(updates)
+        else:
+            msg = '%s %s' % (_('Asset cannot be approved:'), asset.path)
+            updates = []
+            status = 'error'
+
+        return dict(msg=msg, status=status, updates=updates)
 
     @project_set_active
     @asset_set_active
@@ -625,14 +647,13 @@ class Controller(RestController):
     @asset_set_active
     @require(is_asset_supervisor())
     @expose('json')
-    @expose('spam.templates.forms.result')
     @validate(f_status, error_handler=get_submit)
     def post_revoke(self, proj, asset_id, comment=None):
         """Revoke approval for an asset."""
         session = session_get()
         user = tmpl_context.user
         asset = asset_get(proj, asset_id)
-        
+
         if asset.approved:
             asset.revoke(user)
             text = u'[%s v%03d]\n%s' % (_('revoked approval'),
@@ -640,16 +661,21 @@ class Controller(RestController):
             asset.current.notes.append(Note(user, text))
             session.refresh(asset.current.annotable)
 
+            msg = '%s %s' % (_('Revoked approval for Asset:'), asset.path)
+            updates = [dict(item=asset, type='updated', topic=TOPIC_ASSETS)]
+            status = 'ok'
+
             # log into Journal
-            journal.add(user, 'revoked approval for %s' % asset)
-        
-            # send a stomp message to notify clients
-            notify.send(asset)
-            notify.ancestors(asset)
-            return dict(msg='revoked approval for asset "%s"' % asset.path,
-                                                            result='success')
-        return dict(msg='approval for asset "%s" cannot be revoked' %
-                                                    asset.path, result='failed')
+            journal.add(user, '%s - %s' % (msg, asset))
+
+            # notify clients
+            notify.send(updates)
+        else:
+            msg = '%s %s' % (_('Asset is not approved:'), asset.path)
+            updates = []
+            status = 'error'
+
+        return dict(msg=msg, status=status, updates=updates)
 
     @project_set_active
     @require(is_project_user())
