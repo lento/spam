@@ -36,8 +36,8 @@
     <input type="hidden" id="came_from" name="came_from" value="${came_from.encode('utf-8')}"></input>
     <input type="hidden" id="logins" name="__logins" value="${login_counter.encode('utf-8')}"></input>
     <label for="login">Username:</label><input type="text" id="login_field" name="login" class="text" tabindex="1"></input>
-    <label for="password">Password:</label><input type="password" id="password_field" name="password" class="text"></input>
-    <input type="submit" id="submit" value="Login" />
+    <label for="password">Password:</label><input type="password" id="password_field" name="password" class="text" tabindex="2"></input>
+    <input type="submit" id="submit" value="Login" tabindex="3"/>
 </form>
 </div>
 

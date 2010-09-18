@@ -89,7 +89,7 @@ class RootController(SPAMBaseController):
         """
         if not request.identity:
             login_counter = request.environ['repoze.who.logins'] + 1
-            redirect(url('/login', came_from=came_from, __logins=login_counter))
+            redirect(url('login', came_from=came_from, __logins=login_counter))
         userid = request.identity['repoze.who.userid']
         flash(_('Welcome back, %s!') % userid)
         redirect(came_from)
