@@ -18,7 +18,7 @@
 ##
 
 <%def name="insert_libgroup(libgroup)">
-    <li>
+    <li id="${libgroup.id}">
         <a href="${tg.url('/libgroup/%s/%s/' % (c.project.id, libgroup.id))}">
             ${libgroup.name}
         </a>
@@ -35,7 +35,7 @@
 
 <div id="sb_project_tree" class="hidden">
     <ul>
-        <li>
+        <li id="scene">
             <%
                 tab_scenes_url = tg.url('/scene/%s' % c.project.id)
                 scenes_url = tg.url('/project/%s/#%s' % (c.project.id, tab_scenes_url))
@@ -46,14 +46,14 @@
             % if c.project.scenes:
                 <ul id="sb_project_scenes">
                     % for scene in c.project.scenes:
-                    <li>
+                    <li id="${scene.id}">
                         <a href="${tg.url('/scene/%s/%s/' % (c.project.id, scene.name))}">
                             ${scene.name}
                         </a>
                         % if scene.shots:
                             <ul>
                                 % for shot in scene.shots:
-                                <li>
+                                <li id="${shot.id}">
                                     <a href="${tg.url('/shot/%s/%s/%s/' % (c.project.id, scene.name, shot.name))}">
                                         ${shot.name}
                                     </a>
@@ -66,7 +66,7 @@
                 </ul>
             % endif
         </li>
-        <li>
+        <li id="library">
             <a href="${library_url}">library</a>
             % if c.project.libgroups:
                 <ul id="sb_project_libgroups">
@@ -90,7 +90,13 @@
 			"dots" : true,
 			"icons" : false
 		},
-        "plugins" : [ "themes", "html_data", "cookies" ]
+        "plugins" : [ "themes", "html_data", "cookies" ],
+        "cookies" : {
+            "cookie_options" : {
+                "path" : "${url('/')}"
+                },
+            "save_opened" : "jstree_open_${c.project.id}"
+        }
     }).show();
 </script>
 
