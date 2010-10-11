@@ -35,7 +35,7 @@
 
 <div id="sb_project_tree" class="hidden">
     <ul>
-        <li id="scene">
+        <li id="scenes">
             <%
                 tab_scenes_url = tg.url('/scene/%s' % c.project.id)
                 scenes_url = tg.url('/project/%s/#%s' % (c.project.id, tab_scenes_url))
@@ -95,7 +95,7 @@
             "cookie_options" : {
                 "path" : "${url('/')}"
                 },
-            "save_opened" : "jstree_open_${c.project.id}"
+            "save_opened" : "spam_jstree_${c.project.id}"
         }
     }).show();
 </script>

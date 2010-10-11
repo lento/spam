@@ -42,9 +42,9 @@ spam_init = function (cookiebase) {
         $(select + " .toggle").each(function() {
             id = this.id;
             if (id) {
-                if ($.cookie(id)=="expanded")
+                if ($.cookie('spam_toggle_'+id)=="expanded")
                     $(this).addClass("expanded");
-                else if ($.cookie(id)=="collapsed")
+                else if ($.cookie('spam_toggle_'+id)=="collapsed")
                     $(this).removeClass("expanded");
             }
         });            
@@ -57,11 +57,11 @@ spam_init = function (cookiebase) {
             if (toggle.hasClass('expanded')) {
                 $('> .toggleable', toggle).hide('fast');
                 if (id)
-                    $.cookie(id, "collapsed", {path: cookiebase});
+                    $.cookie('spam_toggle_'+id, "collapsed", {path: cookiebase});
             } else {
                 $('> .toggleable', toggle).show('fast');
                 if (id)
-                    $.cookie(id, "expanded", {path: cookiebase});
+                    $.cookie('spam_toggle_'+id, "expanded", {path: cookiebase});
             }
             toggle.toggleClass('expanded');
             return false;
