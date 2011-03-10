@@ -71,7 +71,7 @@ body {
     -moz-border-radius: 5px;
     -webkit-border-radius: 5px; 
     -moz-box-shadow: 4px 4px 10px #888a85; /* Aluminium 4 */
-    -webkit-box-shadow: 4px 4px 10px #f00; /* Aluminium 4 */
+    -webkit-box-shadow: 4px 4px 10px #888a85; /* Aluminium 4 */
 }
 
 .button:active {
