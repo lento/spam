@@ -118,7 +118,7 @@ def commit_multi(proj, asset, filenames, text, username=None):
         shutil.move(uploadedfile, target_repo_path)
         
         if not target_path in repo['tip']:
-            commands.add(repo_ui, repo, target_path)
+            commands.add(repo_ui, repo, target_repo_path)
     
         targets.append(target_path)
         
